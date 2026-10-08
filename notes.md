@@ -174,6 +174,25 @@ Entries appended as experiments run (Phase 2 onward).
   design concern: phases.py infers PRONE from pelvis height/velocity alone, switching the
   stabilizer off for any low pelvis regardless of cause — mitigation/justification requested.
 
+### E7 (2026-10-08 night) — outcome-first critical path to the drill video
+- OUTCOME: one clean continuous MP4 of one G1 performing a stance-and-motion drill. Decomposed:
+  (a) hold a wrestling stance with feedback [today: NOT demonstrated], (b) state-responsive footwork,
+  level change, penetration-step gesture, knee, trail-leg, rise, (c) rendering/assembly with overlays
+  and no resets. The brief allows a scripted SEQUENCE if execution is feedback-driven, so the critical
+  path is CONTROLLER quality; RL/BC is deferrable tonight.
+- DISPATCH (outcome-first): TeacherRetry = motion source (driveable interface: skill + velocity +
+  stance-height -> 29 joint targets); DrillDirector = scheduler + adapter + continuous harness +
+  overlay renderer + FALLBACK LADDER (L0 static stance/posture modulation -> L1 pivot/circle on
+  planted feet -> L2 single-foot repositioning (no slide) -> L3 alternating shuffle + circle ->
+  L4 penetration-step gesture + knee + trail-leg + rise). Highest CLEAN rung is what the video shows,
+  labelled on screen. SupportEnvelope informs which postures are statically feasible; RefToTraining
+  (bounded to 4 priority chapters) provides the visual target; SoloEnv provides metrics/baselines.
+- DECISION POINT: if the teacher's stance/level-change is not clean in ~2 h, the deliverable video is
+  the highest clean rung of the fallback ladder, labelled honestly (controller-driven, not learned),
+  with the learned-policy work continuing afterwards.
+- HONESTY CONTRACT (applies to the video and its report): no reset inside a successful run; a fall
+  or reset means the clip is labelled as such; metrics JSON beside every video; failure clips kept.
+
 ### E6 (2026-10-08) — P0 acceptance-logic fixes (P0Fixes; verified by orchestrator)
 - Curriculum gate rewritten: success is now per-stage — criterion='execution' for A-C (held ground
   AND mean technique-similarity >= min_similarity) and 'outcome' for D (learner won); draws,
