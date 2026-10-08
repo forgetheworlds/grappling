@@ -148,10 +148,18 @@ separate what dumb servos CAN traverse (level_change_fast) from what needs the
 imitation/RL stack — that is exactly the gap the M1-M5 curriculum exists to
 close. A PASS here would have meant the probe was broken.
 
-Known limitation (stated, not hidden): video takes retain −1..−8 cm transient
-sole penetration in fast crouch/descend phases (rubric G2 bar is 1 cm) — the
-rate-limited grounding cannot follow 3 m/s drops exactly; test-pinned as
-median ≤2 cm, worst ≤8 cm.
+Known limitation (restated precisely, measured by the orchestrator's FK and
+re-verified): sole penetration is NOT confined to fast phases — the v1 takes
+carry a steady-state offset in HELD postures too (stance_hold: min −0.0149 /
+median −0.0112 / max +0.0009 m; i.e. ~1.1 cm, AT/OVER the QUALITY_RUBRIC G2
+"no ground penetration > 1 cm" bar, vs our certified keyframe's −0.0019 m).
+Likely cause (hypothesis, unfixed): the retarget pipeline grounds the
+retarget model's toe/heel landmark SITES (sole plane), while the quality FK
+measures the solo model's sole-sphere bottoms — a site-vs-sphere bookkeeping
+offset plus the rate limiter's small residual. Recorded as a KNOWN DEVIATION
+AGAINST G2; cheapest fix path: add the measured +0.011 m constant inside
+`ground_qpos_soles` (re-verifying per posture) before any tracking stage
+consumes the references.
 
 ## 7. What is trustworthy vs not
 

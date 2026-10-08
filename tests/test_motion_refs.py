@@ -158,7 +158,7 @@ def test_known_infeasible_is_labelled_not_hidden():
 
 def test_no_expert_action_field_anywhere():
     for path in list(REFS.glob("*.npz")) + [V1 / "drill_continuous.npz",
-                                             V1 / "stance_to_stand.npz"]:
+                                             V1 / "stance_rise.npz"]:
         d = np.load(path, allow_pickle=True)
         assert "expert_action" not in d.files, path
         meta = json.loads(str(d["meta"]))

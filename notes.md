@@ -2071,6 +2071,26 @@ scripts/calibrate_scorer.py, scripts/score_trace.py, tests/test_scorer.py.
   synthetic tracks, take format + grounded soles, drill continuity/phases/
   closure, known-infeasible LABELLED (shot crouch; no `expert_action` key
   anywhere), clip-index measuredness, probe honesty, fusion attribution.
+- GATE CORRECTIONS (orchestrator review of the first handoff):
+  * D1: tests/test_motion_refs.py still opened the removed v1/stance_to_stand
+    .npz (superseded by stance_rise.npz) — fixed to stance_rise.
+  * D2: the BC corpus (data/solo/bc/*) was built from the v0 references;
+    load_reference now resolves v1 first, so the corpus was REBUILT via
+    scripts/solo_bc_train.py (52 s) and the pair count re-pinned:
+    shot_entry_full 300 pairs (was 410; the take is reachability-trimmed
+    638->301 frames), STANCE 117 unchanged.
+  * D2 consequence, measured: the v1 corpus's (pose,velocity)->action
+    ambiguity moved — frac of held-out frames with a >0.25-rad action twin is
+    0.2246 (v0 bar <0.10); median twin action error still <0.20 rad. Cause:
+    the rate-limited grounding + retimer stretch create legitimate near-twin
+    frames with different next ctrl. The bound is re-pinned at <=0.25 WITH the
+    cause recorded; the BC stage (Agent 2) inherits this measured ambiguity.
+  * D3: the residual-sole-penetration wording was UNDERSTATED — it is present
+    in HELD postures, not only fast phases (stance_hold min -0.0149 / median
+    -0.0112 m, i.e. ~1.1 cm steady-state, over the G2 1 cm bar; certified
+    keyframe -0.0019 m). Recorded as a KNOWN DEVIATION AGAINST G2 in the
+    report; cheapest fix path: +0.011 m constant in ground_qpos_soles,
+    re-verified per posture.
 - ARTIFACTS: `reports/2026-10-08/motion_reference.md` (full report),
   `videos/motion_refs/` (6 videos + sheets + metrics JSON per
   EVIDENCE_PROTOCOL), `fusion_spec.json` (14 features, per-feature source
