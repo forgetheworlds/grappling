@@ -1,0 +1,973 @@
+{
+  "alive_weight": 10.0,
+  "checkpoint": "checkpoints/solo/t1_balance_v5.pt",
+  "controllers": {
+    "policy": {
+      "aggregate": {
+        "act_delta_mean": 0.16892030094396474,
+        "com_offset_max": 0.1797888125,
+        "ep_len_max": 400.0,
+        "ep_len_median": 102.5,
+        "ep_len_min": 63.0,
+        "fall_rate": 0.7083333333333334,
+        "limit_prox_max": 0.9991387708333334,
+        "mean_pelvis_z": 0.48950875416038686,
+        "mean_upright": 0.5716063597050768,
+        "min_upright": -0.08229733333333333,
+        "n_episodes": 48,
+        "n_steps": 8870,
+        "nonfinite": 0,
+        "sat_frac_max": 0.40373554166666664,
+        "sat_frac_mean": 0.23999642873345892,
+        "steps": 184.79166666666666,
+        "termination_rate": 0.7083333333333334
+      },
+      "scores": {
+        "balance_lit": {
+          "config": "balance_lit",
+          "discounted_mean": 25.771169432417476,
+          "raw": {
+            "action_diff": 8027.402560374217,
+            "airtime": -991.0400000000005,
+            "arm_posture": 834.6915264874618,
+            "base_height": 2542.0347707921405,
+            "capture_point": 375.8386495784517,
+            "com_support": 765.7935979329264,
+            "grf_even": 512.7980529037153,
+            "orientation": 1640.8025098000232,
+            "termination": -3400.0,
+            "torque": 8767.793482931213,
+            "upright": 3647.7122397818207,
+            "vel_stand": 886.0730435169255
+          },
+          "raw_per_step": {
+            "action_diff": 0.9050059256340718,
+            "airtime": -0.11172942502818495,
+            "arm_posture": 0.09410276510568905,
+            "base_height": 0.28658791102504405,
+            "capture_point": 0.04237188834029895,
+            "com_support": 0.08633524215703793,
+            "grf_even": 0.05781263279636024,
+            "orientation": 0.18498337201804096,
+            "termination": -0.3833145434047351,
+            "torque": 0.988477281051997,
+            "upright": 0.4112415151952447,
+            "vel_stand": 0.09989549532321595
+          },
+          "share": {
+            "action_diff": 0.017194520626754466,
+            "airtime": -0.10613929969113428,
+            "arm_posture": 0.002681836477220989,
+            "base_height": 0.01361245713404054,
+            "capture_point": 0.0040251908160234195,
+            "com_support": 0.01640313129491339,
+            "grf_even": 0.0027460055203714054,
+            "orientation": 0.0351456307155372,
+            "termination": -0.36413628001882503,
+            "torque": 0.018780421781458074,
+            "upright": 0.39066598987449663,
+            "vel_stand": 0.028469236049224574
+          },
+          "total_mean": 11.564240566392874,
+          "total_std": 54.19745314755292,
+          "weighted": {
+            "action_diff": 160.54805120748435,
+            "airtime": -991.0400000000005,
+            "arm_posture": 25.040745794623838,
+            "base_height": 127.10173853960704,
+            "capture_point": 37.5838649578452,
+            "com_support": 153.1587195865853,
+            "grf_even": 25.63990264518577,
+            "orientation": 328.1605019600048,
+            "termination": -3400.0,
+            "torque": 175.35586965862444,
+            "upright": 3647.7122397818207,
+            "vel_stand": 265.82191305507774
+          },
+          "weighted_per_step": {
+            "action_diff": 0.018100118512681437,
+            "airtime": -0.11172942502818495,
+            "arm_posture": 0.0028230829531706693,
+            "base_height": 0.014329395551252204,
+            "capture_point": 0.004237188834029898,
+            "com_support": 0.017267048431407587,
+            "grf_even": 0.0028906316398180126,
+            "orientation": 0.03699667440360821,
+            "termination": -0.3833145434047351,
+            "torque": 0.01976954562103996,
+            "upright": 0.4112415151952447,
+            "vel_stand": 0.029968648596964798
+          }
+        },
+        "shipped_balance": {
+          "config": "shipped_balance",
+          "discounted_mean": 1.1700016446686534,
+          "raw": {
+            "action_rate": -3056.822985802963,
+            "alive": 3274.242351285765,
+            "flat_orientation": -2623.3634589388525,
+            "joint_limit": -3770.1845716829957,
+            "termination": -3400.0,
+            "torque_sat": -2098.9999999999986
+          },
+          "raw_per_step": {
+            "action_rate": -0.34462491384475347,
+            "alive": 0.3691366799645733,
+            "flat_orientation": -0.29575687248465077,
+            "joint_limit": -0.42504899342536595,
+            "termination": -0.3833145434047351,
+            "torque_sat": -0.23664036076662892
+          },
+          "share": {
+            "action_rate": -0.019328504421690682,
+            "alive": 0.414065243937505,
+            "flat_orientation": -0.09952625804889137,
+            "joint_limit": -0.023839139362275767,
+            "termination": -0.429968731188966,
+            "torque_sat": -0.013272123040671178
+          },
+          "total_mean": -28.313897172295615,
+          "total_std": 30.951898425772033,
+          "weighted": {
+            "action_rate": -152.84114929014814,
+            "alive": 3274.242351285765,
+            "flat_orientation": -787.0090376816557,
+            "joint_limit": -188.5092285841497,
+            "termination": -3400.0,
+            "torque_sat": -104.95000000000006
+          },
+          "weighted_per_step": {
+            "action_rate": -0.01723124569223767,
+            "alive": 0.3691366799645733,
+            "flat_orientation": -0.08872706174539524,
+            "joint_limit": -0.021252449671268287,
+            "termination": -0.3833145434047351,
+            "torque_sat": -0.011832018038331461
+          }
+        },
+        "v5_training": {
+          "config": "v5_training",
+          "discounted_mean": 513.2536456354694,
+          "raw": {
+            "action_rate": -3056.822985802963,
+            "alive": 3274.242351285765,
+            "flat_orientation": -2623.3634589388525,
+            "joint_limit": -3770.1845716829957,
+            "termination": -3400.0,
+            "torque_sat": -2098.9999999999986
+          },
+          "raw_per_step": {
+            "action_rate": -0.34462491384475347,
+            "alive": 0.3691366799645733,
+            "flat_orientation": -0.29575687248465077,
+            "joint_limit": -0.42504899342536595,
+            "termination": -0.3833145434047351,
+            "torque_sat": -0.23664036076662892
+          },
+          "share": {
+            "action_rate": -0.004089315106753558,
+            "alive": 0.8760342860853,
+            "flat_orientation": -0.021056685073949668,
+            "joint_limit": -0.005043626273368465,
+            "termination": -0.09096811576945073,
+            "torque_sat": -0.002807971691177606
+          },
+          "total_mean": 585.6065436937853,
+          "total_std": 202.44114287536223,
+          "weighted": {
+            "action_rate": -152.84114929014814,
+            "alive": 32742.423512857647,
+            "flat_orientation": -787.0090376816557,
+            "joint_limit": -188.5092285841497,
+            "termination": -3400.0,
+            "torque_sat": -104.95000000000006
+          },
+          "weighted_per_step": {
+            "action_rate": -0.01723124569223767,
+            "alive": 3.6913667996457327,
+            "flat_orientation": -0.08872706174539524,
+            "joint_limit": -0.021252449671268287,
+            "termination": -0.3833145434047351,
+            "torque_sat": -0.011832018038331461
+          }
+        }
+      }
+    },
+    "random_init_policy": {
+      "aggregate": {
+        "act_delta_mean": 0.17017170208738633,
+        "com_offset_max": 0.22257077083333332,
+        "ep_len_max": 400.0,
+        "ep_len_median": 104.5,
+        "ep_len_min": 51.0,
+        "fall_rate": 0.8125,
+        "limit_prox_max": 1.0,
+        "mean_pelvis_z": 0.435504313254165,
+        "mean_upright": 0.4488610229222256,
+        "min_upright": -0.18210495833333332,
+        "n_episodes": 48,
+        "n_steps": 7346,
+        "nonfinite": 0,
+        "sat_frac_max": 0.4791667083333333,
+        "sat_frac_mean": 0.2937513235976593,
+        "steps": 153.04166666666666,
+        "termination_rate": 0.8125
+      },
+      "scores": {
+        "balance_lit": {
+          "config": "balance_lit",
+          "discounted_mean": -1.6933102497715957,
+          "raw": {
+            "action_diff": 6653.65081379104,
+            "airtime": -571.1400000000002,
+            "arm_posture": 115.30910768640018,
+            "base_height": 1553.5400655750154,
+            "capture_point": 127.98388047286798,
+            "com_support": 308.2278645643007,
+            "grf_even": 191.6557374791567,
+            "orientation": 791.7546627787323,
+            "termination": -3900.0,
+            "torque": 7231.295118894836,
+            "upright": 2500.8400175313323,
+            "vel_stand": 421.61355858143077
+          },
+          "raw_per_step": {
+            "action_diff": 0.9057515401294636,
+            "airtime": -0.07774843452218898,
+            "arm_posture": 0.01569685647786553,
+            "base_height": 0.2114810870643909,
+            "capture_point": 0.017422254352418728,
+            "com_support": 0.04195859849772675,
+            "grf_even": 0.026089809076933937,
+            "orientation": 0.10778037881550943,
+            "termination": -0.5309011707051456,
+            "torque": 0.9843853959835062,
+            "upright": 0.3404356136035029,
+            "vel_stand": 0.057393623547703616
+          },
+          "share": {
+            "action_diff": 0.01728293497970816,
+            "airtime": -0.07417713793945217,
+            "arm_posture": 0.00044927511222445863,
+            "base_height": 0.010088345741729123,
+            "capture_point": 0.0016621980522923078,
+            "com_support": 0.008006254447795255,
+            "grf_even": 0.0012445699894840876,
+            "orientation": 0.02056591898138545,
+            "termination": -0.5065147563887371,
+            "torque": 0.018783372746267086,
+            "upright": 0.32479804416592,
+            "vel_stand": 0.016427191455004757
+          },
+          "total_mean": -25.88756331961099,
+          "total_std": 42.265185237862575,
+          "weighted": {
+            "action_diff": 133.0730162758208,
+            "airtime": -571.1400000000002,
+            "arm_posture": 3.4592732305920038,
+            "base_height": 77.67700327875076,
+            "capture_point": 12.798388047286803,
+            "com_support": 61.64557291286015,
+            "grf_even": 9.582786873957836,
+            "orientation": 158.35093255574645,
+            "termination": -3900.0,
+            "torque": 144.62590237789672,
+            "upright": 2500.8400175313323,
+            "vel_stand": 126.48406757442916
+          },
+          "weighted_per_step": {
+            "action_diff": 0.018115030802589274,
+            "airtime": -0.07774843452218898,
+            "arm_posture": 0.00047090569433596565,
+            "base_height": 0.010574054353219543,
+            "capture_point": 0.0017422254352418736,
+            "com_support": 0.008391719699545351,
+            "grf_even": 0.001304490453846697,
+            "orientation": 0.021556075763101885,
+            "termination": -0.5309011707051456,
+            "torque": 0.019687707919670124,
+            "upright": 0.3404356136035029,
+            "vel_stand": 0.017218087064311077
+          }
+        },
+        "shipped_balance": {
+          "config": "shipped_balance",
+          "discounted_mean": -23.274027471336694,
+          "raw": {
+            "action_rate": -2510.60039465665,
+            "alive": 2200.716955740309,
+            "flat_orientation": -2474.7018630803877,
+            "joint_limit": -4210.468795288982,
+            "termination": -3900.0,
+            "torque_sat": -2122.965517241379
+          },
+          "raw_per_step": {
+            "action_rate": -0.3417642791528247,
+            "alive": 0.2995803097931267,
+            "flat_orientation": -0.33687746570655974,
+            "joint_limit": -0.5731648237529243,
+            "termination": -0.5309011707051456,
+            "torque_sat": -0.28899612268464187
+          },
+          "share": {
+            "action_rate": -0.017230521150766495,
+            "alive": 0.30207515408217506,
+            "flat_orientation": -0.10190487395222302,
+            "joint_limit": -0.028896901229791647,
+            "termination": -0.5353224083849433,
+            "torque_sat": -0.014570141200100528
+          },
+          "total_mean": -60.0811528863158,
+          "total_std": 21.464540853980477,
+          "weighted": {
+            "action_rate": -125.53001973283247,
+            "alive": 2200.716955740309,
+            "flat_orientation": -742.4105589241163,
+            "joint_limit": -210.5234397644491,
+            "termination": -3900.0,
+            "torque_sat": -106.1482758620689
+          },
+          "weighted_per_step": {
+            "action_rate": -0.017088213957641228,
+            "alive": 0.2995803097931267,
+            "flat_orientation": -0.10106323971196791,
+            "joint_limit": -0.028658241187646216,
+            "termination": -0.5309011707051456,
+            "torque_sat": -0.014449806134232086
+          }
+        },
+        "v5_training": {
+          "config": "v5_training",
+          "discounted_mean": 341.0359074427629,
+          "raw": {
+            "action_rate": -2510.60039465665,
+            "alive": 2200.716955740309,
+            "flat_orientation": -2474.7018630803877,
+            "joint_limit": -4210.468795288982,
+            "termination": -3900.0,
+            "torque_sat": -2122.965517241379
+          },
+          "raw_per_step": {
+            "action_rate": -0.3417642791528247,
+            "alive": 0.2995803097931267,
+            "flat_orientation": -0.33687746570655974,
+            "joint_limit": -0.5731648237529243,
+            "termination": -0.5309011707051456,
+            "torque_sat": -0.28899612268464187
+          },
+          "share": {
+            "action_rate": -0.004633509173373837,
+            "alive": 0.812319015333909,
+            "flat_orientation": -0.0274035337722867,
+            "joint_limit": -0.007770749111924631,
+            "termination": -0.14395509388605285,
+            "torque_sat": -0.003918098722453017
+          },
+          "total_mean": 352.553276314992,
+          "total_std": 116.14377846108214,
+          "weighted": {
+            "action_rate": -125.53001973283247,
+            "alive": 22007.169557403085,
+            "flat_orientation": -742.4105589241163,
+            "joint_limit": -210.5234397644491,
+            "termination": -3900.0,
+            "torque_sat": -106.1482758620689
+          },
+          "weighted_per_step": {
+            "action_rate": -0.017088213957641228,
+            "alive": 2.9958030979312666,
+            "flat_orientation": -0.10106323971196791,
+            "joint_limit": -0.028658241187646216,
+            "termination": -0.5309011707051456,
+            "torque_sat": -0.014449806134232086
+          }
+        }
+      }
+    },
+    "stand_hold": {
+      "aggregate": {
+        "act_delta_mean": 0.0,
+        "com_offset_max": 0.11315766666666667,
+        "ep_len_max": 400.0,
+        "ep_len_median": 139.0,
+        "ep_len_min": 102.0,
+        "fall_rate": 0.2916666666666667,
+        "limit_prox_max": 0.46852189583333326,
+        "mean_pelvis_z": 0.6912728855668275,
+        "mean_upright": 0.849153307123902,
+        "min_upright": 0.23128089583333333,
+        "n_episodes": 48,
+        "n_steps": 9709,
+        "nonfinite": 0,
+        "sat_frac_max": 0.08908064583333335,
+        "sat_frac_mean": 0.003379673100494085,
+        "steps": 202.27083333333334,
+        "termination_rate": 0.75
+      },
+      "scores": {
+        "balance_lit": {
+          "config": "balance_lit",
+          "discounted_mean": 142.28924712808802,
+          "raw": {
+            "action_diff": 9709.0,
+            "airtime": -108.25999999999998,
+            "arm_posture": 9283.855982018784,
+            "base_height": 7985.050992873245,
+            "capture_point": 5756.8861030652015,
+            "com_support": 6091.979458410471,
+            "grf_even": 7066.027012070131,
+            "orientation": 7421.160402313426,
+            "termination": -3600.0,
+            "torque": 9702.879346078946,
+            "upright": 8752.652987984771,
+            "vel_stand": 6141.129890805733
+          },
+          "raw_per_step": {
+            "action_diff": 1.0,
+            "airtime": -0.011150478937068697,
+            "arm_posture": 0.9562113484415268,
+            "base_height": 0.8224380464386905,
+            "capture_point": 0.5929432591477187,
+            "com_support": 0.6274569428788208,
+            "grf_even": 0.7277811321526554,
+            "orientation": 0.7643588837484216,
+            "termination": -0.3707899886703059,
+            "torque": 0.9993695896672103,
+            "upright": 0.9014989172916645,
+            "vel_stand": 0.6325193007318708
+          },
+          "share": {
+            "action_diff": 0.010219528984971074,
+            "airtime": -0.005697632134684176,
+            "arm_posture": 0.014658044386734757,
+            "base_height": 0.021012323634808063,
+            "capture_point": 0.030298004116516786,
+            "com_support": 0.06412314414571477,
+            "grf_even": 0.0185939509368729,
+            "orientation": 0.07811387767387167,
+            "termination": -0.18946495182766523,
+            "torque": 0.010213086488302745,
+            "upright": 0.4606447157591125,
+            "vel_stand": 0.09696073991074527
+          },
+          "total_mean": 241.34074383973132,
+          "total_std": 295.5213746386136,
+          "weighted": {
+            "action_diff": 194.1799999999991,
+            "airtime": -108.25999999999998,
+            "arm_posture": 278.51567946056355,
+            "base_height": 399.2525496436624,
+            "capture_point": 575.6886103065203,
+            "com_support": 1218.3958916820939,
+            "grf_even": 353.3013506035066,
+            "orientation": 1484.232080462685,
+            "termination": -3600.0,
+            "torque": 194.05758692157877,
+            "upright": 8752.652987984771,
+            "vel_stand": 1842.33896724172
+          },
+          "weighted_per_step": {
+            "action_diff": 0.019999999999999907,
+            "airtime": -0.011150478937068697,
+            "arm_posture": 0.028686340453245807,
+            "base_height": 0.041121902321934536,
+            "capture_point": 0.05929432591477189,
+            "com_support": 0.1254913885757641,
+            "grf_even": 0.03638905660763277,
+            "orientation": 0.1528717767496843,
+            "termination": -0.3707899886703059,
+            "torque": 0.019987391793344193,
+            "upright": 0.9014989172916645,
+            "vel_stand": 0.18975579021956124
+          }
+        },
+        "shipped_balance": {
+          "config": "shipped_balance",
+          "discounted_mean": 63.64663303068363,
+          "raw": {
+            "action_rate": 0.0,
+            "alive": 8623.51663208788,
+            "flat_orientation": -483.84540482038335,
+            "joint_limit": -1547.0094922399746,
+            "termination": -3600.0,
+            "torque_sat": -21.034482758620694
+          },
+          "raw_per_step": {
+            "action_rate": 0.0,
+            "alive": 0.8881982317527943,
+            "flat_orientation": -0.0498347311587582,
+            "joint_limit": -0.15933767558347664,
+            "termination": -0.3707899886703059,
+            "torque_sat": -0.0021664932288207534
+          },
+          "share": {
+            "action_rate": 0.0,
+            "alive": 0.6928148498489332,
+            "flat_orientation": -0.011661667593127941,
+            "joint_limit": -0.006214350796825775,
+            "termination": -0.28922463605805016,
+            "torque_sat": -8.449570306293613e-05
+          },
+          "total_mean": 99.99918358107995,
+          "total_std": 172.95112369932616,
+          "weighted": {
+            "action_rate": 0.0,
+            "alive": 8623.51663208788,
+            "flat_orientation": -145.15362144611498,
+            "joint_limit": -77.35047461199876,
+            "termination": -3600.0,
+            "torque_sat": -1.0517241379310347
+          },
+          "weighted_per_step": {
+            "action_rate": 0.0,
+            "alive": 0.8881982317527943,
+            "flat_orientation": -0.014950419347627458,
+            "joint_limit": -0.007966883779173834,
+            "termination": -0.3707899886703059,
+            "torque_sat": -0.00010832466144103767
+          }
+        },
+        "v5_training": {
+          "config": "v5_training",
+          "discounted_mean": 1003.5000113574446,
+          "raw": {
+            "action_rate": 0.0,
+            "alive": 8623.51663208788,
+            "flat_orientation": -483.84540482038335,
+            "joint_limit": -1547.0094922399746,
+            "termination": -3600.0,
+            "torque_sat": -21.034482758620694
+          },
+          "raw_per_step": {
+            "action_rate": 0.0,
+            "alive": 0.8881982317527943,
+            "flat_orientation": -0.0498347311587582,
+            "joint_limit": -0.15933767558347664,
+            "termination": -0.3707899886703059,
+            "torque_sat": -0.0021664932288207534
+          },
+          "share": {
+            "action_rate": 0.0,
+            "alive": 0.9575437477981696,
+            "flat_orientation": -0.001611766389697771,
+            "joint_limit": -0.0008588893199131901,
+            "termination": -0.03997391828812188,
+            "torque_sat": -1.16782040975835e-05
+          },
+          "total_mean": 1716.9085520975577,
+          "total_std": 1333.5190331291449,
+          "weighted": {
+            "action_rate": 0.0,
+            "alive": 86235.16632087885,
+            "flat_orientation": -145.15362144611498,
+            "joint_limit": -77.35047461199876,
+            "termination": -3600.0,
+            "torque_sat": -1.0517241379310347
+          },
+          "weighted_per_step": {
+            "action_rate": 0.0,
+            "alive": 8.881982317527948,
+            "flat_orientation": -0.014950419347627458,
+            "joint_limit": -0.007966883779173834,
+            "termination": -0.3707899886703059,
+            "torque_sat": -0.00010832466144103767
+          }
+        }
+      }
+    },
+    "zero_action": {
+      "aggregate": {
+        "act_delta_mean": 0.0,
+        "com_offset_max": 0.11315766666666667,
+        "ep_len_max": 400.0,
+        "ep_len_median": 139.0,
+        "ep_len_min": 102.0,
+        "fall_rate": 0.2916666666666667,
+        "limit_prox_max": 0.46852189583333326,
+        "mean_pelvis_z": 0.6912728855668275,
+        "mean_upright": 0.849153307123902,
+        "min_upright": 0.23128089583333333,
+        "n_episodes": 48,
+        "n_steps": 9709,
+        "nonfinite": 0,
+        "sat_frac_max": 0.08908064583333335,
+        "sat_frac_mean": 0.003379673100494085,
+        "steps": 202.27083333333334,
+        "termination_rate": 0.75
+      },
+      "scores": {
+        "balance_lit": {
+          "config": "balance_lit",
+          "discounted_mean": 142.28924712808802,
+          "raw": {
+            "action_diff": 9709.0,
+            "airtime": -108.25999999999998,
+            "arm_posture": 9283.855982018784,
+            "base_height": 7985.050992873245,
+            "capture_point": 5756.8861030652015,
+            "com_support": 6091.979458410471,
+            "grf_even": 7066.027012070131,
+            "orientation": 7421.160402313426,
+            "termination": -3600.0,
+            "torque": 9702.879346078946,
+            "upright": 8752.652987984771,
+            "vel_stand": 6141.129890805733
+          },
+          "raw_per_step": {
+            "action_diff": 1.0,
+            "airtime": -0.011150478937068697,
+            "arm_posture": 0.9562113484415268,
+            "base_height": 0.8224380464386905,
+            "capture_point": 0.5929432591477187,
+            "com_support": 0.6274569428788208,
+            "grf_even": 0.7277811321526554,
+            "orientation": 0.7643588837484216,
+            "termination": -0.3707899886703059,
+            "torque": 0.9993695896672103,
+            "upright": 0.9014989172916645,
+            "vel_stand": 0.6325193007318708
+          },
+          "share": {
+            "action_diff": 0.010219528984971074,
+            "airtime": -0.005697632134684176,
+            "arm_posture": 0.014658044386734757,
+            "base_height": 0.021012323634808063,
+            "capture_point": 0.030298004116516786,
+            "com_support": 0.06412314414571477,
+            "grf_even": 0.0185939509368729,
+            "orientation": 0.07811387767387167,
+            "termination": -0.18946495182766523,
+            "torque": 0.010213086488302745,
+            "upright": 0.4606447157591125,
+            "vel_stand": 0.09696073991074527
+          },
+          "total_mean": 241.34074383973132,
+          "total_std": 295.5213746386136,
+          "weighted": {
+            "action_diff": 194.1799999999991,
+            "airtime": -108.25999999999998,
+            "arm_posture": 278.51567946056355,
+            "base_height": 399.2525496436624,
+            "capture_point": 575.6886103065203,
+            "com_support": 1218.3958916820939,
+            "grf_even": 353.3013506035066,
+            "orientation": 1484.232080462685,
+            "termination": -3600.0,
+            "torque": 194.05758692157877,
+            "upright": 8752.652987984771,
+            "vel_stand": 1842.33896724172
+          },
+          "weighted_per_step": {
+            "action_diff": 0.019999999999999907,
+            "airtime": -0.011150478937068697,
+            "arm_posture": 0.028686340453245807,
+            "base_height": 0.041121902321934536,
+            "capture_point": 0.05929432591477189,
+            "com_support": 0.1254913885757641,
+            "grf_even": 0.03638905660763277,
+            "orientation": 0.1528717767496843,
+            "termination": -0.3707899886703059,
+            "torque": 0.019987391793344193,
+            "upright": 0.9014989172916645,
+            "vel_stand": 0.18975579021956124
+          }
+        },
+        "shipped_balance": {
+          "config": "shipped_balance",
+          "discounted_mean": 63.64663303068363,
+          "raw": {
+            "action_rate": 0.0,
+            "alive": 8623.51663208788,
+            "flat_orientation": -483.84540482038335,
+            "joint_limit": -1547.0094922399746,
+            "termination": -3600.0,
+            "torque_sat": -21.034482758620694
+          },
+          "raw_per_step": {
+            "action_rate": 0.0,
+            "alive": 0.8881982317527943,
+            "flat_orientation": -0.0498347311587582,
+            "joint_limit": -0.15933767558347664,
+            "termination": -0.3707899886703059,
+            "torque_sat": -0.0021664932288207534
+          },
+          "share": {
+            "action_rate": 0.0,
+            "alive": 0.6928148498489332,
+            "flat_orientation": -0.011661667593127941,
+            "joint_limit": -0.006214350796825775,
+            "termination": -0.28922463605805016,
+            "torque_sat": -8.449570306293613e-05
+          },
+          "total_mean": 99.99918358107995,
+          "total_std": 172.95112369932616,
+          "weighted": {
+            "action_rate": 0.0,
+            "alive": 8623.51663208788,
+            "flat_orientation": -145.15362144611498,
+            "joint_limit": -77.35047461199876,
+            "termination": -3600.0,
+            "torque_sat": -1.0517241379310347
+          },
+          "weighted_per_step": {
+            "action_rate": 0.0,
+            "alive": 0.8881982317527943,
+            "flat_orientation": -0.014950419347627458,
+            "joint_limit": -0.007966883779173834,
+            "termination": -0.3707899886703059,
+            "torque_sat": -0.00010832466144103767
+          }
+        },
+        "v5_training": {
+          "config": "v5_training",
+          "discounted_mean": 1003.5000113574446,
+          "raw": {
+            "action_rate": 0.0,
+            "alive": 8623.51663208788,
+            "flat_orientation": -483.84540482038335,
+            "joint_limit": -1547.0094922399746,
+            "termination": -3600.0,
+            "torque_sat": -21.034482758620694
+          },
+          "raw_per_step": {
+            "action_rate": 0.0,
+            "alive": 0.8881982317527943,
+            "flat_orientation": -0.0498347311587582,
+            "joint_limit": -0.15933767558347664,
+            "termination": -0.3707899886703059,
+            "torque_sat": -0.0021664932288207534
+          },
+          "share": {
+            "action_rate": 0.0,
+            "alive": 0.9575437477981696,
+            "flat_orientation": -0.001611766389697771,
+            "joint_limit": -0.0008588893199131901,
+            "termination": -0.03997391828812188,
+            "torque_sat": -1.16782040975835e-05
+          },
+          "total_mean": 1716.9085520975577,
+          "total_std": 1333.5190331291449,
+          "weighted": {
+            "action_rate": 0.0,
+            "alive": 86235.16632087885,
+            "flat_orientation": -145.15362144611498,
+            "joint_limit": -77.35047461199876,
+            "termination": -3600.0,
+            "torque_sat": -1.0517241379310347
+          },
+          "weighted_per_step": {
+            "action_rate": 0.0,
+            "alive": 8.881982317527948,
+            "flat_orientation": -0.014950419347627458,
+            "joint_limit": -0.007966883779173834,
+            "termination": -0.3707899886703059,
+            "torque_sat": -0.00010832466144103767
+          }
+        }
+      }
+    },
+    "zero_action_abs": {
+      "aggregate": {
+        "act_delta_mean": 0.0,
+        "com_offset_max": 0.5338087083333334,
+        "ep_len_max": 400.0,
+        "ep_len_median": 77.0,
+        "ep_len_min": 43.0,
+        "fall_rate": 0.3541666666666667,
+        "limit_prox_max": 1.0,
+        "mean_pelvis_z": 0.37232162819726894,
+        "mean_upright": 0.1905296422072562,
+        "min_upright": -0.3381112083333333,
+        "n_episodes": 48,
+        "n_steps": 5325,
+        "nonfinite": 0,
+        "sat_frac_max": 0.4209769791666667,
+        "sat_frac_mean": 0.053925829095359264,
+        "steps": 110.9375,
+        "termination_rate": 0.8958333333333334
+      },
+      "scores": {
+        "balance_lit": {
+          "config": "balance_lit",
+          "discounted_mean": -24.498084107030845,
+          "raw": {
+            "action_diff": 5325.0,
+            "airtime": -81.3,
+            "arm_posture": 18.27987325823514,
+            "base_height": 168.53952664075518,
+            "capture_point": 51.05729539988653,
+            "com_support": 123.76757332626124,
+            "grf_even": 346.18673024933753,
+            "orientation": 234.24971023375673,
+            "termination": -4300.0,
+            "torque": 5296.069638218847,
+            "upright": 2341.458367558151,
+            "vel_stand": 1131.173221309693
+          },
+          "raw_per_step": {
+            "action_diff": 1.0,
+            "airtime": -0.015267605633802816,
+            "arm_posture": 0.0034328400484948617,
+            "base_height": 0.031650615331597215,
+            "capture_point": 0.009588224488241601,
+            "com_support": 0.02324273677488474,
+            "grf_even": 0.06501159253508686,
+            "orientation": 0.04399055591244258,
+            "termination": -0.8075117370892019,
+            "torque": 0.9945670682101121,
+            "upright": 0.4397104915602162,
+            "vel_stand": 0.2124268960205996
+          },
+          "share": {
+            "action_diff": 0.014435734344625481,
+            "airtime": -0.011019954950404282,
+            "arm_posture": 7.433335048149488e-05,
+            "base_height": 0.0011422496869271737,
+            "capture_point": 0.0006920653077444445,
+            "com_support": 0.0033552597352429457,
+            "grf_even": 0.0023462251978938853,
+            "orientation": 0.00635035978824417,
+            "termination": -0.5828512458393409,
+            "torque": 0.014357305984594238,
+            "upright": 0.31737719223539945,
+            "vel_stand": 0.045998073579101524
+          },
+          "total_mean": -28.85571620813165,
+          "total_std": 124.7256714254121,
+          "weighted": {
+            "action_diff": 106.4999999999996,
+            "airtime": -81.3,
+            "arm_posture": 0.5483961977470541,
+            "base_height": 8.426976332037759,
+            "capture_point": 5.105729539988653,
+            "com_support": 24.753514665252247,
+            "grf_even": 17.30933651246687,
+            "orientation": 46.84994204675133,
+            "termination": -4300.0,
+            "torque": 105.9213927643769,
+            "upright": 2341.458367558151,
+            "vel_stand": 339.35196639290797
+          },
+          "weighted_per_step": {
+            "action_diff": 0.019999999999999924,
+            "airtime": -0.015267605633802816,
+            "arm_posture": 0.00010298520145484584,
+            "base_height": 0.0015825307665798607,
+            "capture_point": 0.0009588224488241603,
+            "com_support": 0.004648547354976947,
+            "grf_even": 0.003250579626754342,
+            "orientation": 0.008798111182488513,
+            "termination": -0.8075117370892019,
+            "torque": 0.019891341364202234,
+            "upright": 0.4397104915602162,
+            "vel_stand": 0.0637280688061799
+          }
+        },
+        "shipped_balance": {
+          "config": "shipped_balance",
+          "discounted_mean": -53.623350670862145,
+          "raw": {
+            "action_rate": 0.0,
+            "alive": 1010.0545368234266,
+            "flat_orientation": -1674.7499615883332,
+            "joint_limit": -574.2723478718383,
+            "termination": -4300.0,
+            "torque_sat": -251.37931034482736
+          },
+          "raw_per_step": {
+            "action_rate": 0.0,
+            "alive": 0.18968160315932894,
+            "flat_orientation": -0.31450703504006255,
+            "joint_limit": -0.10784457237029826,
+            "termination": -0.8075117370892019,
+            "torque_sat": -0.04720738222438072
+          },
+          "share": {
+            "action_rate": 0.0,
+            "alive": 0.17254793039961036,
+            "flat_orientation": -0.08582941690981517,
+            "joint_limit": -0.004905156182093026,
+            "termination": -0.7345703362233699,
+            "torque_sat": -0.0021471602851116153
+          },
+          "total_mean": -79.86777155341473,
+          "total_std": 44.51351026084005,
+          "weighted": {
+            "action_rate": 0.0,
+            "alive": 1010.0545368234266,
+            "flat_orientation": -502.42498847649995,
+            "joint_limit": -28.713617393591914,
+            "termination": -4300.0,
+            "torque_sat": -12.568965517241386
+          },
+          "weighted_per_step": {
+            "action_rate": 0.0,
+            "alive": 0.18968160315932894,
+            "flat_orientation": -0.09435211051201876,
+            "joint_limit": -0.0053922286185149135,
+            "termination": -0.8075117370892019,
+            "torque_sat": -0.00236036911121904
+          }
+        },
+        "v5_training": {
+          "config": "v5_training",
+          "discounted_mean": 91.27857357652452,
+          "raw": {
+            "action_rate": 0.0,
+            "alive": 1010.0545368234266,
+            "flat_orientation": -1674.7499615883332,
+            "joint_limit": -574.2723478718383,
+            "termination": -4300.0,
+            "torque_sat": -251.37931034482736
+          },
+          "raw_per_step": {
+            "action_rate": 0.0,
+            "alive": 0.18968160315932894,
+            "flat_orientation": -0.31450703504006255,
+            "joint_limit": -0.10784457237029826,
+            "termination": -0.8075117370892019,
+            "torque_sat": -0.04720738222438072
+          },
+          "share": {
+            "action_rate": 0.0,
+            "alive": 0.675881585318645,
+            "flat_orientation": -0.03361994677863247,
+            "joint_limit": -0.0019213819191632986,
+            "termination": -0.2877360291861388,
+            "torque_sat": -0.0008410567974205905
+          },
+          "total_mean": 109.51745410097779,
+          "total_std": 213.98932320966048,
+          "weighted": {
+            "action_rate": 0.0,
+            "alive": 10100.545368234265,
+            "flat_orientation": -502.42498847649995,
+            "joint_limit": -28.713617393591914,
+            "termination": -4300.0,
+            "torque_sat": -12.568965517241386
+          },
+          "weighted_per_step": {
+            "action_rate": 0.0,
+            "alive": 1.8968160315932892,
+            "flat_orientation": -0.09435211051201876,
+            "joint_limit": -0.0053922286185149135,
+            "termination": -0.8075117370892019,
+            "torque_sat": -0.00236036911121904
+          }
+        }
+      }
+    }
+  },
+  "load": "15.10",
+  "mode": "residual",
+  "n_battery": 48,
+  "physical_rank": [
+    "stand_hold",
+    "zero_action",
+    "policy",
+    "random_init_policy",
+    "zero_action_abs"
+  ],
+  "steps": 401408,
+  "wall_s": 756.7
+}

@@ -52,7 +52,8 @@ from .commands import (DEFAULT_COMMAND, N_SKILLS, T2_TRAIN_RANGES, Command,
                        CommandSchedule, Skill)
 from .fall import (ContactState, DorsalDetector, FallDetConfig, FallDetector,
                    fall_features)
-from .lit import JointMask, joint_names, sole_geom_ids, sole_points_world
+from .lit import (STANCE_GRACE_S, JointMask, joint_names, sole_geom_ids,
+                  sole_points_world, stance_valid, support_hull)
 from .markers import DEFAULT_PLAN, SHOT_PLAN, MarkerPlan
 from .metrics import (MetricsRecorder, action_smoothness, foot_slip,
                       joint_limit_proximity, local_xy, saturation_fraction)
@@ -182,6 +183,7 @@ class SoloEnv:
                  weights: RewardWeights | None = None, gamma: float | None = None,
                  term_set: str | None = None,
                  joint_mask: "JointMask | None" = None,
+                 stance_return: bool = False,
                  terminate_on_fall: bool | None = None,
                  terminate_on_dorsal: bool | None = None,
                  record_metrics: bool = True, jitter: bool = True):
@@ -206,6 +208,13 @@ class SoloEnv:
         #: the single choke point training AND evaluation share, so a masked run
         #: and its evaluation cannot diverge.  ``None`` (default) = full action.
         self.joint_mask = joint_mask
+        #: "every behaviour must RETURN TO a valid stance": when set, the episode
+        #: pays a one-off bonus only for a valid FINAL stance, and a time limit
+        #: reached in an invalid stance is a FAILURE (``no_recovery``), not a
+        #: neutral truncation.  Off by default (v5 behaviour).
+        self.stance_return = bool(stance_return)
+        self._last_valid = False
+        self._last_valid_t = 0.0
         self.terminate_on_fall = (spec.terminate_on_fall if terminate_on_fall is None
                                   else bool(terminate_on_fall))
         self.terminate_on_dorsal = (spec.terminate_on_dorsal if terminate_on_dorsal is None
@@ -420,6 +429,41 @@ class SoloEnv:
         b = np.asarray(ctrl, dtype=np.float64).reshape(N_JOINTS)
         self._base_action = np.clip(b, self.lo, self.hi)
 
+    def _stance_state(self, inp: RewardInputs, f) -> tuple[bool, np.ndarray]:
+        """(valid stance?, hull) from the *shared* predicate in ``solo.lit``."""
+        loaded = (bool(inp.foot_contact[0]), bool(inp.foot_contact[1]))
+        pts = np.asarray(inp.sole_points, dtype=np.float64)
+        sel = np.concatenate([pts[i] for i in range(2) if loaded[i]]) \
+            if any(loaded) else np.zeros((0, 3))
+        hull = support_hull(sel) if len(sel) >= 3 else np.zeros((0, 2))
+        joint_dev = float(np.abs(
+            np.asarray(self.data.qpos[self._joint_q], np.float64)
+            - self._q_stand[7:36]).mean())
+        valid = stance_valid(
+            pelvis_z=float(inp.pelvis_z), stand_height=float(STAND_HEIGHT),
+            up_z=float(inp.torso_up_z), speed=float(np.linalg.norm(inp.vel_local)),
+            com_xy=np.asarray(inp.com_xy, np.float64).reshape(2), hull=hull,
+            foot_contact=loaded, sole_points=pts, joint_dev=joint_dev)
+        return bool(valid), hull
+
+    def _update_stance_return(self, valid: bool, t: float) -> None:
+        """Record the last time the robot was in a valid stance (grace window)."""
+        if valid:
+            self._last_valid_t = float(t)
+        self._last_valid = bool(valid)
+
+    def _recovering(self, f) -> bool:
+        """True while a legitimate recovery is in progress (no failure verdict).
+
+        The robot is upright enough that a stance is still reachable and either
+        already higher than the "down" threshold or rising over the grace window;
+        a fallen/collapsed robot is neither.
+        """
+        up = float(f.torso_up_z) >= 0.5
+        above = float(f.pelvis_z) > RECOVERY_PELVIS_Z
+        rising = float(f.pelvis_z) > float(self._prev_pelvis_z) + 0.02
+        return bool(up and (above or rising))
+
     def resolve_action(self, action: np.ndarray) -> np.ndarray:
         """Apply the action-mode contract; returns clipped ctrl targets.
 
@@ -511,8 +555,31 @@ class SoloEnv:
                 row["terms"] = {k: round(float(v), 6) for k, v in terms.items()}
             self._episode_done = True
         elif t_now - self._t_reset >= self.horizon - 1e-9:
-            truncated = True
+            if (self.stance_return and not self._last_valid
+                    and t_now - self._last_valid_t > STANCE_GRACE_S
+                    and not self._recovering(f)):
+                # "a non-stance ending must be a FAILURE, not a neutral
+                # truncation": no valid stance for the whole grace window and no
+                # recovery in progress.
+                cause = "no_recovery"
+                pen, tterms = self.reward.terminal(cause)
+                reward += pen
+                terms.update(tterms)
+                if row is not None:
+                    row["reward"] = round(float(reward), 6)
+                    row["terms"] = {k: round(float(v), 6) for k, v in terms.items()}
+            else:
+                truncated = True
             self._episode_done = True
+
+        if self._episode_done:
+            bonus, bterms = self.reward.final(inp, cause)
+            if bonus or bterms:
+                reward += bonus
+                terms.update(bterms)
+                if row is not None:
+                    row["reward"] = round(float(reward), 6)
+                    row["terms"] = {k: round(float(v), 6) for k, v in terms.items()}
 
         self._prev_ctrl = ctrl
         self._prev_pelvis_z = f.pelvis_z
@@ -736,6 +803,11 @@ class SoloEnv:
             gravity=float(-self.model.opt.gravity[2]),
         )
         self._shot_depth_prev = depth
+        if self.stance_return:
+            valid, hull = self._stance_state(inp, f)
+            inp.hull = hull
+            inp.stance_valid = valid
+            self._update_stance_return(valid, float(self.data.time))
         self._last_ctx = ctx
         return inp, ctx
 

@@ -1,3 +1,8 @@
 advisors:
   - name: default
-    model: opencode-go/deepseek-v4.1-flash:high
+    model: zai/glm-5.3-flash:max
+    tools:
+      - read
+      - glob
+      - grep
+      - web_search

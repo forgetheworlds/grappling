@@ -109,6 +109,10 @@ class TrainConfig:
     lit_push_height: float = 0.95
     lit_push_seed: int = 0
     mirror_loss_coef: float = 0.0      # PPO mirror (symmetry) loss, source A
+    #: "every behaviour must RETURN TO a valid stance": pays the lit set's
+    #: one-off final-stance bonus and turns a time limit reached in an invalid
+    #: stance into a `no_recovery` failure (not a neutral truncation).
+    stance_return: bool = False
     #: observation history stacked into the actor/critic input (1 = today's
     #: memoryless contract).  The source SaW controller is an LSTM and the
     #: hand-built balancer provably uses hidden integrator state, so partial
@@ -174,7 +178,8 @@ class SoloTrainer:
             self.env = SoloEnv(self.model, task=cfg.task, seed=cfg.seed, weights=weights,
                                action_mode=cfg.action_mode,
                                residual_scale=cfg.residual_scale,
-                               term_set=term_set, joint_mask=mask)
+                               term_set=term_set, joint_mask=mask,
+                               stance_return=bool(cfg.stance_return))
         self.net = ActorCritic(ACTOR_DIM * self.frame_stack,
                                CRITIC_DIM + ACTOR_DIM * (self.frame_stack - 1),
                                act_dim=N_JOINTS,

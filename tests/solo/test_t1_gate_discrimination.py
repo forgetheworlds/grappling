@@ -48,6 +48,7 @@ sys.path.insert(0, str(Path(__file__).resolve().parents[2] / "src"))
 
 from solo.eval import GATES, Criterion, TaskGate, aggregate  # noqa: E402
 from solo.pushes import TRAIN_MAX_IMPULSE  # noqa: E402
+from solo.stance_valid import STAND_HEIGHT, stance_valid  # noqa: E402
 
 REPO = Path(__file__).resolve().parents[2]
 METRICS_DIR = REPO / "data" / "solo" / "metrics"
@@ -117,7 +118,11 @@ PROPOSED = TaskGate(
                "{0.79,1.10} m inside the in-band battery (training pushes are all "
                "at 0.95 m, curriculum.py); true fall rate, matching fall_rate's "
                "predicate; StandHold measured 0.0625 over 16 eps; the 16-25 N*s "
-               "magnitudes are REPORTED-ONLY and do not gate")),
+               "magnitudes are REPORTED-ONLY and do not gate"),
+     Criterion("survivor_valid_stance_rate", ">=", 1.0,
+               "TERMINAL state: every non-terminated episode must END inside a "
+               "valid stance (solo.stance_valid); StandHold measured 1.0 (11/11 "
+               "survivors) on the in-band battery")),
     note="T1 = non-stepping dynamic balance, magnitudes <= TRAIN_MAX_IMPULSE; "
          "held-out = off-training heights; stepping recovery moved to T3",
 )
@@ -209,13 +214,33 @@ def _heldout_subset(episodes: list[dict]) -> list[dict]:
     return [e for e in _in_band(episodes) if _height(e) in _HELDOUT_H]
 
 
+def _with_terminal_stance(episodes: list[dict]) -> list[dict]:
+    """Add ``ends_in_valid_stance`` to stored episodes via the shared predicate.
+
+    The gate-battery summaries predate the terminal-stance criterion, so the
+    per-episode flag is rebuilt here from the two terminal channels the stored
+    summary carries (``final_upright``, ``final_pelvis_z``); the predicate skips
+    the channels the stored data cannot supply (hull / pose / contacts).
+    """
+    out = []
+    for e in episodes:
+        e2 = dict(e)
+        ok, _ = stance_valid(upright=e.get("final_upright"),
+                             pelvis_z=e.get("final_pelvis_z"),
+                             stand_height=STAND_HEIGHT)
+        e2.setdefault("ends_in_valid_stance", bool(ok))
+        out.append(e2)
+    return out
+
+
 def _t1_summary(episodes: list[dict]) -> dict:
     """Aggregate the in-band battery with the condition-based held-out metric.
 
     ``aggregate``'s ``fall_rate_heldout`` reads the episodes tagged ``heldout``
     (now the off-training heights) with the same predicate as ``fall_rate``.
     """
-    return _aggregate(_mark_heldout_conditions(_in_band(episodes)))
+    band = _with_terminal_stance(_mark_heldout_conditions(_in_band(episodes)))
+    return _aggregate(band)
 
 
 def _t1_conditions(episodes: list[dict]) -> set:
@@ -384,6 +409,7 @@ def test_static_survivor_is_not_credited_with_recovery():
     """
     static = {"fall_rate": 0.0, "mean_upright": 0.999, "com_offset_max": 0.01,
               "time_to_stability_mean": 0.1, "fall_rate_heldout": 0.0,
+              "survivor_valid_stance_rate": 1.0,
               # what a static controller would report if recovery were claimed:
               "recovery_success_rate": 1.0, "max_recoverable_impulse_heldout": 16.0}
     ok, reasons = PROPOSED.verdict(static)
@@ -412,9 +438,11 @@ def test_uprightness_bar_is_below_the_measured_reference_hold():
 def test_collapsed_but_non_terminating_controller_fails_on_uprightness():
     ref_hold = _aggregate(_in_band(_t1gate("stand_hold")))["mean_upright"]
     frozen_ok = {"fall_rate": 0.0, "mean_upright": ref_hold, "com_offset_max": 0.12,
-                 "time_to_stability_mean": 0.12, "fall_rate_heldout": 0.0}
+                 "time_to_stability_mean": 0.12, "fall_rate_heldout": 0.0,
+                 "survivor_valid_stance_rate": 1.0}
     collapsed = {"fall_rate": 0.0, "mean_upright": 0.30, "com_offset_max": 0.15,
-                 "time_to_stability_mean": 0.50, "fall_rate_heldout": 0.0}
+                 "time_to_stability_mean": 0.50, "fall_rate_heldout": 0.0,
+                 "survivor_valid_stance_rate": 0.0}
     assert PROPOSED.verdict(frozen_ok)[0] is True
     ok, reasons = PROPOSED.verdict(collapsed)
     print(f"[proposed / collapsed] certified={ok}\n      {_fmt(reasons)}")

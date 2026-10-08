@@ -1,0 +1,39 @@
+{
+ "notes": {
+  "dz": "settled-height correction dropped for the shipped table: measured dz=0 (stay_up 0.792/0.569 scorer) vs the stale search dz (0.764/0.513) on seeds 0-2; the search writes dz before the final verification, so it was re-measured here"
+ },
+ "passes": 2,
+ "scorer": {
+  "STANCE": {
+   "a_": 0.6,
+   "b_": 0.6
+  }
+ },
+ "seeds": [
+  0,
+  1,
+  2
+ ],
+ "stay_up": {
+  "STANCE": {
+   "a_": 0.9861111111111112,
+   "b_": 0.8472222222222222
+  }
+ },
+ "step_rad": 0.1,
+ "trims": {
+  "STANCE": {
+   "a_": {
+    "ankle": -0.1,
+    "hip": 0.1,
+    "knee": -0.2,
+    "waist": 0.3
+   },
+   "b_": {
+    "ankle": 0.2,
+    "hip": 0.1,
+    "waist": -0.1
+   }
+  }
+ }
+}

@@ -29,6 +29,8 @@ from .metrics import (METRICS_DIR, METRIC_FIELDS, com_offset_max,
                       recovery_time, summarize_rows)
 from .pushes import TRAIN_MAX_IMPULSE, PushSchedule, PushSpec
 from .scene import STEP_DT, load_solo_model
+from .stance_valid import STANCE as STANCE_THRESHOLDS
+from .stance_valid import stance_state, stance_valid
 
 #: all metrics a gate may reference (aggregate keys produced by :func:`evaluate`)
 GATE_METRICS: tuple[str, ...] = (
@@ -45,6 +47,8 @@ GATE_METRICS: tuple[str, ...] = (
     "com_offset_max", "steps_after_push_mean", "steps_total_mean",
     "steps_per_s", "n_episodes", "n_steps",
     "hand_err_mean", "shot_depth_max", "shot_exit_rate",
+    # terminal-state stance validity (one shared predicate, all tasks)
+    "ends_in_valid_stance", "survivor_valid_stance_rate",
     # T2 (locomotion) aggregate names -- all measured, none reward-derived
     "vx_err_abs_mean", "vy_err_abs_mean", "yaw_err_abs_mean",
     "slip_ratio_mean", "dist_err_mean", "travelled_m_mean",
@@ -299,6 +303,23 @@ def locomotion_episode_metrics(rows: list[dict],
 
 #: provisional gates.  Thresholds are placeholders (no baseline tuning yet);
 #: S2 sets them from measured baselines and the held-out battery.
+#: the shared terminal-stance criterion (operator directive 2026-10-08): every
+#: episode that does NOT terminate must END inside a valid stance -- the check the
+#: fall detector cannot supply (a robot lying on a supporting arm does not
+#: terminate; see solo/fall.py).  This does NOT change any existing threshold; it
+#: only appends.  Threshold 1.0 is the measured reference (StandHold 11/11
+#: survivors, in-band battery); PROVISIONAL for tasks whose own reference run has
+#: not been measured -- a run of that task's reference over its gate battery sets
+#: it.
+_ENDS_IN_VALID_STANCE = Criterion(
+    "survivor_valid_stance_rate", ">=", 1.0,
+    "TERMINAL state: every non-terminated episode must END inside a valid stance "
+    "(solo.stance_valid: hull margin >= 0.02 m, tilt <= 5 deg, pelvis within "
+    "0.06 m of 0.79, speed <= 0.15 m/s, pose within 0.10 rad, both feet in "
+    "contact). Threshold 1.0 = measured StandHold (11/11 survivors); PROVISIONAL "
+    "for this task until its own reference run sets it")
+
+
 GATES: dict[str, TaskGate] = {
     "balance": TaskGate(
         "T1_balance",
@@ -320,7 +341,15 @@ GATES: dict[str, TaskGate] = {
                    "application heights {0.79,1.10} m inside the in-band battery "
                    "(training pushes are all at 0.95 m, curriculum.py); "
                    "provenance: StandHold measured 0.0625 (16 eps). The "
-                   "16/20/25 N*s magnitudes are REPORTED-ONLY and do not gate")),
+                   "16/20/25 N*s magnitudes are REPORTED-ONLY and do not gate"),
+         Criterion("survivor_valid_stance_rate", ">=", 1.0,
+                   "TERMINAL state: every non-terminated episode must END inside a "
+                   "valid stance (solo.stance_valid: hull margin >= 0.02 m, tilt <= 5 "
+                   "deg, pelvis within 0.06 m of 0.79, speed <= 0.15 m/s, pose within "
+                   "0.10 rad, both feet in contact). Provenance: StandHold measured "
+                   "1.0 (11/11 survivors) on the in-band battery. This is the check "
+                   "the fall detector cannot supply -- a robot lying on a supporting "
+                   "arm does not terminate (see solo/fall.py)")),
         note="T1 = NON-STEPPING dynamic balance only, evaluated on battery "
              "magnitudes <= TRAIN_MAX_IMPULSE; held-out = off-training heights "
              "(not above-cap magnitudes, which would be vacuous once capped); the "
@@ -353,7 +382,8 @@ GATES: dict[str, TaskGate] = {
                    "stepping; provenance: load-transfer <=0.57, drag >=1.75"),
          Criterion("dist_err_mean", "<=", T2_THRESHOLDS["dist_err_mean"],
                    "m; |travelled - commanded| path length; 15% of the smallest "
-                   "held-out commanded path (2.2 m); provenance: baseline table")),
+                   "held-out commanded path (2.2 m); provenance: baseline table"),
+         _ENDS_IN_VALID_STANCE),
         provisional=False,
         note="T2 (S3) gate: held-out commands outside T2_TRAIN_RANGES; measured "
              "over the settled window (t >= 0.5 s); thresholds DERIVED from "
@@ -375,22 +405,28 @@ GATES: dict[str, TaskGate] = {
          Criterion("fall_rate_heldout", "<=", 0.10,
                    "held-out magnitudes only (magnitudes > train_max_impulse)"),
          Criterion("recovery_success_rate", ">=", 0.9,
-                   "stabilised to stance after each held-out push")),
+                   "stabilised to stance after each held-out push"),
+         _ENDS_IN_VALID_STANCE),
         note="T3 stance/stepping; owns the recovery bars moved from T1"),
     "reach": TaskGate(
         "T4_reach",
         (Criterion("hand_err_mean", "<=", 0.20, "m hand-to-target"),
          Criterion("mean_upright", ">=", 0.95),
-         Criterion("fall_rate", "<=", 0.05))),
+         Criterion("fall_rate", "<=", 0.05),
+         _ENDS_IN_VALID_STANCE)),
     "shot": TaskGate(
         "T5_shot",
         (Criterion("shot_depth_max", ">=", 0.8, "penetration depth reached"),
          Criterion("shot_exit_rate", ">=", 0.5, "shots that exit and recover"),
          Criterion("fall_rate", "<=", 0.10))),
+    # NOTE: T5_shot deliberately omits the terminal-stance criterion -- its end
+    # state is a penetration posture, not a stance; a stance requirement there
+    # would contradict the task.  T6_recovery DOES end in a posture (standing up).
     "recovery": TaskGate(
         "T6_recovery",
         (Criterion("mean_pelvis_z", ">=", 0.70, "m after standing up"),
-         Criterion("fall_rate", "<=", 0.10))),
+         Criterion("fall_rate", "<=", 0.10),
+         _ENDS_IN_VALID_STANCE)),
 }
 
 
@@ -493,6 +529,9 @@ def run_episode(env: SoloEnv, controller: Callable, seed: int, *,
         steps_after = 0
         heldout = False
         impulse = None
+    # terminal-state stance validity (operator directive 2026-10-08): measured
+    # from the env's final state, not the episode average.
+    stance_ok, stance_reasons, stance_channels = _terminal_stance(env)
     summary = env.recorder.summary(extra={
         "termination": cause,
         "truncated": bool(truncated),
@@ -517,10 +556,29 @@ def run_episode(env: SoloEnv, controller: Callable, seed: int, *,
         "shot_depth_max": round(float(getattr(env, "_shot_max_depth", 0.0)), 4),
         "shot_exited": bool(getattr(env, "_shot_exited", False)),
         "hand_err": hand_err_mean,
+        "ends_in_valid_stance": bool(stance_ok),
+        "stance_invalid_reasons": stance_reasons,
+        "final_stance": _rounded_stance(stance_channels),
         **(locomotion_episode_metrics(rows) if env.task == "locomotion" else {}),
     })
     summary["__rows"] = rows
     return summary
+
+
+def _terminal_stance(env) -> tuple[bool, list[str], dict]:
+    """(valid, reasons, channels) for the env's CURRENT (terminal) state."""
+    state = stance_state(env)
+    ok, reasons = stance_valid(**state)
+    return ok, reasons, state
+
+
+def _rounded_stance(state: dict) -> dict:
+    out: dict = {}
+    for k, v in state.items():
+        out[k] = (bool(v) if isinstance(v, (bool, np.bool_))
+                  else None if v is None or (isinstance(v, float) and np.isnan(v))
+                  else round(float(v), 5))
+    return out
 
 
 def _recovered_episode(e: dict) -> bool:
@@ -618,6 +676,7 @@ def aggregate(episodes: list[dict], *, steps_total: int, wall_total: float,
     falls = sum(1 for e in episodes if e.get("termination") == "fall")
     dorsals = sum(1 for e in episodes if e.get("termination") == "dorsal")
     terms = sum(1 for e in episodes if e.get("termination") is not None)
+    survivors = [e for e in episodes if e.get("termination") is None]
     rec_ok = [e for e in episodes if e.get("recovered")]
     push_eps = [e for e in episodes if e.get("pushes")]
     heldout_eps = [e for e in episodes if e.get("heldout")]
@@ -689,6 +748,17 @@ def aggregate(episodes: list[dict], *, steps_total: int, wall_total: float,
         "commanded_m_mean": mean_metric("commanded_m_mean"),
         "slip_travel_mean": mean_metric("slip_travel_mean"),
         "loaded_step_frac_mean": mean_metric("loaded_step_frac_mean"),
+        # terminal-state stance validity (one shared predicate).  The
+        # unconditional rate counts a terminated (fallen) episode as invalid;
+        # the survivor rate asks the question the fall detector cannot: of the
+        # episodes that did NOT terminate, how many actually END on the feet?
+        # (None -- never a silent pass -- when no episode survived.)
+        "ends_in_valid_stance": round(
+            sum(1 for e in episodes if e.get("ends_in_valid_stance")) / n, 6),
+        "survivor_valid_stance_rate": (
+            round(sum(1 for e in episodes
+                      if e.get("termination") is None and e.get("ends_in_valid_stance"))
+                  / len(survivors), 6) if survivors else None),
     }
     if extra:
         out.update(extra)

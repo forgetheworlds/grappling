@@ -694,7 +694,7 @@ def test_penalty_invariant_holds_for_every_term_set():
     lit_tr = TaskReward("balance", term_set="balance_lit")
     pen = sum(getattr(lit_tr.weights, t) * PENALTY_MARGIN.get(t, 1.0)
               for t in lit_tr.terms if t in PENALTY_TERMS)
-    assert pen == pytest.approx(0.8)                    # airtime's worst case only
+    assert pen == pytest.approx(0.9)   # airtime's worst case + the stance-return gap
     assert lit_tr.weights.upright > pen
     with pytest.raises(ValueError):
         TaskReward("balance", RewardWeights(upright=0.1), term_set="balance_lit")

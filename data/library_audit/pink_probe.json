@@ -1,0 +1,15 @@
+{
+ "pink_version": "4.4.0",
+ "model": {
+  "nq": 33,
+  "nv": 32
+ },
+ "solve_ik_ms_per_call": 12.34582943841815,
+ "final_frame_pos_err_m": 3.421512445430591e-06,
+ "loadavg": [
+  15.35,
+  17.23,
+  13.89
+ ],
+ "note": "pinocchio sample humanoid; no G1 URDF in repo; solver='daqp' (qpsolvers)"
+}

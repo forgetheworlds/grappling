@@ -43,7 +43,7 @@ from dataclasses import asdict, dataclass, field, replace
 import numpy as np
 
 from .commands import DEFAULT_COMMAND, Command
-from .lit import support_centre
+from .lit import com_margin, support_centre
 from .scene import N_JOINTS, STEP_DT
 
 #: placeholder sigmas
@@ -95,6 +95,11 @@ LIT_GRF_SIGMA = 0.5
 #: actuators are the weakest balance actuators at 50 N*m (hip roll/knee 139,
 #: hip pitch/yaw 88, legs are what matter here).
 TORQUE_REF = 50.0
+#: dense margin-normalisation for the "return to a valid stance" term (m): the
+#: worst-cardinal-direction CoM margin at which the term saturates.  0.05 m is the
+#: binding heel-ward margin of the stand pose, so the term is 0 exactly when the
+#: CoM is a heel-margin inside the hull and 1 when it has left it.
+LIT_RETURN_K = 0.05
 
 
 @dataclass(frozen=True)
@@ -140,6 +145,11 @@ class RewardWeights:
     arm_posture: float = 0.03      # source A arm position
     action_diff: float = 0.02      # source A action difference
     torque: float = 0.02           # source A torque
+    #: "every behaviour must RETURN TO a good stance" (operator priority).  The
+    #: dense term is worth more than any pose term (it is the goal), and the
+    #: one-off bonus is paid only on a *valid* final stance.
+    stance_return: float = 0.10
+    return_bonus: float = 5.0
 
     def as_dict(self) -> dict:
         return asdict(self)
@@ -176,7 +186,7 @@ TASK_GAMMA: dict[str, float] = {
 
 PENALTY_TERMS = frozenset({
     "flat_orientation", "feet_slide", "action_rate", "torque_sat",
-    "joint_limit", "shot_timeout", "low_posture", "airtime",
+    "joint_limit", "shot_timeout", "low_posture", "airtime", "stance_return",
 })
 
 #: worst-case per-step magnitude of a mixed-sign penalty term relative to its
@@ -194,7 +204,7 @@ PENALTY_MARGIN: dict[str, float] = {
 LIT_BALANCE_TERMS: tuple[str, ...] = (
     "upright", "vel_stand", "orientation", "base_height", "com_support",
     "capture_point", "grf_even", "airtime", "arm_posture", "action_diff",
-    "torque",
+    "torque", "stance_return",
 )
 
 LIT_TERM_SETS: dict[str, tuple[str, ...]] = {
@@ -254,6 +264,11 @@ class RewardInputs:
     torque: np.ndarray | None = None           # (29,) actuator force (N*m)
     arm_dev: float = 0.0                       # sum |theta_arm - c_arm| (rad)
     gravity: float = 9.81
+    #: support hull (n, 2) of the loaded feet, in the SAME frame as ``com_xy``
+    #: (the dense return term needs the margin, not just the centre); and the
+    #: shared stance predicate's verdict for the current step
+    hull: np.ndarray | None = None
+    stance_valid: bool = False
 
 
 def _clamp01(x: float) -> float:
@@ -537,6 +552,28 @@ def t_torque(inp: RewardInputs, k: float = LIT_TORQUE_K,
     return math.exp(-float(k) * float(t.mean()) / float(tau_ref))
 
 
+def t_stance_return(inp: RewardInputs, k: float = LIT_RETURN_K) -> float:
+    """Dense "come back to a valid stance" shaping (potential, rule 4).
+
+    Signed term, matching this module's convention (positive = good, negative =
+    cost): **0.0 while the CoM is inside the support hull, falling to -1.0 once
+    it has left it**, with the full depth at a ``k``-sized negative margin.  The
+    dense companion of the one-off terminal stance bonus -- a bonus alone is one
+    reward every 400 steps and cannot pull a policy back (the same reason
+    ``recover_gain`` is a potential and not a clock).
+
+    No hull (the ``--stance-return`` wiring is off) or a degenerate hull (< 3
+    loaded sole points) returns 0.0: the term never fires on geometry it cannot
+    measure; the fall detector and the one-off bonus own those cases.
+    """
+    if inp.hull is None or inp.com_xy is None:
+        return 0.0
+    m = com_margin(inp.com_xy, inp.hull)
+    if not np.isfinite(m):
+        return 0.0
+    return -float(np.clip(-m / float(k), 0.0, 1.0))
+
+
 TERM_FUNCS = {
     "alive": t_alive,
     "track_lin": t_track_lin,
@@ -569,6 +606,7 @@ TERM_FUNCS = {
     "arm_posture": t_arm_posture,
     "action_diff": t_action_diff,
     "torque": t_torque,
+    "stance_return": t_stance_return,
 }
 
 
@@ -638,10 +676,31 @@ class TaskReward:
     def terminal(self, cause: str | None) -> tuple[float, dict[str, float]]:
         """One-off terminal reward.  Falls and dorsal contact are penalized;
         timeouts are not (they are not failures, and clock-based penalties
-        create the 'fall to stop paying' pathology)."""
-        if cause in ("fall", "dorsal"):
+        create the 'fall to stop paying' pathology).
+
+        In the ``balance_lit`` return-to-stance mode the env additionally reports
+        ``no_recovery`` as the cause when the episode's time limit is reached
+        while the robot is *not* in a valid stance and not recovering, which IS a
+        failure ("a non-stance ending must be a FAILURE, not a neutral
+        truncation") and shares the fall penalty.
+        """
+        if cause in ("fall", "dorsal", "no_recovery"):
             return -self.termination_penalty, {"termination": -self.termination_penalty}
         return 0.0, {"termination": 0.0}
+
+    def final(self, inp: RewardInputs | None, cause: str | None
+              ) -> tuple[float, dict[str, float]]:
+        """One-off end-of-episode reward in the return-to-stance mode.
+
+        Paid only when the episode's FINAL state is a valid stance (the operator's
+        "every behaviour must return to a good stance"); 0.0 for every other term
+        set, so the default tasks are bit-unchanged.
+        """
+        if self.term_set is None or "stance_return" not in self.terms:
+            return 0.0, {}
+        if inp is None or not bool(inp.stance_valid):
+            return 0.0, {"return_bonus": 0.0}
+        return self.weights.return_bonus, {"return_bonus": self.weights.return_bonus}
 
     def as_dict(self) -> dict:
         return {

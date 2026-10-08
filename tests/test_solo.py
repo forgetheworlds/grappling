@@ -38,10 +38,11 @@ from solo.baselines import (FallForwardController, RandomInitPolicyController,  
 from solo.commands import (Command, CommandFilter, CommandRanges,  # noqa: E402
                            CommandSampler, CommandSchedule, Skill, N_SKILLS)
 from solo.env import TASKS, SoloEnv  # noqa: E402
-from solo.eval import (GATES, TRAIN_MAX_IMPULSE, Criterion, TaskGate,  # noqa: E402
-                       battery_pushes, evaluate, run_episode, take_clips)
+from solo.eval import (GATES, TRAIN_MAX_IMPULSE, TRAIN_PUSH_HEIGHT, Criterion,  # noqa: E402
+                       TaskGate, battery_pushes, evaluate, run_episode, take_clips)
 from solo.fall import (ContactState, DorsalDetector, FallDetConfig,  # noqa: E402
                        FallDetector, FallFeatures, contact_state, fall_features)
+from solo.lit import support_hull  # noqa: E402
 from solo.markers import (MarkerPlan, SHOT_PLAN, active_target,  # noqa: E402
                           apply_markers, penetration_depth, targets)
 from solo.metrics import summarize_rows  # noqa: E402
@@ -355,11 +356,13 @@ def test_push_schedule_battery_deterministic():
     mags = sorted({round(p.impulse, 6) for p in a})
     assert len(mags) >= 5 and max(mags) == 25.0
     assert min(mags) == 4.0
-    # held-out magnitudes are labelled and strictly above the training cap
+    # held-out CONDITIONS are labelled: a magnitude above the training cap OR an
+    # off-training application height (every training push is at TRAIN_PUSH_HEIGHT)
+    def _held_out(p):
+        return p.impulse > TRAIN_MAX_IMPULSE or abs(p.height - TRAIN_PUSH_HEIGHT) > 1e-9
     held = [p for p in a if p.label.endswith("_heldout")]
-    assert held and all(p.impulse > TRAIN_MAX_IMPULSE for p in held)
-    assert not any(p.impulse > TRAIN_MAX_IMPULSE for p in a
-                   if not p.label.endswith("_heldout"))
+    assert held and all(_held_out(p) for p in held)
+    assert not any(_held_out(p) for p in a if not p.label.endswith("_heldout"))
     # the battery varies application height (breaking the stiff-stand case)
     assert {p.height for p in a} == {0.79, 0.95, 1.10}
     assert all(0.0 < p.duration <= 0.1 for p in a)
@@ -531,7 +534,7 @@ def test_every_reward_term_hand_tested():
         hand_distance=0.05, stance_width_meas=0.237, sat_frac=0.0, limit_prox=0.0,
         shot_depth=0.5, shot_depth_prev=0.4, pelvis_z=0.79, pelvis_z_prev=0.70,
         shot_leg_ahead=True, shot_knee_control=True, shot_exited=True,
-        shot_time=0.5, recovered=True)
+        shot_time=0.5, recovered=True, hull=support_hull(_LIT_SOLE))
     bad = _upright(
         cmd=Command(vx=0.3), vel_local=np.array([-0.4, 0.3]), yaw_rate=1.5,
         torso_up_z=0.1, pelvis_z=0.25, pelvis_z_prev=0.25, foot_slip=(2.0, 2.0),
@@ -543,7 +546,8 @@ def test_every_reward_term_hand_tested():
         # literature inputs, degenerate: the CoM is off the support, the feet are
         # unloaded (slamming, no airtime), the arms are flailing, torque is high
         com_xy=np.array([0.5, 0.5]), com_vel_xy=np.array([0.6, -0.4]), com_z=0.4,
-        foot_load=(0.0, 0.0), torque=np.full(N_JOINTS, 200.0), arm_dev=1.5)
+        foot_load=(0.0, 0.0), torque=np.full(N_JOINTS, 200.0), arm_dev=1.5,
+        hull=support_hull(_LIT_SOLE))
     delta = {
         "track_ang": dict(yaw_rate=0.0),
         "stance_height": dict(pelvis_z=0.79),
@@ -578,6 +582,8 @@ def test_every_reward_term_hand_tested():
         "arm_posture": dict(arm_dev=0.0),
         "action_diff": dict(action=np.zeros(29), prev_action=np.zeros(29)),
         "torque": dict(torque=np.zeros(29)),
+        "stance_return": dict(com_xy=_LIT_SUPPORT_CENTRE.copy(),
+                              hull=support_hull(_LIT_SOLE)),
     }
     for name, fn in TERM_FUNCS.items():
         good_v = fn(good)
@@ -821,7 +827,11 @@ def test_eval_run_not_certified_for_stand_hold():
     assert rep["verdict"] == "not_certified"
     assert rep["aggregate"]["fall_rate"] == 0.0
     assert rep["aggregate"]["steps_per_s"] is not None
-    assert any("max_recoverable_impulse" in r for r in rep["reasons"])
+    # T1 carries no active-recovery metric (the stepping bars moved to T3).  This
+    # push-free run is refused because the push-dependent stability metrics are
+    # UNMEASURABLE -- a missing metric must never read as a pass.
+    fails = [r for r in rep["reasons"] if r.startswith("FAIL")]
+    assert any("time_to_stability" in r or "com_offset_max" in r for r in fails), fails
     assert rep["config"]["task"] == "balance"
 
 
@@ -885,9 +895,11 @@ def test_push_curriculum_ramp_and_held_out_boundary():
     assert all(p.impulse <= TRAIN_MAX_IMPULSE for p in a.pushes)
     with pytest.raises(ValueError):
         PushCurriculum(magnitudes=(2.0, 20.0), max_impulse=12.0)
-    # the held-out evaluation magnitudes stay strictly above the training cap
+    # the held-out evaluation CONDITIONS stay off-training: above the magnitude
+    # cap OR off the training application height (TRAIN_PUSH_HEIGHT)
     held = [p for p in battery_pushes() if p.label.endswith("_heldout")]
-    assert min(p.impulse for p in held) > TRAIN_MAX_IMPULSE
+    assert held and all(p.impulse > TRAIN_MAX_IMPULSE
+                        or abs(p.height - TRAIN_PUSH_HEIGHT) > 1e-9 for p in held)
     # env wiring: balance ships a curriculum; the setter feeds the next reset
     env = SoloEnv(seed=0, task="balance")
     assert env.push_curriculum is not None

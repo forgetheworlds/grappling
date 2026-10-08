@@ -318,7 +318,7 @@ def test_gate_uses_no_reward_value_and_every_metric_exists():
     assert set(metrics) == {
         "vx_err_abs_mean", "vy_err_abs_mean", "yaw_err_abs_mean", "mean_upright",
         "fall_rate", "dorsal_rate", "slip_mean", "slip_ratio_mean",
-        "dist_err_mean"}, metrics
+        "dist_err_mean", "survivor_valid_stance_rate"}, metrics
     # the tracking/slip quantities the gate reads are recorded per control step
     for field in ("vx_err", "vy_err", "yaw_err", "slip", "slip_travel",
                   "body_step", "cmd_vx", "cmd_vy", "upright"):

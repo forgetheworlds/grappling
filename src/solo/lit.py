@@ -60,7 +60,7 @@ from dataclasses import dataclass, field
 import mujoco
 import numpy as np
 
-from drill.kin import hull2d
+from drill.kin import hull2d, polygon_margin
 
 from .pushes import PushSchedule, PushSpec
 from .scene import (N_JOINTS, PELVIS_BODY, STEP_DT, body_id, load_solo_model,
@@ -357,6 +357,95 @@ def measure_ceiling(model: mujoco.MjModel | None = None) -> SupportCeiling:
     hull = support_hull(sole_points_world(m, data))
     return ceiling_from_hull(mass, float(com[2]), com[:2], hull,
                              gravity=float(-m.opt.gravity[2]))
+
+
+# --------------------------------------------------------------------- stance
+@dataclass(frozen=True)
+class StanceTol:
+    """Thresholds of the stance-validity predicate.
+
+    **Shared-predicate note:** T1GateCal was to define this predicate; it has NOT
+    landed (``solo.eval`` has no ``stance_valid``/``stable`` symbol), so this is
+    the *first* definition and must be unified with theirs, not duplicated.  The
+    numbers below are taken from definitions that already exist in the repo
+    wherever they do, so the two cannot silently disagree: ``up_z >= 0.97`` and
+    ``|pelvis_z - stand| <= 0.06`` and ``base speed < 0.15 m/s`` are the gate's
+    own ``_recovered_episode`` conditions (``solo/eval.py``); the margin, flatness
+    and pose checks are the ones Main listed for T1GateCal's version.
+    """
+
+    margin_m: float = 0.0            # CoM must be strictly inside the hull
+    up_z_min: float = 0.97           # eval.py's upright condition
+    height_tol_m: float = 0.06       # env's RECOVERY_TOL
+    speed_max: float = 0.15          # eval.py's stability speed
+    tilt_max_deg: float = 14.0       # ~ up_z 0.97
+    pose_dev_max: float = 0.35       # mean |q - q_stand| over the 29 joints (rad)
+    flat_tol_m: float = 0.012        # sole sphere height spread on a planted foot
+
+
+def stance_valid(*, pelvis_z: float, stand_height: float, up_z: float, speed: float,
+                 com_xy, hull, foot_contact, sole_points, joint_dev: float,
+                 tol: StanceTol = StanceTol()) -> bool:
+    """Is the robot in a *valid stance* right now?  One definition, one place.
+
+    All of: the CoM strictly inside the support hull (positive margin), both feet
+    loaded, both feet flat on the mat (their sole spheres within ``flat_tol_m`` of
+    the lowest one), pelvis height within ``height_tol_m`` of the stance height,
+    torso upright (``up_z >= up_z_min``), base speed below ``speed_max``, and the
+    joint pose within ``pose_dev_max`` of the stand keyframe.  Every input is a
+    measured quantity the env already has.
+    """
+    from .scene import N_JOINTS as _N  # local: keeps the module import-light
+
+    del _N
+    if float(up_z) < float(tol.up_z_min):
+        return False
+    if abs(float(pelvis_z) - float(stand_height)) > float(tol.height_tol_m):
+        return False
+    if float(speed) >= float(tol.speed_max):
+        return False
+    if abs(float(joint_dev)) > float(tol.pose_dev_max):
+        return False
+    if not (bool(foot_contact[0]) and bool(foot_contact[1])):
+        return False
+    pts = np.asarray(sole_points, dtype=float).reshape(2, -1, 3)
+    for i in range(2):
+        z = pts[i][:, 2]
+        if float(z.max() - z.min()) > float(tol.flat_tol_m):
+            return False
+    if hull is None or len(np.asarray(hull)) < 3:
+        return False
+    return directional_margin(com_xy, hull, np.array([1.0, 0.0])) > float(tol.margin_m) \
+        and directional_margin(com_xy, hull, np.array([0.0, 1.0])) > float(tol.margin_m) \
+        and directional_margin(com_xy, hull, np.array([-1.0, 0.0])) > float(tol.margin_m) \
+        and directional_margin(com_xy, hull, np.array([0.0, -1.0])) > float(tol.margin_m)
+
+
+def com_margin(com_xy, hull) -> float:
+    """Signed CoM margin (m) vs the hull.
+
+    Positive inside: the worst of the four cardinal directions (how far the CoM
+    can still travel before leaving the hull -- the scalar the stance predicate
+    thresholds).  Negative outside: the penetration depth (distance to the hull
+    boundary, via :func:`drill.kin.polygon_margin`), so a return-to-stance term
+    can price *leaving* the hull instead of saturating at 0.  A degenerate hull
+    (< 3 points) has no interior and reports ``-inf``.
+    """
+    h = np.asarray(hull, dtype=float).reshape(-1, 2)
+    if len(h) < 3:
+        return float("-inf")
+    p = np.asarray(com_xy, dtype=float).reshape(2)
+    m = float(min(directional_margin(p, h, d) for d in
+                  ((1.0, 0.0), (-1.0, 0.0), (0.0, 1.0), (0.0, -1.0))))
+    if m > 0.0:
+        return m
+    return float(polygon_margin(p, h))
+
+
+#: a legitimate recovery may take this long; the no-recovery termination cannot
+#: fire inside it, and a state that is recovering (rising pelvis, upright enough)
+#: never counts as "ended badly" (see ``SoloEnv._update_stance_return``)
+STANCE_GRACE_S = 1.0
 
 
 # --------------------------------------------------------------------- mask
