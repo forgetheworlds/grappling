@@ -50,9 +50,9 @@ import numpy as np
 
 ROBOTS = ("a", "b")
 FLOOR_GEOM = "floor"
-#: bodies whose mat contact counts as "torso" for the back-to-mat rule
-TORSO_BODIES = ("torso_link", "pelvis")
-#: diagnostics only: knees and hands touching the mat is NOT a loss
+#: torso bodies for the rule: ``torso_link`` + ``pelvis`` collision geoms
+#: (see :func:`body_maps`); diagnostics only: knees/hands/elbows touching the
+#: mat is NOT a loss
 LIMB_BODIES = ("knee_link", "wrist_roll_link", "wrist_yaw_link", "elbow_link")
 
 #: floating-point slack for the persistence comparison
@@ -61,11 +61,18 @@ _EPS = 1e-9
 
 @dataclass(frozen=True)
 class BackDetConfig:
-    """Detector thresholds.  Calibrated operating point (see module docstring)."""
+    """Detector thresholds.
 
-    tilt_threshold_deg: float = 55.0
+    Defaults are the calibrated operating point from
+    ``scripts/calibrate_backdet.py`` (2026-10-08, data/backdet_calibration.json):
+    tilt 45 deg, pelvis z 0.35 m, confirmation 0.30 s -> sensitivity 1.000 /
+    specificity 1.000 on the calibration set, detection latency 0.32 s, tilt
+    margins +17.6 / -18.8 deg and pelvis-z margin +0.256 m (see report).
+    """
+
+    tilt_threshold_deg: float = 45.0
     pelvis_z_threshold: float = 0.35
-    confirm_s: float = 0.20
+    confirm_s: float = 0.30
     #: contact point local x must be < this to count as dorsal (0.0 = back half)
     dorsal_x_max: float = 0.0
 
@@ -94,6 +101,7 @@ class BackFeatures:
     tilt_deg: float
     pelvis_z: float
     limb_contact: bool  # knee/hand/elbow contact with the mat (diagnostics)
+    dorsal_normal: bool = False  # independent cross-check: mat normal opposes dorsal axis
 
     def as_dict(self) -> dict:
         return {
@@ -106,6 +114,7 @@ class BackFeatures:
             "tilt_deg": float(self.tilt_deg),
             "pelvis_z": float(self.pelvis_z),
             "limb_contact": bool(self.limb_contact),
+            "dorsal_normal": bool(self.dorsal_normal),
         }
 
 
@@ -119,11 +128,15 @@ class _BodyMaps:
     limb_bids: frozenset
 
 
-def _body_maps(model: mujoco.MjModel, prefix: str, _cache: dict = {}) -> _BodyMaps:
-    key = (id(model), prefix)
-    maps = _cache.get(key)
-    if maps is not None:
-        return maps
+def body_maps(model: mujoco.MjModel, robot: str) -> _BodyMaps:
+    """Resolve the torso/pelvis/limb body and geom ids for robot ``"a"``/``"b"``.
+
+    Recomputed per call (a few µs): MjModel is a C struct that cannot hold
+    Python-side caches, and id()-keyed caches are unsafe across model
+    lifetimes.
+    """
+    prefix = robot if robot.endswith("_") else f"{robot}_"
+
     def bid(name: str) -> int:
         i = mujoco.mj_name2id(model, mujoco.mjtObj.mjOBJ_BODY, f"{prefix}{name}")
         if i < 0:
@@ -138,18 +151,16 @@ def _body_maps(model: mujoco.MjModel, prefix: str, _cache: dict = {}) -> _BodyMa
     )
     limb = {bid(n) for n in LIMB_BODIES if
             mujoco.mj_name2id(model, mujoco.mjtObj.mjOBJ_BODY, f"{prefix}{n}") >= 0}
-    maps = _BodyMaps(torso_bid, pelvis_bid, torso_geoms, frozenset(limb))
-    _cache[key] = maps
-    return maps
+    return _BodyMaps(torso_bid, pelvis_bid, torso_geoms, frozenset(limb))
 
 
-def back_features(model: mujoco.MjModel, data: mujoco.MjData, prefix: str,
+def back_features(model: mujoco.MjModel, data: mujoco.MjData, robot: str,
                   cfg: BackDetConfig = DEFAULT_CONFIG) -> BackFeatures:
-    """Measured features for one robot / prefix at the current ``data`` state."""
-    maps = _body_maps(model, prefix)
+    """Measured features for one robot (``"a"``/``"b"``) at the current ``data`` state."""
+    maps = body_maps(model, robot)
     floor = mujoco.mj_name2id(model, mujoco.mjtObj.mjOBJ_GEOM, FLOOR_GEOM)
     acc = {"dorsal": False, "front": False, "n": 0,
-           "xmin": np.inf, "xmax": -np.inf, "limb": False}
+           "xmin": np.inf, "xmax": -np.inf, "limb": False, "normal": False}
     for c in range(data.ncon):
         con = data.contact[c]
         g1, g2 = int(con.geom1), int(con.geom2)
@@ -172,6 +183,14 @@ def back_features(model: mujoco.MjModel, data: mujoco.MjData, prefix: str,
             acc["dorsal"] = True
         else:
             acc["front"] = True
+        # independent cross-check: contact normal (oriented mat -> robot) must
+        # oppose the dorsal axis (local -x) of the contacting body: lying on
+        # the back means the dorsal axis points into the mat (dot ~ -1)
+        normal = np.asarray(con.frame[:3], dtype=np.float64)
+        if g1 != floor:
+            normal = -normal
+        if float(np.dot(-R[:, 0], normal)) < -0.5:
+            acc["normal"] = True
 
     R_torso = data.xmat[maps.torso_bid].reshape(3, 3)
     tilt = float(np.degrees(np.arccos(np.clip(R_torso[2, 2], -1.0, 1.0))))
@@ -185,6 +204,7 @@ def back_features(model: mujoco.MjModel, data: mujoco.MjData, prefix: str,
         tilt_deg=tilt,
         pelvis_z=float(data.xpos[maps.pelvis_bid][2]),
         limb_contact=acc["limb"],
+        dorsal_normal=acc["normal"],
     )
 
 
@@ -273,14 +293,6 @@ def first_confirmed_index(cond: np.ndarray, t: np.ndarray, confirm_s: float):
     return int(idx[0]) if len(idx) else None
 
 
-def condition_mask(feats, cfg: BackDetConfig) -> np.ndarray:
-    """Vectorized condition over a list of BackFeatures."""
-    dorsal = np.array([f.dorsal_contact for f in feats], dtype=bool)
-    tilt = np.array([f.tilt_deg for f in feats], dtype=float)
-    pelz = np.array([f.pelvis_z for f in feats], dtype=float)
-    return dorsal & (tilt >= cfg.tilt_threshold_deg) & (pelz <= cfg.pelvis_z_threshold)
-
-
 @dataclass
 class FeatureSequence:
     """Recorded per-robot feature rows, ready for offline sweeps."""
@@ -293,6 +305,7 @@ class FeatureSequence:
     pelz: np.ndarray
     front: np.ndarray = None
     limb: np.ndarray = None
+    dnormal: np.ndarray = None
     meta: dict = field(default_factory=dict)
 
     @classmethod
@@ -306,6 +319,7 @@ class FeatureSequence:
             pelz=np.array([f.pelvis_z for f in rows]),
             front=np.array([f.front_contact for f in rows], dtype=bool),
             limb=np.array([f.limb_contact for f in rows], dtype=bool),
+            dnormal=np.array([f.dorsal_normal for f in rows], dtype=bool),
         )
 
     def cond(self, cfg: BackDetConfig) -> np.ndarray:
@@ -315,3 +329,21 @@ class FeatureSequence:
 
     def confirmed(self, cfg: BackDetConfig) -> np.ndarray:
         return confirmed_mask(self.cond(cfg), self.t, cfg.confirm_s)
+
+
+if __name__ == "__main__":  # self-check
+    dt = 0.02
+    t = np.arange(50) * dt
+    dorsal = np.zeros(50, dtype=bool)
+    dorsal[10:40] = True          # a 0.6 s contact episode
+    tilt = np.where(dorsal, 80.0, 10.0)
+    pelz = np.where(dorsal, 0.25, 0.75)
+    cfg = DEFAULT_CONFIG
+    mask = confirmed_mask(dorsal & (tilt >= cfg.tilt_threshold_deg)
+                          & (pelz <= cfg.pelvis_z_threshold), t, cfg.confirm_s)
+    idx = np.flatnonzero(mask)
+    assert idx.size and abs(float(t[idx[0]]) - (t[10] + cfg.confirm_s)) < 1e-9, t[idx[0]]
+    # knees/hands (limb contact) and front contacts never trigger
+    assert not mask[0] and not mask[9]
+    print("backdet self-check OK:", {"confirm_s": cfg.confirm_s,
+                                     "trigger_t": float(t[idx[0]])})

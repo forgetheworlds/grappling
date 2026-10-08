@@ -1,0 +1,4003 @@
+{
+  "config": {
+    "confirm_s": 0.3,
+    "dorsal_x_max": 0.0,
+    "pelvis_z_threshold": 0.35,
+    "tilt_threshold_deg": 45.0
+  },
+  "evidence": {
+    "defender_goes_low_at_s": 1.322,
+    "dorsal_normal_agreement": 1.0,
+    "episode_onset_s": 1.362,
+    "front_contacts_in_positive_raw": 0,
+    "neg_dorsal_samples": 32,
+    "neg_dorsal_tilt_max": 26.243336483989737,
+    "neg_ground_start_samples": 100,
+    "neg_stand_samples": 695,
+    "neg_stand_tilt_max": 125.08194347372859,
+    "negative_samples": 795,
+    "pos_episodes_s": [
+      [
+        1.862,
+        2.922
+      ],
+      [
+        4.182,
+        6.222
+      ]
+    ],
+    "pos_pelz_max": 0.0941988273372708,
+    "pos_tilt_median": 80.76387163063184,
+    "pos_tilt_min": 62.595376557804926,
+    "positive_samples": 157,
+    "positive_window": [
+      1.8620000000000014,
+      6.221999999999537
+    ]
+  },
+  "generated_by": "scripts/calibrate_backdet.py",
+  "labels": {
+    "negative_ground_start": "STAND_UP t <= 1.0 s",
+    "negative_stand": "pelvis_z >= 0.55 m, all rollouts",
+    "positive": "SPRAWL/b dorsal episode after pelvis_z >= 0.2 m, established >= 0.5 s"
+  },
+  "latency": {
+    "first_dorsal_contact_s": 1.362000000000001,
+    "first_trigger_s": 1.682,
+    "latency_s": 0.32
+  },
+  "margins": {
+    "latency_budget_s": 0.35,
+    "passing_configs": 378,
+    "passing_within_latency_budget": 238,
+    "pelz_margin_pos_m": 0.256,
+    "tilt_balanced_midpoint_deg": 44.42,
+    "tilt_margin_neg_deg": 18.76,
+    "tilt_margin_pos_deg": 17.6
+  },
+  "metrics": {
+    "sens": 1.0,
+    "spec": 1.0
+  },
+  "tables": {
+    "all_configs": [
+      {
+        "confirm": 0.05,
+        "pelz": 0.2,
+        "sens": 1.0,
+        "spec": 1.0,
+        "tilt": 40
+      },
+      {
+        "confirm": 0.1,
+        "pelz": 0.2,
+        "sens": 1.0,
+        "spec": 1.0,
+        "tilt": 40
+      },
+      {
+        "confirm": 0.15,
+        "pelz": 0.2,
+        "sens": 1.0,
+        "spec": 1.0,
+        "tilt": 40
+      },
+      {
+        "confirm": 0.2,
+        "pelz": 0.2,
+        "sens": 1.0,
+        "spec": 1.0,
+        "tilt": 40
+      },
+      {
+        "confirm": 0.25,
+        "pelz": 0.2,
+        "sens": 1.0,
+        "spec": 1.0,
+        "tilt": 40
+      },
+      {
+        "confirm": 0.3,
+        "pelz": 0.2,
+        "sens": 1.0,
+        "spec": 1.0,
+        "tilt": 40
+      },
+      {
+        "confirm": 0.35,
+        "pelz": 0.2,
+        "sens": 1.0,
+        "spec": 1.0,
+        "tilt": 40
+      },
+      {
+        "confirm": 0.4,
+        "pelz": 0.2,
+        "sens": 1.0,
+        "spec": 1.0,
+        "tilt": 40
+      },
+      {
+        "confirm": 0.5,
+        "pelz": 0.2,
+        "sens": 0.9936,
+        "spec": 1.0,
+        "tilt": 40
+      },
+      {
+        "confirm": 0.6,
+        "pelz": 0.2,
+        "sens": 0.9299,
+        "spec": 1.0,
+        "tilt": 40
+      },
+      {
+        "confirm": 0.05,
+        "pelz": 0.25,
+        "sens": 1.0,
+        "spec": 1.0,
+        "tilt": 40
+      },
+      {
+        "confirm": 0.1,
+        "pelz": 0.25,
+        "sens": 1.0,
+        "spec": 1.0,
+        "tilt": 40
+      },
+      {
+        "confirm": 0.15,
+        "pelz": 0.25,
+        "sens": 1.0,
+        "spec": 1.0,
+        "tilt": 40
+      },
+      {
+        "confirm": 0.2,
+        "pelz": 0.25,
+        "sens": 1.0,
+        "spec": 1.0,
+        "tilt": 40
+      },
+      {
+        "confirm": 0.25,
+        "pelz": 0.25,
+        "sens": 1.0,
+        "spec": 1.0,
+        "tilt": 40
+      },
+      {
+        "confirm": 0.3,
+        "pelz": 0.25,
+        "sens": 1.0,
+        "spec": 1.0,
+        "tilt": 40
+      },
+      {
+        "confirm": 0.35,
+        "pelz": 0.25,
+        "sens": 1.0,
+        "spec": 1.0,
+        "tilt": 40
+      },
+      {
+        "confirm": 0.4,
+        "pelz": 0.25,
+        "sens": 1.0,
+        "spec": 1.0,
+        "tilt": 40
+      },
+      {
+        "confirm": 0.5,
+        "pelz": 0.25,
+        "sens": 0.9936,
+        "spec": 1.0,
+        "tilt": 40
+      },
+      {
+        "confirm": 0.6,
+        "pelz": 0.25,
+        "sens": 0.9299,
+        "spec": 1.0,
+        "tilt": 40
+      },
+      {
+        "confirm": 0.05,
+        "pelz": 0.3,
+        "sens": 1.0,
+        "spec": 1.0,
+        "tilt": 40
+      },
+      {
+        "confirm": 0.1,
+        "pelz": 0.3,
+        "sens": 1.0,
+        "spec": 1.0,
+        "tilt": 40
+      },
+      {
+        "confirm": 0.15,
+        "pelz": 0.3,
+        "sens": 1.0,
+        "spec": 1.0,
+        "tilt": 40
+      },
+      {
+        "confirm": 0.2,
+        "pelz": 0.3,
+        "sens": 1.0,
+        "spec": 1.0,
+        "tilt": 40
+      },
+      {
+        "confirm": 0.25,
+        "pelz": 0.3,
+        "sens": 1.0,
+        "spec": 1.0,
+        "tilt": 40
+      },
+      {
+        "confirm": 0.3,
+        "pelz": 0.3,
+        "sens": 1.0,
+        "spec": 1.0,
+        "tilt": 40
+      },
+      {
+        "confirm": 0.35,
+        "pelz": 0.3,
+        "sens": 1.0,
+        "spec": 1.0,
+        "tilt": 40
+      },
+      {
+        "confirm": 0.4,
+        "pelz": 0.3,
+        "sens": 1.0,
+        "spec": 1.0,
+        "tilt": 40
+      },
+      {
+        "confirm": 0.5,
+        "pelz": 0.3,
+        "sens": 0.9936,
+        "spec": 1.0,
+        "tilt": 40
+      },
+      {
+        "confirm": 0.6,
+        "pelz": 0.3,
+        "sens": 0.9299,
+        "spec": 1.0,
+        "tilt": 40
+      },
+      {
+        "confirm": 0.05,
+        "pelz": 0.35,
+        "sens": 1.0,
+        "spec": 1.0,
+        "tilt": 40
+      },
+      {
+        "confirm": 0.1,
+        "pelz": 0.35,
+        "sens": 1.0,
+        "spec": 1.0,
+        "tilt": 40
+      },
+      {
+        "confirm": 0.15,
+        "pelz": 0.35,
+        "sens": 1.0,
+        "spec": 1.0,
+        "tilt": 40
+      },
+      {
+        "confirm": 0.2,
+        "pelz": 0.35,
+        "sens": 1.0,
+        "spec": 1.0,
+        "tilt": 40
+      },
+      {
+        "confirm": 0.25,
+        "pelz": 0.35,
+        "sens": 1.0,
+        "spec": 1.0,
+        "tilt": 40
+      },
+      {
+        "confirm": 0.3,
+        "pelz": 0.35,
+        "sens": 1.0,
+        "spec": 1.0,
+        "tilt": 40
+      },
+      {
+        "confirm": 0.35,
+        "pelz": 0.35,
+        "sens": 1.0,
+        "spec": 1.0,
+        "tilt": 40
+      },
+      {
+        "confirm": 0.4,
+        "pelz": 0.35,
+        "sens": 1.0,
+        "spec": 1.0,
+        "tilt": 40
+      },
+      {
+        "confirm": 0.5,
+        "pelz": 0.35,
+        "sens": 0.9936,
+        "spec": 1.0,
+        "tilt": 40
+      },
+      {
+        "confirm": 0.6,
+        "pelz": 0.35,
+        "sens": 0.9299,
+        "spec": 1.0,
+        "tilt": 40
+      },
+      {
+        "confirm": 0.05,
+        "pelz": 0.4,
+        "sens": 1.0,
+        "spec": 1.0,
+        "tilt": 40
+      },
+      {
+        "confirm": 0.1,
+        "pelz": 0.4,
+        "sens": 1.0,
+        "spec": 1.0,
+        "tilt": 40
+      },
+      {
+        "confirm": 0.15,
+        "pelz": 0.4,
+        "sens": 1.0,
+        "spec": 1.0,
+        "tilt": 40
+      },
+      {
+        "confirm": 0.2,
+        "pelz": 0.4,
+        "sens": 1.0,
+        "spec": 1.0,
+        "tilt": 40
+      },
+      {
+        "confirm": 0.25,
+        "pelz": 0.4,
+        "sens": 1.0,
+        "spec": 1.0,
+        "tilt": 40
+      },
+      {
+        "confirm": 0.3,
+        "pelz": 0.4,
+        "sens": 1.0,
+        "spec": 1.0,
+        "tilt": 40
+      },
+      {
+        "confirm": 0.35,
+        "pelz": 0.4,
+        "sens": 1.0,
+        "spec": 1.0,
+        "tilt": 40
+      },
+      {
+        "confirm": 0.4,
+        "pelz": 0.4,
+        "sens": 1.0,
+        "spec": 1.0,
+        "tilt": 40
+      },
+      {
+        "confirm": 0.5,
+        "pelz": 0.4,
+        "sens": 0.9936,
+        "spec": 1.0,
+        "tilt": 40
+      },
+      {
+        "confirm": 0.6,
+        "pelz": 0.4,
+        "sens": 0.9299,
+        "spec": 1.0,
+        "tilt": 40
+      },
+      {
+        "confirm": 0.05,
+        "pelz": 0.45,
+        "sens": 1.0,
+        "spec": 1.0,
+        "tilt": 40
+      },
+      {
+        "confirm": 0.1,
+        "pelz": 0.45,
+        "sens": 1.0,
+        "spec": 1.0,
+        "tilt": 40
+      },
+      {
+        "confirm": 0.15,
+        "pelz": 0.45,
+        "sens": 1.0,
+        "spec": 1.0,
+        "tilt": 40
+      },
+      {
+        "confirm": 0.2,
+        "pelz": 0.45,
+        "sens": 1.0,
+        "spec": 1.0,
+        "tilt": 40
+      },
+      {
+        "confirm": 0.25,
+        "pelz": 0.45,
+        "sens": 1.0,
+        "spec": 1.0,
+        "tilt": 40
+      },
+      {
+        "confirm": 0.3,
+        "pelz": 0.45,
+        "sens": 1.0,
+        "spec": 1.0,
+        "tilt": 40
+      },
+      {
+        "confirm": 0.35,
+        "pelz": 0.45,
+        "sens": 1.0,
+        "spec": 1.0,
+        "tilt": 40
+      },
+      {
+        "confirm": 0.4,
+        "pelz": 0.45,
+        "sens": 1.0,
+        "spec": 1.0,
+        "tilt": 40
+      },
+      {
+        "confirm": 0.5,
+        "pelz": 0.45,
+        "sens": 0.9936,
+        "spec": 1.0,
+        "tilt": 40
+      },
+      {
+        "confirm": 0.6,
+        "pelz": 0.45,
+        "sens": 0.9299,
+        "spec": 1.0,
+        "tilt": 40
+      },
+      {
+        "confirm": 0.05,
+        "pelz": 0.5,
+        "sens": 1.0,
+        "spec": 1.0,
+        "tilt": 40
+      },
+      {
+        "confirm": 0.1,
+        "pelz": 0.5,
+        "sens": 1.0,
+        "spec": 1.0,
+        "tilt": 40
+      },
+      {
+        "confirm": 0.15,
+        "pelz": 0.5,
+        "sens": 1.0,
+        "spec": 1.0,
+        "tilt": 40
+      },
+      {
+        "confirm": 0.2,
+        "pelz": 0.5,
+        "sens": 1.0,
+        "spec": 1.0,
+        "tilt": 40
+      },
+      {
+        "confirm": 0.25,
+        "pelz": 0.5,
+        "sens": 1.0,
+        "spec": 1.0,
+        "tilt": 40
+      },
+      {
+        "confirm": 0.3,
+        "pelz": 0.5,
+        "sens": 1.0,
+        "spec": 1.0,
+        "tilt": 40
+      },
+      {
+        "confirm": 0.35,
+        "pelz": 0.5,
+        "sens": 1.0,
+        "spec": 1.0,
+        "tilt": 40
+      },
+      {
+        "confirm": 0.4,
+        "pelz": 0.5,
+        "sens": 1.0,
+        "spec": 1.0,
+        "tilt": 40
+      },
+      {
+        "confirm": 0.5,
+        "pelz": 0.5,
+        "sens": 0.9936,
+        "spec": 1.0,
+        "tilt": 40
+      },
+      {
+        "confirm": 0.6,
+        "pelz": 0.5,
+        "sens": 0.9299,
+        "spec": 1.0,
+        "tilt": 40
+      },
+      {
+        "confirm": 0.05,
+        "pelz": 0.2,
+        "sens": 1.0,
+        "spec": 1.0,
+        "tilt": 45
+      },
+      {
+        "confirm": 0.1,
+        "pelz": 0.2,
+        "sens": 1.0,
+        "spec": 1.0,
+        "tilt": 45
+      },
+      {
+        "confirm": 0.15,
+        "pelz": 0.2,
+        "sens": 1.0,
+        "spec": 1.0,
+        "tilt": 45
+      },
+      {
+        "confirm": 0.2,
+        "pelz": 0.2,
+        "sens": 1.0,
+        "spec": 1.0,
+        "tilt": 45
+      },
+      {
+        "confirm": 0.25,
+        "pelz": 0.2,
+        "sens": 1.0,
+        "spec": 1.0,
+        "tilt": 45
+      },
+      {
+        "confirm": 0.3,
+        "pelz": 0.2,
+        "sens": 1.0,
+        "spec": 1.0,
+        "tilt": 45
+      },
+      {
+        "confirm": 0.35,
+        "pelz": 0.2,
+        "sens": 1.0,
+        "spec": 1.0,
+        "tilt": 45
+      },
+      {
+        "confirm": 0.4,
+        "pelz": 0.2,
+        "sens": 1.0,
+        "spec": 1.0,
+        "tilt": 45
+      },
+      {
+        "confirm": 0.5,
+        "pelz": 0.2,
+        "sens": 0.9936,
+        "spec": 1.0,
+        "tilt": 45
+      },
+      {
+        "confirm": 0.6,
+        "pelz": 0.2,
+        "sens": 0.9299,
+        "spec": 1.0,
+        "tilt": 45
+      },
+      {
+        "confirm": 0.05,
+        "pelz": 0.25,
+        "sens": 1.0,
+        "spec": 1.0,
+        "tilt": 45
+      },
+      {
+        "confirm": 0.1,
+        "pelz": 0.25,
+        "sens": 1.0,
+        "spec": 1.0,
+        "tilt": 45
+      },
+      {
+        "confirm": 0.15,
+        "pelz": 0.25,
+        "sens": 1.0,
+        "spec": 1.0,
+        "tilt": 45
+      },
+      {
+        "confirm": 0.2,
+        "pelz": 0.25,
+        "sens": 1.0,
+        "spec": 1.0,
+        "tilt": 45
+      },
+      {
+        "confirm": 0.25,
+        "pelz": 0.25,
+        "sens": 1.0,
+        "spec": 1.0,
+        "tilt": 45
+      },
+      {
+        "confirm": 0.3,
+        "pelz": 0.25,
+        "sens": 1.0,
+        "spec": 1.0,
+        "tilt": 45
+      },
+      {
+        "confirm": 0.35,
+        "pelz": 0.25,
+        "sens": 1.0,
+        "spec": 1.0,
+        "tilt": 45
+      },
+      {
+        "confirm": 0.4,
+        "pelz": 0.25,
+        "sens": 1.0,
+        "spec": 1.0,
+        "tilt": 45
+      },
+      {
+        "confirm": 0.5,
+        "pelz": 0.25,
+        "sens": 0.9936,
+        "spec": 1.0,
+        "tilt": 45
+      },
+      {
+        "confirm": 0.6,
+        "pelz": 0.25,
+        "sens": 0.9299,
+        "spec": 1.0,
+        "tilt": 45
+      },
+      {
+        "confirm": 0.05,
+        "pelz": 0.3,
+        "sens": 1.0,
+        "spec": 1.0,
+        "tilt": 45
+      },
+      {
+        "confirm": 0.1,
+        "pelz": 0.3,
+        "sens": 1.0,
+        "spec": 1.0,
+        "tilt": 45
+      },
+      {
+        "confirm": 0.15,
+        "pelz": 0.3,
+        "sens": 1.0,
+        "spec": 1.0,
+        "tilt": 45
+      },
+      {
+        "confirm": 0.2,
+        "pelz": 0.3,
+        "sens": 1.0,
+        "spec": 1.0,
+        "tilt": 45
+      },
+      {
+        "confirm": 0.25,
+        "pelz": 0.3,
+        "sens": 1.0,
+        "spec": 1.0,
+        "tilt": 45
+      },
+      {
+        "confirm": 0.3,
+        "pelz": 0.3,
+        "sens": 1.0,
+        "spec": 1.0,
+        "tilt": 45
+      },
+      {
+        "confirm": 0.35,
+        "pelz": 0.3,
+        "sens": 1.0,
+        "spec": 1.0,
+        "tilt": 45
+      },
+      {
+        "confirm": 0.4,
+        "pelz": 0.3,
+        "sens": 1.0,
+        "spec": 1.0,
+        "tilt": 45
+      },
+      {
+        "confirm": 0.5,
+        "pelz": 0.3,
+        "sens": 0.9936,
+        "spec": 1.0,
+        "tilt": 45
+      },
+      {
+        "confirm": 0.6,
+        "pelz": 0.3,
+        "sens": 0.9299,
+        "spec": 1.0,
+        "tilt": 45
+      },
+      {
+        "confirm": 0.05,
+        "pelz": 0.35,
+        "sens": 1.0,
+        "spec": 1.0,
+        "tilt": 45
+      },
+      {
+        "confirm": 0.1,
+        "pelz": 0.35,
+        "sens": 1.0,
+        "spec": 1.0,
+        "tilt": 45
+      },
+      {
+        "confirm": 0.15,
+        "pelz": 0.35,
+        "sens": 1.0,
+        "spec": 1.0,
+        "tilt": 45
+      },
+      {
+        "confirm": 0.2,
+        "pelz": 0.35,
+        "sens": 1.0,
+        "spec": 1.0,
+        "tilt": 45
+      },
+      {
+        "confirm": 0.25,
+        "pelz": 0.35,
+        "sens": 1.0,
+        "spec": 1.0,
+        "tilt": 45
+      },
+      {
+        "confirm": 0.3,
+        "pelz": 0.35,
+        "sens": 1.0,
+        "spec": 1.0,
+        "tilt": 45
+      },
+      {
+        "confirm": 0.35,
+        "pelz": 0.35,
+        "sens": 1.0,
+        "spec": 1.0,
+        "tilt": 45
+      },
+      {
+        "confirm": 0.4,
+        "pelz": 0.35,
+        "sens": 1.0,
+        "spec": 1.0,
+        "tilt": 45
+      },
+      {
+        "confirm": 0.5,
+        "pelz": 0.35,
+        "sens": 0.9936,
+        "spec": 1.0,
+        "tilt": 45
+      },
+      {
+        "confirm": 0.6,
+        "pelz": 0.35,
+        "sens": 0.9299,
+        "spec": 1.0,
+        "tilt": 45
+      },
+      {
+        "confirm": 0.05,
+        "pelz": 0.4,
+        "sens": 1.0,
+        "spec": 1.0,
+        "tilt": 45
+      },
+      {
+        "confirm": 0.1,
+        "pelz": 0.4,
+        "sens": 1.0,
+        "spec": 1.0,
+        "tilt": 45
+      },
+      {
+        "confirm": 0.15,
+        "pelz": 0.4,
+        "sens": 1.0,
+        "spec": 1.0,
+        "tilt": 45
+      },
+      {
+        "confirm": 0.2,
+        "pelz": 0.4,
+        "sens": 1.0,
+        "spec": 1.0,
+        "tilt": 45
+      },
+      {
+        "confirm": 0.25,
+        "pelz": 0.4,
+        "sens": 1.0,
+        "spec": 1.0,
+        "tilt": 45
+      },
+      {
+        "confirm": 0.3,
+        "pelz": 0.4,
+        "sens": 1.0,
+        "spec": 1.0,
+        "tilt": 45
+      },
+      {
+        "confirm": 0.35,
+        "pelz": 0.4,
+        "sens": 1.0,
+        "spec": 1.0,
+        "tilt": 45
+      },
+      {
+        "confirm": 0.4,
+        "pelz": 0.4,
+        "sens": 1.0,
+        "spec": 1.0,
+        "tilt": 45
+      },
+      {
+        "confirm": 0.5,
+        "pelz": 0.4,
+        "sens": 0.9936,
+        "spec": 1.0,
+        "tilt": 45
+      },
+      {
+        "confirm": 0.6,
+        "pelz": 0.4,
+        "sens": 0.9299,
+        "spec": 1.0,
+        "tilt": 45
+      },
+      {
+        "confirm": 0.05,
+        "pelz": 0.45,
+        "sens": 1.0,
+        "spec": 1.0,
+        "tilt": 45
+      },
+      {
+        "confirm": 0.1,
+        "pelz": 0.45,
+        "sens": 1.0,
+        "spec": 1.0,
+        "tilt": 45
+      },
+      {
+        "confirm": 0.15,
+        "pelz": 0.45,
+        "sens": 1.0,
+        "spec": 1.0,
+        "tilt": 45
+      },
+      {
+        "confirm": 0.2,
+        "pelz": 0.45,
+        "sens": 1.0,
+        "spec": 1.0,
+        "tilt": 45
+      },
+      {
+        "confirm": 0.25,
+        "pelz": 0.45,
+        "sens": 1.0,
+        "spec": 1.0,
+        "tilt": 45
+      },
+      {
+        "confirm": 0.3,
+        "pelz": 0.45,
+        "sens": 1.0,
+        "spec": 1.0,
+        "tilt": 45
+      },
+      {
+        "confirm": 0.35,
+        "pelz": 0.45,
+        "sens": 1.0,
+        "spec": 1.0,
+        "tilt": 45
+      },
+      {
+        "confirm": 0.4,
+        "pelz": 0.45,
+        "sens": 1.0,
+        "spec": 1.0,
+        "tilt": 45
+      },
+      {
+        "confirm": 0.5,
+        "pelz": 0.45,
+        "sens": 0.9936,
+        "spec": 1.0,
+        "tilt": 45
+      },
+      {
+        "confirm": 0.6,
+        "pelz": 0.45,
+        "sens": 0.9299,
+        "spec": 1.0,
+        "tilt": 45
+      },
+      {
+        "confirm": 0.05,
+        "pelz": 0.5,
+        "sens": 1.0,
+        "spec": 1.0,
+        "tilt": 45
+      },
+      {
+        "confirm": 0.1,
+        "pelz": 0.5,
+        "sens": 1.0,
+        "spec": 1.0,
+        "tilt": 45
+      },
+      {
+        "confirm": 0.15,
+        "pelz": 0.5,
+        "sens": 1.0,
+        "spec": 1.0,
+        "tilt": 45
+      },
+      {
+        "confirm": 0.2,
+        "pelz": 0.5,
+        "sens": 1.0,
+        "spec": 1.0,
+        "tilt": 45
+      },
+      {
+        "confirm": 0.25,
+        "pelz": 0.5,
+        "sens": 1.0,
+        "spec": 1.0,
+        "tilt": 45
+      },
+      {
+        "confirm": 0.3,
+        "pelz": 0.5,
+        "sens": 1.0,
+        "spec": 1.0,
+        "tilt": 45
+      },
+      {
+        "confirm": 0.35,
+        "pelz": 0.5,
+        "sens": 1.0,
+        "spec": 1.0,
+        "tilt": 45
+      },
+      {
+        "confirm": 0.4,
+        "pelz": 0.5,
+        "sens": 1.0,
+        "spec": 1.0,
+        "tilt": 45
+      },
+      {
+        "confirm": 0.5,
+        "pelz": 0.5,
+        "sens": 0.9936,
+        "spec": 1.0,
+        "tilt": 45
+      },
+      {
+        "confirm": 0.6,
+        "pelz": 0.5,
+        "sens": 0.9299,
+        "spec": 1.0,
+        "tilt": 45
+      },
+      {
+        "confirm": 0.05,
+        "pelz": 0.2,
+        "sens": 1.0,
+        "spec": 1.0,
+        "tilt": 50
+      },
+      {
+        "confirm": 0.1,
+        "pelz": 0.2,
+        "sens": 1.0,
+        "spec": 1.0,
+        "tilt": 50
+      },
+      {
+        "confirm": 0.15,
+        "pelz": 0.2,
+        "sens": 1.0,
+        "spec": 1.0,
+        "tilt": 50
+      },
+      {
+        "confirm": 0.2,
+        "pelz": 0.2,
+        "sens": 1.0,
+        "spec": 1.0,
+        "tilt": 50
+      },
+      {
+        "confirm": 0.25,
+        "pelz": 0.2,
+        "sens": 1.0,
+        "spec": 1.0,
+        "tilt": 50
+      },
+      {
+        "confirm": 0.3,
+        "pelz": 0.2,
+        "sens": 1.0,
+        "spec": 1.0,
+        "tilt": 50
+      },
+      {
+        "confirm": 0.35,
+        "pelz": 0.2,
+        "sens": 1.0,
+        "spec": 1.0,
+        "tilt": 50
+      },
+      {
+        "confirm": 0.4,
+        "pelz": 0.2,
+        "sens": 1.0,
+        "spec": 1.0,
+        "tilt": 50
+      },
+      {
+        "confirm": 0.5,
+        "pelz": 0.2,
+        "sens": 0.9873,
+        "spec": 1.0,
+        "tilt": 50
+      },
+      {
+        "confirm": 0.6,
+        "pelz": 0.2,
+        "sens": 0.9236,
+        "spec": 1.0,
+        "tilt": 50
+      },
+      {
+        "confirm": 0.05,
+        "pelz": 0.25,
+        "sens": 1.0,
+        "spec": 1.0,
+        "tilt": 50
+      },
+      {
+        "confirm": 0.1,
+        "pelz": 0.25,
+        "sens": 1.0,
+        "spec": 1.0,
+        "tilt": 50
+      },
+      {
+        "confirm": 0.15,
+        "pelz": 0.25,
+        "sens": 1.0,
+        "spec": 1.0,
+        "tilt": 50
+      },
+      {
+        "confirm": 0.2,
+        "pelz": 0.25,
+        "sens": 1.0,
+        "spec": 1.0,
+        "tilt": 50
+      },
+      {
+        "confirm": 0.25,
+        "pelz": 0.25,
+        "sens": 1.0,
+        "spec": 1.0,
+        "tilt": 50
+      },
+      {
+        "confirm": 0.3,
+        "pelz": 0.25,
+        "sens": 1.0,
+        "spec": 1.0,
+        "tilt": 50
+      },
+      {
+        "confirm": 0.35,
+        "pelz": 0.25,
+        "sens": 1.0,
+        "spec": 1.0,
+        "tilt": 50
+      },
+      {
+        "confirm": 0.4,
+        "pelz": 0.25,
+        "sens": 1.0,
+        "spec": 1.0,
+        "tilt": 50
+      },
+      {
+        "confirm": 0.5,
+        "pelz": 0.25,
+        "sens": 0.9873,
+        "spec": 1.0,
+        "tilt": 50
+      },
+      {
+        "confirm": 0.6,
+        "pelz": 0.25,
+        "sens": 0.9236,
+        "spec": 1.0,
+        "tilt": 50
+      },
+      {
+        "confirm": 0.05,
+        "pelz": 0.3,
+        "sens": 1.0,
+        "spec": 1.0,
+        "tilt": 50
+      },
+      {
+        "confirm": 0.1,
+        "pelz": 0.3,
+        "sens": 1.0,
+        "spec": 1.0,
+        "tilt": 50
+      },
+      {
+        "confirm": 0.15,
+        "pelz": 0.3,
+        "sens": 1.0,
+        "spec": 1.0,
+        "tilt": 50
+      },
+      {
+        "confirm": 0.2,
+        "pelz": 0.3,
+        "sens": 1.0,
+        "spec": 1.0,
+        "tilt": 50
+      },
+      {
+        "confirm": 0.25,
+        "pelz": 0.3,
+        "sens": 1.0,
+        "spec": 1.0,
+        "tilt": 50
+      },
+      {
+        "confirm": 0.3,
+        "pelz": 0.3,
+        "sens": 1.0,
+        "spec": 1.0,
+        "tilt": 50
+      },
+      {
+        "confirm": 0.35,
+        "pelz": 0.3,
+        "sens": 1.0,
+        "spec": 1.0,
+        "tilt": 50
+      },
+      {
+        "confirm": 0.4,
+        "pelz": 0.3,
+        "sens": 1.0,
+        "spec": 1.0,
+        "tilt": 50
+      },
+      {
+        "confirm": 0.5,
+        "pelz": 0.3,
+        "sens": 0.9873,
+        "spec": 1.0,
+        "tilt": 50
+      },
+      {
+        "confirm": 0.6,
+        "pelz": 0.3,
+        "sens": 0.9236,
+        "spec": 1.0,
+        "tilt": 50
+      },
+      {
+        "confirm": 0.05,
+        "pelz": 0.35,
+        "sens": 1.0,
+        "spec": 1.0,
+        "tilt": 50
+      },
+      {
+        "confirm": 0.1,
+        "pelz": 0.35,
+        "sens": 1.0,
+        "spec": 1.0,
+        "tilt": 50
+      },
+      {
+        "confirm": 0.15,
+        "pelz": 0.35,
+        "sens": 1.0,
+        "spec": 1.0,
+        "tilt": 50
+      },
+      {
+        "confirm": 0.2,
+        "pelz": 0.35,
+        "sens": 1.0,
+        "spec": 1.0,
+        "tilt": 50
+      },
+      {
+        "confirm": 0.25,
+        "pelz": 0.35,
+        "sens": 1.0,
+        "spec": 1.0,
+        "tilt": 50
+      },
+      {
+        "confirm": 0.3,
+        "pelz": 0.35,
+        "sens": 1.0,
+        "spec": 1.0,
+        "tilt": 50
+      },
+      {
+        "confirm": 0.35,
+        "pelz": 0.35,
+        "sens": 1.0,
+        "spec": 1.0,
+        "tilt": 50
+      },
+      {
+        "confirm": 0.4,
+        "pelz": 0.35,
+        "sens": 1.0,
+        "spec": 1.0,
+        "tilt": 50
+      },
+      {
+        "confirm": 0.5,
+        "pelz": 0.35,
+        "sens": 0.9873,
+        "spec": 1.0,
+        "tilt": 50
+      },
+      {
+        "confirm": 0.6,
+        "pelz": 0.35,
+        "sens": 0.9236,
+        "spec": 1.0,
+        "tilt": 50
+      },
+      {
+        "confirm": 0.05,
+        "pelz": 0.4,
+        "sens": 1.0,
+        "spec": 1.0,
+        "tilt": 50
+      },
+      {
+        "confirm": 0.1,
+        "pelz": 0.4,
+        "sens": 1.0,
+        "spec": 1.0,
+        "tilt": 50
+      },
+      {
+        "confirm": 0.15,
+        "pelz": 0.4,
+        "sens": 1.0,
+        "spec": 1.0,
+        "tilt": 50
+      },
+      {
+        "confirm": 0.2,
+        "pelz": 0.4,
+        "sens": 1.0,
+        "spec": 1.0,
+        "tilt": 50
+      },
+      {
+        "confirm": 0.25,
+        "pelz": 0.4,
+        "sens": 1.0,
+        "spec": 1.0,
+        "tilt": 50
+      },
+      {
+        "confirm": 0.3,
+        "pelz": 0.4,
+        "sens": 1.0,
+        "spec": 1.0,
+        "tilt": 50
+      },
+      {
+        "confirm": 0.35,
+        "pelz": 0.4,
+        "sens": 1.0,
+        "spec": 1.0,
+        "tilt": 50
+      },
+      {
+        "confirm": 0.4,
+        "pelz": 0.4,
+        "sens": 1.0,
+        "spec": 1.0,
+        "tilt": 50
+      },
+      {
+        "confirm": 0.5,
+        "pelz": 0.4,
+        "sens": 0.9873,
+        "spec": 1.0,
+        "tilt": 50
+      },
+      {
+        "confirm": 0.6,
+        "pelz": 0.4,
+        "sens": 0.9236,
+        "spec": 1.0,
+        "tilt": 50
+      },
+      {
+        "confirm": 0.05,
+        "pelz": 0.45,
+        "sens": 1.0,
+        "spec": 1.0,
+        "tilt": 50
+      },
+      {
+        "confirm": 0.1,
+        "pelz": 0.45,
+        "sens": 1.0,
+        "spec": 1.0,
+        "tilt": 50
+      },
+      {
+        "confirm": 0.15,
+        "pelz": 0.45,
+        "sens": 1.0,
+        "spec": 1.0,
+        "tilt": 50
+      },
+      {
+        "confirm": 0.2,
+        "pelz": 0.45,
+        "sens": 1.0,
+        "spec": 1.0,
+        "tilt": 50
+      },
+      {
+        "confirm": 0.25,
+        "pelz": 0.45,
+        "sens": 1.0,
+        "spec": 1.0,
+        "tilt": 50
+      },
+      {
+        "confirm": 0.3,
+        "pelz": 0.45,
+        "sens": 1.0,
+        "spec": 1.0,
+        "tilt": 50
+      },
+      {
+        "confirm": 0.35,
+        "pelz": 0.45,
+        "sens": 1.0,
+        "spec": 1.0,
+        "tilt": 50
+      },
+      {
+        "confirm": 0.4,
+        "pelz": 0.45,
+        "sens": 1.0,
+        "spec": 1.0,
+        "tilt": 50
+      },
+      {
+        "confirm": 0.5,
+        "pelz": 0.45,
+        "sens": 0.9873,
+        "spec": 1.0,
+        "tilt": 50
+      },
+      {
+        "confirm": 0.6,
+        "pelz": 0.45,
+        "sens": 0.9236,
+        "spec": 1.0,
+        "tilt": 50
+      },
+      {
+        "confirm": 0.05,
+        "pelz": 0.5,
+        "sens": 1.0,
+        "spec": 1.0,
+        "tilt": 50
+      },
+      {
+        "confirm": 0.1,
+        "pelz": 0.5,
+        "sens": 1.0,
+        "spec": 1.0,
+        "tilt": 50
+      },
+      {
+        "confirm": 0.15,
+        "pelz": 0.5,
+        "sens": 1.0,
+        "spec": 1.0,
+        "tilt": 50
+      },
+      {
+        "confirm": 0.2,
+        "pelz": 0.5,
+        "sens": 1.0,
+        "spec": 1.0,
+        "tilt": 50
+      },
+      {
+        "confirm": 0.25,
+        "pelz": 0.5,
+        "sens": 1.0,
+        "spec": 1.0,
+        "tilt": 50
+      },
+      {
+        "confirm": 0.3,
+        "pelz": 0.5,
+        "sens": 1.0,
+        "spec": 1.0,
+        "tilt": 50
+      },
+      {
+        "confirm": 0.35,
+        "pelz": 0.5,
+        "sens": 1.0,
+        "spec": 1.0,
+        "tilt": 50
+      },
+      {
+        "confirm": 0.4,
+        "pelz": 0.5,
+        "sens": 1.0,
+        "spec": 1.0,
+        "tilt": 50
+      },
+      {
+        "confirm": 0.5,
+        "pelz": 0.5,
+        "sens": 0.9873,
+        "spec": 1.0,
+        "tilt": 50
+      },
+      {
+        "confirm": 0.6,
+        "pelz": 0.5,
+        "sens": 0.9236,
+        "spec": 1.0,
+        "tilt": 50
+      },
+      {
+        "confirm": 0.05,
+        "pelz": 0.2,
+        "sens": 1.0,
+        "spec": 1.0,
+        "tilt": 55
+      },
+      {
+        "confirm": 0.1,
+        "pelz": 0.2,
+        "sens": 1.0,
+        "spec": 1.0,
+        "tilt": 55
+      },
+      {
+        "confirm": 0.15,
+        "pelz": 0.2,
+        "sens": 1.0,
+        "spec": 1.0,
+        "tilt": 55
+      },
+      {
+        "confirm": 0.2,
+        "pelz": 0.2,
+        "sens": 1.0,
+        "spec": 1.0,
+        "tilt": 55
+      },
+      {
+        "confirm": 0.25,
+        "pelz": 0.2,
+        "sens": 1.0,
+        "spec": 1.0,
+        "tilt": 55
+      },
+      {
+        "confirm": 0.3,
+        "pelz": 0.2,
+        "sens": 1.0,
+        "spec": 1.0,
+        "tilt": 55
+      },
+      {
+        "confirm": 0.35,
+        "pelz": 0.2,
+        "sens": 1.0,
+        "spec": 1.0,
+        "tilt": 55
+      },
+      {
+        "confirm": 0.4,
+        "pelz": 0.2,
+        "sens": 1.0,
+        "spec": 1.0,
+        "tilt": 55
+      },
+      {
+        "confirm": 0.5,
+        "pelz": 0.2,
+        "sens": 0.9873,
+        "spec": 1.0,
+        "tilt": 55
+      },
+      {
+        "confirm": 0.6,
+        "pelz": 0.2,
+        "sens": 0.9236,
+        "spec": 1.0,
+        "tilt": 55
+      },
+      {
+        "confirm": 0.05,
+        "pelz": 0.25,
+        "sens": 1.0,
+        "spec": 1.0,
+        "tilt": 55
+      },
+      {
+        "confirm": 0.1,
+        "pelz": 0.25,
+        "sens": 1.0,
+        "spec": 1.0,
+        "tilt": 55
+      },
+      {
+        "confirm": 0.15,
+        "pelz": 0.25,
+        "sens": 1.0,
+        "spec": 1.0,
+        "tilt": 55
+      },
+      {
+        "confirm": 0.2,
+        "pelz": 0.25,
+        "sens": 1.0,
+        "spec": 1.0,
+        "tilt": 55
+      },
+      {
+        "confirm": 0.25,
+        "pelz": 0.25,
+        "sens": 1.0,
+        "spec": 1.0,
+        "tilt": 55
+      },
+      {
+        "confirm": 0.3,
+        "pelz": 0.25,
+        "sens": 1.0,
+        "spec": 1.0,
+        "tilt": 55
+      },
+      {
+        "confirm": 0.35,
+        "pelz": 0.25,
+        "sens": 1.0,
+        "spec": 1.0,
+        "tilt": 55
+      },
+      {
+        "confirm": 0.4,
+        "pelz": 0.25,
+        "sens": 1.0,
+        "spec": 1.0,
+        "tilt": 55
+      },
+      {
+        "confirm": 0.5,
+        "pelz": 0.25,
+        "sens": 0.9873,
+        "spec": 1.0,
+        "tilt": 55
+      },
+      {
+        "confirm": 0.6,
+        "pelz": 0.25,
+        "sens": 0.9236,
+        "spec": 1.0,
+        "tilt": 55
+      },
+      {
+        "confirm": 0.05,
+        "pelz": 0.3,
+        "sens": 1.0,
+        "spec": 1.0,
+        "tilt": 55
+      },
+      {
+        "confirm": 0.1,
+        "pelz": 0.3,
+        "sens": 1.0,
+        "spec": 1.0,
+        "tilt": 55
+      },
+      {
+        "confirm": 0.15,
+        "pelz": 0.3,
+        "sens": 1.0,
+        "spec": 1.0,
+        "tilt": 55
+      },
+      {
+        "confirm": 0.2,
+        "pelz": 0.3,
+        "sens": 1.0,
+        "spec": 1.0,
+        "tilt": 55
+      },
+      {
+        "confirm": 0.25,
+        "pelz": 0.3,
+        "sens": 1.0,
+        "spec": 1.0,
+        "tilt": 55
+      },
+      {
+        "confirm": 0.3,
+        "pelz": 0.3,
+        "sens": 1.0,
+        "spec": 1.0,
+        "tilt": 55
+      },
+      {
+        "confirm": 0.35,
+        "pelz": 0.3,
+        "sens": 1.0,
+        "spec": 1.0,
+        "tilt": 55
+      },
+      {
+        "confirm": 0.4,
+        "pelz": 0.3,
+        "sens": 1.0,
+        "spec": 1.0,
+        "tilt": 55
+      },
+      {
+        "confirm": 0.5,
+        "pelz": 0.3,
+        "sens": 0.9873,
+        "spec": 1.0,
+        "tilt": 55
+      },
+      {
+        "confirm": 0.6,
+        "pelz": 0.3,
+        "sens": 0.9236,
+        "spec": 1.0,
+        "tilt": 55
+      },
+      {
+        "confirm": 0.05,
+        "pelz": 0.35,
+        "sens": 1.0,
+        "spec": 1.0,
+        "tilt": 55
+      },
+      {
+        "confirm": 0.1,
+        "pelz": 0.35,
+        "sens": 1.0,
+        "spec": 1.0,
+        "tilt": 55
+      },
+      {
+        "confirm": 0.15,
+        "pelz": 0.35,
+        "sens": 1.0,
+        "spec": 1.0,
+        "tilt": 55
+      },
+      {
+        "confirm": 0.2,
+        "pelz": 0.35,
+        "sens": 1.0,
+        "spec": 1.0,
+        "tilt": 55
+      },
+      {
+        "confirm": 0.25,
+        "pelz": 0.35,
+        "sens": 1.0,
+        "spec": 1.0,
+        "tilt": 55
+      },
+      {
+        "confirm": 0.3,
+        "pelz": 0.35,
+        "sens": 1.0,
+        "spec": 1.0,
+        "tilt": 55
+      },
+      {
+        "confirm": 0.35,
+        "pelz": 0.35,
+        "sens": 1.0,
+        "spec": 1.0,
+        "tilt": 55
+      },
+      {
+        "confirm": 0.4,
+        "pelz": 0.35,
+        "sens": 1.0,
+        "spec": 1.0,
+        "tilt": 55
+      },
+      {
+        "confirm": 0.5,
+        "pelz": 0.35,
+        "sens": 0.9873,
+        "spec": 1.0,
+        "tilt": 55
+      },
+      {
+        "confirm": 0.6,
+        "pelz": 0.35,
+        "sens": 0.9236,
+        "spec": 1.0,
+        "tilt": 55
+      },
+      {
+        "confirm": 0.05,
+        "pelz": 0.4,
+        "sens": 1.0,
+        "spec": 1.0,
+        "tilt": 55
+      },
+      {
+        "confirm": 0.1,
+        "pelz": 0.4,
+        "sens": 1.0,
+        "spec": 1.0,
+        "tilt": 55
+      },
+      {
+        "confirm": 0.15,
+        "pelz": 0.4,
+        "sens": 1.0,
+        "spec": 1.0,
+        "tilt": 55
+      },
+      {
+        "confirm": 0.2,
+        "pelz": 0.4,
+        "sens": 1.0,
+        "spec": 1.0,
+        "tilt": 55
+      },
+      {
+        "confirm": 0.25,
+        "pelz": 0.4,
+        "sens": 1.0,
+        "spec": 1.0,
+        "tilt": 55
+      },
+      {
+        "confirm": 0.3,
+        "pelz": 0.4,
+        "sens": 1.0,
+        "spec": 1.0,
+        "tilt": 55
+      },
+      {
+        "confirm": 0.35,
+        "pelz": 0.4,
+        "sens": 1.0,
+        "spec": 1.0,
+        "tilt": 55
+      },
+      {
+        "confirm": 0.4,
+        "pelz": 0.4,
+        "sens": 1.0,
+        "spec": 1.0,
+        "tilt": 55
+      },
+      {
+        "confirm": 0.5,
+        "pelz": 0.4,
+        "sens": 0.9873,
+        "spec": 1.0,
+        "tilt": 55
+      },
+      {
+        "confirm": 0.6,
+        "pelz": 0.4,
+        "sens": 0.9236,
+        "spec": 1.0,
+        "tilt": 55
+      },
+      {
+        "confirm": 0.05,
+        "pelz": 0.45,
+        "sens": 1.0,
+        "spec": 1.0,
+        "tilt": 55
+      },
+      {
+        "confirm": 0.1,
+        "pelz": 0.45,
+        "sens": 1.0,
+        "spec": 1.0,
+        "tilt": 55
+      },
+      {
+        "confirm": 0.15,
+        "pelz": 0.45,
+        "sens": 1.0,
+        "spec": 1.0,
+        "tilt": 55
+      },
+      {
+        "confirm": 0.2,
+        "pelz": 0.45,
+        "sens": 1.0,
+        "spec": 1.0,
+        "tilt": 55
+      },
+      {
+        "confirm": 0.25,
+        "pelz": 0.45,
+        "sens": 1.0,
+        "spec": 1.0,
+        "tilt": 55
+      },
+      {
+        "confirm": 0.3,
+        "pelz": 0.45,
+        "sens": 1.0,
+        "spec": 1.0,
+        "tilt": 55
+      },
+      {
+        "confirm": 0.35,
+        "pelz": 0.45,
+        "sens": 1.0,
+        "spec": 1.0,
+        "tilt": 55
+      },
+      {
+        "confirm": 0.4,
+        "pelz": 0.45,
+        "sens": 1.0,
+        "spec": 1.0,
+        "tilt": 55
+      },
+      {
+        "confirm": 0.5,
+        "pelz": 0.45,
+        "sens": 0.9873,
+        "spec": 1.0,
+        "tilt": 55
+      },
+      {
+        "confirm": 0.6,
+        "pelz": 0.45,
+        "sens": 0.9236,
+        "spec": 1.0,
+        "tilt": 55
+      },
+      {
+        "confirm": 0.05,
+        "pelz": 0.5,
+        "sens": 1.0,
+        "spec": 1.0,
+        "tilt": 55
+      },
+      {
+        "confirm": 0.1,
+        "pelz": 0.5,
+        "sens": 1.0,
+        "spec": 1.0,
+        "tilt": 55
+      },
+      {
+        "confirm": 0.15,
+        "pelz": 0.5,
+        "sens": 1.0,
+        "spec": 1.0,
+        "tilt": 55
+      },
+      {
+        "confirm": 0.2,
+        "pelz": 0.5,
+        "sens": 1.0,
+        "spec": 1.0,
+        "tilt": 55
+      },
+      {
+        "confirm": 0.25,
+        "pelz": 0.5,
+        "sens": 1.0,
+        "spec": 1.0,
+        "tilt": 55
+      },
+      {
+        "confirm": 0.3,
+        "pelz": 0.5,
+        "sens": 1.0,
+        "spec": 1.0,
+        "tilt": 55
+      },
+      {
+        "confirm": 0.35,
+        "pelz": 0.5,
+        "sens": 1.0,
+        "spec": 1.0,
+        "tilt": 55
+      },
+      {
+        "confirm": 0.4,
+        "pelz": 0.5,
+        "sens": 1.0,
+        "spec": 1.0,
+        "tilt": 55
+      },
+      {
+        "confirm": 0.5,
+        "pelz": 0.5,
+        "sens": 0.9873,
+        "spec": 1.0,
+        "tilt": 55
+      },
+      {
+        "confirm": 0.6,
+        "pelz": 0.5,
+        "sens": 0.9236,
+        "spec": 1.0,
+        "tilt": 55
+      },
+      {
+        "confirm": 0.05,
+        "pelz": 0.2,
+        "sens": 1.0,
+        "spec": 1.0,
+        "tilt": 60
+      },
+      {
+        "confirm": 0.1,
+        "pelz": 0.2,
+        "sens": 1.0,
+        "spec": 1.0,
+        "tilt": 60
+      },
+      {
+        "confirm": 0.15,
+        "pelz": 0.2,
+        "sens": 1.0,
+        "spec": 1.0,
+        "tilt": 60
+      },
+      {
+        "confirm": 0.2,
+        "pelz": 0.2,
+        "sens": 1.0,
+        "spec": 1.0,
+        "tilt": 60
+      },
+      {
+        "confirm": 0.25,
+        "pelz": 0.2,
+        "sens": 1.0,
+        "spec": 1.0,
+        "tilt": 60
+      },
+      {
+        "confirm": 0.3,
+        "pelz": 0.2,
+        "sens": 1.0,
+        "spec": 1.0,
+        "tilt": 60
+      },
+      {
+        "confirm": 0.35,
+        "pelz": 0.2,
+        "sens": 1.0,
+        "spec": 1.0,
+        "tilt": 60
+      },
+      {
+        "confirm": 0.4,
+        "pelz": 0.2,
+        "sens": 1.0,
+        "spec": 1.0,
+        "tilt": 60
+      },
+      {
+        "confirm": 0.5,
+        "pelz": 0.2,
+        "sens": 0.9809,
+        "spec": 1.0,
+        "tilt": 60
+      },
+      {
+        "confirm": 0.6,
+        "pelz": 0.2,
+        "sens": 0.9172,
+        "spec": 1.0,
+        "tilt": 60
+      },
+      {
+        "confirm": 0.05,
+        "pelz": 0.25,
+        "sens": 1.0,
+        "spec": 1.0,
+        "tilt": 60
+      },
+      {
+        "confirm": 0.1,
+        "pelz": 0.25,
+        "sens": 1.0,
+        "spec": 1.0,
+        "tilt": 60
+      },
+      {
+        "confirm": 0.15,
+        "pelz": 0.25,
+        "sens": 1.0,
+        "spec": 1.0,
+        "tilt": 60
+      },
+      {
+        "confirm": 0.2,
+        "pelz": 0.25,
+        "sens": 1.0,
+        "spec": 1.0,
+        "tilt": 60
+      },
+      {
+        "confirm": 0.25,
+        "pelz": 0.25,
+        "sens": 1.0,
+        "spec": 1.0,
+        "tilt": 60
+      },
+      {
+        "confirm": 0.3,
+        "pelz": 0.25,
+        "sens": 1.0,
+        "spec": 1.0,
+        "tilt": 60
+      },
+      {
+        "confirm": 0.35,
+        "pelz": 0.25,
+        "sens": 1.0,
+        "spec": 1.0,
+        "tilt": 60
+      },
+      {
+        "confirm": 0.4,
+        "pelz": 0.25,
+        "sens": 1.0,
+        "spec": 1.0,
+        "tilt": 60
+      },
+      {
+        "confirm": 0.5,
+        "pelz": 0.25,
+        "sens": 0.9809,
+        "spec": 1.0,
+        "tilt": 60
+      },
+      {
+        "confirm": 0.6,
+        "pelz": 0.25,
+        "sens": 0.9172,
+        "spec": 1.0,
+        "tilt": 60
+      },
+      {
+        "confirm": 0.05,
+        "pelz": 0.3,
+        "sens": 1.0,
+        "spec": 1.0,
+        "tilt": 60
+      },
+      {
+        "confirm": 0.1,
+        "pelz": 0.3,
+        "sens": 1.0,
+        "spec": 1.0,
+        "tilt": 60
+      },
+      {
+        "confirm": 0.15,
+        "pelz": 0.3,
+        "sens": 1.0,
+        "spec": 1.0,
+        "tilt": 60
+      },
+      {
+        "confirm": 0.2,
+        "pelz": 0.3,
+        "sens": 1.0,
+        "spec": 1.0,
+        "tilt": 60
+      },
+      {
+        "confirm": 0.25,
+        "pelz": 0.3,
+        "sens": 1.0,
+        "spec": 1.0,
+        "tilt": 60
+      },
+      {
+        "confirm": 0.3,
+        "pelz": 0.3,
+        "sens": 1.0,
+        "spec": 1.0,
+        "tilt": 60
+      },
+      {
+        "confirm": 0.35,
+        "pelz": 0.3,
+        "sens": 1.0,
+        "spec": 1.0,
+        "tilt": 60
+      },
+      {
+        "confirm": 0.4,
+        "pelz": 0.3,
+        "sens": 1.0,
+        "spec": 1.0,
+        "tilt": 60
+      },
+      {
+        "confirm": 0.5,
+        "pelz": 0.3,
+        "sens": 0.9809,
+        "spec": 1.0,
+        "tilt": 60
+      },
+      {
+        "confirm": 0.6,
+        "pelz": 0.3,
+        "sens": 0.9172,
+        "spec": 1.0,
+        "tilt": 60
+      },
+      {
+        "confirm": 0.05,
+        "pelz": 0.35,
+        "sens": 1.0,
+        "spec": 1.0,
+        "tilt": 60
+      },
+      {
+        "confirm": 0.1,
+        "pelz": 0.35,
+        "sens": 1.0,
+        "spec": 1.0,
+        "tilt": 60
+      },
+      {
+        "confirm": 0.15,
+        "pelz": 0.35,
+        "sens": 1.0,
+        "spec": 1.0,
+        "tilt": 60
+      },
+      {
+        "confirm": 0.2,
+        "pelz": 0.35,
+        "sens": 1.0,
+        "spec": 1.0,
+        "tilt": 60
+      },
+      {
+        "confirm": 0.25,
+        "pelz": 0.35,
+        "sens": 1.0,
+        "spec": 1.0,
+        "tilt": 60
+      },
+      {
+        "confirm": 0.3,
+        "pelz": 0.35,
+        "sens": 1.0,
+        "spec": 1.0,
+        "tilt": 60
+      },
+      {
+        "confirm": 0.35,
+        "pelz": 0.35,
+        "sens": 1.0,
+        "spec": 1.0,
+        "tilt": 60
+      },
+      {
+        "confirm": 0.4,
+        "pelz": 0.35,
+        "sens": 1.0,
+        "spec": 1.0,
+        "tilt": 60
+      },
+      {
+        "confirm": 0.5,
+        "pelz": 0.35,
+        "sens": 0.9809,
+        "spec": 1.0,
+        "tilt": 60
+      },
+      {
+        "confirm": 0.6,
+        "pelz": 0.35,
+        "sens": 0.9172,
+        "spec": 1.0,
+        "tilt": 60
+      },
+      {
+        "confirm": 0.05,
+        "pelz": 0.4,
+        "sens": 1.0,
+        "spec": 1.0,
+        "tilt": 60
+      },
+      {
+        "confirm": 0.1,
+        "pelz": 0.4,
+        "sens": 1.0,
+        "spec": 1.0,
+        "tilt": 60
+      },
+      {
+        "confirm": 0.15,
+        "pelz": 0.4,
+        "sens": 1.0,
+        "spec": 1.0,
+        "tilt": 60
+      },
+      {
+        "confirm": 0.2,
+        "pelz": 0.4,
+        "sens": 1.0,
+        "spec": 1.0,
+        "tilt": 60
+      },
+      {
+        "confirm": 0.25,
+        "pelz": 0.4,
+        "sens": 1.0,
+        "spec": 1.0,
+        "tilt": 60
+      },
+      {
+        "confirm": 0.3,
+        "pelz": 0.4,
+        "sens": 1.0,
+        "spec": 1.0,
+        "tilt": 60
+      },
+      {
+        "confirm": 0.35,
+        "pelz": 0.4,
+        "sens": 1.0,
+        "spec": 1.0,
+        "tilt": 60
+      },
+      {
+        "confirm": 0.4,
+        "pelz": 0.4,
+        "sens": 1.0,
+        "spec": 1.0,
+        "tilt": 60
+      },
+      {
+        "confirm": 0.5,
+        "pelz": 0.4,
+        "sens": 0.9809,
+        "spec": 1.0,
+        "tilt": 60
+      },
+      {
+        "confirm": 0.6,
+        "pelz": 0.4,
+        "sens": 0.9172,
+        "spec": 1.0,
+        "tilt": 60
+      },
+      {
+        "confirm": 0.05,
+        "pelz": 0.45,
+        "sens": 1.0,
+        "spec": 1.0,
+        "tilt": 60
+      },
+      {
+        "confirm": 0.1,
+        "pelz": 0.45,
+        "sens": 1.0,
+        "spec": 1.0,
+        "tilt": 60
+      },
+      {
+        "confirm": 0.15,
+        "pelz": 0.45,
+        "sens": 1.0,
+        "spec": 1.0,
+        "tilt": 60
+      },
+      {
+        "confirm": 0.2,
+        "pelz": 0.45,
+        "sens": 1.0,
+        "spec": 1.0,
+        "tilt": 60
+      },
+      {
+        "confirm": 0.25,
+        "pelz": 0.45,
+        "sens": 1.0,
+        "spec": 1.0,
+        "tilt": 60
+      },
+      {
+        "confirm": 0.3,
+        "pelz": 0.45,
+        "sens": 1.0,
+        "spec": 1.0,
+        "tilt": 60
+      },
+      {
+        "confirm": 0.35,
+        "pelz": 0.45,
+        "sens": 1.0,
+        "spec": 1.0,
+        "tilt": 60
+      },
+      {
+        "confirm": 0.4,
+        "pelz": 0.45,
+        "sens": 1.0,
+        "spec": 1.0,
+        "tilt": 60
+      },
+      {
+        "confirm": 0.5,
+        "pelz": 0.45,
+        "sens": 0.9809,
+        "spec": 1.0,
+        "tilt": 60
+      },
+      {
+        "confirm": 0.6,
+        "pelz": 0.45,
+        "sens": 0.9172,
+        "spec": 1.0,
+        "tilt": 60
+      },
+      {
+        "confirm": 0.05,
+        "pelz": 0.5,
+        "sens": 1.0,
+        "spec": 1.0,
+        "tilt": 60
+      },
+      {
+        "confirm": 0.1,
+        "pelz": 0.5,
+        "sens": 1.0,
+        "spec": 1.0,
+        "tilt": 60
+      },
+      {
+        "confirm": 0.15,
+        "pelz": 0.5,
+        "sens": 1.0,
+        "spec": 1.0,
+        "tilt": 60
+      },
+      {
+        "confirm": 0.2,
+        "pelz": 0.5,
+        "sens": 1.0,
+        "spec": 1.0,
+        "tilt": 60
+      },
+      {
+        "confirm": 0.25,
+        "pelz": 0.5,
+        "sens": 1.0,
+        "spec": 1.0,
+        "tilt": 60
+      },
+      {
+        "confirm": 0.3,
+        "pelz": 0.5,
+        "sens": 1.0,
+        "spec": 1.0,
+        "tilt": 60
+      },
+      {
+        "confirm": 0.35,
+        "pelz": 0.5,
+        "sens": 1.0,
+        "spec": 1.0,
+        "tilt": 60
+      },
+      {
+        "confirm": 0.4,
+        "pelz": 0.5,
+        "sens": 1.0,
+        "spec": 1.0,
+        "tilt": 60
+      },
+      {
+        "confirm": 0.5,
+        "pelz": 0.5,
+        "sens": 0.9809,
+        "spec": 1.0,
+        "tilt": 60
+      },
+      {
+        "confirm": 0.6,
+        "pelz": 0.5,
+        "sens": 0.9172,
+        "spec": 1.0,
+        "tilt": 60
+      },
+      {
+        "confirm": 0.05,
+        "pelz": 0.2,
+        "sens": 0.9745,
+        "spec": 1.0,
+        "tilt": 65
+      },
+      {
+        "confirm": 0.1,
+        "pelz": 0.2,
+        "sens": 0.9745,
+        "spec": 1.0,
+        "tilt": 65
+      },
+      {
+        "confirm": 0.15,
+        "pelz": 0.2,
+        "sens": 0.9745,
+        "spec": 1.0,
+        "tilt": 65
+      },
+      {
+        "confirm": 0.2,
+        "pelz": 0.2,
+        "sens": 0.9745,
+        "spec": 1.0,
+        "tilt": 65
+      },
+      {
+        "confirm": 0.25,
+        "pelz": 0.2,
+        "sens": 0.9745,
+        "spec": 1.0,
+        "tilt": 65
+      },
+      {
+        "confirm": 0.3,
+        "pelz": 0.2,
+        "sens": 0.9745,
+        "spec": 1.0,
+        "tilt": 65
+      },
+      {
+        "confirm": 0.35,
+        "pelz": 0.2,
+        "sens": 0.9745,
+        "spec": 1.0,
+        "tilt": 65
+      },
+      {
+        "confirm": 0.4,
+        "pelz": 0.2,
+        "sens": 0.9745,
+        "spec": 1.0,
+        "tilt": 65
+      },
+      {
+        "confirm": 0.5,
+        "pelz": 0.2,
+        "sens": 0.9554,
+        "spec": 1.0,
+        "tilt": 65
+      },
+      {
+        "confirm": 0.6,
+        "pelz": 0.2,
+        "sens": 0.8917,
+        "spec": 1.0,
+        "tilt": 65
+      },
+      {
+        "confirm": 0.05,
+        "pelz": 0.25,
+        "sens": 0.9745,
+        "spec": 1.0,
+        "tilt": 65
+      },
+      {
+        "confirm": 0.1,
+        "pelz": 0.25,
+        "sens": 0.9745,
+        "spec": 1.0,
+        "tilt": 65
+      },
+      {
+        "confirm": 0.15,
+        "pelz": 0.25,
+        "sens": 0.9745,
+        "spec": 1.0,
+        "tilt": 65
+      },
+      {
+        "confirm": 0.2,
+        "pelz": 0.25,
+        "sens": 0.9745,
+        "spec": 1.0,
+        "tilt": 65
+      },
+      {
+        "confirm": 0.25,
+        "pelz": 0.25,
+        "sens": 0.9745,
+        "spec": 1.0,
+        "tilt": 65
+      },
+      {
+        "confirm": 0.3,
+        "pelz": 0.25,
+        "sens": 0.9745,
+        "spec": 1.0,
+        "tilt": 65
+      },
+      {
+        "confirm": 0.35,
+        "pelz": 0.25,
+        "sens": 0.9745,
+        "spec": 1.0,
+        "tilt": 65
+      },
+      {
+        "confirm": 0.4,
+        "pelz": 0.25,
+        "sens": 0.9745,
+        "spec": 1.0,
+        "tilt": 65
+      },
+      {
+        "confirm": 0.5,
+        "pelz": 0.25,
+        "sens": 0.9554,
+        "spec": 1.0,
+        "tilt": 65
+      },
+      {
+        "confirm": 0.6,
+        "pelz": 0.25,
+        "sens": 0.8917,
+        "spec": 1.0,
+        "tilt": 65
+      },
+      {
+        "confirm": 0.05,
+        "pelz": 0.3,
+        "sens": 0.9745,
+        "spec": 1.0,
+        "tilt": 65
+      },
+      {
+        "confirm": 0.1,
+        "pelz": 0.3,
+        "sens": 0.9745,
+        "spec": 1.0,
+        "tilt": 65
+      },
+      {
+        "confirm": 0.15,
+        "pelz": 0.3,
+        "sens": 0.9745,
+        "spec": 1.0,
+        "tilt": 65
+      },
+      {
+        "confirm": 0.2,
+        "pelz": 0.3,
+        "sens": 0.9745,
+        "spec": 1.0,
+        "tilt": 65
+      },
+      {
+        "confirm": 0.25,
+        "pelz": 0.3,
+        "sens": 0.9745,
+        "spec": 1.0,
+        "tilt": 65
+      },
+      {
+        "confirm": 0.3,
+        "pelz": 0.3,
+        "sens": 0.9745,
+        "spec": 1.0,
+        "tilt": 65
+      },
+      {
+        "confirm": 0.35,
+        "pelz": 0.3,
+        "sens": 0.9745,
+        "spec": 1.0,
+        "tilt": 65
+      },
+      {
+        "confirm": 0.4,
+        "pelz": 0.3,
+        "sens": 0.9745,
+        "spec": 1.0,
+        "tilt": 65
+      },
+      {
+        "confirm": 0.5,
+        "pelz": 0.3,
+        "sens": 0.9554,
+        "spec": 1.0,
+        "tilt": 65
+      },
+      {
+        "confirm": 0.6,
+        "pelz": 0.3,
+        "sens": 0.8917,
+        "spec": 1.0,
+        "tilt": 65
+      },
+      {
+        "confirm": 0.05,
+        "pelz": 0.35,
+        "sens": 0.9745,
+        "spec": 1.0,
+        "tilt": 65
+      },
+      {
+        "confirm": 0.1,
+        "pelz": 0.35,
+        "sens": 0.9745,
+        "spec": 1.0,
+        "tilt": 65
+      },
+      {
+        "confirm": 0.15,
+        "pelz": 0.35,
+        "sens": 0.9745,
+        "spec": 1.0,
+        "tilt": 65
+      },
+      {
+        "confirm": 0.2,
+        "pelz": 0.35,
+        "sens": 0.9745,
+        "spec": 1.0,
+        "tilt": 65
+      },
+      {
+        "confirm": 0.25,
+        "pelz": 0.35,
+        "sens": 0.9745,
+        "spec": 1.0,
+        "tilt": 65
+      },
+      {
+        "confirm": 0.3,
+        "pelz": 0.35,
+        "sens": 0.9745,
+        "spec": 1.0,
+        "tilt": 65
+      },
+      {
+        "confirm": 0.35,
+        "pelz": 0.35,
+        "sens": 0.9745,
+        "spec": 1.0,
+        "tilt": 65
+      },
+      {
+        "confirm": 0.4,
+        "pelz": 0.35,
+        "sens": 0.9745,
+        "spec": 1.0,
+        "tilt": 65
+      },
+      {
+        "confirm": 0.5,
+        "pelz": 0.35,
+        "sens": 0.9554,
+        "spec": 1.0,
+        "tilt": 65
+      },
+      {
+        "confirm": 0.6,
+        "pelz": 0.35,
+        "sens": 0.8917,
+        "spec": 1.0,
+        "tilt": 65
+      },
+      {
+        "confirm": 0.05,
+        "pelz": 0.4,
+        "sens": 0.9745,
+        "spec": 1.0,
+        "tilt": 65
+      },
+      {
+        "confirm": 0.1,
+        "pelz": 0.4,
+        "sens": 0.9745,
+        "spec": 1.0,
+        "tilt": 65
+      },
+      {
+        "confirm": 0.15,
+        "pelz": 0.4,
+        "sens": 0.9745,
+        "spec": 1.0,
+        "tilt": 65
+      },
+      {
+        "confirm": 0.2,
+        "pelz": 0.4,
+        "sens": 0.9745,
+        "spec": 1.0,
+        "tilt": 65
+      },
+      {
+        "confirm": 0.25,
+        "pelz": 0.4,
+        "sens": 0.9745,
+        "spec": 1.0,
+        "tilt": 65
+      },
+      {
+        "confirm": 0.3,
+        "pelz": 0.4,
+        "sens": 0.9745,
+        "spec": 1.0,
+        "tilt": 65
+      },
+      {
+        "confirm": 0.35,
+        "pelz": 0.4,
+        "sens": 0.9745,
+        "spec": 1.0,
+        "tilt": 65
+      },
+      {
+        "confirm": 0.4,
+        "pelz": 0.4,
+        "sens": 0.9745,
+        "spec": 1.0,
+        "tilt": 65
+      },
+      {
+        "confirm": 0.5,
+        "pelz": 0.4,
+        "sens": 0.9554,
+        "spec": 1.0,
+        "tilt": 65
+      },
+      {
+        "confirm": 0.6,
+        "pelz": 0.4,
+        "sens": 0.8917,
+        "spec": 1.0,
+        "tilt": 65
+      },
+      {
+        "confirm": 0.05,
+        "pelz": 0.45,
+        "sens": 0.9745,
+        "spec": 1.0,
+        "tilt": 65
+      },
+      {
+        "confirm": 0.1,
+        "pelz": 0.45,
+        "sens": 0.9745,
+        "spec": 1.0,
+        "tilt": 65
+      },
+      {
+        "confirm": 0.15,
+        "pelz": 0.45,
+        "sens": 0.9745,
+        "spec": 1.0,
+        "tilt": 65
+      },
+      {
+        "confirm": 0.2,
+        "pelz": 0.45,
+        "sens": 0.9745,
+        "spec": 1.0,
+        "tilt": 65
+      },
+      {
+        "confirm": 0.25,
+        "pelz": 0.45,
+        "sens": 0.9745,
+        "spec": 1.0,
+        "tilt": 65
+      },
+      {
+        "confirm": 0.3,
+        "pelz": 0.45,
+        "sens": 0.9745,
+        "spec": 1.0,
+        "tilt": 65
+      },
+      {
+        "confirm": 0.35,
+        "pelz": 0.45,
+        "sens": 0.9745,
+        "spec": 1.0,
+        "tilt": 65
+      },
+      {
+        "confirm": 0.4,
+        "pelz": 0.45,
+        "sens": 0.9745,
+        "spec": 1.0,
+        "tilt": 65
+      },
+      {
+        "confirm": 0.5,
+        "pelz": 0.45,
+        "sens": 0.9554,
+        "spec": 1.0,
+        "tilt": 65
+      },
+      {
+        "confirm": 0.6,
+        "pelz": 0.45,
+        "sens": 0.8917,
+        "spec": 1.0,
+        "tilt": 65
+      },
+      {
+        "confirm": 0.05,
+        "pelz": 0.5,
+        "sens": 0.9745,
+        "spec": 1.0,
+        "tilt": 65
+      },
+      {
+        "confirm": 0.1,
+        "pelz": 0.5,
+        "sens": 0.9745,
+        "spec": 1.0,
+        "tilt": 65
+      },
+      {
+        "confirm": 0.15,
+        "pelz": 0.5,
+        "sens": 0.9745,
+        "spec": 1.0,
+        "tilt": 65
+      },
+      {
+        "confirm": 0.2,
+        "pelz": 0.5,
+        "sens": 0.9745,
+        "spec": 1.0,
+        "tilt": 65
+      },
+      {
+        "confirm": 0.25,
+        "pelz": 0.5,
+        "sens": 0.9745,
+        "spec": 1.0,
+        "tilt": 65
+      },
+      {
+        "confirm": 0.3,
+        "pelz": 0.5,
+        "sens": 0.9745,
+        "spec": 1.0,
+        "tilt": 65
+      },
+      {
+        "confirm": 0.35,
+        "pelz": 0.5,
+        "sens": 0.9745,
+        "spec": 1.0,
+        "tilt": 65
+      },
+      {
+        "confirm": 0.4,
+        "pelz": 0.5,
+        "sens": 0.9745,
+        "spec": 1.0,
+        "tilt": 65
+      },
+      {
+        "confirm": 0.5,
+        "pelz": 0.5,
+        "sens": 0.9554,
+        "spec": 1.0,
+        "tilt": 65
+      },
+      {
+        "confirm": 0.6,
+        "pelz": 0.5,
+        "sens": 0.8917,
+        "spec": 1.0,
+        "tilt": 65
+      },
+      {
+        "confirm": 0.05,
+        "pelz": 0.2,
+        "sens": 0.9363,
+        "spec": 1.0,
+        "tilt": 70
+      },
+      {
+        "confirm": 0.1,
+        "pelz": 0.2,
+        "sens": 0.9363,
+        "spec": 1.0,
+        "tilt": 70
+      },
+      {
+        "confirm": 0.15,
+        "pelz": 0.2,
+        "sens": 0.9363,
+        "spec": 1.0,
+        "tilt": 70
+      },
+      {
+        "confirm": 0.2,
+        "pelz": 0.2,
+        "sens": 0.9363,
+        "spec": 1.0,
+        "tilt": 70
+      },
+      {
+        "confirm": 0.25,
+        "pelz": 0.2,
+        "sens": 0.9363,
+        "spec": 1.0,
+        "tilt": 70
+      },
+      {
+        "confirm": 0.3,
+        "pelz": 0.2,
+        "sens": 0.9363,
+        "spec": 1.0,
+        "tilt": 70
+      },
+      {
+        "confirm": 0.35,
+        "pelz": 0.2,
+        "sens": 0.9363,
+        "spec": 1.0,
+        "tilt": 70
+      },
+      {
+        "confirm": 0.4,
+        "pelz": 0.2,
+        "sens": 0.9363,
+        "spec": 1.0,
+        "tilt": 70
+      },
+      {
+        "confirm": 0.5,
+        "pelz": 0.2,
+        "sens": 0.9108,
+        "spec": 1.0,
+        "tilt": 70
+      },
+      {
+        "confirm": 0.6,
+        "pelz": 0.2,
+        "sens": 0.8471,
+        "spec": 1.0,
+        "tilt": 70
+      },
+      {
+        "confirm": 0.05,
+        "pelz": 0.25,
+        "sens": 0.9363,
+        "spec": 1.0,
+        "tilt": 70
+      },
+      {
+        "confirm": 0.1,
+        "pelz": 0.25,
+        "sens": 0.9363,
+        "spec": 1.0,
+        "tilt": 70
+      },
+      {
+        "confirm": 0.15,
+        "pelz": 0.25,
+        "sens": 0.9363,
+        "spec": 1.0,
+        "tilt": 70
+      },
+      {
+        "confirm": 0.2,
+        "pelz": 0.25,
+        "sens": 0.9363,
+        "spec": 1.0,
+        "tilt": 70
+      },
+      {
+        "confirm": 0.25,
+        "pelz": 0.25,
+        "sens": 0.9363,
+        "spec": 1.0,
+        "tilt": 70
+      },
+      {
+        "confirm": 0.3,
+        "pelz": 0.25,
+        "sens": 0.9363,
+        "spec": 1.0,
+        "tilt": 70
+      },
+      {
+        "confirm": 0.35,
+        "pelz": 0.25,
+        "sens": 0.9363,
+        "spec": 1.0,
+        "tilt": 70
+      },
+      {
+        "confirm": 0.4,
+        "pelz": 0.25,
+        "sens": 0.9363,
+        "spec": 1.0,
+        "tilt": 70
+      },
+      {
+        "confirm": 0.5,
+        "pelz": 0.25,
+        "sens": 0.9108,
+        "spec": 1.0,
+        "tilt": 70
+      },
+      {
+        "confirm": 0.6,
+        "pelz": 0.25,
+        "sens": 0.8471,
+        "spec": 1.0,
+        "tilt": 70
+      },
+      {
+        "confirm": 0.05,
+        "pelz": 0.3,
+        "sens": 0.9363,
+        "spec": 1.0,
+        "tilt": 70
+      },
+      {
+        "confirm": 0.1,
+        "pelz": 0.3,
+        "sens": 0.9363,
+        "spec": 1.0,
+        "tilt": 70
+      },
+      {
+        "confirm": 0.15,
+        "pelz": 0.3,
+        "sens": 0.9363,
+        "spec": 1.0,
+        "tilt": 70
+      },
+      {
+        "confirm": 0.2,
+        "pelz": 0.3,
+        "sens": 0.9363,
+        "spec": 1.0,
+        "tilt": 70
+      },
+      {
+        "confirm": 0.25,
+        "pelz": 0.3,
+        "sens": 0.9363,
+        "spec": 1.0,
+        "tilt": 70
+      },
+      {
+        "confirm": 0.3,
+        "pelz": 0.3,
+        "sens": 0.9363,
+        "spec": 1.0,
+        "tilt": 70
+      },
+      {
+        "confirm": 0.35,
+        "pelz": 0.3,
+        "sens": 0.9363,
+        "spec": 1.0,
+        "tilt": 70
+      },
+      {
+        "confirm": 0.4,
+        "pelz": 0.3,
+        "sens": 0.9363,
+        "spec": 1.0,
+        "tilt": 70
+      },
+      {
+        "confirm": 0.5,
+        "pelz": 0.3,
+        "sens": 0.9108,
+        "spec": 1.0,
+        "tilt": 70
+      },
+      {
+        "confirm": 0.6,
+        "pelz": 0.3,
+        "sens": 0.8471,
+        "spec": 1.0,
+        "tilt": 70
+      },
+      {
+        "confirm": 0.05,
+        "pelz": 0.35,
+        "sens": 0.9363,
+        "spec": 1.0,
+        "tilt": 70
+      },
+      {
+        "confirm": 0.1,
+        "pelz": 0.35,
+        "sens": 0.9363,
+        "spec": 1.0,
+        "tilt": 70
+      },
+      {
+        "confirm": 0.15,
+        "pelz": 0.35,
+        "sens": 0.9363,
+        "spec": 1.0,
+        "tilt": 70
+      },
+      {
+        "confirm": 0.2,
+        "pelz": 0.35,
+        "sens": 0.9363,
+        "spec": 1.0,
+        "tilt": 70
+      },
+      {
+        "confirm": 0.25,
+        "pelz": 0.35,
+        "sens": 0.9363,
+        "spec": 1.0,
+        "tilt": 70
+      },
+      {
+        "confirm": 0.3,
+        "pelz": 0.35,
+        "sens": 0.9363,
+        "spec": 1.0,
+        "tilt": 70
+      },
+      {
+        "confirm": 0.35,
+        "pelz": 0.35,
+        "sens": 0.9363,
+        "spec": 1.0,
+        "tilt": 70
+      },
+      {
+        "confirm": 0.4,
+        "pelz": 0.35,
+        "sens": 0.9363,
+        "spec": 1.0,
+        "tilt": 70
+      },
+      {
+        "confirm": 0.5,
+        "pelz": 0.35,
+        "sens": 0.9108,
+        "spec": 1.0,
+        "tilt": 70
+      },
+      {
+        "confirm": 0.6,
+        "pelz": 0.35,
+        "sens": 0.8471,
+        "spec": 1.0,
+        "tilt": 70
+      },
+      {
+        "confirm": 0.05,
+        "pelz": 0.4,
+        "sens": 0.9363,
+        "spec": 1.0,
+        "tilt": 70
+      },
+      {
+        "confirm": 0.1,
+        "pelz": 0.4,
+        "sens": 0.9363,
+        "spec": 1.0,
+        "tilt": 70
+      },
+      {
+        "confirm": 0.15,
+        "pelz": 0.4,
+        "sens": 0.9363,
+        "spec": 1.0,
+        "tilt": 70
+      },
+      {
+        "confirm": 0.2,
+        "pelz": 0.4,
+        "sens": 0.9363,
+        "spec": 1.0,
+        "tilt": 70
+      },
+      {
+        "confirm": 0.25,
+        "pelz": 0.4,
+        "sens": 0.9363,
+        "spec": 1.0,
+        "tilt": 70
+      },
+      {
+        "confirm": 0.3,
+        "pelz": 0.4,
+        "sens": 0.9363,
+        "spec": 1.0,
+        "tilt": 70
+      },
+      {
+        "confirm": 0.35,
+        "pelz": 0.4,
+        "sens": 0.9363,
+        "spec": 1.0,
+        "tilt": 70
+      },
+      {
+        "confirm": 0.4,
+        "pelz": 0.4,
+        "sens": 0.9363,
+        "spec": 1.0,
+        "tilt": 70
+      },
+      {
+        "confirm": 0.5,
+        "pelz": 0.4,
+        "sens": 0.9108,
+        "spec": 1.0,
+        "tilt": 70
+      },
+      {
+        "confirm": 0.6,
+        "pelz": 0.4,
+        "sens": 0.8471,
+        "spec": 1.0,
+        "tilt": 70
+      },
+      {
+        "confirm": 0.05,
+        "pelz": 0.45,
+        "sens": 0.9363,
+        "spec": 1.0,
+        "tilt": 70
+      },
+      {
+        "confirm": 0.1,
+        "pelz": 0.45,
+        "sens": 0.9363,
+        "spec": 1.0,
+        "tilt": 70
+      },
+      {
+        "confirm": 0.15,
+        "pelz": 0.45,
+        "sens": 0.9363,
+        "spec": 1.0,
+        "tilt": 70
+      },
+      {
+        "confirm": 0.2,
+        "pelz": 0.45,
+        "sens": 0.9363,
+        "spec": 1.0,
+        "tilt": 70
+      },
+      {
+        "confirm": 0.25,
+        "pelz": 0.45,
+        "sens": 0.9363,
+        "spec": 1.0,
+        "tilt": 70
+      },
+      {
+        "confirm": 0.3,
+        "pelz": 0.45,
+        "sens": 0.9363,
+        "spec": 1.0,
+        "tilt": 70
+      },
+      {
+        "confirm": 0.35,
+        "pelz": 0.45,
+        "sens": 0.9363,
+        "spec": 1.0,
+        "tilt": 70
+      },
+      {
+        "confirm": 0.4,
+        "pelz": 0.45,
+        "sens": 0.9363,
+        "spec": 1.0,
+        "tilt": 70
+      },
+      {
+        "confirm": 0.5,
+        "pelz": 0.45,
+        "sens": 0.9108,
+        "spec": 1.0,
+        "tilt": 70
+      },
+      {
+        "confirm": 0.6,
+        "pelz": 0.45,
+        "sens": 0.8471,
+        "spec": 1.0,
+        "tilt": 70
+      },
+      {
+        "confirm": 0.05,
+        "pelz": 0.5,
+        "sens": 0.9363,
+        "spec": 1.0,
+        "tilt": 70
+      },
+      {
+        "confirm": 0.1,
+        "pelz": 0.5,
+        "sens": 0.9363,
+        "spec": 1.0,
+        "tilt": 70
+      },
+      {
+        "confirm": 0.15,
+        "pelz": 0.5,
+        "sens": 0.9363,
+        "spec": 1.0,
+        "tilt": 70
+      },
+      {
+        "confirm": 0.2,
+        "pelz": 0.5,
+        "sens": 0.9363,
+        "spec": 1.0,
+        "tilt": 70
+      },
+      {
+        "confirm": 0.25,
+        "pelz": 0.5,
+        "sens": 0.9363,
+        "spec": 1.0,
+        "tilt": 70
+      },
+      {
+        "confirm": 0.3,
+        "pelz": 0.5,
+        "sens": 0.9363,
+        "spec": 1.0,
+        "tilt": 70
+      },
+      {
+        "confirm": 0.35,
+        "pelz": 0.5,
+        "sens": 0.9363,
+        "spec": 1.0,
+        "tilt": 70
+      },
+      {
+        "confirm": 0.4,
+        "pelz": 0.5,
+        "sens": 0.9363,
+        "spec": 1.0,
+        "tilt": 70
+      },
+      {
+        "confirm": 0.5,
+        "pelz": 0.5,
+        "sens": 0.9108,
+        "spec": 1.0,
+        "tilt": 70
+      },
+      {
+        "confirm": 0.6,
+        "pelz": 0.5,
+        "sens": 0.8471,
+        "spec": 1.0,
+        "tilt": 70
+      },
+      {
+        "confirm": 0.05,
+        "pelz": 0.2,
+        "sens": 0.6497,
+        "spec": 1.0,
+        "tilt": 75
+      },
+      {
+        "confirm": 0.1,
+        "pelz": 0.2,
+        "sens": 0.6369,
+        "spec": 1.0,
+        "tilt": 75
+      },
+      {
+        "confirm": 0.15,
+        "pelz": 0.2,
+        "sens": 0.6178,
+        "spec": 1.0,
+        "tilt": 75
+      },
+      {
+        "confirm": 0.2,
+        "pelz": 0.2,
+        "sens": 0.6051,
+        "spec": 1.0,
+        "tilt": 75
+      },
+      {
+        "confirm": 0.25,
+        "pelz": 0.2,
+        "sens": 0.586,
+        "spec": 1.0,
+        "tilt": 75
+      },
+      {
+        "confirm": 0.3,
+        "pelz": 0.2,
+        "sens": 0.5732,
+        "spec": 1.0,
+        "tilt": 75
+      },
+      {
+        "confirm": 0.35,
+        "pelz": 0.2,
+        "sens": 0.5541,
+        "spec": 1.0,
+        "tilt": 75
+      },
+      {
+        "confirm": 0.4,
+        "pelz": 0.2,
+        "sens": 0.5414,
+        "spec": 1.0,
+        "tilt": 75
+      },
+      {
+        "confirm": 0.5,
+        "pelz": 0.2,
+        "sens": 0.4777,
+        "spec": 1.0,
+        "tilt": 75
+      },
+      {
+        "confirm": 0.6,
+        "pelz": 0.2,
+        "sens": 0.3822,
+        "spec": 1.0,
+        "tilt": 75
+      },
+      {
+        "confirm": 0.05,
+        "pelz": 0.25,
+        "sens": 0.6497,
+        "spec": 1.0,
+        "tilt": 75
+      },
+      {
+        "confirm": 0.1,
+        "pelz": 0.25,
+        "sens": 0.6369,
+        "spec": 1.0,
+        "tilt": 75
+      },
+      {
+        "confirm": 0.15,
+        "pelz": 0.25,
+        "sens": 0.6178,
+        "spec": 1.0,
+        "tilt": 75
+      },
+      {
+        "confirm": 0.2,
+        "pelz": 0.25,
+        "sens": 0.6051,
+        "spec": 1.0,
+        "tilt": 75
+      },
+      {
+        "confirm": 0.25,
+        "pelz": 0.25,
+        "sens": 0.586,
+        "spec": 1.0,
+        "tilt": 75
+      },
+      {
+        "confirm": 0.3,
+        "pelz": 0.25,
+        "sens": 0.5732,
+        "spec": 1.0,
+        "tilt": 75
+      },
+      {
+        "confirm": 0.35,
+        "pelz": 0.25,
+        "sens": 0.5541,
+        "spec": 1.0,
+        "tilt": 75
+      },
+      {
+        "confirm": 0.4,
+        "pelz": 0.25,
+        "sens": 0.5414,
+        "spec": 1.0,
+        "tilt": 75
+      },
+      {
+        "confirm": 0.5,
+        "pelz": 0.25,
+        "sens": 0.4777,
+        "spec": 1.0,
+        "tilt": 75
+      },
+      {
+        "confirm": 0.6,
+        "pelz": 0.25,
+        "sens": 0.3822,
+        "spec": 1.0,
+        "tilt": 75
+      },
+      {
+        "confirm": 0.05,
+        "pelz": 0.3,
+        "sens": 0.6497,
+        "spec": 1.0,
+        "tilt": 75
+      },
+      {
+        "confirm": 0.1,
+        "pelz": 0.3,
+        "sens": 0.6369,
+        "spec": 1.0,
+        "tilt": 75
+      },
+      {
+        "confirm": 0.15,
+        "pelz": 0.3,
+        "sens": 0.6178,
+        "spec": 1.0,
+        "tilt": 75
+      },
+      {
+        "confirm": 0.2,
+        "pelz": 0.3,
+        "sens": 0.6051,
+        "spec": 1.0,
+        "tilt": 75
+      },
+      {
+        "confirm": 0.25,
+        "pelz": 0.3,
+        "sens": 0.586,
+        "spec": 1.0,
+        "tilt": 75
+      },
+      {
+        "confirm": 0.3,
+        "pelz": 0.3,
+        "sens": 0.5732,
+        "spec": 1.0,
+        "tilt": 75
+      },
+      {
+        "confirm": 0.35,
+        "pelz": 0.3,
+        "sens": 0.5541,
+        "spec": 1.0,
+        "tilt": 75
+      },
+      {
+        "confirm": 0.4,
+        "pelz": 0.3,
+        "sens": 0.5414,
+        "spec": 1.0,
+        "tilt": 75
+      },
+      {
+        "confirm": 0.5,
+        "pelz": 0.3,
+        "sens": 0.4777,
+        "spec": 1.0,
+        "tilt": 75
+      },
+      {
+        "confirm": 0.6,
+        "pelz": 0.3,
+        "sens": 0.3822,
+        "spec": 1.0,
+        "tilt": 75
+      },
+      {
+        "confirm": 0.05,
+        "pelz": 0.35,
+        "sens": 0.6497,
+        "spec": 1.0,
+        "tilt": 75
+      },
+      {
+        "confirm": 0.1,
+        "pelz": 0.35,
+        "sens": 0.6369,
+        "spec": 1.0,
+        "tilt": 75
+      },
+      {
+        "confirm": 0.15,
+        "pelz": 0.35,
+        "sens": 0.6178,
+        "spec": 1.0,
+        "tilt": 75
+      },
+      {
+        "confirm": 0.2,
+        "pelz": 0.35,
+        "sens": 0.6051,
+        "spec": 1.0,
+        "tilt": 75
+      },
+      {
+        "confirm": 0.25,
+        "pelz": 0.35,
+        "sens": 0.586,
+        "spec": 1.0,
+        "tilt": 75
+      },
+      {
+        "confirm": 0.3,
+        "pelz": 0.35,
+        "sens": 0.5732,
+        "spec": 1.0,
+        "tilt": 75
+      },
+      {
+        "confirm": 0.35,
+        "pelz": 0.35,
+        "sens": 0.5541,
+        "spec": 1.0,
+        "tilt": 75
+      },
+      {
+        "confirm": 0.4,
+        "pelz": 0.35,
+        "sens": 0.5414,
+        "spec": 1.0,
+        "tilt": 75
+      },
+      {
+        "confirm": 0.5,
+        "pelz": 0.35,
+        "sens": 0.4777,
+        "spec": 1.0,
+        "tilt": 75
+      },
+      {
+        "confirm": 0.6,
+        "pelz": 0.35,
+        "sens": 0.3822,
+        "spec": 1.0,
+        "tilt": 75
+      },
+      {
+        "confirm": 0.05,
+        "pelz": 0.4,
+        "sens": 0.6497,
+        "spec": 1.0,
+        "tilt": 75
+      },
+      {
+        "confirm": 0.1,
+        "pelz": 0.4,
+        "sens": 0.6369,
+        "spec": 1.0,
+        "tilt": 75
+      },
+      {
+        "confirm": 0.15,
+        "pelz": 0.4,
+        "sens": 0.6178,
+        "spec": 1.0,
+        "tilt": 75
+      },
+      {
+        "confirm": 0.2,
+        "pelz": 0.4,
+        "sens": 0.6051,
+        "spec": 1.0,
+        "tilt": 75
+      },
+      {
+        "confirm": 0.25,
+        "pelz": 0.4,
+        "sens": 0.586,
+        "spec": 1.0,
+        "tilt": 75
+      },
+      {
+        "confirm": 0.3,
+        "pelz": 0.4,
+        "sens": 0.5732,
+        "spec": 1.0,
+        "tilt": 75
+      },
+      {
+        "confirm": 0.35,
+        "pelz": 0.4,
+        "sens": 0.5541,
+        "spec": 1.0,
+        "tilt": 75
+      },
+      {
+        "confirm": 0.4,
+        "pelz": 0.4,
+        "sens": 0.5414,
+        "spec": 1.0,
+        "tilt": 75
+      },
+      {
+        "confirm": 0.5,
+        "pelz": 0.4,
+        "sens": 0.4777,
+        "spec": 1.0,
+        "tilt": 75
+      },
+      {
+        "confirm": 0.6,
+        "pelz": 0.4,
+        "sens": 0.3822,
+        "spec": 1.0,
+        "tilt": 75
+      },
+      {
+        "confirm": 0.05,
+        "pelz": 0.45,
+        "sens": 0.6497,
+        "spec": 1.0,
+        "tilt": 75
+      },
+      {
+        "confirm": 0.1,
+        "pelz": 0.45,
+        "sens": 0.6369,
+        "spec": 1.0,
+        "tilt": 75
+      },
+      {
+        "confirm": 0.15,
+        "pelz": 0.45,
+        "sens": 0.6178,
+        "spec": 1.0,
+        "tilt": 75
+      },
+      {
+        "confirm": 0.2,
+        "pelz": 0.45,
+        "sens": 0.6051,
+        "spec": 1.0,
+        "tilt": 75
+      },
+      {
+        "confirm": 0.25,
+        "pelz": 0.45,
+        "sens": 0.586,
+        "spec": 1.0,
+        "tilt": 75
+      },
+      {
+        "confirm": 0.3,
+        "pelz": 0.45,
+        "sens": 0.5732,
+        "spec": 1.0,
+        "tilt": 75
+      },
+      {
+        "confirm": 0.35,
+        "pelz": 0.45,
+        "sens": 0.5541,
+        "spec": 1.0,
+        "tilt": 75
+      },
+      {
+        "confirm": 0.4,
+        "pelz": 0.45,
+        "sens": 0.5414,
+        "spec": 1.0,
+        "tilt": 75
+      },
+      {
+        "confirm": 0.5,
+        "pelz": 0.45,
+        "sens": 0.4777,
+        "spec": 1.0,
+        "tilt": 75
+      },
+      {
+        "confirm": 0.6,
+        "pelz": 0.45,
+        "sens": 0.3822,
+        "spec": 1.0,
+        "tilt": 75
+      },
+      {
+        "confirm": 0.05,
+        "pelz": 0.5,
+        "sens": 0.6497,
+        "spec": 1.0,
+        "tilt": 75
+      },
+      {
+        "confirm": 0.1,
+        "pelz": 0.5,
+        "sens": 0.6369,
+        "spec": 1.0,
+        "tilt": 75
+      },
+      {
+        "confirm": 0.15,
+        "pelz": 0.5,
+        "sens": 0.6178,
+        "spec": 1.0,
+        "tilt": 75
+      },
+      {
+        "confirm": 0.2,
+        "pelz": 0.5,
+        "sens": 0.6051,
+        "spec": 1.0,
+        "tilt": 75
+      },
+      {
+        "confirm": 0.25,
+        "pelz": 0.5,
+        "sens": 0.586,
+        "spec": 1.0,
+        "tilt": 75
+      },
+      {
+        "confirm": 0.3,
+        "pelz": 0.5,
+        "sens": 0.5732,
+        "spec": 1.0,
+        "tilt": 75
+      },
+      {
+        "confirm": 0.35,
+        "pelz": 0.5,
+        "sens": 0.5541,
+        "spec": 1.0,
+        "tilt": 75
+      },
+      {
+        "confirm": 0.4,
+        "pelz": 0.5,
+        "sens": 0.5414,
+        "spec": 1.0,
+        "tilt": 75
+      },
+      {
+        "confirm": 0.5,
+        "pelz": 0.5,
+        "sens": 0.4777,
+        "spec": 1.0,
+        "tilt": 75
+      },
+      {
+        "confirm": 0.6,
+        "pelz": 0.5,
+        "sens": 0.3822,
+        "spec": 1.0,
+        "tilt": 75
+      }
+    ]
+  },
+  "trigger_times": {
+    "BODY_LOCK/a": null,
+    "BODY_LOCK/b": null,
+    "DOUBLE_LEG/a": null,
+    "DOUBLE_LEG/b": 2.842,
+    "SINGLE_LEG/a": 3.702,
+    "SINGLE_LEG/b": 1.762,
+    "SNAPDOWN/a": null,
+    "SNAPDOWN/b": null,
+    "SPRAWL/a": null,
+    "SPRAWL/b": 1.682,
+    "STANCE/a": 2.042,
+    "STANCE/b": 1.782,
+    "STAND_UP/a": 3.282,
+    "STAND_UP/b": 3.802
+  },
+  "wall_time_s": 6.57
+}
