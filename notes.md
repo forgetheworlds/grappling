@@ -184,6 +184,41 @@ Entries appended as experiments run (Phase 2 onward).
   needed a reset or a fall. All motion-producing agents (teacher, drill, mocap reference) are bound
   to the rubric.
 
+### E10 (2026-10-08 night) — Codex (gpt-6.1-sol) design review: verdict + must-dos
+- VERDICT (docs/reviews/sol61_review.md): the full clean continuous drill is NOT reachable by running
+  the present plan unchanged — live commands were dropped, the cited self-check ran at the wrong
+  rate, turning is not represented, the runnable controller is PAIRED, and neither stepping nor
+  standing recovery has been demonstrated. Completing S1-S8 paperwork or spending time on PPO does
+  not remove those physical dependencies.
+- REVIEW-STATUS of the four patch findings: F1 (stale procedural reference) and F2 (500 Hz self-check)
+  confirmed addressed by the fix agent (static inspection); F4 (yaw not written into the reference)
+  addressed, but yaw feedback gains are ZERO so turning is still unproven; F3 (governor activates on
+  the CLIPPED capture-point error, max ≈0.113 m, below the 0.12 m DIVE threshold) STILL PRESENT.
+- STRUCTURAL HAZARDS (verified in code): (a) the runnable controller is paired (constructs a_ and b_,
+  hard-coded 36/72 and 29/58 slices) — the solo milestone needs one explicit robot context returning
+  29 targets; (b) pose modulation is not locomotion — no load/unload/swing/landing primitive, no
+  trail-leg stage, no foot-landing guard; (c) RECOVER_STAND blends on ABSOLUTE drill time (after ~2 s
+  it selects full stand) and the 900-row table clamps after 17.98 s, which cannot serve a 60-90 s
+  drill; (d) PRONE/support-mode decisions use pelvis height and site-height "contact", not loaded
+  contact — a kinematic sole hull is not a support polygon; (e) sprawl_end_posture identifies a prone
+  defender from low pelvis alone, so a supine pose satisfies it; (f) the env's `stood` notion (no
+  dorsal trigger + no OOB) does NOT exclude knees/hands/sideways collapse — E1 had 83% ground time
+  with zero dorsal contact; (g) the progress term is clock-based and _start_exchange resets pose and
+  velocity — a continuous-evidence runner must keep ONE MjData and never use the exchange reset;
+  (h) reward.py's `score_every=1` modulo hole produces NO score samples — fix before any experiment
+  relies on scorer gating.
+- RESOURCE REALITY (recorded): ~2.1 s per 320x240 rendered frame; 960x720 for 60 s unmeasured; the
+  existing renderer retains all RGB frames pre-encode (~3.7 GB at 60 s/960x720 on a no-swap host) —
+  cache the physics trajectory, inspect low-res diagnostics, stream the final encode.
+- PROVENANCE: teacher.md prose (STANCE 0.792, 3 seeds) disagrees with data/teacher_stats.json
+  (0.7583, 5 seeds); stay_up_frac's definition is loose (tilt allowance max(30°, ref+15°), low-ref
+  frames excluded) and tests accept mean 0.65 / worst 0.50 — a regression guard, not a ship gate.
+- DISPATCH: TeacherExecFix extended (F3, single-robot 29-target port, support-transfer primitive,
+  per-element blend times, rolling timeline, provenance reconciliation); DrillDirector extended (one
+  robot/one reset/one continuous state, streaming render + low-res diagnostics, component gates on
+  physical events rather than rungs of pose modulation, never use `stood`/low-pelvis/geometry score
+  as a success gate).
+
 ### E9 (2026-10-08 night) — HYPOTHESIS: some reference failures are a DATA bug, not a control limit
 - Evidence: STAND_UP's reference is AIRBORNE (min foot-site z 0.13-0.72 m, pelvis 1.0-1.08 m) —
   physically impossible for a grounded stand-up, which is why its stay-up is 0.000. The
