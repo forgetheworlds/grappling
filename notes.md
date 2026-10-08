@@ -184,6 +184,34 @@ Entries appended as experiments run (Phase 2 onward).
   needed a reset or a fall. All motion-producing agents (teacher, drill, mocap reference) are bound
   to the rubric.
 
+### E8 (2026-10-08 night) — teacher: NO SHIP CANDIDATE + two verified execution defects
+- FACT (TeacherRetry, honest report): driveable SkillController shipped (12 skills, set_command,
+  set_stance_height, set_lead_step, 0.6 s crossfades, balance layer on, control() -> (58,) @ 50 Hz)
+  but drill elements topple within ~1.6 s from a live start; stance hold 2.34 s with 0.28 m drift;
+  rubric scores A=1, B=0, C/D/E=0-1 -> explicitly "do not produce the drill video from it yet".
+- FACT (same report, rate table): stay-up met by SNAPDOWN 0.956 (5 seeds) and STANCE 0.792 (3 seeds,
+  with a torso-pitch trim); DOUBLE_LEG 0.520; SPRAWL 0.316; SINGLE_LEG 0.267; BODY_LOCK 0.200;
+  STAND_UP 0.000 because its reference is AIRBORNE (min foot-site z 0.13-0.72 m, pelvis 1.0-1.08 m)
+  -> reference rebuild required. Scorer gate 0.85 met by none (best SNAPDOWN 0.808).
+- FACT: coarse two-axis stance trims were REJECTED on evidence (rear-leg-back 0.486 / widened
+  0.458-0.569 stay vs torso-pitch trim 0.792, 3 seeds) and the controller enforces no stance-width
+  minimum; a finer, combined sweep is required.
+- DEFECT 1 (review-verified, src/teacher/controller.py:119-158, src/teacher/skills.py:131-135):
+  the procedural table mutated by SkillController never reaches the executor — _build() constructs
+  the teacher from the initial constant table and _RobotCtx copies it, precomputing joint/foot/
+  height/heading/phase targets — so LEVEL_CHANGE / SHOT_DOUBLE_LEG / KNEE_LOWER / RECOVER_STAND and
+  movement commands never change what is actually executed. Matches the previous agent's own
+  inference that the stabiliser's reference fights the trim ramp-in.
+- DEFECT 2 (review-verified, src/teacher/skills.py:209-212): run_self_check() calls control() before
+  every 0.002 s mj_step → the controller runs at 500 Hz, so its 18 s reference is exhausted after
+  1.8 s and integrators/rate limits/blends run 10x fast. Consequence: the "topple ~1.6 s" result
+  that drove the no-ship verdict was measured on a MIS-CADENCED harness — it may be real, but it is
+  NOT yet demonstrated.
+- DISPATCH: TeacherExecFix (new agent) fixes both defects, re-measures before/after with the same
+  harness, rebuilds the STAND_UP reference, enforces the stance-width minimum and re-sweeps the
+  two-axis trims at finer magnitudes + combined. DrillDirector told not to depend on the teacher yet
+  (its own conservative FeasibleDrill may out-score the current teacher stance).
+
 ### E7 (2026-10-08 night) — outcome-first critical path to the drill video
 - OUTCOME: one clean continuous MP4 of one G1 performing a stance-and-motion drill. Decomposed:
   (a) hold a wrestling stance with feedback [today: NOT demonstrated], (b) state-responsive footwork,
