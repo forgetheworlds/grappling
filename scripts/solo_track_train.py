@@ -32,6 +32,7 @@ import torch
 REPO = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(REPO / "src"))
 
+from rl.checkpoint import load_checkpoint  # noqa: E402
 from rl.net import ActorCritic, NetConfig  # noqa: E402
 from rl.ppo import PPOConfig, RolloutBatch, ppo_update  # noqa: E402
 from solo.scene import N_JOINTS, load_solo_model  # noqa: E402
@@ -231,9 +232,13 @@ def main(argv=None) -> int:
                                     log_std_init=args.log_std_init))
     init_note = "scratch"
     if args.init_ckpt:
-        from rl.checkpoint import load_checkpoint
-
-        ck = load_checkpoint(args.init_ckpt)
+        try:
+            ck = load_checkpoint(args.init_ckpt)
+        except ValueError:
+            # our own trainer checkpoints ({model, config, state}) carry no
+            # rl format_version; load them directly
+            ck = torch.load(args.init_ckpt, map_location="cpu", weights_only=False)
+            ck = {"policy": ck.get("model") or ck.get("policy"), **ck}
         status = warm_start_actor(net, ck)
         init_note = f"{args.init_ckpt} ({json.dumps(status)[:160]})"
         print(f"[track-train] warm start: {json.dumps(status)}")
