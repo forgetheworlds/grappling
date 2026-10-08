@@ -263,3 +263,70 @@ from solo.train import TrainConfig, SoloTrainer   # start/stop/resume PPO on Sol
    MuJoCo/render jobs on the same 4 cores; re-measure on a quiet host before sizing runs.
 7. Repo-wide test failures (7) are in the scorer/wrestling files owned by other agents and
    are unrelated to `src/solo/` (details at the top of this report).
+
+## 9. Post-review updates (R1 trainer lock policy, R2 extended T1 gate)
+
+### R1 — trainer lock policy (`src/solo/train.py --lock=off|on|auto`)
+
+A multi-hour training run must **not** hold `data/locks/sim.lock` (it would starve
+every other sim on the 4-core box).  Added `--lock` (default `auto`): `off` never
+locks, `on` always locks, `auto` locks only when the estimated wall-clock is under
+60 s (short smoke runs).  Pinned by `test_trainer_checkpoint_roundtrip`
+(`use_lock_for`).
+
+```
+# recommended long T1 run (repo root; does NOT take the sim lock):
+MUJOCO_GL=egl .venv/bin/python -m src.solo.train --task balance --steps 2000000 \
+    --rollout-steps 2048 --gamma 0.995 --out checkpoints/solo/t1_balance.pt --lock off
+# stop: Ctrl-C -> finishes the current iteration, saves, exits 0
+# resume (weights + optimizer + RNG + counters + episode seed):
+MUJOCO_GL=egl .venv/bin/python -m src.solo.train --resume checkpoints/solo/t1_balance.pt \
+    --steps 4000000 --rollout-steps 2048 --out checkpoints/solo/t1_balance.pt --lock off
+```
+
+Note `--steps` is rounded up to whole rollouts.  Expected wall-clock for 2M steps:
+**2.6-4.6 h** at the measured end-to-end 120-215 steps/s (under concurrent agent
+load; a fresh SIGINT+resume measurement saw 120 steps/s while the t1gate battery
+held the CPU); **~1.5-1.8 h** if the box is idle (env-only rate 600 steps/s + PPO
+overhead).  Calibrate first with a 10k-step probe (`--steps 10240 --lock off`) and
+scale the number it prints.
+
+### R2 — extended T1 gate (battery + criteria + provenance)
+
+Battery (`eval.battery_pushes`): **48 pushes = 6 magnitudes (4/8/12/16/20/25 N*s)
+x 8 world directions x 3 application heights (0.79/0.95/1.10 m)**, one push per
+4 s episode, deterministic (seed 0).  Impulses **above 12 N*s (24 episodes) are
+labelled `_heldout` and must stay out of training** (`TRAIN_MAX_IMPULSE`); 16+
+N*s is beyond the analytic non-stepping ceiling (~13 N*s for 33.3 kg), so passing
+them requires dynamic recovery.  "Recovered" is now paired: an episode counts
+only if it neither terminated **and** reached a *stable* stance (upright + stance
+height + base speed < 0.15 m/s held 0.2 s) — the previous "no termination" rule
+counted a knocked-over robot lying on an arm as recovered.
+
+Measured baseline table (`data/solo/metrics/t1_gate_baselines.json`):
+
+| controller | fall_rate | fall_rate_heldout | max recovered J held-out | mean_upright | time_to_stability (mean / rate) | com_offset_max | steps after push | recovery_rate | verdict |
+|---|---|---|---|---|---|---|---|---|---|
+| zero action | 0.354 | 0.875 | 0.0 | 0.192 | none / 0.00 | 0.562 m | 0.38 | 0.00 | not_certified |
+| StandHold | 0.292 | **0.958** | **16.0** | 0.849 | 0.133 s / 0.40 | 0.135 m | 1.31 | **0.25** | not_certified |
+| random-init | 0.812 | 0.875 | 0.0 | 0.176 | none / 0.00 | 0.677 m | 2.88 | 0.00 | not_certified |
+
+Gate (`eval.GATES["balance"]`, provenance = the measured baselines, none invented):
+
+| metric | op | threshold | provenance / why |
+|---|---|---|---|
+| `fall_rate` | <= | 0.05 | measured 0.354 / 0.292 / 0.812 |
+| `fall_rate_heldout` | <= | 0.10 | measured 0.875 / 0.958 / 0.875 (this is what actually excludes StandHold) |
+| `mean_upright` | >= | 0.95 | measured 0.192 / 0.849 / 0.176 |
+| `max_recoverable_impulse_heldout` | >= | 16.0 | capability floor beyond the ~13 N*s non-stepping ceiling; measured 0.0 / 16.0 / 0.0 (a *floor*, not by itself discriminating) |
+| `time_to_stability_mean` | <= | 1.0 s | measured none / 0.133 / none; certifies recovery *speed* once a policy survives hard pushes |
+| `com_offset_max` | <= | 0.20 m | CoM-to-support-centre proxy (NOT a hull margin); measured 0.562 / 0.135 / 0.677 |
+| `recovery_success_rate` | >= | 0.90 | measured 0.00 / 0.25 / 0.00 (stable-to-stance after the push) |
+| `steps_after_push_mean` | reported | — | measured 0.38 / 1.31 / 2.88: counts real step events (foot landing after >=60 ms air) so "rigid but never steps" is visible; not gated yet (a small push legitimately needs no step) |
+
+Honest note: a rigid stand still absorbs *some* 16 N*s chest-height pushes
+(StandHold's single held-out recovery gives `max_recoverable_impulse_heldout =
+16.0`), which is why that criterion is a floor and the gate's exclusion of
+StandHold rests on `fall_rate_heldout` (0.958), `mean_upright` (0.849) and
+`recovery_success_rate` (0.25).  `pytest tests/test_solo.py` -> 32 passed after
+these changes.

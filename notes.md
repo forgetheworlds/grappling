@@ -198,6 +198,34 @@ Entries appended as experiments run (Phase 2 onward).
   (v3, launched), (3) TERMINATION-PENALTY MAGNITUDE if v3 still collapses — reducing the −100 is the
   named next lever rather than "adding reward signal", which is already dense.
 
+### E26 (2026-10-08) — T1 v3 (alive-weight 10): return rose, behaviour did not — explore-vs-shape diagnosed
+- RESULT: v3 finished 2.0M steps (exit 0, checkpoint t1_balance_v3.pt). Gate (48-push battery vs
+  baselines): fall_rate 0.104 / held-out 0.083, mean_upright **0.0475**, recovery 0.0, maxJ_held 0.0,
+  t_stab none, com_offset_max 0.769 → NOT CERTIFIED (2/7).
+- CONTRAST across the three runs (fall | held-out fall | upright | recovery):
+  v1 0.125 | 0.125 | 0.006 | 0.0 → v2 0.042 | 0.000 | 0.0415 | 0.0 → v3 0.104 | 0.083 | 0.0475 | 0.0,
+  against StandHold 0.292 | 0.958 | 0.849 | 0.25. The alive-weight change RAISED THE RETURN
+  (mean_return_50 +90 vs v2's -85) without raising uprightness: that gain was the weighting, not the
+  behaviour. Three shaping changes (entropy, push curriculum, alive weight) have now failed to make a
+  random-init policy stand.
+- DIAGNOSIS (the pattern, not a single number): this is an EXPLORATION failure, not a shaping failure.
+  From a random policy the robot falls almost immediately, so nearly every trajectory ends in the -100
+  terminal, and the best-behaved option available is a crouch that stays just clear of the fall
+  detector's pelvis/tilt thresholds — a detector-threshold exploit. Reward shaping cannot fix a state
+  distribution the policy never sees.
+- NAMED SINGLE CHANGE (dispatched as v4): `--action-mode residual`. Verified in code that
+  `env.set_base_action()` defaults the residual base to the `a_stand` keyframe ctrl (env.py:353-364,
+  scene.py:158-165) — i.e. at initialization the policy IS the verified-stable stand controller
+  (0.1 mm drift over 20 s), so it starts inside the high-alive region and learns residuals from there
+  instead of having to discover standing. This is also exactly MISSION's "residual motor control"
+  option. v4 keeps entropy_coef 0.001, alive-weight 10, the push curriculum and `--save-every 100000`
+  so mid-run reads have real artefacts.
+- FALLBACK LEVERS if v4 also collapses, in order: (a) the -100 termination MAGNITUDE (it may dominate
+  the value estimate for a policy that cannot yet stand), (b) a reset curriculum (start from
+  recoverable perturbations instead of only the stand keyframe + noise), (c) longer training
+  (published CPU-scale balance work used 2 days, not 1.6 h), (d) imitation warm start (BC on a
+  scripted stabiliser) which is MISSION's own prescription if residual alone is not enough.
+
 ### E25 (2026-10-08) — the 7 test failures: STALE DERIVED ARTIFACT (not a code bug); suite green again
 - RESOLVED (TestRegress; verified by the orchestrator: `pytest tests/ -q` -> 175 passed, 0 failed).
 - SCORER (6 failures): root cause was a STALE DERIVED FILE, not the scorer or the test premise.
