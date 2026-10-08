@@ -2156,6 +2156,11 @@ scripts/calibrate_scorer.py, scripts/score_trace.py, tests/test_scorer.py.
   servos regardless of frame timing. Named next levers (untried): offline dynamic
   re-timing/re-shaping of the reference path; root-path (not path+time) reward;
   dynamics-in-the-loop CEM solutions as reference targets.
+- FACT (v6 FINAL, run completed 150 updates / 247k steps): hard-gated eval success 0.50 —
+  STANCE passes cleanly (site 0.026 m, return 85.2), the LOWER segment still dies at
+  frame 18. The gated clock alone does NOT crack the dynamically infeasible segments;
+  the next levers above are required (`checkpoints/solo/track_s1_v6_gated.pt`,
+  `reports/2026-10-08/track/train_s1_v6_gated.log`).
 - FACT (baselines first): open-loop replay completes **1/22** dynamic-segment rollouts;
   T1-v6d via first-layer surgery also 1/22; replay terminates at site RMS 0.068-0.106 m;
   applied ctrl == clip(base + 0.5*tanh(z)) asserted during rollouts; 79 steps/s measured
