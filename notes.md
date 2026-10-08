@@ -198,6 +198,34 @@ Entries appended as experiments run (Phase 2 onward).
   (v3, launched), (3) TERMINATION-PENALTY MAGNITUDE if v3 still collapses — reducing the −100 is the
   named next lever rather than "adding reward signal", which is already dense.
 
+### E28 (2026-10-08) — CONTRADICTORY ROADMAPS + A FALSE "SHIPPED" CLAIM: single authority re-established
+- TRIGGER: operator pointed out the todo list contained conflicting/contradictory items. It did, and
+  worse than a stale list: three overlapping acceptance ladders and one claim that was factually false.
+- (1) SCOPE CONTRADICTION: the todo's active pointer sat in phase 3 "Teacher+BC", i.e. the two-robot
+  pipeline (PD teacher -> BC, resistance stages A-E, self-play league, opponent pool, 3-minute
+  match). docs/SOLO_DRILL.md puts exactly that out of scope for the current mandate ("Out of scope:
+  resistance, opponent interaction, self-play, body locks, snapdowns, tactics"). The pointer was
+  therefore aimed at superseded work while the real work (solo T1 balance) was one phase away.
+- (2) DUPLICATE FRAMINGS: M1-M5 (motor curriculum), S1-S10 (solo drill) and L0-L4 (drill ladder) all
+  described the same learned-motor goal with SEPARATE acceptance criteria — three definitions of
+  "done". SOLO_DRILL.md itself states the milestone IS the motor curriculum with a demo attached
+  (T1..T7 <-> M1..M5), so M is folded into S, not kept parallel.
+- (3) FALSE CLAIM, now corrected: notes.md recorded "videos/solo_drill/final_continuous_drill.mp4
+  exists but was still being written at inspection". A repo-wide glob (`**/*continuous_drill*`)
+  returns NOTHING. The file was an in-flight render that never completed, and it is the mandate's
+  ACCEPTANCE ARTIFACT — so the milestone is unmet, not nearly met. What exists is SCRIPTED interim
+  footage: final_L1_90s.mp4 (clean 90 s hold), final_L2_motion.mp4 + final_L2_entry_walk.mp4 (L2
+  isolated step clean, slip 0.000 m, 3.8 cm clearance — but the entry walk FALLS at 5.8 s, per the
+  DRILL ledger entry), plus a slowmo level-change clip and labelled failure clips.
+- (4) The todo list is consolidated to ONE authority with four phases: A = the solo-drill mandate
+  S1-S10 (S2/T1 balance in progress); B = interim scripted evidence, marked fallback-only with the
+  ladder rungs contingent on the learned path stalling; C = ledger/status integrity (this entry);
+  D = DEFERRED two-robot mission, retained as the long-term goal in MISSION.md/goal.md rather than as
+  open work. Everything removed from the TODO list is still recorded in the docs, so nothing is lost.
+- GENERALISED RULE: a ledger entry that says an artifact exists must be re-verified on disk before it
+  is used as a premise (the same discipline that caught the residual-map bug and the stale-ref
+  failures). "In flight" renders are the easiest thing in this repo to mistake for a deliverable.
+
 ### E27 (2026-10-08) — BUG: the residual action path double-mapped; v4's premise was void
 - CONFIRMED BY READING CODE (not inferred): `env.step(action)` calls `resolve_action` (env.py:367-376,
   358-364) which in residual mode returns `clip(base + residual_scale*tanh(action))`, while the
@@ -611,6 +639,9 @@ Entries appended as experiments run (Phase 2 onward).
   tests/test_drill.py (14), data/drill/* (stance/push/suite JSON + cached traces), report
   reports/2026-10-08/drill.md. Renders were IN FLIGHT (~35 min per 90 s clip, 9 clips);
   videos/solo_drill/final_continuous_drill.mp4 exists but was still being written at inspection.
+  [CORRECTED 2026-10-08, see E28: this file does NOT exist. A repo-wide glob (`**/*continuous_drill*`)
+  returns nothing; the in-flight render never completed. Only scripted interim clips exist —
+  final_L1_90s, final_L2_motion, final_L2_entry_walk — so the mandate's acceptance artifact is UNMET.]
   Traps fixed and pinned by tests: mj_jacSite needs mj_comPos; straight-leg IK seed is singular;
   mixed foot-frame/footprint-centre plans cause drag; cfrc_ext is torque-first vs xfrc_applied
   force-first; CoM-servo weight shift must use an absolute per-step target; teacher ki/int windup
