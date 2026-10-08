@@ -184,6 +184,23 @@ Entries appended as experiments run (Phase 2 onward).
   needed a reset or a fall. All motion-producing agents (teacher, drill, mocap reference) are bound
   to the rubric.
 
+### E9 (2026-10-08 night) — HYPOTHESIS: some reference failures are a DATA bug, not a control limit
+- Evidence: STAND_UP's reference is AIRBORNE (min foot-site z 0.13-0.72 m, pelvis 1.0-1.08 m) —
+  physically impossible for a grounded stand-up, which is why its stay-up is 0.000. The
+  retarget/montage pipeline therefore CAN emit impossible trajectories.
+- Hypothesis: part of the "6/7 references fail physically" failure set is reference-invalid
+  (airborne frames, montage-seam discontinuities, or support that no CoM position can satisfy)
+  rather than a stabiliser limit. Suspects, by stay-up: DOUBLE_LEG 0.520, SINGLE_LEG 0.267,
+  BODY_LOCK 0.200 (STAND_UP 0.000 is the confirmed case).
+- TEST (dispatched to SupportEnvelope, extending the same audit): per-frame min foot-site z with
+  airborne flags, montage-seam continuity (joint/velocity jumps vs in-segment norms), and
+  contact-vs-support-impossibility checks, for all 7 references; then classify each technique as
+  (i) reference-invalid, (ii) valid-but-dynamically-hard, or (iii) valid-and-a-controller-limit.
+- DECISION RULE: only technique class (iii) justifies more stabiliser work; class (i) means the
+  reference must be REGENERATED (retime/repair/re-chain) before any controller tuning, because
+  no controller can hold an impossible reference. Fixing reference generation may lift several
+  stay-up numbers at once.
+
 ### E8 (2026-10-08 night) — teacher: NO SHIP CANDIDATE + two verified execution defects
 - FACT (TeacherRetry, honest report): driveable SkillController shipped (12 skills, set_command,
   set_stance_height, set_lead_step, 0.6 s crossfades, balance layer on, control() -> (58,) @ 50 Hz)
