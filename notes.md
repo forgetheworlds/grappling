@@ -308,12 +308,16 @@ from `results[run_tag]["paths"]["npz"]` (script:187-232 at c9ab9a2), so the tag�
 — there is no automatic mis-attach that silently retargets other clips. The defect is that the CLAIM text
 is hand-typed per clip and never asserted against the wired trace: the `BASE_PD` job (12 s `stance_pd`,
 falls=0) carried the caption "it topples", and the toppling `BASELINE_PD` trace is wired to NO render job.
-Two near-duplicate hand-typed tags (`BASE_PD` vs `BASELINE_PD`) is exactly the trap. CODE SIDE NOT
-DONE HERE: Main routed all clip-integrity code fixes to EvidenceFix, and LedgerFix reverted the
-one-line caption edit it had briefly made, so `scripts/solo_drill_render.py` is untouched by this
-entry (the `BASE_PD` caption still reads "it topples"). The exact patch was handed over: caption ->
-"…stays up for 12 s (does NOT topple; the toppling baseline is the separate BASELINE_PD run, rendered
-as 01_baseline_pd_topples.mp4)", title -> "…- 12 s hold, NO fall". EvidenceAudit's independent wiring sweep
+Two near-duplicate hand-typed tags (`BASE_PD` vs `BASELINE_PD`) is exactly the trap. CODE SIDE —
+RESOLVED BY EVIDENCEFIX (2026-10-08), after LedgerFix reverted the one-line caption edit it had briefly
+made (Main routed code fixes to EvidenceFix; this entry touches no code): CLIP_SPECS now carries the
+corrected `01_baseline_stancepd` caption/title, the toppling run has its own `BASELINE_PD` job with a
+`01_baseline_pd_topples.mp4` spec (window 0..trace_end, so a future suite run reproduces the contrast
+from code instead of by hand), the no-`speed` bug is fixed (`02_slowmo` spec = t0 0.0 / t1 8.06 /
+`speed=0.25`; that re-render was in flight at ~14:58), and the durable systemic check is
+`python scripts/evidence_check.py table` — it re-runs the verifier with TRACE-DERIVED expectations and
+flags any numeric label claim that contradicts its own trace (nonzero exit). The false caption can
+therefore no longer be regenerated. EvidenceAudit's independent wiring sweep
 (`reports/2026-10-08/clip_wiring_audit.md`) agrees and adds THREE additive automatic mechanisms, all now
 recorded in VISUALS 10b: (1) `scale<1` clips are renamed to `*_diag` AFTER the table names them
 (script:250-251), so any doc copying the table name cites a non-existent file (this is F8); (2) the render
