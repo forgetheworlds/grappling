@@ -1930,3 +1930,15 @@ scripts/calibrate_scorer.py, scripts/score_trace.py, tests/test_scorer.py.
   health EV >= 0.85 (FALSIFIER: EV < 0.75 -> the lever is capacity/loss, not lr: wider trunk or a
   Huber value loss for the heavy-tailed fall returns), 200k/400k monitor fall <= 0.15 AND upright
   >= 0.85 (the crouch gone), 1.5M the full T1 gate.
+- v6d 100k READ -- the EV GATE IS UNMEASURABLE HERE, the BEHAVIOUR IS THE BEST YET:
+  * The probe's returns now have std ~0.0 (mean -0.2, range [-0.3, -0.0]) because the policy stops
+    falling in the no-push condition, so explained_variance = 1 - MSE/Var degenerates (-2.99) --
+    a property of the instrument, not a verdict on the critic.  Recorded as a caveat: the EV
+    instrument needs return variance to mean anything, so for a non-falling policy the honest
+    critic read is the TRAINER's value_loss (v6d: 0.03-0.14 on normalised targets of std ~1).
+  * Behaviour (the gate that matters): no-push fall 0.125, **mean_upright 0.974**, mean_pelvis_z
+    0.773 -- the crouch is GONE at 100k.  For scale, at the same step: v6b upright 0.590 /
+    pelvis 0.482; v6c upright 0.542 / pelvis 0.445.
+  * So the critic-lr lever (with the normalisation) changed the training trajectory qualitatively
+    even though the EV instrument cannot score it.  The 200k/400k behavioural reads (fall <= 0.15
+    AND upright >= 0.85) are the pre-registered deciders; v6d continues.
