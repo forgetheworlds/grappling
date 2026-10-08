@@ -1763,3 +1763,23 @@ scripts/calibrate_scorer.py, scripts/score_trace.py, tests/test_scorer.py.
     headline bars within 0.007-0.033 (v5@301k was fall 0.708 / upright 0.583). The learned policy's
     artifact clip rendered: `videos/solo_drill/baselines/t1_monitor_600064.mp4` (960x720 h264).
   * sigma 0.0821 (acceptance <= 0.15) from the 100k anneal onward; approx_kl ~0.02 (v5: 0.057).
+- OPERATOR EXPERIMENT (stepping reference -> executable demo -> learned reproduction): all three
+  legs are now built and exercised. (1) reference = `shot_entry_full` + `shot_recover` (its
+  grounding defect is isolated in the fidelity report). (2) demo generation: `solo.demo`'s CEM
+  capture needed THREE more killed-agent fixes to run at all (`SourceContext.q0` field,
+  `CaptureSpec.cem_seed`, an undefined `teacher` in the phase recording -> the reference's own
+  phase table); a probe now completes capture -> trace -> the 9-criterion checker end to end; the
+  real capture is RUNNING as service `demo-cem-shot-entry` (200 samples x 6 iters, ~2 h). (3)
+  imitation refinement: NEW `scripts/solo_imitation_train.py` (commit `74ed76a`) composes the
+  reference-conditioned episode (reset from the reference + seeded perturbations, one step per
+  frame, the DeepMimic reward via `imitation.step_terms`, the deviation predicate hard or soft)
+  with the shipped PPO core and three init paths (BC prior via `warm_start_from_bc`, a training
+  checkpoint's actor -- e.g. v6a's balancer -- or both); verified end-to-end (6 updates + a
+  deterministic eval). DIAGNOSIS: at the reset the site error is exactly 0.0000 (the reference
+  conditioning is correct); the BC prior alone diverges open-loop (0.026 -> 0.137 m site error in
+  4 frames), hence the `--soft-deviation` mode and the balancer init.
+- TOOLING FIXES (same pass): `solo_env_smoke.py monitor` now renders the learned policy's clip
+  (the T1 artifact source) and carries it in the row JSON; `solo_train_health.py`'s inline
+  keyframe scan had the SAME baseline-action bug as cmd_keyframe (it kept reporting a false
+  "balance_lit MISALIGNED +2.161%") and its gradient probe now reads the checkpoint's
+  grad_clip_actor/critic (no false "critic-bound" flag with the split clips active).
