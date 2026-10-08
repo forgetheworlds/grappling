@@ -85,11 +85,14 @@ def _l0(rng: np.random.Generator) -> list:
 
 
 def _l1(rng: np.random.Generator) -> list:
-    """Level changes, weight shifts, and one *real* load-gated step per cycle.
+    """Level changes and weight shifts on planted feet.
 
-    The step is the component gate of rung L2 promoted into the L1 programme:
-    alternating feet (the controller alternates), short and quick, advancing a
-    step only if it ends with the foot flat, loaded and the CoM inside support.
+    Measured attempt (2026-10-08): promoting one *real* load-gated step per cycle
+    into this programme (SHUFFLE_F/B with steps=1, alternating feet) fails — the
+    run falls at 16 s (L1) / 3 s (entry) once the lift gate is relaxed enough to
+    fire in a staggered stance.  The step primitive itself is clean in isolation;
+    sequencing it is the open L2 gate, so L1 stays a planted-feet programme and
+    the stepping clips are failure evidence, not the headline.
     """
     out = []
     for i in range(3):
@@ -99,12 +102,6 @@ def _l1(rng: np.random.Generator) -> list:
                            params={"stance_height": depth}))
         out.append(Element(f"l1_rise_{i}", "RECOVER", hold_s=0.9, timeout=6.0,
                            guard="stance", params={"stance_height": 0.0}))
-        out.append(Element(f"l1_step_out_{i}", "SHUFFLE_F", steps=1, timeout=6.0,
-                           guard="flat",
-                           params={"vx": float(rng.uniform(0.05, 0.09))}))
-        out.append(Element(f"l1_step_back_{i}", "SHUFFLE_B", steps=1, timeout=6.0,
-                           guard="flat",
-                           params={"vx": float(rng.uniform(0.05, 0.09))}))
     return out
 
 

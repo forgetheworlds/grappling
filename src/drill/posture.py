@@ -60,22 +60,30 @@ class StanceSpec:
     """Wrestling stance parameters (metres / radians, foot-placement frame)."""
 
     #: lead (left) foot frame origin, forward of the feet-frame centre
-    lead_fwd: float = 0.150
+    lead_fwd: float = 0.100
     #: rear (right) foot frame origin, behind the feet-frame centre
-    rear_back: float = -0.200
-    #: lateral half-separation of the two foot origins
-    half_width: float = 0.150
+    rear_back: float = -0.140
+    #: lateral half-separation of the two foot origins.  Raised to the operator's
+    #: measured reference (stance_spec.json: 0.491 m G1-equivalent width vs the
+    #: 0.315 m first build) -- the widest that still solves flat, reachable legs
+    #: with a margin; 0.24 half-width = 0.495 m measured width.
+    half_width: float = 0.240
     #: foot yaw in the stance frame; positive = toe towards +y (left/out)
     lead_yaw: float = 0.12
     rear_yaw: float = -0.30
-    #: torso carriage (rad): forward lean and bladed rotation
-    waist_pitch: float = 0.16
+    #: torso carriage (rad): forward lean and bladed rotation.  The reference
+    #: measures 47 deg; 0.26 rad (15 deg) is what the CoM margin still allows
+    #: (see the report: human ankle range and human foot length are the gap)
+    waist_pitch: float = 0.26
     waist_yaw: float = 0.12
     waist_roll: float = 0.0
     #: hand targets in the pelvis frame (m): forward / lateral / height above pelvis
-    hand_fwd: float = 0.30
-    hand_lat: float = 0.105
-    hand_up: float = 0.32
+    #: hand targets in the pelvis frame (m).  The operator's reference carries
+    #: the hands low, near the hips, elbows inside -- lowering them from the
+    #: first build's chest height (0.32 m up) is the cheapest rubric-H win.
+    hand_fwd: float = 0.22
+    hand_lat: float = 0.100
+    hand_up: float = 0.10
     #: minimum lateral foot separation the stance may shrink to (m) — enforced
     min_width: float = 0.24
     #: filled by the solve (informational; not an input)

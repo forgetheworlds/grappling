@@ -114,7 +114,7 @@ class StancePD:
 #: rung -> the motion elements it is allowed to use (review: component gates)
 RUNG_ELEMENTS = {
     "L0": ("hold", "posture_mod"),
-    "L1": ("hold", "posture_mod", "level_change", "step"),
+    "L1": ("hold", "posture_mod", "level_change", "pivot"),
     "L2": ("hold", "posture_mod", "step"),
     "L3": ("hold", "posture_mod", "step", "shuffle", "circle"),
     "L4": ("hold", "posture_mod", "step", "shuffle", "circle", "shot"),
@@ -319,7 +319,7 @@ class FeasibleDrill:
         self._adapt_reference(data, dt)
         # steps
         self.stepper.com_local = self.com_local
-        self._maybe_request_step(cmd, data)
+        self._maybe_request_step(cmd, data, dt)
         ev = self.stepper.update(data, plan, dt, self.ids.com_xy(data),
                                  self.nominal_now, load=self.ids.foot_load(data))
         for e in ev:
@@ -370,7 +370,8 @@ class FeasibleDrill:
         self.plan.upper = self.plan.upper + np.clip(u - self.plan.upper,
                                                     -0.06, 0.06 * dt / 0.02)
 
-    def _maybe_request_step(self, cmd: DrillCommand, data: mujoco.MjData) -> None:
+    def _maybe_request_step(self, cmd: DrillCommand, data: mujoco.MjData,
+                            dt: float = 0.02) -> None:
         """Queue the next foot placement for the commanded skill (seeded)."""
         if self.stepper.busy() or self._emergency_cooldown > 0.0:
             return

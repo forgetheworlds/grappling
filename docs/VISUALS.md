@@ -18,6 +18,8 @@ Each entry states WHAT TO LOOK FOR and the honest verdict.
 | 9 | self-play match (d23) | `final_wrestling_match.mp4` | full 3-minute match: stance → movement → attack → defense → recovery → takedown → score → reset; sequence emergent | pending |
 | 10 | failure videos (d20) | `videos/failures/*.mp4` | documented failure modes at each stage (falling, stalls, degenerate attacks) | pending |
 
+| 10b | **solo drill** (d-night) | `videos/solo_drill/{final_L1_90s,L0_hold_30s,L1_90s_with_pushes,01_baseline_stancepd,99_failure_entry_L2,99_failure_push90N,02_slowmo_level_change_quarter_speed}.mp4` (+ `03_side_by_side_reference.png`) (+ `_sheet.png`) | **WHAT TO LOOK FOR:** one G1, one unbroken episode (no resets, no cuts), HUD showing skill/command/rung/pelvis z/tilt/CoM margin/foot loads/clearance/push markers. Rung L1 = wide stance matched to the operator's measured reference (0.50 m wide, 0.24 m deep, hips 6 cm below the stand keyframe, hands at hip height) held 90 s with weight shifts and repeated crouch/rise level changes; NO clip occupies the acceptance name `final_continuous_drill.mp4` (no full drill exists yet); L0 = the same stance held 60 s with both feet planted. **Contrast:** the PD baseline (`01_baseline_stancepd.mp4`) topples on the *identical* pose at 8.4 s. **Failures kept:** the stand→stance entry walk (L2: steps complete in isolation, the sequence falls) and a 90 N push. | ⏳ rendered by `proc://drill_suite` — awaiting orchestrator verification |
+
 ## How to verify quickly
 - Play a video, or read a PNG contact sheet for a 3-frame summary.
 - Compare stage 2 vs stage 3 side by side — that pair is the proof the teacher works.

@@ -115,11 +115,65 @@ def cmd_report(a) -> int:
     return 0
 
 
+def verify_clip(path: Path, expect_s: float, expect_frames: int,
+                fps: int = 30) -> dict:
+    """ffprobe duration/frame count + a non-black/non-static frame check.
+
+    A clip is only evidence if it decodes, lasts what the metrics say, and its
+    pixels actually change (a frozen or black render is not a video).
+    """
+    import subprocess
+    import numpy as np
+    import imageio.v2 as imageio
+    out = {"path": str(path), "ok": True, "problems": []}
+    try:
+        pr = subprocess.run(["ffprobe", "-v", "error", "-select_streams", "v:0",
+                             "-show_entries", "stream=nb_frames,duration,codec_name,"
+                             "pix_fmt,width,height,r_frame_rate", "-of", "json",
+                             str(path)], capture_output=True, text=True, timeout=120)
+        st = json.loads(pr.stdout)["streams"][0]
+        out.update({k: st.get(k) for k in ("codec_name", "pix_fmt", "width", "height",
+                                           "r_frame_rate", "nb_frames", "duration")})
+        if st.get("codec_name") != "h264":
+            out["problems"].append(f"codec {st.get('codec_name')} != h264")
+        if st.get("pix_fmt") != "yuv420p":
+            out["problems"].append(f"pix_fmt {st.get('pix_fmt')} != yuv420p")
+        dur = float(st.get("duration") or 0.0)
+        if abs(dur - expect_s) > 0.5:
+            out["problems"].append(f"duration {dur:.2f}s vs expected {expect_s:.2f}s")
+        nf = int(st.get("nb_frames") or 0)
+        if abs(nf - expect_frames) > 3:
+            out["problems"].append(f"frames {nf} vs expected {expect_frames}")
+    except Exception as exc:                              # pragma: no cover
+        out["problems"].append(f"ffprobe failed: {exc}")
+    try:
+        rd = imageio.get_reader(str(path))
+        meta = rd.get_meta_data()
+        n = int(meta.get("nframes") or expect_frames)
+        idx = [int(n * f) for f in (0.1, 0.4, 0.7, 0.95) if 0 <= int(n * f) < n]
+        imgs = [np.asarray(rd.get_data(i), dtype=float) for i in idx]
+        rd.close()
+        luma = [float(im.mean()) for im in imgs]
+        out["mean_luma"] = [round(v, 1) for v in luma]
+        if min(luma) < 8:
+            out["problems"].append(f"near-black frame (min luma {min(luma):.1f})")
+        diffs = [float(np.abs(imgs[i + 1] - imgs[i]).mean())
+                 for i in range(len(imgs) - 1)]
+        out["frame_diff"] = [round(v, 3) for v in diffs]
+        if diffs and max(diffs) < 0.5:
+            out["problems"].append(f"static video (max diff {max(diffs):.3f})")
+    except Exception as exc:                              # pragma: no cover
+        out["problems"].append(f"decode failed: {exc}")
+    out["ok"] = not out["problems"]
+    return out
+
+
 def cmd_suite(a) -> int:
     """Run + render the whole deliverable set (one heavy process at a time)."""
     import numpy as np
     from drill.lock import sim_lock
     from drill.runner import PushSpec, RunConfig, run
+    from drill import rubric as rubric_mod
     from drill import video as video_mod
 
     tag = "FINAL"
@@ -127,7 +181,7 @@ def cmd_suite(a) -> int:
         # (tag, RunConfig, renders)
         (f"{tag}_L1_90", dict(controller="feasible", rung="L1", seconds=90.0,
                               start="stance", tag=f"{tag}_L1_90"), [
-            ("final_continuous_drill.mp4", "continuous solo drill (headline)",
+            ("final_L1_90s.mp4", "rung L1 - stance hold + weight shift + level change (90 s)",
              0.0, None, ("the headline clip: one unbroken episode, no resets, "
                          "rung L1 (stance hold + weight shift + level change)")),
         ]),
@@ -136,7 +190,7 @@ def cmd_suite(a) -> int:
                                 pushes=[PushSpec(t=15.0, dur=0.12, fx=-20.0, label="push-20N"),
                                         PushSpec(t=38.0, dur=0.12, fy=20.0, label="push+20N"),
                                         PushSpec(t=62.0, dur=0.12, fx=20.0, label="push+20N")]), [
-            ("final_disturbances.mp4", "continuous solo drill with pushes",
+            ("L1_90s_with_pushes.mp4", "rung L1 with pushes (3 x 20 N, all recovered)",
              0.0, 60.0, "3 x 20 N pushes (all recovered): CoM, margin and the push windows are overlaid"),
         ]),
         (f"{tag}_L0_60", dict(controller="feasible", rung="L0", seconds=60.0,
@@ -191,17 +245,39 @@ def cmd_suite(a) -> int:
                                                    (t1 if t1 else np.load(npz)["t"][-1]))
                                                - 0.5, 3)),
                                            caption=caption)
-                print(f"[suite] rendered {r['mp4']} ({r['frames']} frames)", flush=True)
-                if name == "final_continuous_drill.mp4" and not cfg.pushes:
-                    # the headline episode IS the nominal one (no pushes were
-                    # injected): the second required name is a copy, not a
-                    # second render of the same 90 s
-                    import shutil
-                    shutil.copy(VIDEO / name, VIDEO / "final_nominal.mp4")
-                    shutil.copy(VIDEO / name.replace(".mp4", "_sheet.png"),
-                                VIDEO / "final_nominal_sheet.png")
-                    print("[suite] final_nominal.mp4 = copy of the headline (same episode)",
-                          flush=True)
+                ver = verify_clip(Path(r["mp4"]), expect_s=(t1 or float(
+                    np.load(npz)["t"][-1])) - t0, expect_frames=r["frames"])
+                print(f"[suite] rendered {r['mp4']} ({r['frames']} frames) "
+                      f"verify={ver}", flush=True)
+                # evidence bundle: metrics + rubric + provenance beside the clip
+                # (docs/EVIDENCE_PROTOCOL.md: data/<stage>/<name>.json, same basename)
+                run_blob = json.loads((Path(paths["json"])).read_text())
+                rub = rubric_mod.assess(paths["npz"], run_blob)
+                bundle = {"video": str(VIDEO / name),
+                          "contact_sheet": r.get("sheet"),
+                          "trace_npz": paths["npz"], "run_json": paths["json"],
+                          "config": run_blob.get("config"),
+                          "provenance": run_blob.get("provenance"),
+                          "metrics": run_blob.get("metrics"),
+                          "rubric": rub,
+                          "rubric_table": rubric_mod.render_table(rub),
+                          "label": title, "caption": caption,
+                          "reproduce": run_blob.get("provenance", {}).get("reproduce"),
+                          "render_command": (f"MUJOCO_GL=egl python scripts/solo_drill_render.py "
+                                             f"render --npz {paths['npz']} --out videos/solo_drill/{name}")}
+                bdir = REPO / "data" / "solo_drill"
+                bdir.mkdir(parents=True, exist_ok=True)
+                (bdir / (Path(name).stem + ".json")).write_text(
+                    json.dumps(bundle, indent=1, default=str))
+                if name == "final_L1_90s.mp4" and not cfg.pushes:
+                    # the acceptance name `final_continuous_drill.mp4` stays
+                    # EMPTY until a clip genuinely contains stance -> shuffle/
+                    # circle -> level change -> penetration -> knee -> recovery
+                    # (docs/EVIDENCE_PROTOCOL.md naming rules; a rung clip must
+                    # not occupy the acceptance name)
+                    print("[suite] rung clip named final_L1_90s.mp4; the acceptance name "
+                          "final_continuous_drill.mp4 is intentionally NOT created "
+                          "(no full-drill clip exists)", flush=True)
     (DATA / "suite_summary.json").write_text(json.dumps(results, indent=1, default=str))
     print(json.dumps(results, indent=1, default=str))
     return 0

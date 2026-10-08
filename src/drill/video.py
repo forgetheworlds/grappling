@@ -143,6 +143,56 @@ def render_trace(trace: dict, out_mp4: Path | str, *, meta: dict | None = None,
             "frames": n, "t0": t0, "t1": t1, "speed": speed}
 
 
+def render_stills(trace: dict, times, out_dir: Path | str, *, meta: dict | None = None,
+                  label: str = "", width: int = WIDTH, height: int = HEIGHT) -> list:
+    """Single MuJoCo-rendered frames with the HUD (annotated evidence frames).
+
+    Used for the rubric's "one annotated frame per scored element" duty and for
+    the side-by-side against the operator's reference stills.  One frame per
+    requested time, written as PNG.
+    """
+    import imageio.v2 as imageio
+    import mujoco
+    from PIL import Image, ImageDraw, ImageFont
+
+    from . import scene as scene_mod
+
+    model = scene_mod.load_model(None)
+    data = mujoco.MjData(model)
+    renderer = mujoco.Renderer(model, height=height, width=width)
+    flags = renderer._scene.flags
+    font = ImageFont.truetype(str(FONT), 15)
+    font_b = ImageFont.truetype(str(FONT_BOLD), 16)
+    out_dir = Path(out_dir)
+    out_dir.mkdir(parents=True, exist_ok=True)
+    t = np.asarray(trace["t"], float)
+    qpos = np.asarray(trace["qpos"], float)
+    out = []
+    try:
+        for tt in times:
+            tt = float(tt)
+            k = int(np.clip(np.searchsorted(t, tt), 0, len(t) - 1))
+            data.qpos[:] = qpos[k]
+            data.qvel[:] = 0.0
+            mujoco.mj_forward(model, data)
+            cam = mujoco.MjvCamera()
+            cam.type = mujoco.mjtCamera.mjCAMERA_FREE
+            cam.azimuth, cam.elevation = CAM_AZIMUTH, CAM_ELEVATION
+            cam.distance, cam.lookat[:] = CAM_DISTANCE, [qpos[k, 0], qpos[k, 1], CAM_LOOKAT_Z]
+            renderer.update_scene(data, camera=cam)
+            flags[mujoco.mjtRndFlag.mjRND_SHADOW] = 0
+            flags[mujoco.mjtRndFlag.mjRND_REFLECTION] = 0
+            frames = sample_frames(trace, fps=FPS, t0=tt, t1=tt)
+            lines = _hud_lines(frames, 0, meta or {}, label)
+            img = _draw_hud(renderer.render(), lines, font, font_b, 1.0)
+            path = out_dir / f"frame_t{tt:06.2f}.png"
+            imageio.imwrite(path, img)
+            out.append(str(path))
+    finally:
+        renderer.close()
+    return out
+
+
 def _hud_lines(frames: dict, i: int, meta: dict, label: str) -> list:
     t = float(frames["t"][i])
     cmd = np.asarray(frames["cmd"])[i]

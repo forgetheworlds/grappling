@@ -72,7 +72,10 @@ def test_stance_rules_are_measured(built):
     _, _, stance = built
     r = stance.report
     assert r["width_m"] >= posture.StanceSpec().min_width - 1e-6
-    assert r["base_depth_m"] > 0.28                      # staggered, not square
+    # staggered, not square -- the bar follows the *measured* reference
+    # (stance_spec.json: the operator's own depth is 0.062 m) and the A2
+    # recalibration declared in reports/2026-10-08/drill.md §6.3
+    assert r["base_depth_m"] > 0.22
     assert min(r["knee_flex_rad"].values()) > 0.15        # the crouch is real
     assert all(r["sole_flat"].values())
     assert r["com_margin_m"] > 0.02

@@ -20,19 +20,19 @@
    "start": "stand",
    "n_pushes": 0
   },
-  "duration_s": 5.76,
-  "longest_continuous_s": 5.76,
+  "duration_s": 3.0,
+  "longest_continuous_s": 3.0,
   "falls": 1,
   "fall_times": [
-   5.76
+   3.0
   ],
   "timeouts": 0,
   "steps_completed": 1,
   "step_quality": [
    {
     "side": "left",
-    "t": 1.98,
-    "clearance_m": 0.0486,
+    "t": 1.88,
+    "clearance_m": 0.0396,
     "loaded_slip_m": 0.0
    }
   ],
@@ -45,18 +45,18 @@
      "p95_tick_slip_m": 0.0
     },
     "right": {
-     "loaded_frac": 0.11458333333333333,
-     "max_tick_slip_m": 0.0013447036300200603,
-     "max_load_drift_m": 0.006619124735039651,
-     "p95_tick_slip_m": 0.0011590967290704612
+     "loaded_frac": 0.1,
+     "max_tick_slip_m": 0.0007134028245629932,
+     "max_load_drift_m": 0.0014398738943781815,
+     "p95_tick_slip_m": 0.00044531650941856784
     }
    },
-   "max_tick_slip_m": 0.0013447036300200603,
-   "max_load_drift_m": 0.006619124735039651
+   "max_tick_slip_m": 0.0007134028245629932,
+   "max_load_drift_m": 0.0014398738943781815
   },
   "interfoot": {
-   "min_separation_m": 0.2014963272232756,
-   "mean_separation_m": 0.29628358310952485
+   "min_separation_m": 0.2005169688935828,
+   "mean_separation_m": 0.29160445749229136
   },
   "pushes": {
    "n_pushes": 0,
@@ -64,65 +64,65 @@
    "recoveries": []
   },
   "tracking": {
-   "mean_com_track_err_m": 0.08022967169094311,
-   "p95_com_track_err_m": 0.45432213000308086,
+   "mean_com_track_err_m": 0.11980383508451903,
+   "p95_com_track_err_m": 0.6334717465393401,
    "per_skill": {
     "STANCE": {
      "ticks": 39,
      "duration_s": 0.76,
-     "realized_disp_m": 0.02703763259606522,
+     "realized_disp_m": 0.029594870631201243,
      "cmd_speed_mps": 0.0,
      "cmd_yaw_rate": 0.0,
-     "realized_yaw_change_deg": 0.3586385250188747,
-     "mean_track_err_m": 0.007109317635446639
+     "realized_yaw_change_deg": 0.29868460766583294,
+     "mean_track_err_m": 0.007008431268734399
     },
     "ENTRY": {
-     "ticks": 250,
-     "duration_s": 4.9799999999999995,
-     "realized_disp_m": 0.8116142538827504,
+     "ticks": 112,
+     "duration_s": 2.2199999999999998,
+     "realized_disp_m": 0.7930386574304448,
      "cmd_speed_mps": 0.0,
      "cmd_yaw_rate": 0.0,
-     "realized_yaw_change_deg": 82.9722623823229,
-     "mean_track_err_m": 0.09163644692360055
+     "realized_yaw_change_deg": 38.78913700439341,
+     "mean_track_err_m": 0.1590808060560869
     }
    }
   },
   "posture": {
    "tilt_deg": {
-    "mean": 8.434936812168955,
-    "max": 79.46157951476354,
-    "p95": 31.05770924687601
+    "mean": 9.423096889010207,
+    "max": 81.76824047497352,
+    "p95": 49.12268170365479
    },
    "pelvis_z": {
-    "mean": 0.7300373290821304,
-    "min": 0.09739204996167887,
-    "max": 0.7915303159413777
+    "mean": 0.7132558426802694,
+    "min": 0.08817465407333828,
+    "max": 0.791262462724788
    },
-   "head_z_mean": 1.1454610967956511,
-   "min_foot_clearance_m": -0.014030899798829962,
+   "head_z_mean": 1.119174846288469,
+   "min_foot_clearance_m": -0.002828475216937966,
    "both_airborne_frac": 0.0
   },
   "plausibility": {
-   "penetration_min_m": -0.017092776535690305,
-   "penetration_gt_ground_thr": 4,
+   "penetration_min_m": -0.014916473279603007,
+   "penetration_gt_ground_thr": 2,
    "penetration_gt_mesh_thr": 0,
    "sat_frac_mean": 0.0,
    "sat_frac_max": 0.0,
-   "ctrl_delta_p95_rad": 0.014067089157547561,
-   "ctrl_delta_max_rad": 0.8293951655629115
+   "ctrl_delta_p95_rad": 0.01676651043026471,
+   "ctrl_delta_max_rad": 0.1382325275938187
   },
   "continuity": {
-   "duration_s": 5.76,
-   "n_ticks": 289,
+   "duration_s": 3.0,
+   "n_ticks": 151,
    "clock_monotone": true,
    "resets": 0,
    "zero_motion_frac": 0.0
   },
   "elements_done": 1,
   "cycles_done": 0,
-  "safety_blend_ticks": 112,
-  "ik_err_max": 0.00027353225915560333,
-  "emergency_plants": 1
+  "safety_blend_ticks": 59,
+  "ik_err_max": 0.0002836106289835722,
+  "emergency_plants": 0
  },
  "events": [
   {
@@ -133,129 +133,358 @@
    "elapsed": 0.76
   },
   {
-   "t": 0.9400000000000005,
+   "t": 0.8000000000000004,
    "side": "left",
    "event": "step_start",
    "label": "ENTRY-left-0"
   },
   {
-   "t": 1.4200000000000008,
+   "t": 1.3000000000000007,
    "side": "left",
    "event": "shift_done",
-   "margin": 0.0428,
-   "margin_support": -0.0285,
-   "swing_load_n": 61.9
+   "margin": 0.0479,
+   "margin_support": -0.0164,
+   "swing_load_n": 47.4
   },
   {
-   "t": 1.600000000000001,
+   "t": 1.5000000000000009,
    "side": "left",
    "event": "lift_done",
-   "clearance": 0.0317
+   "clearance": 0.027
   },
   {
-   "t": 1.7600000000000011,
+   "t": 1.660000000000001,
    "side": "left",
    "event": "swing_done",
    "place_err": 0.00161
   },
   {
-   "t": 1.8000000000000012,
+   "t": 1.700000000000001,
    "event": "descent_hold",
    "clearance": [
-    0.04613241707900712,
-    0.0011564792869051114
+    0.02623629502704814,
+    0.0012314962157544186
    ]
   },
   {
-   "t": 1.8200000000000012,
+   "t": 1.720000000000001,
    "event": "descent_hold",
    "clearance": [
-    0.044204643297849816,
-    0.0011266036192321264
+    0.023383715885556683,
+    0.0012450801843696562
    ]
   },
   {
-   "t": 1.8400000000000012,
+   "t": 1.740000000000001,
    "event": "descent_hold",
    "clearance": [
-    0.042947169019877864,
-    0.0006550143696038417
+    0.021038442714570275,
+    0.0013610389062806518
    ]
   },
   {
-   "t": 1.8600000000000012,
+   "t": 1.7600000000000011,
    "event": "descent_hold",
    "clearance": [
-    0.04018079743129086,
-    0.0009730398170295141
+    0.01674158477990883,
+    0.0014553282392326104
    ]
   },
   {
    "t": 1.8800000000000012,
-   "event": "descent_hold",
-   "clearance": [
-    0.03677321761443022,
-    0.001386761195892787
-   ]
-  },
-  {
-   "t": 1.9000000000000012,
-   "event": "descent_hold",
-   "clearance": [
-    0.030716540955138996,
-    0.0014478963001000864
-   ]
-  },
-  {
-   "t": 1.9200000000000013,
-   "event": "descent_hold",
-   "clearance": [
-    0.021442709666014706,
-    0.0013914653548073156
-   ]
-  },
-  {
-   "t": 1.9800000000000013,
    "side": "left",
    "event": "step_done",
    "label": "ENTRY-left-0",
-   "landing_load_n": 57.4,
-   "margin": 0.0436,
+   "landing_load_n": 215.1,
+   "margin": 0.0221,
    "steps": 1
   },
   {
+   "t": 2.1200000000000014,
+   "event": "descent_hold",
+   "clearance": [
+    0.018578836407957065,
+    0.0011337008317102285
+   ]
+  },
+  {
+   "t": 2.1400000000000015,
+   "event": "descent_hold",
+   "clearance": [
+    0.018615461855327878,
+    0.0010952756401615541
+   ]
+  },
+  {
+   "t": 2.1600000000000015,
+   "event": "descent_hold",
+   "clearance": [
+    0.017676402318231123,
+    0.0010367617344483313
+   ]
+  },
+  {
+   "t": 2.1800000000000015,
+   "event": "descent_hold",
+   "clearance": [
+    0.01793231013982778,
+    0.0010139469012027656
+   ]
+  },
+  {
+   "t": 2.2000000000000015,
+   "event": "descent_hold",
+   "clearance": [
+    0.01998437324234225,
+    0.0010507278807654536
+   ]
+  },
+  {
+   "t": 2.2200000000000015,
+   "event": "descent_hold",
+   "clearance": [
+    0.023896672470918846,
+    0.0010987548904823606
+   ]
+  },
+  {
+   "t": 2.2400000000000015,
+   "event": "descent_hold",
+   "clearance": [
+    0.028743176927888768,
+    0.001130629573643889
+   ]
+  },
+  {
+   "t": 2.2600000000000016,
+   "event": "descent_hold",
+   "clearance": [
+    0.03332402994112052,
+    0.0012379206031887511
+   ]
+  },
+  {
+   "t": 2.2800000000000016,
+   "event": "descent_hold",
+   "clearance": [
+    0.0374180576209837,
+    0.0013257522888096202
+   ]
+  },
+  {
+   "t": 2.3000000000000016,
+   "event": "descent_hold",
+   "clearance": [
+    0.040416118078769436,
+    0.0012759194916670464
+   ]
+  },
+  {
+   "t": 2.3200000000000016,
+   "event": "descent_hold",
+   "clearance": [
+    0.04172107869773044,
+    0.0012380114821832198
+   ]
+  },
+  {
+   "t": 2.3400000000000016,
+   "event": "descent_hold",
+   "clearance": [
+    0.04085877980456428,
+    0.0012501046072144876
+   ]
+  },
+  {
+   "t": 2.3600000000000017,
+   "event": "descent_hold",
+   "clearance": [
+    0.03736965352455901,
+    0.0012686013870803676
+   ]
+  },
+  {
+   "t": 2.3800000000000017,
+   "event": "descent_hold",
+   "clearance": [
+    0.03166613350393712,
+    0.0012564175078148194
+   ]
+  },
+  {
+   "t": 2.4000000000000017,
+   "event": "descent_hold",
+   "clearance": [
+    0.02429793141119959,
+    0.0012305661304932354
+   ]
+  },
+  {
+   "t": 2.4200000000000017,
+   "event": "descent_hold",
+   "clearance": [
+    0.01617484539840558,
+    0.0012228856868197247
+   ]
+  },
+  {
+   "t": 2.580000000000002,
+   "event": "descent_hold",
+   "clearance": [
+    0.0013328098796222252,
+    0.016532573746185095
+   ]
+  },
+  {
+   "t": 2.600000000000002,
+   "event": "descent_hold",
+   "clearance": [
+    0.0013363352569739418,
+    0.026955302631774723
+   ]
+  },
+  {
+   "t": 2.620000000000002,
+   "event": "descent_hold",
+   "clearance": [
+    0.0012649156115917882,
+    0.0382094500710265
+   ]
+  },
+  {
+   "t": 2.640000000000002,
+   "event": "descent_hold",
+   "clearance": [
+    0.0012761028157384836,
+    0.04952287776659818
+   ]
+  },
+  {
    "t": 2.660000000000002,
-   "side": "right",
-   "event": "step_start",
-   "label": "ENTRY-right-0"
+   "event": "descent_hold",
+   "clearance": [
+    0.0013609793882701838,
+    0.06017806897413002
+   ]
   },
   {
-   "t": 3.3000000000000025,
-   "side": "right",
-   "event": "shift_done",
-   "margin": 0.0607,
-   "margin_support": -0.0278,
-   "swing_load_n": 72.5
+   "t": 2.680000000000002,
+   "event": "descent_hold",
+   "clearance": [
+    0.001441517271245084,
+    0.06952625593561834
+   ]
   },
   {
-   "t": 3.5400000000000027,
-   "side": "right",
-   "event": "lift_done",
-   "clearance": 0.0286
+   "t": 2.700000000000002,
+   "event": "descent_hold",
+   "clearance": [
+    0.0014890342404825009,
+    0.07717276681771336
+   ]
   },
   {
-   "t": 3.5800000000000027,
-   "event": "emergency_plant",
-   "side": "right",
-   "margin": -0.0316,
-   "e_track": 0.0586
+   "t": 2.720000000000002,
+   "event": "descent_hold",
+   "clearance": [
+    0.0017958915699484005,
+    0.08269425269342894
+   ]
   },
   {
-   "t": 5.76,
+   "t": 2.740000000000002,
+   "event": "descent_hold",
+   "clearance": [
+    0.0015365020168963462,
+    0.08571838798613686
+   ]
+  },
+  {
+   "t": 2.760000000000002,
+   "event": "descent_hold",
+   "clearance": [
+    0.0018281365205964407,
+    0.0860223444023399
+   ]
+  },
+  {
+   "t": 2.780000000000002,
+   "event": "descent_hold",
+   "clearance": [
+    0.001444008024351974,
+    0.08335235683535373
+   ]
+  },
+  {
+   "t": 2.800000000000002,
+   "event": "descent_hold",
+   "clearance": [
+    0.0018255131490232863,
+    0.0776927975495081
+   ]
+  },
+  {
+   "t": 2.820000000000002,
+   "event": "descent_hold",
+   "clearance": [
+    0.0016566126279062483,
+    0.06906924239776671
+   ]
+  },
+  {
+   "t": 2.840000000000002,
+   "event": "descent_hold",
+   "clearance": [
+    0.0016897818412743974,
+    0.058303160653797134
+   ]
+  },
+  {
+   "t": 2.860000000000002,
+   "event": "descent_hold",
+   "clearance": [
+    0.001821264984094731,
+    0.04604781896024439
+   ]
+  },
+  {
+   "t": 2.880000000000002,
+   "event": "descent_hold",
+   "clearance": [
+    0.001865851454935201,
+    0.032542048576382245
+   ]
+  },
+  {
+   "t": 2.900000000000002,
+   "event": "descent_hold",
+   "clearance": [
+    0.0018252170843602506,
+    0.017602391476447356
+   ]
+  },
+  {
+   "t": 3.0,
    "event": "fall",
-   "detail": "fall: pelvis_z=0.097 tilt=79.5 up_z=0.18 sustained 8 ticks"
+   "detail": "fall: pelvis_z=0.088 tilt=81.8 up_z=0.14 sustained 8 ticks"
   }
  ],
- "wall_s": 3.0384068489074707,
- "aborted": "fall: pelvis_z=0.097 tilt=79.5 up_z=0.18 sustained 8 ticks"
+ "wall_s": 1.955381155014038,
+ "aborted": "fall: pelvis_z=0.088 tilt=81.8 up_z=0.14 sustained 8 ticks",
+ "provenance": {
+  "git_commit": "8314141",
+  "worktree_dirty": true,
+  "controller": "feasible",
+  "rung": "L2",
+  "seed": 0,
+  "config_hash": "7e3a7e234e6081bc",
+  "control_hz": 50,
+  "physics_dt_s": 0.002,
+  "physics_substeps_per_tick": 10,
+  "scene": "robots/g1/g1.xml + landmark/sole sites (single robot, MjSpec)",
+  "reset_count": 0,
+  "one_reset": true,
+  "sim_wall_s": null,
+  "reproduce": "MUJOCO_GL=egl python scripts/solo_drill_render.py run --controller feasible --rung L2 --seconds 30 --seed 0 --start stand --out-tag FAIL_ENTRY_L2"
+ }
 }

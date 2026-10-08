@@ -44,7 +44,10 @@ class StepParams:
     shift_speed: float = 0.13       # pelvis shift rate during weight transfer (m/s)
     settle_speed: float = 0.22
     settle_tol: float = 0.004       # pelvis back at nominal (m)
-    unload_frac: float = 0.30       # swing foot load to allow the lift
+    unload_frac: float = 0.45       # swing foot load to allow the lift (measured
+    #                                compromise: 0.30 needs a ~0.13 m CoM shift,
+    #                                which the legs cannot reach with flat feet, and
+    #                                the lift then topples the robot; 0.45 = ~0.09 m)
     #                                (fraction of its half-body-weight share;
     #                                0.45 is reachable with a small, quick weight
     #                                shift in a staggered stance, 0.2 is not)
