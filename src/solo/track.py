@@ -48,6 +48,7 @@ from .env import SoloEnv
 from .imitation import (ImitationState, ImitationTargets, ImitationWeights,
                         joint_pose_error, site_error_m, state_from_env)
 from .obs import ACTOR_DIM, PRIV_DIM
+from .pushes import PushSchedule, PushSpec
 from .scene import N_JOINTS, load_solo_model
 
 _DT = 0.02  # reference / control rate (s) -- both 50 Hz
@@ -488,13 +489,22 @@ def _yaw_rot(delta: float) -> np.ndarray:
 
 
 class TrackingEnv:
-    """One reference-tracking episode around a live :class:`solo.env.SoloEnv`."""
+    """One reference-tracking episode around a live :class:`solo.env.SoloEnv`.
+
+    ``deviation_mode="hard"`` ends the episode at the first deviation (the
+    final evaluation semantics).  ``"soft"`` pays a per-step penalty instead
+    and keeps the episode alive: early in a stage a hard gate ends every
+    episode at ~0.6 s, so the policy never experiences the recovery/rise part
+    of the motion and cannot learn to correct it (the same trap the BC
+    refinement hit; falls and dorsal contact are ALWAYS terminal).
+    """
 
     def __init__(self, env: SoloEnv, seg: Segment, tt: TrackTargets, *,
                  weights: TrackWeights = DEFAULT_WEIGHTS, q_stand: np.ndarray,
                  ic_noise: float = 0.0, xy_noise: float = 0.0,
                  yaw_jitter_deg: float = 0.0, seed: int = 0,
-                 ahead_frames: int = AHEAD_FRAMES):
+                 ahead_frames: int = AHEAD_FRAMES,
+                 deviation_mode: str = "hard", soft_penalty: float = 2.0):
         self.env = env
         self.seg = seg
         self.tt = tt
@@ -505,6 +515,10 @@ class TrackingEnv:
         self.yaw_jitter = math.radians(float(yaw_jitter_deg))
         self.rng = np.random.default_rng(int(seed))
         self.ahead_frames = int(ahead_frames)
+        if deviation_mode not in ("hard", "soft"):
+            raise ValueError(deviation_mode)
+        self.deviation_mode = deviation_mode
+        self.soft_penalty = float(soft_penalty)
         self.N = seg.k1 - seg.k0
         self.k = 0
         self.anchor_xy = np.zeros(2)
@@ -658,9 +672,13 @@ class TrackingEnv:
                                   root_xy_err=errs["root_xy_err"],
                                   pelvis_drop_m=errs["pelvis_drop"],
                                   site_err=errs["site_err"], w=self.w)
-            if dev is not None:
+            if dev is not None and self.deviation_mode == "hard":
                 cause = f"deviation:{dev}"
                 terminated = True
+            elif dev is not None:
+                # soft mode: pay per-step, stay alive (falls/dorsal stay hard)
+                reward -= self.soft_penalty
+                terms["pen_deviation_soft"] = self.soft_penalty
         success = False
         if cause is not None:
             reward -= self.w.terminal_penalty
@@ -690,7 +708,9 @@ class TrackingTask:
                  residual_scale: float = 0.5, seed: int = 0,
                  conditions: tuple[float, float, float, int] | None = None,
                  push_schedule=None, record_metrics: bool = True,
-                 stage_override: list[Segment] | None = None):
+                 stage_override: list[Segment] | None = None,
+                 deviation_mode: str = "hard", soft_penalty: float = 2.0,
+                 push_impulses: tuple[float, ...] | None = None):
         from .scene import stand_frame
 
         if stage not in STAGE_ORDER:
@@ -710,8 +730,15 @@ class TrackingTask:
                            jitter=False, record_metrics=record_metrics,
                            horizon=8.0, push=push_schedule)
         self.rng = np.random.default_rng(int(seed))
+        self.deviation_mode = deviation_mode
+        self.soft_penalty = float(soft_penalty)
+        #: scaled-disturbance mode (S7): per-episode random pushes drawn from
+        #: these impulse magnitudes (N*s), 1-3 per episode at random times.
+        self.push_impulses = tuple(push_impulses) if push_impulses else None
+        self._dynamic_pushes = self.push_impulses is not None
         self.ep = TrackingEnv(self.env, self.segs[0], track_targets(
-            self.segs[0].source, self.model), weights=self.w, q_stand=self.q_stand)
+            self.segs[0].source, self.model), weights=self.w, q_stand=self.q_stand,
+            deviation_mode=deviation_mode, soft_penalty=self.soft_penalty)
         self.episode = 0
 
     def sample_segment(self) -> Segment:
@@ -731,13 +758,32 @@ class TrackingTask:
                               q_stand=self.q_stand, ic_noise=self.ic_noise,
                               xy_noise=self.xy_noise,
                               yaw_jitter_deg=self.yaw_jitter,
-                              seed=int(self.rng.integers(0, 2**31 - 1)))
+                              seed=int(self.rng.integers(0, 2**31 - 1)),
+                              deviation_mode=self.deviation_mode,
+                              soft_penalty=self.soft_penalty)
         self.env.horizon = seg.duration_s + 2.0
+        if self._dynamic_pushes:
+            n = int(self.rng.integers(1, 4))
+            specs = []
+            for i in range(n):
+                mag = float(self.push_impulses[int(
+                    self.rng.integers(0, len(self.push_impulses)))])
+                specs.append(PushSpec(
+                    t=float(self.rng.uniform(0.3, max(0.4, seg.duration_s - 0.3))),
+                    impulse=mag, direction=float(self.rng.uniform(0, 2 * np.pi)),
+                    heading_relative=True, label=f"rnd{i}"))
+            self.env.set_push_schedule(PushSchedule(specs) if specs else None)
         self.episode += 1
         return self.ep.reset()
 
     def step(self, unit_action):
         return self.ep.step(unit_action)
+
+    def set_deviation_mode(self, mode: str) -> None:
+        """Switch hard/soft deviation for FUTURE episodes (annealed gating)."""
+        if mode not in ("hard", "soft"):
+            raise ValueError(mode)
+        self.deviation_mode = mode
 
     @property
     def segment(self) -> Segment:

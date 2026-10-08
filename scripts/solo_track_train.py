@@ -36,7 +36,8 @@ from rl.net import ActorCritic, NetConfig  # noqa: E402
 from rl.ppo import PPOConfig, RolloutBatch, ppo_update  # noqa: E402
 from solo.scene import N_JOINTS, load_solo_model  # noqa: E402
 from solo.track import (REF_ACTOR_DIM, REF_CRITIC_DIM, STAGE_ORDER,  # noqa: E402
-                        TrackingTask, warm_start_actor)
+                        Segment, TrackingEnv, TrackingTask, track_targets,
+                        warm_start_actor)
 
 EVAL_SEEDS = (100, 101, 102)
 
@@ -68,6 +69,14 @@ def parse_args(argv=None):
     ap.add_argument("--seed", type=int, default=0)
     ap.add_argument("--eval-every", type=int, default=25)
     ap.add_argument("--save-every", type=int, default=50)
+    ap.add_argument("--soft-updates", type=int, default=0,
+                    help="deviation pays a per-step penalty (episode continues) "
+                         "for the first N updates, then the hard gate applies; "
+                         "falls/dorsal are ALWAYS terminal")
+    ap.add_argument("--soft-penalty", type=float, default=2.0)
+    ap.add_argument("--pushes", default=None,
+                    help="comma impulse magnitudes (N*s) for per-episode random "
+                         "pushes (S7 scaled disturbances), e.g. '4,8,12'")
     ap.add_argument("--target-kl", type=float, default=0.03)
     return ap.parse_args(argv)
 
@@ -137,18 +146,34 @@ def collect(net: ActorCritic, task: TrackingTask, args, seed: int) -> tuple:
 
 @torch.no_grad()
 def quick_eval(net: ActorCritic, task: TrackingTask, seeds=EVAL_SEEDS) -> dict:
-    """Deterministic rollouts on a few fixed segments (the stage's own mix)."""
-    was = task.ep
+    """Deterministic rollouts on FIXED distinct-label segments (hard-gated).
+
+    Chosen from the stage's own mix: one segment per label (up to 3), so the
+    number cannot collapse onto a single lucky segment.
+    """
+    prev_mode = task.deviation_mode
+    task.set_deviation_mode("hard")
+    model = task.model
+    picked: dict[str, Segment] = {}
+    for seg in task.segs:
+        picked.setdefault(seg.label, seg)
+    chosen = list(picked.values())[:3]
     rows = []
-    for s in seeds:
-        obs = task.reset(seed=int(s))
-        seg = task.segment
+    for i, seg in enumerate(chosen):
+        tt = track_targets(seg.source, model)
+        ep = TrackingEnv(task.env, seg, tt, weights=task.w, q_stand=task.q_stand,
+                         ic_noise=task.ic_noise, xy_noise=task.xy_noise,
+                         yaw_jitter_deg=task.yaw_jitter,
+                         deviation_mode="hard",
+                         seed=int(seeds[i % len(seeds)]))
+        task.env.horizon = seg.duration_s + 2.0
+        obs = ep.reset(seed=int(seeds[i % len(seeds)]))
         R, steps, success, cause = 0.0, 0, False, None
         site, joint = [], []
         for _ in range(3200):
             ao = np.asarray(obs["actor"], np.float32)
             unit = net.actor.deterministic_unit(torch.from_numpy(ao).unsqueeze(0))[0].numpy()
-            obs, r, term, trunc, info = task.step(unit)
+            obs, r, term, trunc, info = ep.step(unit)
             R += r
             steps += 1
             site.append(info["track"]["errs"]["site_err"])
@@ -157,12 +182,13 @@ def quick_eval(net: ActorCritic, task: TrackingTask, seeds=EVAL_SEEDS) -> dict:
                 tk = info["track"]
                 success, cause = bool(tk["success"]), tk["cause"]
                 break
-        rows.append({"seed": int(s), "segment": seg.name, "label": seg.label,
+        rows.append({"seed": int(seeds[i % len(seeds)]), "segment": seg.name,
+                     "label": seg.label,
                      "steps": steps, "success": success, "cause": cause,
                      "return": round(float(R), 1),
                      "site_err_mean": round(float(np.mean(site)), 4) if site else None,
                      "joint_err_mean": round(float(np.mean(joint)), 4) if joint else None})
-    task.ep = was
+    task.set_deviation_mode(prev_mode)
     return {"rows": rows,
             "success_rate": float(np.mean([r["success"] for r in rows]))}
 
@@ -210,14 +236,24 @@ def main(argv=None) -> int:
         ])
 
     task = TrackingTask(stage=args.stage, model=model, seed=int(args.seed),
-                        residual_scale=float(args.residual_scale))
+                        residual_scale=float(args.residual_scale),
+                        deviation_mode="soft" if args.soft_updates > 0 else "hard",
+                        soft_penalty=args.soft_penalty,
+                        push_impulses=tuple(float(x) for x in args.pushes.split(","))
+                        if args.pushes else None)
+    if args.soft_updates > 0:
+        task.set_deviation_mode("soft")
     print(f"[track-train] stage={args.stage} segments={len(task.segs)} "
-          f"actor={REF_ACTOR_DIM} critic={REF_CRITIC_DIM} init={init_note}")
+          f"actor={REF_ACTOR_DIM} critic={REF_CRITIC_DIM} init={init_note} "
+          f"soft_updates={args.soft_updates}")
     t0 = time.perf_counter()
     steps_done = 0
     best_success = -1.0
     logf = open(log_path, "a")
     for it in range(1, args.updates + 1):
+        if args.soft_updates and it == args.soft_updates + 1:
+            task.set_deviation_mode("hard")
+            print(f"[track-train] update {it}: deviation gate -> HARD")
         net.actor.set_log_std(log_std_at(steps_done, args))
         batch, ep_stats = collect(net, task, args, seed=int(args.seed) + 997 * it)
         stats = ppo_update(net, opt, batch, cfg, args.lr,
