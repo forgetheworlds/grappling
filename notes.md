@@ -1680,3 +1680,53 @@ scripts/calibrate_scorer.py, scripts/score_trace.py, tests/test_scorer.py.
   (test_vec_solo.py is red by design, ~7 failures, unrelated to the trim). solo-t1-v5 was already
   stopped by its owner (E33) before the verification; its checkpoint, `data/locks/sim.lock` and
   `checkpoints/**` are untouched.
+
+## 2026-10-08 (E37) — killed-agent salvage: stub audit, foundation fixes, two proofs
+
+- PROVIDER OUTAGE (why the agents stopped): opencode-go weekly quota 100% used, resets 2026-10-11;
+  all 10 task agents were retrying into it. All 10 killed via `proc://<id>/kill`. The free
+  `delegate` harness (opencode/mimo-v2.6-flash-free, $0) verified working despite the quota.
+- STUB AUDIT (operator mandate): 7 stale tests fixed; 5 missing reports completed. Every new
+  module/script now runs its self-check. Commits `8b44cd0`, `d9bc0fe`, `449eab8`, `a1e4337`,
+  `68129e4`. Suite went 12 failed -> **281 passed / 0 failed**.
+- DEFECTS FOUND IN THE KILLED AGENTS' CODE (all fixed, each pinned by a test):
+  * `t_stance_return` (reward.py): called `com_margin` WITHOUT importing it (NameError whenever a
+    hull was present); returned a POSITIVE gap that the assembly ADDED, i.e. the term PAID for
+    leaving the support hull; and `solo.lit.com_margin` was not actually signed (its
+    `directional_margin` clamps at 0), so the term was identically 0. Now: signed via
+    `polygon_margin`, returns 0 inside / -1 saturated outside, 0.0 with no hull.
+  * `capturability_reward` (stability.py): INVERTED — it returned 1.0 exactly when the capture
+    point was OUTSIDE the hull (added +margin instead of subtracting the outward distance), i.e.
+    it paid the crouch exploit it exists to kill. Now `clip(band - outside, 0, band)/band` per
+    prior_art 5.1; the module also gained its missing self-check.
+  * `solo.demo.build_repaired_track`: used `SEG_STAND` without importing it -> the capture
+    pipeline could not run at all. Fixed.
+  * `scripts/measure_reference_fidelity.py`: 2-D `np.cross` (removed in numpy>=2) -> the
+    selftest crashed. Fixed via the file's own `cross2`.
+  * `solo_train_health.TraceRecorder`: no `final()` delegate (added after it was written).
+- REFERENCE FIDELITY (proof 1 of 2, report `reports/2026-10-08/reference_fidelity.md`): the 12
+  video-derived tracks are NOT GROUNDED — `place_solo` floors the feet with ONE constant per take
+  (min over 6 foot landmarks over the whole take), so the emitted G1 sole points hover up to
+  +0.111 m or penetrate -0.067 m, posture-dependently (our own stance keyframe: 8/8 sole points at
+  -0.0019 m through the same FK). Verdicts: 4 usable as style priors (stance_hold,
+  stance_widen_step, stalk_shuffle, circle_step), 2 after repair (level_change_*), 6 dropped
+  (knee_sprawl_* crouch depth distorted 0.20-0.38 m; shot_* joint-limit saturation 0.57-0.81).
+  Time stretch 1.00-2.31x. 5 tests pin the instrument.
+- CAPTURABILITY (report `reports/2026-10-08/capturability.md`): the CP predicate correctly calls
+  v5's crouch UNSAFE (solo fall rule needs pelvis<=0.35 + tilt>=60 deg, or pelvis<=0.22; v5 sat at
+  pelvis 0.370 with com_offset 0.322 m vs a stance margin of +0.053 m). Brace experiment
+  (`scripts/solo_brace_experiment.py`): the scripted stack survives 5 N*s (L2 takes a real
+  0.169 m brace step, end margin +0.060 vs static +0.046) and FALLS at 8, 12, 16, 20, 25 N*s --
+  the scripted non-stepping ceiling is between 5 and 8 N*s, far below the T3 gate's 16 N*s bar;
+  at >=8 N*s the L2 arm records 0 step events (the scheduler, not the controller, is the limit).
+- LIT REWARD ALIGNMENT (operator decision: re-target the term, not the stance): the certified
+  stance's CoM sits 3.22 cm heel-ward of the footprint centroid, so the raw source-B target pulled
+  the policy forward (measured +2.34% for a CoM at the centroid). `com_support`/`capture_point` now
+  target `support_centre + STANCE_COM_OFFSET_XY`, rotated by the robot heading
+  (`RewardInputs.heading_rad`, wired from the env's pelvis yaw). At the keyframe `com_support`
+  went 0.716 -> 1.000 and the 8 s lit total 733.6 -> 764.0.
+- KEYFRAME OPTIMALITY (proof 2 of 2): the STATIC bias is gone; the residual delta (+2.16% over
+  100 steps) is the reset TRANSIENT, not a pose bias — measured directly: the residual-zero hold
+  settles |v_com| 0.0996 -> 0.0509 -> 0.0166 -> 0.0025 m/s over 300 steps (pelvis 0.7916), so the
+  100-step window scores the settle, and a perturbed ctrl can damp it slightly better. The
+  settled-window read (400 steps) is the honest acceptance number.
