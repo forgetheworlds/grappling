@@ -184,6 +184,44 @@ Entries appended as experiments run (Phase 2 onward).
   needed a reset or a fall. All motion-producing agents (teacher, drill, mocap reference) are bound
   to the rubric.
 
+### E11 (2026-10-08 night) — teacher FINAL: honest FAIL, causes handed off
+- ACCEPTANCE (final): stay-up gate MET only by SNAPDOWN 0.956 (a 0.98/b 0.96, worst seed 0.89).
+  Missed: STANCE 0.758, DOUBLE_LEG 0.520, SPRAWL 0.316, SINGLE_LEG 0.267, BODY_LOCK 0.200
+  (baseline best-achievable 0.229), STAND_UP 0.000. SCORER gate (0.85) met by NO technique:
+  best SNAPDOWN 0.808 (min phase 0.72), BODY_LOCK 0.679, SPRAWL 0.559, STANCE 0.547,
+  SINGLE_LEG 0.361, DOUBLE_LEG 0.324, STAND_UP 0.324.
+- BODY_LOCK remediation DISPROVEN as a contact-softness problem: a derived scene
+  (robots/wrestling_scene_soft.xml, solref (0.010,1.0) / solimp (0.95,0.99,0.001,0.5,2.0) on 142
+  geoms) left inter-robot penetration UNCHANGED at 5.9 cm and self-penetration at 4.4 cm, with
+  stay-up 0.200 -> 0.223. Conclusion: the overlap lives in the REFERENCE CLINCH GEOMETRY, not in
+  contact parameters — reference-side work is required (consistent with E9's data-bug hypothesis).
+- STANCE trims (the only ones that survived measurement, all seeds): a_ hip +0.10 / knee -0.20 /
+  ankle -0.10 / waist +0.30; b_ hip +0.10 / ankle +0.20 / waist -0.10. IMPORTANT: the operator's
+  two-axis rule measured WORSE at the magnitudes tried (rear-leg-back 0.486, splay 0.458-0.569 vs
+  the shipped torso-pitch trim 0.792) — so the rule is not yet validated by measurement and needs
+  the finer/combined sweep now assigned (it is a claim to test, not an established fact).
+- Verified fixes this round: `_smooth` is now a symmetrically edge-padded convolution (true
+  zero-phase) with a step test asserting the half-rise sits exactly at the step index; PRONE now
+  requires simulated pelvis < 0.55 m (else LOW, stabiliser stays on); the requested default-config
+  first/second-tick finite+n-in-range test exists. The three external defect claims remain
+  non-reproducible in this tree.
+- Artifacts: data/teacher_stats.json (8 entries incl. BODY_LOCK_soft), data/teacher_trims.json
+  (STANCE only), reports/2026-10-08/teacher.md (19 sections incl. the fix-agent hand-off + rubric
+  assessment A=1,B=0,C/D/E=0-1), scripts/run_teacher.py + tune_teacher.py, src/teacher/*,
+  tests/test_teacher.py (12 tests; full suite 115), videos/teacher/* (7 clips, 320x240 — NOT the
+  960x720 evidence contract).
+- STATUS: no ship candidate from the teacher; the driveable interface is code-only until
+  TeacherExecFix lands the F3 fix, the single-robot 29-target port and the support-transfer
+  primitive. The drill's motion source will be whichever of {fixed teacher, DrillDirector's
+  FeasibleDrill} first passes a component gate.
+
+- RENDER BUDGET (orchestrator measurement, single-G1 scene, software EGL, under concurrent load):
+  960x720 = 0.860 s per control-step frame -> 60 s @30fps (1800 f) ≈ 25.8 min, 90 s (2700 f) ≈
+  38.7 min; 480x360 = 0.653 s/frame (only ~25% faster). Cost is dominated by scene update/readback,
+  not pixel count — so render cost is NOT the critical path; multiple 960x720 passes are affordable
+  (~30-40 min each) and rendering should start as soon as a trajectory passes its component gates.
+  The memory hazard remains (retaining all RGB frames ≈ 3.7 GB for 60 s): stream to the encoder.
+
 ### E10 (2026-10-08 night) — Codex (gpt-6.1-sol) design review: verdict + must-dos
 - VERDICT (docs/reviews/sol61_review.md): the full clean continuous drill is NOT reachable by running
   the present plan unchanged — live commands were dropped, the cited self-check ran at the wrong
