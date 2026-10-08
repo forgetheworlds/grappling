@@ -1,0 +1,440 @@
+{
+  "aggregate": {
+    "act_delta_mean": 0.007977,
+    "com_offset_max": null,
+    "commanded_m_mean": 0.423,
+    "dist_err_mean": 0.3298,
+    "dorsal_rate": 0.0,
+    "fall_rate": 1.0,
+    "fall_rate_heldout": 0.0,
+    "hand_err_mean": 1.363286,
+    "limit_prox_max": 0.089795,
+    "loaded_step_frac_mean": 0.4894,
+    "max_recoverable_impulse": 0.0,
+    "max_recoverable_impulse_heldout": 0.0,
+    "mean_pelvis_z": 0.609891,
+    "mean_tilt_deg": 31.333827,
+    "mean_upright": 0.748099,
+    "min_upright": -0.036565,
+    "n_episodes": 1,
+    "n_steps": 71,
+    "recovery_success_rate": 0.0,
+    "recovery_time_mean": null,
+    "reward_mean": -0.3091,
+    "reward_sum_mean": -21.946074,
+    "sat_frac_mean": 0.002428,
+    "shot_depth_max": 0.0067,
+    "shot_exit_rate": 0.0,
+    "slip_mean": 0.114682,
+    "slip_p95": 0.525162,
+    "slip_ratio_mean": 0.2338,
+    "slip_travel_mean": 0.176,
+    "stance_err_mean": -0.180109,
+    "steps_after_push_mean": null,
+    "steps_per_s": 333.49,
+    "steps_total_mean": 9.0,
+    "termination_rate": 1.0,
+    "time_to_stability_mean": null,
+    "time_to_stability_rate": 0.0,
+    "travelled_m_mean": 0.7528,
+    "vel_err_mean": 1.066615,
+    "vel_err_p95": 1.810901,
+    "vx_err_abs_mean": 1.291209,
+    "vy_err_abs_mean": 0.06731,
+    "yaw_err_abs_mean": 1.454747,
+    "yaw_err_mean": 1.081993,
+    "yaw_err_p95": 3.175298
+  },
+  "certified": false,
+  "config": {
+    "action_mode": "absolute",
+    "dorsal": {
+      "confirm_s": 0.3,
+      "dorsal_x_max": 0.0,
+      "pelvis_z_threshold": 0.35,
+      "tilt_threshold_deg": 45.0
+    },
+    "fall": {
+      "confirm_s": 0.25,
+      "limb_support_exempt": true,
+      "pelvis_z_ground": 0.35,
+      "pelvis_z_hard": 0.22,
+      "tilt_ground_deg": 60.0
+    },
+    "horizon": 6.0,
+    "jitter": true,
+    "marker_plan": {
+      "distance": 1.05,
+      "entry_depth": 0.5,
+      "entry_distance": 0.55,
+      "follow": true,
+      "height": 0.79
+    },
+    "model": {
+      "control_dt": 0.02,
+      "floor_friction": [
+        1.0,
+        0.005,
+        0.0001
+      ],
+      "keyframes": [
+        "a_stand"
+      ],
+      "nbody": 32,
+      "ngeom": 77,
+      "nkey": 1,
+      "nmocap": 1,
+      "nq": 36,
+      "nsite": 28,
+      "nu": 29,
+      "nv": 35,
+      "substeps": 10,
+      "timestep": 0.002,
+      "total_mass": 33.341
+    },
+    "ranges": {
+      "stance_height": [
+        0.7,
+        0.8
+      ],
+      "stance_width": [
+        0.23,
+        0.42
+      ],
+      "vx": [
+        -0.15,
+        0.35
+      ],
+      "vy": [
+        -0.12,
+        0.12
+      ],
+      "wz": [
+        -0.3,
+        0.3
+      ]
+    },
+    "reset_jitter": {
+      "joint_noise": 0.03,
+      "tilt_deg": 2.0,
+      "xy_noise": 0.02,
+      "yaw_deg": 10.0
+    },
+    "residual_scale": 0.5,
+    "reward": {
+      "gamma": 0.997,
+      "task": "locomotion",
+      "termination_penalty": 100.0,
+      "terms": [
+        "alive",
+        "track_lin",
+        "track_ang",
+        "feet_air_time",
+        "flat_orientation",
+        "feet_slide",
+        "action_rate",
+        "torque_sat",
+        "joint_limit"
+      ],
+      "weights": {
+        "action_rate": 0.05,
+        "alive": 1.0,
+        "feet_air_time": 0.5,
+        "feet_slide": 0.1,
+        "flat_orientation": 0.3,
+        "joint_limit": 0.05,
+        "low_posture": 0.3,
+        "reach": 0.5,
+        "recover_done": 1.0,
+        "recover_gain": 1.0,
+        "shot_exit": 0.5,
+        "shot_knee": 0.1,
+        "shot_leg_seq": 0.3,
+        "shot_progress": 1.0,
+        "shot_timeout": 0.3,
+        "stance_height": 0.5,
+        "stance_width": 0.25,
+        "termination": 100.0,
+        "torque_sat": 0.05,
+        "track_ang": 1.0,
+        "track_lin": 1.0
+      }
+    },
+    "seed": 0,
+    "spec": {
+      "command_hold_s": 1.5,
+      "command_sampler": {
+        "ranges": {
+          "stance_height": [
+            0.7,
+            0.8
+          ],
+          "stance_width": [
+            0.23,
+            0.42
+          ],
+          "vx": [
+            -0.15,
+            0.35
+          ],
+          "vy": [
+            -0.12,
+            0.12
+          ],
+          "wz": [
+            -0.3,
+            0.3
+          ]
+        },
+        "seed": 0,
+        "skills": [
+          "STANCE",
+          "SHUFFLE_F",
+          "SHUFFLE_B",
+          "SHUFFLE_L",
+          "SHUFFLE_R",
+          "CIRCLE_L",
+          "CIRCLE_R",
+          "RETREAT",
+          "APPROACH"
+        ]
+      },
+      "command_schedule": null,
+      "horizon": 8.0,
+      "marker_plan": null,
+      "name": "locomotion",
+      "push": null,
+      "push_curriculum": null,
+      "shot_budget_s": 2.5,
+      "start": "stand",
+      "terminate_on_dorsal": true,
+      "terminate_on_fall": true
+    },
+    "task": "locomotion"
+  },
+  "controller": "t2probe_airborne_transfer",
+  "episodes": [
+    {
+      "com_offset_max_m": null,
+      "commanded_m": 0.423,
+      "controller": "",
+      "dist_err_m": 0.3298,
+      "duration_s": 1.42,
+      "episode": 0,
+      "final_pelvis_z": 0.0854,
+      "final_upright": -0.0366,
+      "hand_err": 1.363286,
+      "heldout": false,
+      "impulse": null,
+      "loaded_step_frac": 0.4894,
+      "meta": {},
+      "metric_means": {
+        "act_delta": 0.007977,
+        "body_step": 0.011876,
+        "cmd_vx": 0.45,
+        "cmd_vy": 0.0,
+        "cmd_wz": 0.0,
+        "com_offset": 0.026004,
+        "contact_l": 0.633803,
+        "contact_r": 0.507042,
+        "dorsal_contact": 0.112676,
+        "hand_contact": 0.056338,
+        "hand_err": 1.363286,
+        "knee_contact": 0.0,
+        "limit_prox": 0.001265,
+        "pelvis_z": 0.609891,
+        "reward": -0.3091,
+        "sat_frac": 0.002428,
+        "slip": 0.117186,
+        "slip_travel": 0.004102,
+        "speed": 0.637478,
+        "stance_err": -0.180109,
+        "steps_taken": 3.816901,
+        "t": 0.72,
+        "tilt_deg": 31.333827,
+        "torso_contact": 0.112676,
+        "upright": 0.748099,
+        "vel_err": 1.066615,
+        "vx_err": -1.062273,
+        "vy_err": 0.019819,
+        "yaw_err": 1.081993
+      },
+      "n_steps": 71,
+      "n_steps_settled": 47,
+      "pushes": [],
+      "recovered": false,
+      "recovery_time_s": null,
+      "reward_sum": -21.946074,
+      "seed": 0,
+      "settle_s": 0.5,
+      "shot_depth_max": 0.0067,
+      "shot_exited": false,
+      "slip_mean_settled": 0.114682,
+      "slip_p95_settled": 0.525162,
+      "slip_ratio": 0.2338,
+      "slip_travel_m": 0.176,
+      "stable": false,
+      "steps": 71,
+      "steps_after_push": 0,
+      "steps_per_s": 333.46,
+      "steps_total": 9,
+      "task": "locomotion",
+      "termination": "fall",
+      "terms": {
+        "action_rate": {
+          "max": 0.0,
+          "mean": -0.015953,
+          "min": -0.043619,
+          "n": 71,
+          "p95": -0.00119
+        },
+        "alive": {
+          "max": 0.999362,
+          "mean": 0.696325,
+          "min": 0.0,
+          "n": 71,
+          "p95": 0.998939
+        },
+        "feet_air_time": {
+          "max": 0.18,
+          "mean": 0.013521,
+          "min": 0.0,
+          "n": 71,
+          "p95": 0.11
+        },
+        "feet_slide": {
+          "max": -0.0,
+          "mean": -0.042082,
+          "min": -0.299988,
+          "n": 71,
+          "p95": -0.0
+        },
+        "flat_orientation": {
+          "max": -5.9e-05,
+          "mean": -0.12595,
+          "min": -0.518283,
+          "n": 71,
+          "p95": -0.000349
+        },
+        "joint_limit": {
+          "max": -0.0,
+          "mean": -0.001265,
+          "min": -0.089795,
+          "n": 71,
+          "p95": -0.0
+        },
+        "termination": {
+          "max": -100.0,
+          "mean": -100.0,
+          "min": -100.0,
+          "n": 1,
+          "p95": -100.0
+        },
+        "torque_sat": {
+          "max": -0.0,
+          "mean": -0.002428,
+          "min": -0.068966,
+          "n": 71,
+          "p95": -0.0
+        },
+        "track_ang": {
+          "max": 0.998674,
+          "mean": 0.353254,
+          "min": 0.0,
+          "n": 71,
+          "p95": 0.992865
+        },
+        "track_lin": {
+          "max": 0.428835,
+          "mean": 0.085986,
+          "min": 0.0,
+          "n": 71,
+          "p95": 0.398514
+        }
+      },
+      "time_to_stability_s": null,
+      "travelled_m": 0.7528,
+      "truncated": false,
+      "vx_err_abs_mean": 1.291209,
+      "vy_err_abs_mean": 0.06731,
+      "wall_s": 0.2129,
+      "yaw_err_abs_mean": 1.454747
+    }
+  ],
+  "gate": {
+    "criteria": [
+      {
+        "metric": "vx_err_abs_mean",
+        "note": "m/s; 25% of the smallest held-out |vx| (0.40 m/s); provenance: baseline table (StandHold+tiny 0.02 PASS, StandHold@held-out 0.30 FAIL)",
+        "op": "<=",
+        "threshold": 0.1
+      },
+      {
+        "metric": "vy_err_abs_mean",
+        "note": "m/s; 25% of the smallest held-out |vy| (0.18 m/s); provenance: baseline table",
+        "op": "<=",
+        "threshold": 0.045
+      },
+      {
+        "metric": "yaw_err_abs_mean",
+        "note": "rad/s; 33% of the smallest held-out |wz| (0.45 rad/s); provenance: baseline table",
+        "op": "<=",
+        "threshold": 0.15
+      },
+      {
+        "metric": "mean_upright",
+        "note": "tracking must not be bought with a topple; provenance: StandHold 0.9999 vs FallForward 0.76",
+        "op": ">=",
+        "threshold": 0.95
+      },
+      {
+        "metric": "fall_rate",
+        "note": "falls per episode; provenance: every displacing baseline falls",
+        "op": "<=",
+        "threshold": 0.1
+      },
+      {
+        "metric": "dorsal_rate",
+        "note": "back-to-mat terminations (also a fall here)",
+        "op": "<=",
+        "threshold": 0.1
+      },
+      {
+        "metric": "slip_mean",
+        "note": "m/s loaded-foot speed (point sample); provenance: standing <=0.008, sliding >=0.098",
+        "op": "<=",
+        "threshold": 0.06
+      },
+      {
+        "metric": "slip_ratio_mean",
+        "note": "m loaded-foot travel per m travelled -- sliding instead of stepping; provenance: load-transfer <=0.57, drag >=1.75",
+        "op": "<=",
+        "threshold": 0.8
+      },
+      {
+        "metric": "dist_err_mean",
+        "note": "m; |travelled - commanded| path length; 15% of the smallest held-out commanded path (2.2 m); provenance: baseline table",
+        "op": "<=",
+        "threshold": 0.3
+      }
+    ],
+    "name": "T2_locomotion",
+    "note": "T2 (S3) gate: held-out commands outside T2_TRAIN_RANGES; measured over the settled window (t >= 0.5 s); thresholds DERIVED from data/solo/metrics/t2_gate_baselines.json -- see reports/2026-10-08/t2_gate.md. No reward term is a criterion.",
+    "provisional": false
+  },
+  "n_episodes": 1,
+  "reasons": [
+    "FAIL vx_err_abs_mean <= 0.1 (m/s; 25% of the smallest held-out |vx| (0.40 m/s); provenance: baseline table (StandHold+tiny 0.02 PASS, StandHold@held-out 0.30 FAIL)) (measured 1.291209)",
+    "FAIL vy_err_abs_mean <= 0.045 (m/s; 25% of the smallest held-out |vy| (0.18 m/s); provenance: baseline table) (measured 0.06731)",
+    "FAIL yaw_err_abs_mean <= 0.15 (rad/s; 33% of the smallest held-out |wz| (0.45 rad/s); provenance: baseline table) (measured 1.454747)",
+    "FAIL mean_upright >= 0.95 (tracking must not be bought with a topple; provenance: StandHold 0.9999 vs FallForward 0.76) (measured 0.748099)",
+    "FAIL fall_rate <= 0.1 (falls per episode; provenance: every displacing baseline falls) (measured 1.0)",
+    "PASS dorsal_rate <= 0.1 (back-to-mat terminations (also a fall here)) (measured 0.0)",
+    "FAIL slip_mean <= 0.06 (m/s loaded-foot speed (point sample); provenance: standing <=0.008, sliding >=0.098) (measured 0.114682)",
+    "PASS slip_ratio_mean <= 0.8 (m loaded-foot travel per m travelled -- sliding instead of stepping; provenance: load-transfer <=0.57, drag >=1.75) (measured 0.2338)",
+    "FAIL dist_err_mean <= 0.3 (m; |travelled - commanded| path length; 15% of the smallest held-out commanded path (2.2 m); provenance: baseline table) (measured 0.3298)"
+  ],
+  "seed0": 0,
+  "task": "locomotion",
+  "verdict": "not_certified"
+}

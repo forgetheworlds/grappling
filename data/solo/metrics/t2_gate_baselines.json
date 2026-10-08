@@ -1,0 +1,498 @@
+{
+  "controllers": {
+    "airborne_transfer": {
+      "commanded_m_mean": 0.423,
+      "dist_err_mean": 0.3298,
+      "dorsal_rate": 0.0,
+      "fall_rate": 1.0,
+      "loaded_step_frac_mean": 0.4894,
+      "mean_upright": 0.748099,
+      "n_episodes": 1,
+      "n_steps": 71,
+      "reasons": [
+        "FAIL vx_err_abs_mean <= 0.1 (m/s; 25% of the smallest held-out |vx| (0.40 m/s); provenance: baseline table (StandHold+tiny 0.02 PASS, StandHold@held-out 0.30 FAIL)) (measured 1.291209)",
+        "FAIL vy_err_abs_mean <= 0.045 (m/s; 25% of the smallest held-out |vy| (0.18 m/s); provenance: baseline table) (measured 0.06731)",
+        "FAIL yaw_err_abs_mean <= 0.15 (rad/s; 33% of the smallest held-out |wz| (0.45 rad/s); provenance: baseline table) (measured 1.454747)",
+        "FAIL mean_upright >= 0.95 (tracking must not be bought with a topple; provenance: StandHold 0.9999 vs FallForward 0.76) (measured 0.748099)",
+        "FAIL fall_rate <= 0.1 (falls per episode; provenance: every displacing baseline falls) (measured 1.0)",
+        "PASS dorsal_rate <= 0.1 (back-to-mat terminations (also a fall here)) (measured 0.0)",
+        "FAIL slip_mean <= 0.06 (m/s loaded-foot speed (point sample); provenance: standing <=0.008, sliding >=0.098) (measured 0.114682)",
+        "PASS slip_ratio_mean <= 0.8 (m loaded-foot travel per m travelled -- sliding instead of stepping; provenance: load-transfer <=0.57, drag >=1.75) (measured 0.2338)",
+        "FAIL dist_err_mean <= 0.3 (m; |travelled - commanded| path length; 15% of the smallest held-out commanded path (2.2 m); provenance: baseline table) (measured 0.3298)"
+      ],
+      "slip_mean": 0.114682,
+      "slip_ratio_mean": 0.2338,
+      "slip_travel_mean": 0.176,
+      "steps_total_mean": 9.0,
+      "termination_rate": 1.0,
+      "travelled_m_mean": 0.7528,
+      "verdict": "not_certified",
+      "vx_err_abs_mean": 1.291209,
+      "vy_err_abs_mean": 0.06731,
+      "yaw_err_abs_mean": 1.454747
+    },
+    "fall_forward": {
+      "commanded_m_mean": 0.314875,
+      "dist_err_mean": 0.574812,
+      "dorsal_rate": 0.0,
+      "fall_rate": 1.0,
+      "loaded_step_frac_mean": 0.958712,
+      "mean_upright": 0.756014,
+      "n_episodes": 8,
+      "n_steps": 689,
+      "reasons": [
+        "FAIL vx_err_abs_mean <= 0.1 (m/s; 25% of the smallest held-out |vx| (0.40 m/s); provenance: baseline table (StandHold+tiny 0.02 PASS, StandHold@held-out 0.30 FAIL)) (measured 0.632856)",
+        "FAIL vy_err_abs_mean <= 0.045 (m/s; 25% of the smallest held-out |vy| (0.18 m/s); provenance: baseline table) (measured 0.075919)",
+        "FAIL yaw_err_abs_mean <= 0.15 (rad/s; 33% of the smallest held-out |wz| (0.45 rad/s); provenance: baseline table) (measured 1.246338)",
+        "FAIL mean_upright >= 0.95 (tracking must not be bought with a topple; provenance: StandHold 0.9999 vs FallForward 0.76) (measured 0.756014)",
+        "FAIL fall_rate <= 0.1 (falls per episode; provenance: every displacing baseline falls) (measured 1.0)",
+        "PASS dorsal_rate <= 0.1 (back-to-mat terminations (also a fall here)) (measured 0.0)",
+        "FAIL slip_mean <= 0.06 (m/s loaded-foot speed (point sample); provenance: standing <=0.008, sliding >=0.098) (measured 0.146002)",
+        "PASS slip_ratio_mean <= 0.8 (m loaded-foot travel per m travelled -- sliding instead of stepping; provenance: load-transfer <=0.57, drag >=1.75) (measured 0.323462)",
+        "FAIL dist_err_mean <= 0.3 (m; |travelled - commanded| path length; 15% of the smallest held-out commanded path (2.2 m); provenance: baseline table) (measured 0.574812)"
+      ],
+      "slip_mean": 0.146002,
+      "slip_ratio_mean": 0.323462,
+      "slip_travel_mean": 0.2876,
+      "steps_total_mean": 1.375,
+      "termination_rate": 1.0,
+      "travelled_m_mean": 0.889687,
+      "verdict": "not_certified",
+      "vx_err_abs_mean": 0.632856,
+      "vy_err_abs_mean": 0.075919,
+      "yaw_err_abs_mean": 1.246338
+    },
+    "planted_foot_drag": {
+      "commanded_m_mean": 2.484,
+      "dist_err_mean": 0.2763,
+      "dorsal_rate": 0.0,
+      "fall_rate": 0.0,
+      "loaded_step_frac_mean": 1.0,
+      "mean_upright": 0.999834,
+      "n_episodes": 1,
+      "n_steps": 300,
+      "reasons": [
+        "FAIL vx_err_abs_mean <= 0.1 (m/s; 25% of the smallest held-out |vx| (0.40 m/s); provenance: baseline table (StandHold+tiny 0.02 PASS, StandHold@held-out 0.30 FAIL)) (measured 0.450352)",
+        "PASS vy_err_abs_mean <= 0.045 (m/s; 25% of the smallest held-out |vy| (0.18 m/s); provenance: baseline table) (measured 0.003966)",
+        "PASS yaw_err_abs_mean <= 0.15 (rad/s; 33% of the smallest held-out |wz| (0.45 rad/s); provenance: baseline table) (measured 0.038049)",
+        "PASS mean_upright >= 0.95 (tracking must not be bought with a topple; provenance: StandHold 0.9999 vs FallForward 0.76) (measured 0.999834)",
+        "PASS fall_rate <= 0.1 (falls per episode; provenance: every displacing baseline falls) (measured 0.0)",
+        "PASS dorsal_rate <= 0.1 (back-to-mat terminations (also a fall here)) (measured 0.0)",
+        "PASS slip_mean <= 0.06 (m/s loaded-foot speed (point sample); provenance: standing <=0.008, sliding >=0.098) (measured 0.00192)",
+        "FAIL slip_ratio_mean <= 0.8 (m loaded-foot travel per m travelled -- sliding instead of stepping; provenance: load-transfer <=0.57, drag >=1.75) (measured 2.0002)",
+        "PASS dist_err_mean <= 0.3 (m; |travelled - commanded| path length; 15% of the smallest held-out commanded path (2.2 m); provenance: baseline table) (measured 0.2763)"
+      ],
+      "slip_mean": 0.00192,
+      "slip_ratio_mean": 2.0002,
+      "slip_travel_mean": 5.5211,
+      "steps_total_mean": 0.0,
+      "termination_rate": 0.0,
+      "travelled_m_mean": 2.7603,
+      "verdict": "not_certified",
+      "vx_err_abs_mean": 0.450352,
+      "vy_err_abs_mean": 0.003966,
+      "yaw_err_abs_mean": 0.038049
+    },
+    "random_init_policy": {
+      "commanded_m_mean": 0.169013,
+      "dist_err_mean": 0.6042,
+      "dorsal_rate": 0.0,
+      "fall_rate": 1.0,
+      "loaded_step_frac_mean": 0.312575,
+      "mean_upright": 0.175411,
+      "n_episodes": 8,
+      "n_steps": 507,
+      "reasons": [
+        "FAIL vx_err_abs_mean <= 0.1 (m/s; 25% of the smallest held-out |vx| (0.40 m/s); provenance: baseline table (StandHold+tiny 0.02 PASS, StandHold@held-out 0.30 FAIL)) (measured 0.618762)",
+        "FAIL vy_err_abs_mean <= 0.045 (m/s; 25% of the smallest held-out |vy| (0.18 m/s); provenance: baseline table) (measured 0.490464)",
+        "FAIL yaw_err_abs_mean <= 0.15 (rad/s; 33% of the smallest held-out |wz| (0.45 rad/s); provenance: baseline table) (measured 4.702077)",
+        "FAIL mean_upright >= 0.95 (tracking must not be bought with a topple; provenance: StandHold 0.9999 vs FallForward 0.76) (measured 0.175411)",
+        "FAIL fall_rate <= 0.1 (falls per episode; provenance: every displacing baseline falls) (measured 1.0)",
+        "PASS dorsal_rate <= 0.1 (back-to-mat terminations (also a fall here)) (measured 0.0)",
+        "FAIL slip_mean <= 0.06 (m/s loaded-foot speed (point sample); provenance: standing <=0.008, sliding >=0.098) (measured 0.851222)",
+        "FAIL slip_ratio_mean <= 0.8 (m loaded-foot travel per m travelled -- sliding instead of stepping; provenance: load-transfer <=0.57, drag >=1.75) (measured 1.428562)",
+        "FAIL dist_err_mean <= 0.3 (m; |travelled - commanded| path length; 15% of the smallest held-out commanded path (2.2 m); provenance: baseline table) (measured 0.6042)"
+      ],
+      "slip_mean": 0.851222,
+      "slip_ratio_mean": 1.428562,
+      "slip_travel_mean": 0.417275,
+      "steps_total_mean": 6.0,
+      "termination_rate": 1.0,
+      "travelled_m_mean": 0.773213,
+      "verdict": "not_certified",
+      "vx_err_abs_mean": 0.618762,
+      "vy_err_abs_mean": 0.490464,
+      "yaw_err_abs_mean": 4.702077
+    },
+    "reference_stand_hold_tiny": {
+      "commanded_m_mean": 0.0552,
+      "dist_err_mean": 0.0403,
+      "dorsal_rate": 0.0,
+      "fall_rate": 0.0,
+      "loaded_step_frac_mean": 1.0,
+      "mean_upright": 0.999887,
+      "n_episodes": 2,
+      "n_steps": 600,
+      "reasons": [
+        "PASS vx_err_abs_mean <= 0.1 (m/s; 25% of the smallest held-out |vx| (0.40 m/s); provenance: baseline table (StandHold+tiny 0.02 PASS, StandHold@held-out 0.30 FAIL)) (measured 0.021026)",
+        "PASS vy_err_abs_mean <= 0.045 (m/s; 25% of the smallest held-out |vy| (0.18 m/s); provenance: baseline table) (measured 0.002521)",
+        "PASS yaw_err_abs_mean <= 0.15 (rad/s; 33% of the smallest held-out |wz| (0.45 rad/s); provenance: baseline table) (measured 0.033464)",
+        "PASS mean_upright >= 0.95 (tracking must not be bought with a topple; provenance: StandHold 0.9999 vs FallForward 0.76) (measured 0.999887)",
+        "PASS fall_rate <= 0.1 (falls per episode; provenance: every displacing baseline falls) (measured 0.0)",
+        "PASS dorsal_rate <= 0.1 (back-to-mat terminations (also a fall here)) (measured 0.0)",
+        "PASS slip_mean <= 0.06 (m/s loaded-foot speed (point sample); provenance: standing <=0.008, sliding >=0.098) (measured 0.00161)",
+        "PASS slip_ratio_mean <= 0.8 (m loaded-foot travel per m travelled -- sliding instead of stepping; provenance: load-transfer <=0.57, drag >=1.75) (measured 0.14135)",
+        "PASS dist_err_mean <= 0.3 (m; |travelled - commanded| path length; 15% of the smallest held-out commanded path (2.2 m); provenance: baseline table) (measured 0.0403)"
+      ],
+      "slip_mean": 0.00161,
+      "slip_ratio_mean": 0.14135,
+      "slip_travel_mean": 0.0162,
+      "steps_total_mean": 0.0,
+      "termination_rate": 0.0,
+      "travelled_m_mean": 0.0955,
+      "verdict": "certified",
+      "vx_err_abs_mean": 0.021026,
+      "vy_err_abs_mean": 0.002521,
+      "yaw_err_abs_mean": 0.033464
+    },
+    "stand_hold": {
+      "commanded_m_mean": 1.402775,
+      "dist_err_mean": 1.355612,
+      "dorsal_rate": 0.0,
+      "fall_rate": 0.0,
+      "loaded_step_frac_mean": 1.0,
+      "mean_upright": 0.999941,
+      "n_episodes": 8,
+      "n_steps": 2400,
+      "reasons": [
+        "FAIL vx_err_abs_mean <= 0.1 (m/s; 25% of the smallest held-out |vx| (0.40 m/s); provenance: baseline table (StandHold+tiny 0.02 PASS, StandHold@held-out 0.30 FAIL)) (measured 0.207184)",
+        "FAIL vy_err_abs_mean <= 0.045 (m/s; 25% of the smallest held-out |vy| (0.18 m/s); provenance: baseline table) (measured 0.06793)",
+        "FAIL yaw_err_abs_mean <= 0.15 (rad/s; 33% of the smallest held-out |wz| (0.45 rad/s); provenance: baseline table) (measured 0.160755)",
+        "PASS mean_upright >= 0.95 (tracking must not be bought with a topple; provenance: StandHold 0.9999 vs FallForward 0.76) (measured 0.999941)",
+        "PASS fall_rate <= 0.1 (falls per episode; provenance: every displacing baseline falls) (measured 0.0)",
+        "PASS dorsal_rate <= 0.1 (back-to-mat terminations (also a fall here)) (measured 0.0)",
+        "PASS slip_mean <= 0.06 (m/s loaded-foot speed (point sample); provenance: standing <=0.008, sliding >=0.098) (measured 0.00108)",
+        "PASS slip_ratio_mean <= 0.8 (m loaded-foot travel per m travelled -- sliding instead of stepping; provenance: load-transfer <=0.57, drag >=1.75) (measured 0.100687)",
+        "FAIL dist_err_mean <= 0.3 (m; |travelled - commanded| path length; 15% of the smallest held-out commanded path (2.2 m); provenance: baseline table) (measured 1.355612)"
+      ],
+      "slip_mean": 0.00108,
+      "slip_ratio_mean": 0.100687,
+      "slip_travel_mean": 0.010587,
+      "steps_total_mean": 0.0,
+      "termination_rate": 0.0,
+      "travelled_m_mean": 0.058662,
+      "verdict": "not_certified",
+      "vx_err_abs_mean": 0.207184,
+      "vy_err_abs_mean": 0.06793,
+      "yaw_err_abs_mean": 0.160755
+    },
+    "zero_action": {
+      "commanded_m_mean": 0.8095,
+      "dist_err_mean": 0.542075,
+      "dorsal_rate": 0.625,
+      "fall_rate": 0.0,
+      "loaded_step_frac_mean": 0.554875,
+      "mean_upright": 0.222733,
+      "n_episodes": 8,
+      "n_steps": 1221,
+      "reasons": [
+        "FAIL vx_err_abs_mean <= 0.1 (m/s; 25% of the smallest held-out |vx| (0.40 m/s); provenance: baseline table (StandHold+tiny 0.02 PASS, StandHold@held-out 0.30 FAIL)) (measured 0.390277)",
+        "FAIL vy_err_abs_mean <= 0.045 (m/s; 25% of the smallest held-out |vy| (0.18 m/s); provenance: baseline table) (measured 0.067726)",
+        "FAIL yaw_err_abs_mean <= 0.15 (rad/s; 33% of the smallest held-out |wz| (0.45 rad/s); provenance: baseline table) (measured 0.962028)",
+        "FAIL mean_upright >= 0.95 (tracking must not be bought with a topple; provenance: StandHold 0.9999 vs FallForward 0.76) (measured 0.222733)",
+        "PASS fall_rate <= 0.1 (falls per episode; provenance: every displacing baseline falls) (measured 0.0)",
+        "FAIL dorsal_rate <= 0.1 (back-to-mat terminations (also a fall here)) (measured 0.625)",
+        "FAIL slip_mean <= 0.06 (m/s loaded-foot speed (point sample); provenance: standing <=0.008, sliding >=0.098) (measured 0.061984)",
+        "PASS slip_ratio_mean <= 0.8 (m loaded-foot travel per m travelled -- sliding instead of stepping; provenance: load-transfer <=0.57, drag >=1.75) (measured 0.263288)",
+        "FAIL dist_err_mean <= 0.3 (m; |travelled - commanded| path length; 15% of the smallest held-out commanded path (2.2 m); provenance: baseline table) (measured 0.542075)"
+      ],
+      "slip_mean": 0.061984,
+      "slip_ratio_mean": 0.263288,
+      "slip_travel_mean": 0.096375,
+      "steps_total_mean": 3.5,
+      "termination_rate": 0.625,
+      "travelled_m_mean": 0.451063,
+      "verdict": "not_certified",
+      "vx_err_abs_mean": 0.390277,
+      "vy_err_abs_mean": 0.067726,
+      "yaw_err_abs_mean": 0.962028
+    }
+  },
+  "gate": {
+    "criteria": [
+      {
+        "metric": "vx_err_abs_mean",
+        "note": "m/s; 25% of the smallest held-out |vx| (0.40 m/s); provenance: baseline table (StandHold+tiny 0.02 PASS, StandHold@held-out 0.30 FAIL)",
+        "op": "<=",
+        "threshold": 0.1
+      },
+      {
+        "metric": "vy_err_abs_mean",
+        "note": "m/s; 25% of the smallest held-out |vy| (0.18 m/s); provenance: baseline table",
+        "op": "<=",
+        "threshold": 0.045
+      },
+      {
+        "metric": "yaw_err_abs_mean",
+        "note": "rad/s; 33% of the smallest held-out |wz| (0.45 rad/s); provenance: baseline table",
+        "op": "<=",
+        "threshold": 0.15
+      },
+      {
+        "metric": "mean_upright",
+        "note": "tracking must not be bought with a topple; provenance: StandHold 0.9999 vs FallForward 0.76",
+        "op": ">=",
+        "threshold": 0.95
+      },
+      {
+        "metric": "fall_rate",
+        "note": "falls per episode; provenance: every displacing baseline falls",
+        "op": "<=",
+        "threshold": 0.1
+      },
+      {
+        "metric": "dorsal_rate",
+        "note": "back-to-mat terminations (also a fall here)",
+        "op": "<=",
+        "threshold": 0.1
+      },
+      {
+        "metric": "slip_mean",
+        "note": "m/s loaded-foot speed (point sample); provenance: standing <=0.008, sliding >=0.098",
+        "op": "<=",
+        "threshold": 0.06
+      },
+      {
+        "metric": "slip_ratio_mean",
+        "note": "m loaded-foot travel per m travelled -- sliding instead of stepping; provenance: load-transfer <=0.57, drag >=1.75",
+        "op": "<=",
+        "threshold": 0.8
+      },
+      {
+        "metric": "dist_err_mean",
+        "note": "m; |travelled - commanded| path length; 15% of the smallest held-out commanded path (2.2 m); provenance: baseline table",
+        "op": "<=",
+        "threshold": 0.3
+      }
+    ],
+    "name": "T2_locomotion",
+    "note": "T2 (S3) gate: held-out commands outside T2_TRAIN_RANGES; measured over the settled window (t >= 0.5 s); thresholds DERIVED from data/solo/metrics/t2_gate_baselines.json -- see reports/2026-10-08/t2_gate.md. No reward term is a criterion.",
+    "provisional": false
+  },
+  "heldout": {
+    "episode_s": 6.0,
+    "margin": 0.04,
+    "plan": [
+      [
+        {
+          "lead_leg": 1,
+          "skill": "SHUFFLE_F",
+          "skill_id": 1,
+          "stance_height": 0.79,
+          "stance_width": 0.237,
+          "vx": 0.45,
+          "vy": 0.0,
+          "wz": 0.0
+        }
+      ],
+      [
+        {
+          "lead_leg": 1,
+          "skill": "CIRCLE_L",
+          "skill_id": 5,
+          "stance_height": 0.79,
+          "stance_width": 0.237,
+          "vx": 0.4,
+          "vy": 0.0,
+          "wz": 0.4
+        }
+      ],
+      [
+        {
+          "lead_leg": 1,
+          "skill": "SHUFFLE_L",
+          "skill_id": 3,
+          "stance_height": 0.79,
+          "stance_width": 0.237,
+          "vx": 0.0,
+          "vy": 0.18,
+          "wz": 0.0
+        }
+      ],
+      [
+        {
+          "lead_leg": 1,
+          "skill": "SHUFFLE_R",
+          "skill_id": 4,
+          "stance_height": 0.79,
+          "stance_width": 0.237,
+          "vx": 0.0,
+          "vy": -0.18,
+          "wz": 0.0
+        }
+      ],
+      [
+        {
+          "lead_leg": 1,
+          "skill": "CIRCLE_R",
+          "skill_id": 6,
+          "stance_height": 0.79,
+          "stance_width": 0.237,
+          "vx": 0.0,
+          "vy": 0.0,
+          "wz": -0.45
+        }
+      ],
+      [
+        {
+          "lead_leg": 1,
+          "skill": "RETREAT",
+          "skill_id": 7,
+          "stance_height": 0.79,
+          "stance_width": 0.237,
+          "vx": -0.2,
+          "vy": 0.0,
+          "wz": 0.0
+        }
+      ],
+      [
+        {
+          "lead_leg": 1,
+          "skill": "CIRCLE_L",
+          "skill_id": 5,
+          "stance_height": 0.79,
+          "stance_width": 0.237,
+          "vx": 0.38,
+          "vy": -0.17,
+          "wz": 0.35
+        }
+      ],
+      [
+        {
+          "lead_leg": 1,
+          "skill": "SHUFFLE_F",
+          "skill_id": 1,
+          "stance_height": 0.79,
+          "stance_width": 0.237,
+          "t": 0.0,
+          "vx": 0.45,
+          "vy": 0.0,
+          "wz": 0.0
+        },
+        {
+          "lead_leg": 1,
+          "skill": "RETREAT",
+          "skill_id": 7,
+          "stance_height": 0.79,
+          "stance_width": 0.237,
+          "t": 0.75,
+          "vx": -0.2,
+          "vy": 0.0,
+          "wz": 0.0
+        },
+        {
+          "lead_leg": 1,
+          "skill": "SHUFFLE_F",
+          "skill_id": 1,
+          "stance_height": 0.79,
+          "stance_width": 0.237,
+          "t": 1.5,
+          "vx": 0.45,
+          "vy": 0.0,
+          "wz": 0.0
+        },
+        {
+          "lead_leg": 1,
+          "skill": "RETREAT",
+          "skill_id": 7,
+          "stance_height": 0.79,
+          "stance_width": 0.237,
+          "t": 2.25,
+          "vx": -0.2,
+          "vy": 0.0,
+          "wz": 0.0
+        },
+        {
+          "lead_leg": 1,
+          "skill": "SHUFFLE_F",
+          "skill_id": 1,
+          "stance_height": 0.79,
+          "stance_width": 0.237,
+          "t": 3.0,
+          "vx": 0.45,
+          "vy": 0.0,
+          "wz": 0.0
+        },
+        {
+          "lead_leg": 1,
+          "skill": "RETREAT",
+          "skill_id": 7,
+          "stance_height": 0.79,
+          "stance_width": 0.237,
+          "t": 3.75,
+          "vx": -0.2,
+          "vy": 0.0,
+          "wz": 0.0
+        },
+        {
+          "lead_leg": 1,
+          "skill": "SHUFFLE_F",
+          "skill_id": 1,
+          "stance_height": 0.79,
+          "stance_width": 0.237,
+          "t": 4.5,
+          "vx": 0.45,
+          "vy": 0.0,
+          "wz": 0.0
+        },
+        {
+          "lead_leg": 1,
+          "skill": "RETREAT",
+          "skill_id": 7,
+          "stance_height": 0.79,
+          "stance_width": 0.237,
+          "t": 5.25,
+          "vx": -0.2,
+          "vy": 0.0,
+          "wz": 0.0
+        }
+      ]
+    ],
+    "settle_s": 0.5,
+    "train_ranges": {
+      "stance_height": [
+        0.7,
+        0.8
+      ],
+      "stance_width": [
+        0.23,
+        0.42
+      ],
+      "vx": [
+        -0.15,
+        0.35
+      ],
+      "vy": [
+        -0.12,
+        0.12
+      ],
+      "wz": [
+        -0.3,
+        0.3
+      ]
+    }
+  },
+  "reference_unattainable": [],
+  "thresholds": {
+    "dist_err_mean": 0.3,
+    "dorsal_rate": 0.1,
+    "fall_rate": 0.1,
+    "mean_upright": 0.95,
+    "slip_mean": 0.06,
+    "slip_ratio_mean": 0.8,
+    "vx_err_abs_mean": 0.1,
+    "vy_err_abs_mean": 0.045,
+    "yaw_err_abs_mean": 0.15
+  },
+  "wall_s": 28.41
+}
