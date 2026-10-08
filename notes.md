@@ -121,9 +121,16 @@ this before working and MUST append their verified facts.
   be meta + PLAIN BODY (top-level await/return fine). Rule: every workflow script
   passes the emulate-parse check (strip meta, node --check the wrapped body) BEFORE
   launch; probe output = phase3-teacher-muyx5i4x-pw34fs now running.
+- LESSON (2026-10-08, cost real quota): workflow `agent()` calls do NOT inherit
+  `task.agentModelOverrides` — without an explicit `{ model: ... }` option they run on
+  `modelRoles.default` (zai/glm-5.3). A phase-3A run burned the zai 5-hour window to
+  error 1308 and paused. RULE: every workflow agent() passes an explicit model
+  (`opencode-go/deepseek-v4.1-flash` for heavy work, `opencode-go/mimo-v2.6-flash` for
+  mechanical). Same rule applies to any future workflow script.
 - DIRECTIVE (operator, 2026-10-08): workflows ONLY when structure needs them
-  (multi-stage pipelines/DAGs, Phases 5+); independent one-shot agents via `task`
-  batches. Supersedes "workflows are the preferred fan-out again" above.
+  (multi-stage pipelines/DAGs, Phases 5+); independent one-shot agents via `task` batches.
+  This SUPERSEDES the earlier line "Workflows are the preferred fan-out again".
+
 
 ## Experiment ledger
 
@@ -309,3 +316,72 @@ Report: reports/2026-10-08/delegate_and_workflow.md (full verdict table + diffs)
   the ref's own initial state; repair = retime x1.25 <=3 then strict preset;
   acceptance mean joint err <=0.15 rad, penetrations <=2 cm, stay-up check,
   SPRAWL defender ends prone).
+
+## 2026-10-08 (agent 2) — deliverable 7: TECHNIQUE-VALIDITY SCORER v1 (FACTS)
+Report: reports/2026-10-08/scorer.md (design + full 144-row threshold table +
+validation matrices). Deliverables: src/scorer/{__init__,scorer,features,
+membership,calibration,spec,config}.py, data/scorer_calibration.json,
+scripts/calibrate_scorer.py, scripts/score_trace.py, tests/test_scorer.py.
+
+### Interface contract (append to "Interface contracts")
+- API: `TechniqueScorer(model).score(technique, phase, self_qpos, opp_qpos)
+  -> ScoreResult(total float [0,1], terms {pred: (mu, weight)}, features
+  {name: value})`; module-level `scorer.score(tech, phase, self_qpos, opp_qpos,
+  model)` (scorer cached per model object); `phase_at(tech, t)`,
+  `phase_at_frac(tech, frac)`, `score_trace(tech, self_traj, opp_traj)` ->
+  {per_phase, mean, executor}. Import via `sys.path += src` then `import scorer`
+  (package also importable as `src.scorer`).
+- self_qpos/opp_qpos = G1 qpos (36,) per notes.md; executor role is per
+  technique and recorded in src/scorer/spec.py ("A" for all, "B" for SPRAWL).
+- Separation contract: src/scorer imports only numpy/mujoco/stdlib. Value-
+  function code must not import it; the ONE sanctioned consumer is
+  src/rl/reward.py `ScorerAdapter` (lazy in-function import, form signal only,
+  degrades to 0 if unavailable). Enforced by
+  tests/test_scorer.py::test_scorer_is_separate_from_value_functions.
+- Calibration: thresholds are data, not code. Rule in src/scorer/calibration.py
+  (core = reference [p10, p90]; soft ramp = 0.25*(p90-p10) + floor, floor
+  0.10 m / 0.15 rad; ang_near circular mean). Regenerate:
+  `.venv/bin/python scripts/calibrate_scorer.py --write` (byte-identical
+  re-run verified, md5 41a7b634c3b7f97d1e275298b94a5af1); verify:
+  same script without --write (exits 1 if acceptance is violated).
+- Phase bands = keyframe-index bands; boundaries sit on reconstructed keyframe
+  times (build_technique_targets(tech).times * time_stretch_requested *
+  time_stretch_kinematic) — machine-checked on every calibrate run, worst
+  deviation 0.023 s over 13 boundaries. SPRAWL is the exception (montage:
+  junction alignment blurs edge boundaries -> bands placed on the defender's
+  own hip/knee/leg-back trajectories).
+
+### Verified numbers (this host, 4-core ARM, `.venv`)
+- FACT: self-conformity (reference scored as its own technique, per phase):
+  worst phase 0.971 (SPRAWL1); all 24 phases >= 0.971; trace means 0.987-1.000.
+- FACT: cross-scores: DOUBLE_LEG as SINGLE_LEG = 0.464 (< 0.5 acceptance);
+  diagonal dominance holds for all 7 (self beats every cross by > 0.1).
+  Optimistic column: "-> SPRAWL" (DOUBLE 0.756, BODY_LOCK 0.706) because
+  SPRAWL's executor is the DEFENDER and the opponent in an attack trace is a
+  standing defender satisfying the stand/recover bands (per-phase detail in
+  the report; the commanded phase is known in real use).
+- FACT: perturbation monotonicity: joint noise (sigma 0->0.4 rad, seed 0) and
+  root tilt (0->0.8 rad) strictly monotonically decrease the score for all 7
+  techniques; phase shift (progress Delta 0->0.5) is monotone for the five
+  progressive techniques (SPRAWL excluded — cyclic montage, shift lands in the
+  next equivalent sprawl window; STANCE has a single held phase).
+- FACT: speed 200 us/call median (worst 223 us) over 5x300 calls — 5x under
+  the 1 ms budget (one mj_kinematics = 6.8 us; ~0.14 ms Python feature
+  assembly + ~55 us memberships; no dynamics/contacts/render).
+- FACT: rigid transform invariance: yaw +0.7 rad and translate (0.3,-1.2) m of
+  BOTH robots changes the trace mean by < 1e-6 (features are pair-relative in
+  the self yaw frame).
+- FACT: tests 19 new (tests/test_scorer.py); full suite `pytest tests/ -q`
+  = 65 passed (was 46).
+
+### DEFECTS FIXED in the pre-existing package (commit 676de77)
+- SPRAWL predicate sets were mapped to the wrong bands (phase 1 and 5 used the
+  standing template; phases 2/4 were the sprawl list) and its thresholds were
+  not fitted to the montage -> SPRAWL self-scored 0.46-0.74 per phase. Fixed
+  by explicit per-phase templates + per-band calibration (SPRAWL phases 1/3/5
+  = sprawl windows, 2/4 = recoveries, 0 = standing entry).
+- SINGLE_LEG/FINISH1 lacked the free-leg predicate (`lock_l at_least`), the
+  structural difference from a double leg -> DOUBLE_LEG as SINGLE_LEG was
+  0.517; adding it (plus `leg_back_s`) gives 0.464.
+- All 144 threshold numbers now come from the calibration rule and are
+  re-verified against the refs by test_scorer.py (no hand-edited drift).

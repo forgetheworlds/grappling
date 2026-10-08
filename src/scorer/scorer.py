@@ -25,7 +25,7 @@ from dataclasses import dataclass, field
 import mujoco
 import numpy as np
 
-from .config import TECHNIQUE_CONFIG, TECHNIQUES, predicates_for
+from .config import TECHNIQUE_CONFIG, TECHNIQUES, executor_of, predicates_for
 from .features import FEAT_ORDER, Featurizer, feature_dict
 from .membership import ang_near, at_least, at_most, band
 
@@ -48,7 +48,9 @@ class TechniqueScorer:
     """Scores relational-geometry conformity of a commanded technique phase.
 
     One instance per process (owns an MjData for kinematics); not
-    thread-safe. ~0.15 ms per score() on the 4-core ARM host.
+    thread-safe. Measured ~0.2 ms per score() on the 4-core ARM host
+    (6.8 us mj_kinematics + ~0.14 ms Python feature assembly + memberships;
+    see reports/2026-10-08/scorer.md).
     """
 
     def __init__(self, model: mujoco.MjModel):
@@ -126,6 +128,22 @@ class TechniqueScorer:
                 "executor": TECHNIQUE_CONFIG[technique]["executor"]}
 
 
-def executor_of(technique: str) -> str:
-    """Which reference robot demonstrates ``technique`` ('A' or 'B')."""
-    return TECHNIQUE_CONFIG[technique]["executor"]
+#: process-wide scorer cache: {id(model): (model, TechniqueScorer)}
+_SCORERS: dict[int, tuple[mujoco.MjModel, TechniqueScorer]] = {}
+
+
+def score(technique: str, phase: int, self_qpos: np.ndarray,
+          opp_qpos: np.ndarray, model: mujoco.MjModel) -> ScoreResult:
+    """One-shot scoring API: ``score(tech, phase, self_qpos, opp_qpos, model)``.
+
+    Convenience wrapper for callers that do not want to own a scorer; the
+    ``TechniqueScorer`` is cached per model object, so repeated calls in a
+    training loop pay only the ``score()`` cost (~0.15 ms). The model is kept
+    alive by the cache, so a recycled ``id()`` cannot alias a stale entry.
+    """
+    entry = _SCORERS.get(id(model))
+    if entry is None or entry[0] is not model:
+        entry = (model, TechniqueScorer(model))
+        _SCORERS[id(model)] = entry
+    return entry[1].score(technique, phase, self_qpos, opp_qpos)
+

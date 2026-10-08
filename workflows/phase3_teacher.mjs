@@ -100,8 +100,8 @@ const SCORER_TASK = COMMON + '\n\n' + [
 log('Phase 3A: TeacherBuilder + ScorerV1 (parallel)');
 
 const results = await parallel([
-  () => agent(TEACHER_TASK, { name: 'TeacherBuilder' }),
-  () => agent(SCORER_TASK, { name: 'ScorerV1' }),
+  () => agent(TEACHER_TASK, { name: 'TeacherBuilder', model: 'opencode-go/deepseek-v4.1-flash' }),
+  () => agent(SCORER_TASK, { name: 'ScorerV1', model: 'opencode-go/deepseek-v4.1-flash' }),
 ]);
 
 log('Phase 3A complete');
