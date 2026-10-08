@@ -1853,3 +1853,17 @@ scripts/calibrate_scorer.py, scripts/score_trace.py, tests/test_scorer.py.
   * v6b EARLY READ (200,704, not the pre-registered point): fall 0.292/0.375(held), upright 0.8127,
     recovery 0.333 (>0 -- the falsifier's first half answers as predicted; v6a's late state was 0.0),
     maxJ_held 4.0, t_stab 0.64, com_max 0.144.  For scale: v6a at 100k read fall 0.458.
+  * v6b TREND (in-band fall / recovery / max_recoverable_impulse_heldout):
+    200,704 -> 0.292 / 0.333 / 4.0;  301,056 -> 0.250 / 0.292 / 12.0.
+- T1-MOVEMENT PRE-REGISTRATION (stage A's second behaviour; launch ONLY after T1 certifies):
+  * run: `--task locomotion --reward-set movement_lit` (the lit balance set + `track_ang`, without
+    which the T2 gate's `yaw_err_abs_mean <= 0.15 rad/s` is unreachable: `vel_stand` tracks only
+    the linear command).  Judge: `GATES["locomotion"]` -- vx_err <= 0.10 m/s, vy_err <= 0.045,
+    yaw_err <= 0.15 rad/s, mean_upright >= T2_THRESHOLDS, fall/dorsal within the T2 bars,
+    slip_mean/slip_ratio (loaded-foot travel per m travelled), dist_err <= 0.33 m, and
+    ends-in-valid-stance -- all measured on the HELD-OUT command plan (outside T2_TRAIN_RANGES),
+    settled window t >= 0.5 s.
+  * OPEN AT LAUNCH: whether to warm-start from the certified T1 stance policy.  `--resume` treats
+    the checkpoint's own config.train as authoritative, so a task change needs either explicit
+    overrides on every task-dependent field or a fresh run; decide at launch, not now.
+  * Artifact owed: videos/solo_drill/02_stance_movement.mp4 + a VISUALS index entry.
