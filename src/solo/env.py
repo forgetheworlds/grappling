@@ -52,6 +52,7 @@ from .commands import (DEFAULT_COMMAND, N_SKILLS, T2_TRAIN_RANGES, Command,
                        CommandSchedule, Skill)
 from .fall import (ContactState, DorsalDetector, FallDetConfig, FallDetector,
                    fall_features)
+from .lit import JointMask, joint_names, sole_geom_ids, sole_points_world
 from .markers import DEFAULT_PLAN, SHOT_PLAN, MarkerPlan
 from .metrics import (MetricsRecorder, action_smoothness, foot_slip,
                       joint_limit_proximity, local_xy, saturation_fraction)
@@ -59,8 +60,8 @@ from .obs import (ACTOR_DIM, CRITIC_DIM, PRIV_DIM, ObsContext, actor_obs,
                   critic_obs, privileged_obs)
 from .pushes import PushSchedule, apply_push, clear_applied
 from .reward import RewardInputs, RewardWeights, TaskReward
-from .scene import (MODEL_DT, N_JOINTS, PELVIS_BODY, STEP_DT, SUBSTEPS,
-                    TORSO_BODY, body_id, ctrl_range, joint_dof_slice,
+from .scene import (FOOT_BODIES, MODEL_DT, N_JOINTS, PELVIS_BODY, STEP_DT,
+                    SUBSTEPS, TORSO_BODY, body_id, ctrl_range, joint_dof_slice,
                     joint_qpos_slice, load_solo_model, model_facts, site_id,
                     stand_frame)
 from .stance import STAND_HEIGHT, STAND_WIDTH, stance_qpos, stance_targets
@@ -179,6 +180,8 @@ class SoloEnv:
                  marker_plan: MarkerPlan | None = None,
                  fall_cfg: FallDetConfig | None = None,
                  weights: RewardWeights | None = None, gamma: float | None = None,
+                 term_set: str | None = None,
+                 joint_mask: "JointMask | None" = None,
                  terminate_on_fall: bool | None = None,
                  terminate_on_dorsal: bool | None = None,
                  record_metrics: bool = True, jitter: bool = True):
@@ -197,7 +200,12 @@ class SoloEnv:
         self.marker_plan = marker_plan or spec.marker_plan or DEFAULT_PLAN
         self.fall_det = FallDetector(fall_cfg)
         self.dorsal_det = DorsalDetector()
-        self.reward = TaskReward(self.task, weights, gamma)
+        self.reward = TaskReward(self.task, weights, gamma, term_set=term_set)
+        #: optional action-space restriction (solo.lit.JointMask): frozen joints
+        #: are written to their ``a_stand`` keyframe ctrl by ``resolve_action``,
+        #: the single choke point training AND evaluation share, so a masked run
+        #: and its evaluation cannot diverge.  ``None`` (default) = full action.
+        self.joint_mask = joint_mask
         self.terminate_on_fall = (spec.terminate_on_fall if terminate_on_fall is None
                                   else bool(terminate_on_fall))
         self.terminate_on_dorsal = (spec.terminate_on_dorsal if terminate_on_dorsal is None
@@ -225,6 +233,22 @@ class SoloEnv:
                             site_id(self.model, "a_right_foot"))
         self._wrist_sites = {"left": site_id(self.model, "a_left_wrist"),
                              "right": site_id(self.model, "a_right_wrist")}
+        #: sole contact spheres (4 per foot) for the literature support-polygon
+        #: terms -- the same geoms ``solo.lit.measure_ceiling`` uses
+        self._sole_geoms = sole_geom_ids(self.model)
+        #: foot bodies for the per-foot vertical GRF (literature GRF term)
+        self._foot_bids = (body_id(self.model, FOOT_BODIES[0]),
+                           body_id(self.model, FOOT_BODIES[1]))
+        #: body masses, cached for the mass-weighted CoM velocity
+        self._body_mass = np.asarray(self.model.body_mass, dtype=np.float64)
+        self._mass_total = max(float(self._body_mass.sum()), 1e-9)
+        #: arm-joint indices (source A's arm-posture term reads their deviation
+        #: from the stand keyframe); arms are the joints no balance term needs
+        self._arm_idx = np.array(
+            [i for i, n in enumerate(joint_names(self.model))
+             if n.startswith(("left_shoulder", "right_shoulder", "left_elbow",
+                              "right_elbow", "left_wrist", "right_wrist"))],
+            dtype=int)
         self._base_action = self._ctrl_stand.copy()
         self.seed = int(seed)
         self.recorder = MetricsRecorder(task=self.task, seed=self.seed)
@@ -240,6 +264,8 @@ class SoloEnv:
             "jitter": self.jitter_reset,
             "ranges": self.ranges.as_dict(),
             "reward": self.reward.as_dict(),
+            "joint_mask": (None if self.joint_mask is None
+                           else self.joint_mask.as_dict()),
             "fall": self.fall_det.cfg.as_dict(),
             "dorsal": self.dorsal_det.cfg.as_dict(),
             "marker_plan": self.marker_plan.as_dict(),
@@ -395,12 +421,22 @@ class SoloEnv:
         self._base_action = np.clip(b, self.lo, self.hi)
 
     def resolve_action(self, action: np.ndarray) -> np.ndarray:
-        """Apply the action-mode contract; returns clipped ctrl targets."""
+        """Apply the action-mode contract; returns clipped ctrl targets.
+
+        With a ``joint_mask`` the frozen joints are written to their stand
+        keyframe ctrl *after* the mode mapping, so the mask holds in both action
+        modes and for scripted controllers that go through
+        :meth:`action_from_ctrl` as well.
+        """
         a = np.asarray(action, dtype=np.float64).reshape(N_JOINTS)
         if self.action_mode == "absolute":
-            return np.clip(a, self.lo, self.hi)
-        return np.clip(self._base_action + self.residual_scale * np.tanh(a),
-                       self.lo, self.hi)
+            ctrl = np.clip(a, self.lo, self.hi)
+        else:
+            ctrl = np.clip(self._base_action + self.residual_scale * np.tanh(a),
+                           self.lo, self.hi)
+        if self.joint_mask is not None:
+            ctrl = self.joint_mask.apply(ctrl)
+        return ctrl
 
     # ------------------------------------------------------------------- step
     def step(self, action):
@@ -659,6 +695,18 @@ class SoloEnv:
         knee_ok = (contacts.knees and f.pelvis_z >= 0.25
                    and not (dorsal_f.dorsal_contact if dorsal_f is not None else False)
                    and self._shot_phase > 0.0)
+        # literature (source A/B) inputs: world-frame CoM position and velocity,
+        # the sole-sphere points of the support hull, per-foot GRF and the
+        # actuator torques.  Computed unconditionally (a few microseconds) so a
+        # term set can be selected per run without an env flag.
+        com_world = np.asarray(self.data.subtree_com[self._pelvis_bid], np.float64)
+        com_vel_world = ((self._body_mass[:, None]
+                          * np.asarray(self.data.cvel, np.float64)[:, 3:6])
+                         .sum(axis=0) / self._mass_total)
+        loads = tuple(float(self.data.cfrc_ext[bid][5]) for bid in self._foot_bids)
+        joint_pos = np.asarray(self.data.qpos[self._joint_q], np.float64)
+        arm_dev = float(np.abs(joint_pos[self._arm_idx]
+                               - self._q_stand[7:36][self._arm_idx]).sum())
         inp = RewardInputs(
             dt=STEP_DT, cmd=self.command,
             vel_local=vel_local, yaw_rate=wz_local,
@@ -679,6 +727,13 @@ class SoloEnv:
             shot_exited=self._shot_exited,
             recovered=self._recovered_flag,
             dorsal=bool(dorsal_f.dorsal_contact) if dorsal_f is not None else False,
+            com_xy=com_world[:2].copy(), com_vel_xy=com_vel_world[:2].copy(),
+            com_z=float(com_world[2]),
+            sole_points=sole_points_world(self.model, self.data, self._sole_geoms),
+            foot_load=(loads[0], loads[1]),
+            torque=np.asarray(self.data.actuator_force, np.float64).copy(),
+            arm_dev=arm_dev,
+            gravity=float(-self.model.opt.gravity[2]),
         )
         self._shot_depth_prev = depth
         self._last_ctx = ctx
