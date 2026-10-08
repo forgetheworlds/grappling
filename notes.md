@@ -184,6 +184,34 @@ Entries appended as experiments run (Phase 2 onward).
   needed a reset or a fall. All motion-producing agents (teacher, drill, mocap reference) are bound
   to the rubric.
 
+### E20 (2026-10-08) — L2 motion clip VERIFIED as real motion (5 steps) with 7 discrepancies to fix
+- INDEPENDENT VERDICT (L2VisualCheck, reports/2026-10-08/l2_clip_visual_check.md): **MATCHES** the
+  claim "a 70 s continuous drill with repeated visible steps in a wrestling stance, 0 falls".
+  Method: own ffmpeg extraction (0.5-5 s tiles + 0.05-0.1 s sampling around each step), shoe-mask
+  tracking/IoU, HUD text reads, frame-diff statistics; the trace was consulted only after the pixel
+  evidence.
+- POSITIVE, MEASURED: NOT static (unlike L1). 5 genuine steps at 15.40 / 28.80 / 45.40 / 50.22 /
+  63.98 s, mean interval 12.15 s (claimed 12.1); each re-plants the shoe 16-23 px (8-11 cm); feet
+  drift +34/+38 px over the clip; pelvis z 0.689-0.762 m; skill advances STANCE -> SHUFFLE_F ->
+  SHUFFLE_B; lift is real but small (3.2-3.6 cm clearance, HUD concordant) with single support
+  visible (foot load 0/364 N); no pops (max frame diff 4.0); floor + shadows visible; 0 falls/resets.
+  Stance visibly ~60% of the reference width (the declared deviation is apparent on screen).
+- DISCREPANCIES FOUND (all being fixed; first two are technical, the rest evidence hygiene):
+  (1) the HUD flashes red "safety blend / emergency response active" at 15.77-15.83 s and
+  45.77-45.83 s — exactly at two steps — which the report never mentions: must be explained
+  (what triggered it, whether the step was completed by the emergency path, whether it masks an
+  incipient fall); (2) the loaded support foot CREEPS 22-35 mm (shoe mask shifting rigidly 8 px,
+  IoU 0.81 -> 0.34) while the bundle claims slip 0.0 / max_load_drift 6.5 mm — must be reconciled
+  with per-step load-phase measurements and B1 rescored honestly; (3) the HUD phase field read '-'
+  in all samples and there is no step N/M counter; (4) the "0.25x" slow-motion actually plays at
+  1.0x and only ~6% of it contains the step; (5) the clip HUD says stance 0.30 vs the report's 0.28;
+  (6) rubric B1 says 6 steps vs the 5 in the clip; (7) the HUD margin (-0.008/-0.022 at 45.65/45.72 s)
+  disagrees with the report's -0.0257/-0.023.
+- DISPATCHED (DrillMotion): investigate (1) and (2) properly; add the phase + step counter to the HUD;
+  re-render a genuine 0.25x slow-mo tightly centred on one step; make stance/step-count/margin
+  consistent from the trace as the single source of truth; refresh the bundle and rubric. No new
+  physics experiments for this pass.
+
 ### E19 (2026-10-08) — quasi-static controller hits its measured ceiling; pivoting the remaining time to the LEARNED path
 - NEGATIVE RESULT, MEASURED (DrillMotion): the settle bottleneck cannot be optimised away. The balance
   law holds a per-configuration steady-state CoM offset (0.036-0.040 m on 0.24-0.28 m stances;
