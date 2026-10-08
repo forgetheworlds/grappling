@@ -1,0 +1,31 @@
+{
+  "failures": [],
+  "max_pelvis_xy_drift_m": 0.06132,
+  "max_tilt_deg": 3.578077,
+  "min_pelvis_z": 0.789438,
+  "seeds": 16,
+  "stances": [
+    {
+      "lateral_drift_m": 0.0,
+      "max_tilt_deg": 0.171,
+      "min_pelvis_z": 0.7905,
+      "termination": null,
+      "width": 0.23
+    },
+    {
+      "lateral_drift_m": 0.0,
+      "max_tilt_deg": 0.129,
+      "min_pelvis_z": 0.7902,
+      "termination": null,
+      "width": 0.3
+    },
+    {
+      "lateral_drift_m": 0.0,
+      "max_tilt_deg": 0.394,
+      "min_pelvis_z": 0.7825,
+      "termination": null,
+      "width": 0.42
+    }
+  ],
+  "throughput_steps_per_s": 614.7
+}

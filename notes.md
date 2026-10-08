@@ -184,6 +184,45 @@ Entries appended as experiments run (Phase 2 onward).
   needed a reset or a fall. All motion-producing agents (teacher, drill, mocap reference) are bound
   to the rubric.
 
+### E15 (2026-10-08) — S1 solo harness COMPLETE (32 tests) + the T1 gate does not discriminate StandHold
+- FACT (SoloEnv, verified by orchestrator: tests/test_solo.py 32 passed): src/solo/ (15 modules:
+  scene/stance/commands/pushes/fall/markers/obs/reward/metrics/env/eval/baselines/video/lock/train).
+  Contract verified in-code: scene composed at load via MjSpec from robots/g1/g1.xml with the `a_`
+  prefix (nq36/nv35/nu29, timestep 0.002 s, control 0.02 s = 10 substeps = 50 Hz, mass 33.341 kg);
+  29 joint targets (absolute + residual `base + scale*tanh(z)`); actor obs 115 / privileged 43 /
+  critic 158 with the actor PROVEN blind to contacts+markers; reset = `a_stand` + joint noise
+  ±0.03 rad, xy ±0.02 m, yaw ±10°, tilt ±2°, with 16/16 seeds holding 2 s (min pelvis 0.7894 m,
+  max tilt 3.58°, drift ≤0.061 m).
+- PUSH MACHINERY verified as the review demanded: mj_applyFT → qfrc_applied at a chosen world
+  height; gravity-off momentum matches J within 0.02% (no silent clamping); qfrc_applied and
+  xfrc_applied are EXACTLY zero when idle; A/B base-velocity delta > 0.10 m/s measured; J = 12 N·s
+  at z=0.95 topples but at z=0.79 does not.
+- FALL DETECTOR: pelvis + tilt + 0.25 s persistence; dorsal is a SEPARATE failed-attempt verdict
+  (0.30 s persistence, reusing the wrestling back-detector functional API with a single-robot dict);
+  settled kneel (0.498 m knee contact) and hands-plant (0.118 m arm contact) both predict False;
+  no false positives over 3 s stand + 3 s scripted stepping.
+- REWARDS: 19 terms / 6 task sets, per-term logging, weights = literature placeholders; the
+  alive > sum(penalties) invariant is asserted; every term hand-tested; all eight degenerate
+  behaviours (zero action, StandHold, fall-forward, squat-repeat, sliding, knee-park,
+  shot-never-exits, collapse) score worse than a genuine attempt, and collapse loses to upright
+  over a fixed horizon; gamma 0.995 (0.997 for locomotion).
+- THROUGHPUT: 594-615 bare env steps/s (~12x realtime); PPO trainer 175-215 steps/s end-to-end
+  under concurrent agent load.
+- TRAINER: src/solo/train.py reusing rl.net/rl.ppo/rl.checkpoint; start = `MUJOCO_GL=egl
+  .venv/bin/python -m solo.train --task balance --steps 2000000 --out checkpoints/solo/t1_balance.pt`;
+  Ctrl-C saves and exits 0 (verified via a real SIGINT subprocess); `--resume` restored
+  steps_done=3072 with RNG/optimizer/LR.
+- HONEST FINDING (important for S2): the T1 battery does NOT discriminate StandHold on fall rate —
+  a stiff position-servo stand survives most chest-height impulses up to 12 N·s (the analytic
+  non-stepping ceiling is ~13 N·s), and the gate rejects it only on mean_upright (0.923 < 0.95).
+  S2 must extend magnitudes/directions BEYOND the ceiling and add time-to-stability and CoM-margin
+  criteria (baseline-first measurement, not tuning). All nine probe/baseline clips confirm
+  `all_not_certified: true`.
+- PLAN: S2 (T1 balance training) is deliberately DEFERRED until the drill's stepping burst frees
+  the box — the video is the priority and the CPU is the scarce resource. Note for that dispatch:
+  the trainer should take data/locks/sim.lock only around short passes, NOT across a multi-hour run,
+  or it will starve the drill work (the same trap the render suite had).
+
 ### E14 (2026-10-08) — L2 step: FIRST VIOLATED CONSTRAINT named + render lock fixed
 - STEP DIAGNOSIS (DrillDirector, reports/2026-10-08/drill.md §7.1): the first violated constraint in
   the L2 entry run is the SWING leg's ankle_roll limit (±0.2618 rad), 2 ticks after the lift command
