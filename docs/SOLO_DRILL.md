@@ -47,6 +47,14 @@ split only if tactical learning later stalls. Both require evidence, per MISSION
 a virtual opponent pelvis/leg target region and hand-target sites — whose positions define
 "entry depth/direction" reward terms. No contact force is implied or claimed.
 
+**Stance geometry — sanctioned repairs (operator, 2026-10-08)**: when a stance/shot posture is not
+holdable, adjust geometry along two axes before flattening the torso or raising the crouch:
+(a) *sagittal*: move the rear leg further back (longer base behind the line of action);
+(b) *frontal*: widen the stance (feet further apart laterally; falling sideways means "legs too
+close together"). Both preserve the wrestling read; every trim is logged with frame index, axis,
+amount and the CoM-margin improvement. Stance-width commands must span (and default to) widths
+that are laterally stable, not the narrow reference width.
+
 ## 3. Dependency plan (execution order; each step gated by its own evidence)
 
 | step | work | depends on | evidence to proceed |

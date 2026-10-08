@@ -196,6 +196,18 @@ Entries appended as experiments run (Phase 2 onward).
   he favours; his own variation keeps the leg "a little bit more back for balance" — priority is
   that the robot CAN balance, so rear-leg-back / CoM-over-support geometry is the sanctioned
   adjustment direction when a reference posture is not holdable.
+- OPERATOR ADDENDUM (2026-10-08): "if it's falling sideways, legs are too close together — a
+  little back and away from the other leg can help." So the balance-repair rule has TWO axes:
+  (a) SAGITTAL — falling forward/backward → move the rear leg further back (longer base behind
+      the line of action);
+  (b) FRONTAL — falling sideways → widen the stance (feet further apart laterally, rear foot also
+      angled away), increasing the lateral support width.
+  Both preserve the wrestling read (staggered, hips down, hands forward) and are preferred over
+  flattening the torso or reducing crouch depth. Record each trim with frame index, the axis
+  changed, and the resulting CoM-margin improvement.
+- The clip remains UNAVAILABLE from this host (yt-dlp 401 OAuth, player config non-JSON) — one
+  more cheap attempt at most, then treat it as "reference unavailable" and work from these two
+  verbal constraints; GrappleMap already supplies the shot geometry.
 - Consistent with our measurements: the STANCE crouch is not open-loop holdable (CoM behind the
   support polygon; ankle 39/50 Nm) and the two-robot random-STANCE reset collapses every exchange.
   Rear-leg-back geometry is the cheapest relationship-preserving repair.
