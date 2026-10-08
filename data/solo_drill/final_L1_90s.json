@@ -424,18 +424,78 @@
  "caption": "the rung-L1 clip: one unbroken episode, no resets, stance hold + weight shift + level change",
  "clip_verification": {
   "path": "/home/ubuntu/grappling/videos/solo_drill/final_L1_90s.mp4",
-  "ok": false,
-  "problems": [
-   "decode failed: cannot convert float infinity to integer"
-  ],
+  "ok": true,
+  "problems": [],
+  "expect": {
+   "seconds": 90.0,
+   "frames": 2700,
+   "fps": 30,
+   "speed": 1.0
+  },
   "codec_name": "h264",
   "pix_fmt": "yuv420p",
   "width": 960,
   "height": 720,
   "r_frame_rate": "30/1",
   "nb_frames": "2700",
-  "duration": "90.000000"
+  "duration": "90.000000",
+  "mean_luma": [
+   185.7,
+   185.7,
+   185.7,
+   185.7
+  ],
+  "frame_diff": [
+   1.322,
+   1.101,
+   1.028
+  ],
+  "measured": {
+   "duration_s": "90.000000",
+   "frames": 2700,
+   "fps": "30/1",
+   "size": "960x720",
+   "mean_luma_min": 185.7,
+   "frame_diff_max": 1.322
+  },
+  "window": {
+   "t0": 0.0,
+   "t1": null,
+   "speed": 1.0,
+   "source": "CLIP_SPECS (renderer spec table)",
+   "t1_effective": 89.98,
+   "trace_end_s": 89.98,
+   "clip_window_s": 89.98
+  },
+  "window_source": "CLIP_SPECS (renderer spec table)"
  },
  "reproduce": "MUJOCO_GL=egl python scripts/solo_drill_render.py run --controller feasible --rung L1 --seconds 90 --seed 0 --start stance --out-tag FINAL_L1_90",
- "render_command": "MUJOCO_GL=egl python scripts/solo_drill_render.py render --npz /home/ubuntu/grappling/data/drill/FINAL_L1_90_feasible_L1_seed0.npz --out videos/solo_drill/final_L1_90s.mp4"
+ "render_command": "MUJOCO_GL=egl python scripts/solo_drill_render.py render --npz /home/ubuntu/grappling/data/drill/FINAL_L1_90_feasible_L1_seed0.npz --out videos/solo_drill/final_L1_90s.mp4 --t0 0 --speed 1 --scale 1 --title 'rung L1 - stance hold + weight shift + level change (90 s)' --caption 'the rung-L1 clip: one unbroken episode, no resets, stance hold + weight shift + level change'",
+ "render": {
+  "t0": 0.0,
+  "t1": null,
+  "speed": 1.0,
+  "scale": 1.0,
+  "fps": 30,
+  "frames": "2700",
+  "window_source": "CLIP_SPECS (renderer spec table)",
+  "backfilled": "2026-10-08 (window not recorded at render time; recovered from CLIP_SPECS (renderer spec table); corroborated by the artifact duration)"
+ },
+ "clip_verification_history": [
+  {
+   "recorded_before": "2026-10-08",
+   "ok": false,
+   "problems": [
+    "decode failed: cannot convert float infinity to integer"
+   ],
+   "note": "the pre-fix verifier bug (int(inf) on imageio's nframes=inf) recorded false failures; the guard landed in commit 103dcee"
+  }
+ ],
+ "evidence": true,
+ "claim_check": {
+  "checked": "2026-10-08",
+  "status": "evidence",
+  "fails": [],
+  "unverifiable": []
+ }
 }

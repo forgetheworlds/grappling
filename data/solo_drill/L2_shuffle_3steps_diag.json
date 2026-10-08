@@ -488,21 +488,54 @@
   "n_na": 16
  },
  "rubric_table": "rubric: L2_SHUFFLE_feasible_L2_seed0.npz  rung=L2 seed=0  min score=0.0  ship gate=FAIL\n  A_stance\n    A1_width             1  0.209                                                        mean lateral foot separation (m); spec >= 0.24 wide\n    A2_base_depth        0  0.046                                                        mean fore-aft foot separation (m); staggered stance (refer\n    A3_knee_bend         3  [0.587, 0.663]                                               mean knee flexion per leg (rad): the crouch comes from the\n    A4_torso_pitch       3  15.9                                                         mean torso tilt from vertical (deg)\n    A5_head_up           3  1.167                                                        mean head site height (m) vs pelvis\n    A6_hands             2  [0.101, 0.222]                                               hand carriage: forward and inside (x forward, |y| small)\n    A7_com_margin        0  -0.0017                                                      worst CoM margin inside the support polygon (m)\n    A8_hold              2  {'duration_s': 34.0, 'xy_drift_m': 0.025}                    continuous hold without a fall; the drill stance is held, \n  B_footwork\n    B1_no_slide          3  0.0                                                          worst loaded-foot slip from its plant position (m); <= 0.0\n    B2_weight_transfer   0  [57.0, 48.9, 105.3, 68.0]                                    measured swing-foot load at lift-off (N); < 0.45 share\n    B3_command_fidelity   2  {'STANCE': {'ticks': 256, 'duration_s': 12.94, 'realized_dis realised displacement/yaw vs command per skill\n    B4_cadence           2  [0.0, 4]                                                     mean step duration (s) and count; quick short steps\n    B5_feet_clear        3  0.143                                                        minimum inter-foot separation (m): no crossing\n    B6_posture_moving    2  17.8                                                         95th percentile torso tilt during motion (deg)\n  C_level_change\n    C1_drop_depth      n/a  None                                                         n/a: rung L2 has no level-change element (planted-feet hol\n    C2_legs_not_waist  n/a  None                                                         n/a: rung L2 has no level-change element (planted-feet hol\n    C3_margin_in_drop  n/a  None                                                         n/a: rung L2 has no level-change element (planted-feet hol\n    C4_speed           n/a  None                                                         n/a: rung L2 has no level-change element (planted-feet hol\n    C5_reversible      n/a  None                                                         n/a: rung L2 has no level-change element (planted-feet hol\n  D_penetration\n    D1_lead_step       n/a  None                                                         n/a: penetration step not reached at this rung (L4 compone\n    D2_knee_lower      n/a  None                                                         n/a: penetration step not reached at this rung (L4 compone\n    D3_trail_drive     n/a  None                                                         n/a: penetration step not reached at this rung (L4 compone\n    D4_alignment       n/a  None                                                         n/a: penetration step not reached at this rung (L4 compone\n    D5_arms            n/a  None                                                         n/a: penetration step not reached at this rung (L4 compone\n    D6_depth           n/a  None                                                         n/a: penetration step not reached at this rung (L4 compone\n    D7_recoverable     n/a  None                                                         n/a: penetration step not reached at this rung (L4 compone\n  E_recovery\n    E1_return          n/a  None                                                         n/a: penetration step not reached at this rung (L4 compone\n    E2_no_post         n/a  None                                                         n/a: penetration step not reached at this rung (L4 compone\n    E3_time            n/a  None                                                         n/a: penetration step not reached at this rung (L4 compone\n    E4_stability       n/a  None                                                         n/a: penetration step not reached at this rung (L4 compone\n  F_continuity\n    F1_no_resets         3  {'falls': 0, 'resets': 0}                                    one initialisation, zero in-run resets; a fall ends the ru\n    F2_no_stalls         3  0.0                                                          fraction of ticks with no base motion\n    F3_smooth            3  0.0031                                                       95th percentile joint-target change per tick (rad)\n    F4_transitions       2  0.0003                                                       worst reference IK residual (m)\n    F5_repeats           3  3                                                            completed cycles of the element programme\n  G_plausibility\n    G1_mesh_pen          3  -0.0031                                                      worst contact penetration (m); -0.02 is the mesh limit\n    G2_ground_pen        3  -0.0031                                                      ground penetration (m); coarser than the mesh limit\n    G3_foot_slide        3  0.0083                                                       worst loaded-foot drift (m)\n    G4_saturation        3  0.0                                                          peak |force| / force range over the run\n    G5_no_glitch         3  {'joint': 0.0913, 'base': 0.0065}                            max per-tick joint (rad) and base (m) change: no pops",
- "label": "L2: short shuffle (2-3 steps)",
+ "label": "L2: short shuffle (4 consecutive steps)",
  "caption": "consecutive single-foot repositions with the settle between",
  "clip_verification": {
   "path": "/home/ubuntu/grappling/videos/solo_drill/L2_shuffle_3steps_diag.mp4",
-  "ok": false,
-  "problems": [
-   "decode failed: cannot convert float infinity to integer"
-  ],
+  "ok": true,
+  "problems": [],
+  "expect": {
+   "seconds": 14.033,
+   "frames": 421,
+   "fps": 30,
+   "speed": 1.0
+  },
   "codec_name": "h264",
   "pix_fmt": "yuv420p",
   "width": 480,
   "height": 360,
   "r_frame_rate": "30/1",
   "nb_frames": "421",
-  "duration": "14.033333"
+  "duration": "14.033333",
+  "mean_luma": [
+   185.8,
+   185.8,
+   186.1,
+   185.7
+  ],
+  "frame_diff": [
+   1.275,
+   5.129,
+   2.896
+  ],
+  "measured": {
+   "duration_s": "14.033333",
+   "frames": 421,
+   "fps": "30/1",
+   "size": "480x360",
+   "mean_luma_min": 185.7,
+   "frame_diff_max": 5.129
+  },
+  "window": {
+   "t0": 4.0,
+   "t1": 18.0,
+   "speed": 1.0,
+   "source": "CLIP_SPECS (renderer spec table)",
+   "t1_effective": 18.0,
+   "trace_end_s": 33.98,
+   "clip_window_s": 14.0
+  },
+  "window_source": "CLIP_SPECS (renderer spec table)"
  },
  "l2_evidence_notes": {
   "paths": {
@@ -520,5 +553,40 @@
   "refusals": 0,
   "required_com_travel": []
  },
- "reproduce": "MUJOCO_GL=egl python scripts/solo_drill_render.py run --controller feasible --rung L2 --seconds 34 --start stance --out-tag L2_SHUFFLE"
+ "reproduce": "MUJOCO_GL=egl python scripts/solo_drill_render.py run --controller feasible --rung L2 --seconds 34 --start stance --out-tag L2_SHUFFLE",
+ "label_history": [
+  {
+   "label": "L2: short shuffle (2-3 steps)",
+   "caption": "consecutive single-foot repositions with the settle between",
+   "replaced": "2026-10-08 by EvidenceFix"
+  }
+ ],
+ "label_correction": "2026-10-08: the label/caption above were refreshed from the renderer's spec table (CLIP_SPECS in scripts/solo_drill_render.py); the previous text is kept in label_history. Note: the artifact's burned-in HUD text was rendered from the OLD text and cannot be changed without a re-render.",
+ "render": {
+  "t0": 4.0,
+  "t1": 18.0,
+  "speed": 1.0,
+  "scale": 0.5,
+  "fps": 30,
+  "frames": "421",
+  "window_source": "CLIP_SPECS (renderer spec table)",
+  "backfilled": "2026-10-08 (window not recorded at render time; recovered from CLIP_SPECS (renderer spec table); corroborated by the artifact duration)"
+ },
+ "clip_verification_history": [
+  {
+   "recorded_before": "2026-10-08",
+   "ok": false,
+   "problems": [
+    "decode failed: cannot convert float infinity to integer"
+   ],
+   "note": "the pre-fix verifier bug (int(inf) on imageio's nframes=inf) recorded false failures; the guard landed in commit 103dcee"
+  }
+ ],
+ "evidence": true,
+ "claim_check": {
+  "checked": "2026-10-08",
+  "status": "evidence",
+  "fails": [],
+  "unverifiable": []
+ }
 }

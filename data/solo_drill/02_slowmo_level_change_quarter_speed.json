@@ -421,21 +421,92 @@
  },
  "rubric_table": "rubric: SLOWMO_L1_feasible_L1_seed0.npz  rung=L1 seed=0  min score=0.0  ship gate=FAIL\n  A_stance\n    A1_width             3  0.517                                                        mean lateral foot separation (m); spec >= 0.24 wide\n    A2_base_depth        2  0.247                                                        mean fore-aft foot separation (m); staggered stance (refer\n    A3_knee_bend         3  [0.503, 0.848]                                               mean knee flexion per leg (rad): the crouch comes from the\n    A4_torso_pitch       3  14.9                                                         mean torso tilt from vertical (deg)\n    A5_head_up           3  1.132                                                        mean head site height (m) vs pelvis\n    A6_hands             2  [0.101, 0.22]                                                hand carriage: forward and inside (x forward, |y| small)\n    A7_com_margin        2  0.0295                                                       worst CoM margin inside the support polygon (m)\n    A8_hold              0  {'duration_s': 20.0, 'xy_drift_m': 0.06}                     continuous hold without a fall; the drill stance is held, \n  B_footwork\n    B1_no_slide        n/a  None                                                         n/a: no completed step at rung L1 (stepping is the L2+ com\n    B2_weight_transfer n/a  None                                                         n/a: no completed step at rung L1 (stepping is the L2+ com\n    B3_command_fidelity n/a  None                                                         n/a: no completed step at rung L1 (stepping is the L2+ com\n    B4_cadence         n/a  None                                                         n/a: no completed step at rung L1 (stepping is the L2+ com\n    B5_feet_clear      n/a  None                                                         n/a: no completed step at rung L1 (stepping is the L2+ com\n    B6_posture_moving  n/a  None                                                         n/a: no completed step at rung L1 (stepping is the L2+ com\n  C_level_change\n    C1_drop_depth        3  0.0445                                                       pelvis z range (m): a visible crouch, not a collapse\n    C2_legs_not_waist    3  {'knee_range_rad': 0.484, 'torso_tilt_max': 15.3}            the drop is produced by knee/ankle flexion, not waist fold\n    C3_margin_in_drop    2  0.0295                                                       worst CoM margin (m) over the run\n    C4_speed             3  0.095                                                        peak pelvis vertical speed (m/s): controlled, no drop\n    C5_reversible        3  0.0421                                                       returns to the tall stance after the deepest crouch (m)\n  D_penetration\n    D1_lead_step       n/a  None                                                         n/a: penetration step not reached at this rung (L4 compone\n    D2_knee_lower      n/a  None                                                         n/a: penetration step not reached at this rung (L4 compone\n    D3_trail_drive     n/a  None                                                         n/a: penetration step not reached at this rung (L4 compone\n    D4_alignment       n/a  None                                                         n/a: penetration step not reached at this rung (L4 compone\n    D5_arms            n/a  None                                                         n/a: penetration step not reached at this rung (L4 compone\n    D6_depth           n/a  None                                                         n/a: penetration step not reached at this rung (L4 compone\n    D7_recoverable     n/a  None                                                         n/a: penetration step not reached at this rung (L4 compone\n  E_recovery\n    E1_return          n/a  None                                                         n/a: penetration step not reached at this rung (L4 compone\n    E2_no_post         n/a  None                                                         n/a: penetration step not reached at this rung (L4 compone\n    E3_time            n/a  None                                                         n/a: penetration step not reached at this rung (L4 compone\n    E4_stability       n/a  None                                                         n/a: penetration step not reached at this rung (L4 compone\n  F_continuity\n    F1_no_resets         3  {'falls': 0, 'resets': 0}                                    one initialisation, zero in-run resets; a fall ends the ru\n    F2_no_stalls         3  0.0                                                          fraction of ticks with no base motion\n    F3_smooth            3  0.0013                                                       95th percentile joint-target change per tick (rad)\n    F4_transitions       2  0.0005                                                       worst reference IK residual (m)\n    F5_repeats           3  4                                                            completed cycles of the element programme\n  G_plausibility\n    G1_mesh_pen          3  -0.0026                                                      worst contact penetration (m); -0.02 is the mesh limit\n    G2_ground_pen        3  -0.0026                                                      ground penetration (m); coarser than the mesh limit\n    G3_foot_slide        3  0.0                                                          worst loaded-foot drift (m)\n    G4_saturation        3  0.0                                                          peak |force| / force range over the run\n    G5_no_glitch         3  {'joint': 0.0391, 'base': 0.0048}                            max per-tick joint (rad) and base (m) change: no pops",
  "label": "slow motion 0.25x: level change down / hold / rise",
- "caption": "0.25x of the level change: descent, hold, rise (rubric H3)",
+ "caption": "0.25x of the level-change element (t=0-8.06 s: descent to ~1.8 s, hold, rise to ~8 s) - rubric H3",
  "clip_verification": {
   "path": "/home/ubuntu/grappling/videos/solo_drill/02_slowmo_level_change_quarter_speed.mp4",
-  "ok": false,
-  "problems": [
-   "decode failed: cannot convert float infinity to integer"
-  ],
+  "ok": true,
+  "problems": [],
+  "expect": {
+   "seconds": 32.267,
+   "frames": 968,
+   "fps": 30,
+   "speed": 0.25
+  },
   "codec_name": "h264",
   "pix_fmt": "yuv420p",
   "width": 960,
   "height": 720,
   "r_frame_rate": "30/1",
-  "nb_frames": "91",
-  "duration": "3.033333"
+  "nb_frames": "968",
+  "duration": "32.266667",
+  "mean_luma": [
+   122.4,
+   122.3,
+   122.3,
+   122.6
+  ],
+  "frame_diff": [
+   1.63,
+   1.04,
+   2.463
+  ],
+  "measured": {
+   "duration_s": "32.266667",
+   "frames": 968,
+   "fps": "30/1",
+   "size": "960x720",
+   "mean_luma_min": 122.3,
+   "frame_diff_max": 2.463
+  },
+  "window": {
+   "t0": 0.0,
+   "t1": 8.06,
+   "speed": 0.25,
+   "source": "CLIP_SPECS (renderer spec table)",
+   "t1_effective": 8.06,
+   "trace_end_s": 19.98,
+   "clip_window_s": 8.06
+  },
+  "window_source": "CLIP_SPECS (renderer spec table)"
  },
  "reproduce": "MUJOCO_GL=egl python scripts/solo_drill_render.py run --controller feasible --rung L1 --seconds 20 --seed 0 --start stance --out-tag SLOWMO_L1",
- "render_command": "MUJOCO_GL=egl python scripts/solo_drill_render.py render --npz /home/ubuntu/grappling/data/drill/SLOWMO_L1_feasible_L1_seed0.npz --out videos/solo_drill/02_slowmo_level_change_quarter_speed.mp4"
+ "render_command": "MUJOCO_GL=egl python scripts/solo_drill_render.py render --npz /home/ubuntu/grappling/data/drill/SLOWMO_L1_feasible_L1_seed0.npz --out videos/solo_drill/02_slowmo_level_change_quarter_speed.mp4 --t0 0 --t1 8.06 --speed 0.25 --scale 1 --title 'slow motion 0.25x: level change down / hold / rise' --caption '0.25x of the level-change element (t=0-8.06 s: descent to ~1.8 s, hold, rise to ~8 s) - rubric H3'",
+ "label_history": [
+  {
+   "label": "slow motion 0.25x: level change down / hold / rise",
+   "caption": "0.25x of the level change: descent, hold, rise (rubric H3)",
+   "replaced": "2026-10-08 by EvidenceFix"
+  }
+ ],
+ "label_correction": "2026-10-08: the label/caption above were refreshed from the renderer's spec table (CLIP_SPECS in scripts/solo_drill_render.py); the previous text is kept in label_history. Note: the artifact's burned-in HUD text was rendered from the OLD text and cannot be changed without a re-render.",
+ "render": {
+  "t0": 0.0,
+  "t1": 8.06,
+  "speed": 0.25,
+  "scale": 1.0,
+  "fps": 30,
+  "frames": "968",
+  "window_source": "CLIP_SPECS (renderer spec table)",
+  "backfilled": "2026-10-08 (window not recorded at render time; recovered from CLIP_SPECS (renderer spec table); corroborated by the artifact duration)"
+ },
+ "clip_verification_history": [
+  {
+   "recorded_before": "2026-10-08",
+   "ok": false,
+   "problems": [
+    "decode failed: cannot convert float infinity to integer"
+   ],
+   "note": "the pre-fix verifier bug (int(inf) on imageio's nframes=inf) recorded false failures; the guard landed in commit 103dcee"
+  }
+ ],
+ "evidence": true,
+ "claim_check": {
+  "checked": "2026-10-08",
+  "status": "evidence",
+  "fails": [],
+  "unverifiable": [
+   "speed: render window not recorded: duration ratio unverifiable",
+   "speed: render window not recorded: duration ratio unverifiable"
+  ]
+ }
 }

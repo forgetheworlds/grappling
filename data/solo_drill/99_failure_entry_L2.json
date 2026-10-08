@@ -420,22 +420,90 @@
  },
  "rubric_table": "rubric: FAIL_ENTRY_L2_feasible_L2_seed0.npz  rung=L2 seed=0  min score=0.0  ship gate=FAIL\n  A_stance\n    A1_width             3  0.316                                                        mean lateral foot separation (m); spec >= 0.24 wide\n    A2_base_depth        0  0.093                                                        mean fore-aft foot separation (m); staggered stance (refer\n    A3_knee_bend         3  [0.526, 0.548]                                               mean knee flexion per leg (rad): the crouch comes from the\n    A4_torso_pitch       3  7.4                                                          mean torso tilt from vertical (deg)\n    A5_head_up           3  1.127                                                        mean head site height (m) vs pelvis\n    A6_hands             2  [0.162, 0.051]                                               hand carriage: forward and inside (x forward, |y| small)\n    A7_com_margin        0  -0.6295                                                      worst CoM margin inside the support polygon (m)\n    A8_hold              0  {'duration_s': 2.8, 'xy_drift_m': 0.773}                     continuous hold without a fall; the drill stance is held, \n  B_footwork\n    B1_no_slide        n/a  None                                                         n/a: no completed step at rung L2 (stepping is the L2+ com\n    B2_weight_transfer n/a  None                                                         n/a: no completed step at rung L2 (stepping is the L2+ com\n    B3_command_fidelity n/a  None                                                         n/a: no completed step at rung L2 (stepping is the L2+ com\n    B4_cadence         n/a  None                                                         n/a: no completed step at rung L2 (stepping is the L2+ com\n    B5_feet_clear      n/a  None                                                         n/a: no completed step at rung L2 (stepping is the L2+ com\n    B6_posture_moving  n/a  None                                                         n/a: no completed step at rung L2 (stepping is the L2+ com\n  C_level_change\n    C1_drop_depth      n/a  None                                                         n/a: rung L2 has no level-change element (planted-feet hol\n    C2_legs_not_waist  n/a  None                                                         n/a: rung L2 has no level-change element (planted-feet hol\n    C3_margin_in_drop  n/a  None                                                         n/a: rung L2 has no level-change element (planted-feet hol\n    C4_speed           n/a  None                                                         n/a: rung L2 has no level-change element (planted-feet hol\n    C5_reversible      n/a  None                                                         n/a: rung L2 has no level-change element (planted-feet hol\n  D_penetration\n    D1_lead_step       n/a  None                                                         n/a: penetration step not reached at this rung (L4 compone\n    D2_knee_lower      n/a  None                                                         n/a: penetration step not reached at this rung (L4 compone\n    D3_trail_drive     n/a  None                                                         n/a: penetration step not reached at this rung (L4 compone\n    D4_alignment       n/a  None                                                         n/a: penetration step not reached at this rung (L4 compone\n    D5_arms            n/a  None                                                         n/a: penetration step not reached at this rung (L4 compone\n    D6_depth           n/a  None                                                         n/a: penetration step not reached at this rung (L4 compone\n    D7_recoverable     n/a  None                                                         n/a: penetration step not reached at this rung (L4 compone\n  E_recovery\n    E1_return          n/a  None                                                         n/a: penetration step not reached at this rung (L4 compone\n    E2_no_post         n/a  None                                                         n/a: penetration step not reached at this rung (L4 compone\n    E3_time            n/a  None                                                         n/a: penetration step not reached at this rung (L4 compone\n    E4_stability       n/a  None                                                         n/a: penetration step not reached at this rung (L4 compone\n  F_continuity\n    F1_no_resets         0  {'falls': 1, 'resets': 0}                                    one initialisation, zero in-run resets; a fall ends the ru\n    F2_no_stalls         3  0.0                                                          fraction of ticks with no base motion\n    F3_smooth            3  0.0154                                                       95th percentile joint-target change per tick (rad)\n    F4_transitions       2  0.0056                                                       worst reference IK residual (m)\n    F5_repeats           0  0                                                            completed cycles of the element programme\n  G_plausibility\n    G1_mesh_pen          1  -0.0147                                                      worst contact penetration (m); -0.02 is the mesh limit\n    G2_ground_pen        0  -0.0147                                                      ground penetration (m); coarser than the mesh limit\n    G3_foot_slide        3  0.001                                                        worst loaded-foot drift (m)\n    G4_saturation        3  0.0                                                          peak |force| / force range over the run\n    G5_no_glitch         1  {'joint': 0.2682, 'base': 0.0554}                            max per-tick joint (rad) and base (m) change: no pops",
  "label": "FAILURE: stand -> stance entry (L2 stepping)",
- "caption": "the entry walk: steps complete in isolation but the sequence is not clean yet",
+ "caption": "FAILURE: the entry walk falls at t=2.82 s - the clip ends at the episode's own end (not a truncated render); the isolated step completes, the sequence does not",
  "clip_verification": {
   "path": "/home/ubuntu/grappling/videos/solo_drill/99_failure_entry_L2.mp4",
-  "ok": false,
-  "problems": [
-   "duration 1.87s vs expected 11.00s",
-   "decode failed: cannot convert float infinity to integer"
-  ],
+  "ok": true,
+  "problems": [],
+  "expect": {
+   "seconds": 1.867,
+   "frames": 56,
+   "fps": 30,
+   "speed": 1.0
+  },
   "codec_name": "h264",
   "pix_fmt": "yuv420p",
   "width": 960,
   "height": 720,
   "r_frame_rate": "30/1",
   "nb_frames": "56",
-  "duration": "1.866667"
+  "duration": "1.866667",
+  "mean_luma": [
+   184.5,
+   185.6,
+   186.5,
+   187.2
+  ],
+  "frame_diff": [
+   5.235,
+   4.947,
+   4.39
+  ],
+  "measured": {
+   "duration_s": "1.866667",
+   "frames": 56,
+   "fps": "30/1",
+   "size": "960x720",
+   "mean_luma_min": 184.5,
+   "frame_diff_max": 5.235
+  },
+  "window": {
+   "t0": 1.0,
+   "t1": 12.0,
+   "speed": 1.0,
+   "source": "CLIP_SPECS (renderer spec table)",
+   "t1_effective": 2.82,
+   "trace_end_s": 2.82,
+   "clip_window_s": 1.82
+  },
+  "window_source": "CLIP_SPECS (renderer spec table)"
  },
  "reproduce": "MUJOCO_GL=egl python scripts/solo_drill_render.py run --controller feasible --rung L2 --seconds 30 --seed 0 --start stand --out-tag FAIL_ENTRY_L2",
- "render_command": "MUJOCO_GL=egl python scripts/solo_drill_render.py render --npz /home/ubuntu/grappling/data/drill/FAIL_ENTRY_L2_feasible_L2_seed0.npz --out videos/solo_drill/99_failure_entry_L2.mp4"
+ "render_command": "MUJOCO_GL=egl python scripts/solo_drill_render.py render --npz /home/ubuntu/grappling/data/drill/FAIL_ENTRY_L2_feasible_L2_seed0.npz --out videos/solo_drill/99_failure_entry_L2.mp4 --t0 1 --t1 12 --speed 1 --scale 1 --title 'FAILURE: stand -> stance entry (L2 stepping)' --caption \"FAILURE: the entry walk falls at t=2.82 s - the clip ends at the episode's own end (not a truncated render); the isolated step completes, the sequence does not\"",
+ "label_history": [
+  {
+   "label": "FAILURE: stand -> stance entry (L2 stepping)",
+   "caption": "the entry walk: steps complete in isolation but the sequence is not clean yet",
+   "replaced": "2026-10-08 by EvidenceFix"
+  }
+ ],
+ "label_correction": "2026-10-08: the label/caption above were refreshed from the renderer's spec table (CLIP_SPECS in scripts/solo_drill_render.py); the previous text is kept in label_history. Note: the artifact's burned-in HUD text was rendered from the OLD text and cannot be changed without a re-render.",
+ "render": {
+  "t0": 1.0,
+  "t1": 12.0,
+  "speed": 1.0,
+  "scale": 1.0,
+  "fps": 30,
+  "frames": "56",
+  "window_source": "CLIP_SPECS (renderer spec table)",
+  "backfilled": "2026-10-08 (window not recorded at render time; recovered from CLIP_SPECS (renderer spec table); corroborated by the artifact duration)"
+ },
+ "clip_verification_history": [
+  {
+   "recorded_before": "2026-10-08",
+   "ok": false,
+   "problems": [
+    "duration 1.87s vs expected 11.00s",
+    "decode failed: cannot convert float infinity to integer"
+   ],
+   "note": "the pre-fix verifier bug (int(inf) on imageio's nframes=inf) recorded false failures; the guard landed in commit 103dcee"
+  }
+ ],
+ "evidence": true,
+ "claim_check": {
+  "checked": "2026-10-08",
+  "status": "evidence",
+  "fails": [],
+  "unverifiable": []
+ }
 }

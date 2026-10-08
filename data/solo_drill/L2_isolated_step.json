@@ -453,17 +453,50 @@
  "caption": "one isolated step: margin-gated lift, world-tracked swing, load-gated landing; the rest of the entry is refused on geometry",
  "clip_verification": {
   "path": "/home/ubuntu/grappling/videos/solo_drill/L2_isolated_step.mp4",
-  "ok": false,
-  "problems": [
-   "decode failed: cannot convert float infinity to integer"
-  ],
+  "ok": true,
+  "problems": [],
+  "expect": {
+   "seconds": 6.633,
+   "frames": 199,
+   "fps": 30,
+   "speed": 1.0
+  },
   "codec_name": "h264",
   "pix_fmt": "yuv420p",
   "width": 960,
   "height": 720,
   "r_frame_rate": "30/1",
   "nb_frames": "199",
-  "duration": "6.633333"
+  "duration": "6.633333",
+  "mean_luma": [
+   185.3,
+   185.4,
+   185.4,
+   185.4
+  ],
+  "frame_diff": [
+   3.065,
+   4.458,
+   2.274
+  ],
+  "measured": {
+   "duration_s": "6.633333",
+   "frames": 199,
+   "fps": "30/1",
+   "size": "960x720",
+   "mean_luma_min": 185.3,
+   "frame_diff_max": 4.458
+  },
+  "window": {
+   "t0": 0.4,
+   "t1": 7.0,
+   "speed": 1.0,
+   "source": "CLIP_SPECS (renderer spec table)",
+   "t1_effective": 7.0,
+   "trace_end_s": 13.98,
+   "clip_window_s": 6.6
+  },
+  "window_source": "CLIP_SPECS (renderer spec table)"
  },
  "l2_evidence_notes": {
   "paths": {
@@ -484,5 +517,32 @@
    0.209
   ]
  },
- "reproduce": "MUJOCO_GL=egl python scripts/solo_drill_render.py run --controller feasible --rung L2 --seconds 14 --start stand --out-tag L2_ENTRY_SPEC"
+ "reproduce": "MUJOCO_GL=egl python scripts/solo_drill_render.py run --controller feasible --rung L2 --seconds 14 --start stand --out-tag L2_ENTRY_SPEC",
+ "render": {
+  "t0": 0.4,
+  "t1": 7.0,
+  "speed": 1.0,
+  "scale": 1.0,
+  "fps": 30,
+  "frames": "199",
+  "window_source": "CLIP_SPECS (renderer spec table)",
+  "backfilled": "2026-10-08 (window not recorded at render time; recovered from CLIP_SPECS (renderer spec table); corroborated by the artifact duration)"
+ },
+ "clip_verification_history": [
+  {
+   "recorded_before": "2026-10-08",
+   "ok": false,
+   "problems": [
+    "decode failed: cannot convert float infinity to integer"
+   ],
+   "note": "the pre-fix verifier bug (int(inf) on imageio's nframes=inf) recorded false failures; the guard landed in commit 103dcee"
+  }
+ ],
+ "evidence": true,
+ "claim_check": {
+  "checked": "2026-10-08",
+  "status": "evidence",
+  "fails": [],
+  "unverifiable": []
+ }
 }

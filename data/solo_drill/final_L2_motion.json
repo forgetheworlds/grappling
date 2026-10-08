@@ -600,7 +600,7 @@
    0.278
   ]
  },
- "stance_note": "stance 0.30 x 0.10 m: a documented narrowing from the operator's 0.49 m reference -- the crossing CoM travel a lift needs grows as half the width, and the measured lateral authority caps it (reports/2026-10-08/drill_motion.md)",
+ "stance_note": "stance 0.28 x 0.10 m: a documented narrowing from the operator's 0.49 m reference -- the crossing CoM travel a lift needs grows as half the width, and the measured lateral authority caps it (reports/2026-10-08/drill_motion.md)",
  "reproduce": "MUJOCO_GL=egl python scripts/solo_drill_render.py deliver --seconds 69.98",
  "step_count": 5,
  "steps": [
@@ -739,5 +739,45 @@
     "recovered_to_m": 0.0748
    }
   ]
+ },
+ "label": "L2 motion: continuous stepping in the drill stance",
+ "caption": "rung L2: stance + repeated steps (stalk / backpedal / lateral shuffle); every step is gate-checked on the measured CoM margin",
+ "stance_note_correction": "2026-10-08: stance corrected 0.30 -> 0.28 m. The 0.30 value was the deliver-stage default printed because the render ran without --stance-w; the shipped clip is M_E28f_feasible_L3_seed0, the 0.28 x 0.10 m run (reports/2026-10-08/drill_motion.md sec 5.1(5)); the trace's measured mean lateral sole separation is 0.289 m (rubric A1).",
+ "render": {
+  "t0": 0.0,
+  "t1": null,
+  "speed": 1.0,
+  "scale": 1.0,
+  "fps": 30,
+  "frames": "2100",
+  "window_source": "deliver (0 .. trace end)",
+  "backfilled": "2026-10-08 (window not recorded at render time; recovered from deliver (0 .. trace end); corroborated by the artifact duration)"
+ },
+ "evidence": true,
+ "claim_check": {
+  "checked": "2026-10-08",
+  "status": "evidence",
+  "fails": [],
+  "unverifiable": []
+ },
+ "slowmo_render": {
+  "t0": 14.69999999999975,
+  "t1": 18.09999999999975,
+  "speed": 0.25,
+  "scale": 0.5,
+  "fps": 30,
+  "frames": null,
+  "window": {
+   "t0": 14.69999999999975,
+   "t1": 18.09999999999975,
+   "speed": 0.25,
+   "source": "deliver slowmo (first step t from step_events)",
+   "t1_effective": 18.1,
+   "trace_end_s": 69.98,
+   "clip_window_s": 3.4
+  },
+  "caption": "0.25x: one step cycle (shift, lift, swing, plant, settle)",
+  "window_source": "deliver slowmo (first step t from step_events)",
+  "backfilled": "2026-10-08 (window not recorded at render time; recovered from deliver slowmo (first step t from step_events); corroborated by the artifact duration)"
  }
 }

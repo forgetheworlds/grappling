@@ -32,6 +32,176 @@ sys.path.insert(0, str(REPO / "src"))
 VIDEO = REPO / "videos" / "solo_drill"
 DATA = REPO / "data" / "drill"
 
+FPS = 30
+
+
+def _final_name(name: str, scale: float) -> str:
+    """The artifact name a render spec produces.
+
+    Diagnostic-scale renders (``scale < 1.0``) carry a ``_diag`` suffix so a
+    reader cannot mistake one for a full-scale artifact.  This is the ONLY
+    place the suffix is applied: bundles and the index both name the file this
+    returns, so they cannot disagree (the 2026-10-08 audit found two index
+    paths naming the pre-rename file because the rename happened after the
+    table had been hand-copied).
+    """
+    if scale < 1.0 and not name.endswith("_diag.mp4"):
+        return name.replace(".mp4", "_diag.mp4")
+    return name
+
+
+#: Every clip the pipeline renders and the exact window/speed it renders:
+#: SINGLE SOURCE OF TRUTH for what each artifact must contain.
+#: ``scripts/evidence_check.py`` recomputes each artifact's expected duration
+#: and frame count from this table plus the trace *independently of the
+#: renderer*, so a hand-typed claim (or a post-hoc rename) that drifts from
+#: the artifact is caught mechanically.  ``speed < 1.0`` slows the clip:
+#: rendered frames = round((min(t1, trace_end) - t0) * fps / speed) + 1.
+CLIP_SPECS: dict[str, dict] = {
+    # --- deliverable suite (cmd_suite) -----------------------------------
+    "final_L1_90s.mp4": dict(
+        title="rung L1 - stance hold + weight shift + level change (90 s)",
+        t0=0.0, t1=None, scale=1.0, speed=1.0,
+        caption="the rung-L1 clip: one unbroken episode, no resets, "
+                "stance hold + weight shift + level change"),
+    "01_baseline_stancepd.mp4": dict(
+        title="baseline: StancePD (no feedback) - 12 s hold, NO fall",
+        t0=0.0, t1=None, scale=1.0, speed=1.0,
+        # CAPTION CORRECTED 2026-10-08 (claim-audit F1): this job renders the
+        # 12 s BASE_PD_stance_pd_L1_seed0 trace, which does NOT fall.  The old
+        # caption ("it topples") was false here; the run that topples is the
+        # separate BASELINE_PD_stance_pd_L1_seed0, wired to its own job below.
+        caption="the same stance pose under pure position control: stays up for "
+                "12 s (does NOT topple - the toppling baseline is the separate "
+                "run rendered as 01_baseline_pd_topples.mp4)"),
+    "01_baseline_pd_topples.mp4": dict(
+        title="baseline: StancePD (no feedback) - TOPPLES",
+        t0=0.0, t1=None, scale=1.0, speed=1.0,
+        caption="baseline: StancePD (no feedback) - the SAME stance pose as the "
+                "feasible drill; with no feedback the robot TOPPLES at 8.4 s "
+                "(fall detector fires; pelvis z 0.736 -> 0.299 m)"),
+    "99_failure_entry_L2.mp4": dict(
+        title="FAILURE: stand -> stance entry (L2 stepping)",
+        t0=1.0, t1=12.0, scale=1.0, speed=1.0,
+        caption="FAILURE: the entry walk falls at t=2.82 s - the clip ends at "
+                "the episode's own end (not a truncated render); the isolated "
+                "step completes, the sequence does not"),
+    "L1_90s_with_pushes.mp4": dict(
+        title="rung L1 with pushes (t=15 s and t=38 s recovered; t=62 s outside this clip)",
+        t0=0.0, t1=60.0, scale=1.0, speed=1.0,
+        # CLAIM CORRECTED 2026-10-08 (claim-audit mode D): the third push is at
+        # t=62 s, outside this deliberate t=0-60 s window, so the clip can only
+        # show two of the three pushes.  The claim now says exactly that; the
+        # run's metrics record all 3/3 recovered.
+        caption="push windows overlaid: two of the three 20 N pushes (t=15 s, "
+                "t=38 s) are inside this 0-60 s clip and recover; the third "
+                "(t=62 s) is outside it - the run's metrics record 3/3"),
+    "L0_hold_30s.mp4": dict(
+        title="rung L0: stance hold + posture modulation (t=0-30 s of the 60 s run)",
+        t0=0.0, t1=30.0, scale=0.5, speed=1.0,
+        caption="both feet planted throughout: the rung below the ship candidate"),
+    "99_failure_push90N.mp4": dict(
+        title="FAILURE: 90 N push",
+        t0=6.0, t1=13.0, scale=0.5, speed=1.0,
+        caption="above the measured recovery limit: 20 N recovers, 35 N is "
+                "marginal, 90 N topples"),
+    "02_slowmo_level_change_quarter_speed.mp4": dict(
+        # WINDOW + SPEED CORRECTED 2026-10-08 (claim-audit modes C+D): the old
+        # spec window (3-6 s) held only the level-change HOLD (descent ends at
+        # t~1.8 s, rise starts at t~6 s) and no speed was passed, so the clip
+        # rendered at 1.0x.  The full level-change element (crouch 0-6.02 s +
+        # rise to 8.06 s, from the run's element_done events) is now rendered at
+        # the 0.25x its name claims: 8.06 s / 0.25 = 32.2 s of video.
+        title="slow motion 0.25x: level change down / hold / rise",
+        t0=0.0, t1=8.06, scale=1.0, speed=0.25,
+        caption="0.25x of the level-change element (t=0-8.06 s: descent to "
+                "~1.8 s, hold, rise to ~8 s) - rubric H3"),
+    # --- L2 stepping suite (cmd_l2suite) ---------------------------------
+    "L2_isolated_step.mp4": dict(
+        title="L2: the first step out of the stand (drill stance base)",
+        t0=0.4, t1=7.0, scale=1.0, speed=1.0,
+        caption="one isolated step: margin-gated lift, world-tracked swing, "
+                "load-gated landing; the rest of the entry is refused on geometry"),
+    "final_L2_entry_walk.mp4": dict(
+        title="L2: stand -> stepping base, walked",
+        t0=0.4, t1=16.0, scale=1.0, speed=1.0,
+        # WIDTH CORRECTED 2026-10-08: the stepping base is half_width=0.105 m
+        # (0.21 m wide, sole separation 0.209-0.215 m in the traces), not the
+        # 0.25 m the old caption claimed (drill/stepping.stepping_base_spec).
+        caption="the entry walk in the base the primitive can use "
+                "(0.21 m wide, 0.06 m deep)"),
+    "L2_cycle_step_diag.mp4": dict(
+        title="L2: one step per L1 programme cycle",
+        t0=8.0, t1=18.0, scale=0.5, speed=1.0,
+        caption="level change / rise with one gate-checked step per cycle "
+                "(the run falls at t=22.56 s, outside this 8-18 s window)"),
+    "L2_shuffle_3steps_diag.mp4": dict(
+        # STEP CLAIM CORRECTED 2026-10-08: the run completes 4 steps, not the
+        # "2-3" the old label claimed (metrics.steps_completed).
+        title="L2: short shuffle (4 consecutive steps)",
+        t0=4.0, t1=18.0, scale=0.5, speed=1.0,
+        caption="consecutive single-foot repositions with the settle between"),
+    "L2_stance_step_refused_diag.mp4": dict(
+        title="L2: the drill stance refuses the step (geometry)",
+        t0=1.0, t1=8.0, scale=0.5, speed=1.0,
+        caption="the same primitive in the 0.495 m stance: every lift needs more "
+                "CoM travel than the robot has; it refuses instead of toppling"),
+}
+
+
+def clip_spec(name: str) -> dict:
+    """The render spec for ``name`` (a copy, with ``name`` attached)."""
+    try:
+        return {"name": name, **CLIP_SPECS[name]}
+    except KeyError:
+        raise SystemExit(f"no clip spec for {name!r} - add it to CLIP_SPECS")
+
+
+def _trace_end(npz: Path | str) -> float:
+    import numpy as np
+
+    with np.load(npz, allow_pickle=True) as z:
+        return float(np.asarray(z["t"], float)[-1])
+
+
+def window_expectations(npz: Path | str, t0: float = 0.0,
+                        t1: float | None = None, speed: float = 1.0,
+                        fps: int = FPS) -> dict:
+    """What a clip rendered from ``npz`` over ``[t0, t1]`` at ``speed`` MUST measure.
+
+    Mirrors ``drill.video.sample_frames``: the render truncates at the trace's
+    own end (an episode that falls at 2.82 s cannot produce 11 s of video), and
+    ``speed < 1`` interpolates ``1/speed`` more frames over the same physics
+    window while the writer still plays them at ``fps``, so the clip's duration
+    is ``(min(t1, trace_end) - t0) / speed``.  These are computed from the
+    trace + the render window alone, never read back from the artifact.
+    """
+    t_end = _trace_end(npz)
+    t1_raw = None if t1 is None else float(t1)
+    t1_eff = t_end if t1_raw is None else min(t1_raw, t_end)
+    rate = max(1, int(round(fps / max(1e-6, float(speed)))))
+    n = max(2, int(round((t1_eff - t0) * rate)) + 1)
+    return {"t0": float(t0), "t1": t1_raw, "t1_effective": round(t1_eff, 4),
+            "trace_end_s": round(t_end, 4), "speed": float(speed),
+            "fps": int(fps), "expect_frames": n,
+            "expect_s": round(n / float(fps), 3)}
+
+
+def _render_command(npz: Path | str, name: str, cspec: dict) -> str:
+    """The exact command that reproduces a clip (window/speed INCLUDED).
+
+    The old bundles recorded a command without the window, which would
+    reproduce a different artifact than the one shipped (claim-audit mode D).
+    """
+    parts = ["MUJOCO_GL=egl python scripts/solo_drill_render.py render",
+             f"--npz {npz}", f"--out videos/solo_drill/{name}",
+             f"--t0 {cspec['t0']:g}"]
+    if cspec["t1"] is not None:
+        parts.append(f"--t1 {cspec['t1']:g}")
+    parts += [f"--speed {cspec['speed']:g}", f"--scale {cspec['scale']:g}",
+              f"--title {cspec['title']!r}", f"--caption {cspec['caption']!r}"]
+    return " ".join(parts)
+
 
 def _meta_for(npz: Path, label: str, title: str, footer: str = "") -> dict:
     """HUD meta: controller kind, seed, rung, element phases, push labels."""
@@ -78,19 +248,36 @@ def cmd_run(a) -> int:
 
 
 def cmd_render(a) -> int:
+    import numpy as np
+
     from drill import video as video_mod
     npz = Path(a.npz)
     out = Path(a.out)
+    exp = window_expectations(npz, a.t0, a.t1, a.speed)
     meta = _meta_for(npz, a.label, a.title, a.footer)
     sheet = tuple(float(v) for v in a.sheet) if a.sheet else tuple(
-        npz and [])
-    r = video_mod.render_trace(video_mod.load_trace(npz), out, meta=meta,
+        np.linspace(a.t0 + 0.4, float(exp["t1_effective"]) - 0.4, 3))
+    target = out
+    if a.safe:
+        # SAFE WRITE (orchestrator protocol): a killed render must never leave
+        # a partial file occupying the artifact name
+        target = out.with_name(out.stem + ".partial" + out.suffix)
+    r = video_mod.render_trace(video_mod.load_trace(npz), target, meta=meta,
                                t0=a.t0, t1=a.t1, speed=a.speed, scale=a.scale,
-                               sheet_times=sheet or (a.t0 + 0.4,
-                                                     (a.t0 + (a.t1 or 5)) / 2,
-                                                     (a.t1 or 5) - 0.2),
+                               sheet_times=sheet,
                                caption=a.caption, label=a.label)
-    print(json.dumps(r, indent=1))
+    ver = verify_clip(Path(r["mp4"]), expect_s=exp["expect_s"],
+                      expect_frames=exp["expect_frames"], speed=a.speed)
+    print(json.dumps({**r, "verify": ver}, indent=1))
+    if not ver["ok"]:
+        print(f"[render] EVIDENCE GATE FAILED for {r['mp4']}: "
+              f"{json.dumps(ver['problems'])}", flush=True)
+        return 1
+    if a.safe:
+        Path(r["mp4"]).replace(out)
+        if r.get("sheet"):
+            Path(r["sheet"]).replace(out.with_name(out.stem + "_sheet.png"))
+        print(f"[render] SAFE WRITE OK: verified then renamed -> {out}", flush=True)
     return 0
 
 
@@ -115,17 +302,34 @@ def cmd_report(a) -> int:
     return 0
 
 
-def verify_clip(path: Path, expect_s: float, expect_frames: int,
-                fps: int = 30) -> dict:
-    """ffprobe duration/frame count + a non-black/non-static frame check.
+def verify_clip(path: Path, expect_s: float | None = None,
+                expect_frames: int | None = None, fps: int = 30,
+                speed: float = 1.0) -> dict:
+    """ffprobe facts, format, window match, and a non-black/non-static frame check.
 
-    A clip is only evidence if it decodes, lasts what the metrics say, and its
-    pixels actually change (a frozen or black render is not a video).
+    A clip is only evidence if it decodes, is the delivered format
+    (h264 / yuv420p / ``fps``), matches the window it was rendered from
+    (duration and frame count -- pass ``None`` only when no trace exists, e.g.
+    an unbundled clip gets the format and pixel checks alone), and its pixels
+    actually change (a frozen or black render is not a video).
+
+    ``expect_s``/``expect_frames`` come from the trace + render window via
+    :func:`window_expectations`; they are never read back from ``path``, so a
+    truncated or mis-windowed render fails.  A verifier-side exception is
+    reported separately (``error``) instead of being conflated with a media
+    problem -- the 2026-10-08 audit found 12/13 bundles recording
+    "decode failed: cannot convert float infinity to integer", which was an
+    ``int(inf)`` bug in THIS function (imageio reports ``nframes: inf`` for
+    ffmpeg-written mp4s; fixed in 103dcee), not a defect in any clip.
     """
     import subprocess
     import numpy as np
     import imageio.v2 as imageio
-    out = {"path": str(path), "ok": True, "problems": []}
+
+    out = {"path": str(path), "ok": True, "problems": [],
+           "expect": {"seconds": expect_s, "frames": expect_frames, "fps": fps,
+                      "speed": speed}}
+    probed_frames = None
     try:
         pr = subprocess.run(["ffprobe", "-v", "error", "-select_streams", "v:0",
                              "-show_entries", "stream=nb_frames,duration,codec_name,"
@@ -138,24 +342,53 @@ def verify_clip(path: Path, expect_s: float, expect_frames: int,
             out["problems"].append(f"codec {st.get('codec_name')} != h264")
         if st.get("pix_fmt") != "yuv420p":
             out["problems"].append(f"pix_fmt {st.get('pix_fmt')} != yuv420p")
+        rate, fps_act = str(st.get("r_frame_rate") or ""), None
+        try:
+            num, _, den = rate.partition("/")
+            fps_act = float(num) / float(den or 1)
+        except ValueError:
+            out["problems"].append(f"unreadable frame rate {rate!r}")
+        if fps_act is not None and abs(fps_act - fps) > 0.1:
+            # the writer-fps bug class: a clip written at fps/speed plays back
+            # at 1.0x no matter what the name claims (fixed 2026-10-08)
+            out["problems"].append(f"frame rate {fps_act:g} != {fps}")
         dur = float(st.get("duration") or 0.0)
-        if abs(dur - expect_s) > 0.5:
-            out["problems"].append(f"duration {dur:.2f}s vs expected {expect_s:.2f}s")
-        nf = int(st.get("nb_frames") or 0)
-        if abs(nf - expect_frames) > 3:
-            out["problems"].append(f"frames {nf} vs expected {expect_frames}")
-    except Exception as exc:                              # pragma: no cover
-        out["problems"].append(f"ffprobe failed: {exc}")
+        if expect_s is not None and abs(dur - expect_s) > 0.5:
+            out["problems"].append(f"duration {dur:.3f}s vs expected {expect_s:.3f}s")
+        nb = st.get("nb_frames")
+        try:
+            probed_frames = int(nb)
+        except (TypeError, ValueError):
+            probed_frames = None
+        if (expect_frames is not None and probed_frames is not None
+                and abs(probed_frames - expect_frames) > 3):
+            out["problems"].append(f"frames {probed_frames} vs expected {expect_frames}")
+    except Exception as exc:
+        out["error"] = {"where": "ffprobe", "type": type(exc).__name__,
+                        "message": str(exc)}
+        out["problems"].append(f"ffprobe failed ({type(exc).__name__}): {exc}")
     try:
         rd = imageio.get_reader(str(path))
         meta = rd.get_meta_data()
+        n = None
         nf = meta.get("nframes")
-        try:
-            n = int(nf) if nf is not None and np.isfinite(float(nf)) else int(expect_frames)
-        except (TypeError, ValueError):
-            n = int(expect_frames)
-        idx = [int(n * f) for f in (0.1, 0.4, 0.7, 0.95) if 0 <= int(n * f) < n]
-        imgs = [np.asarray(rd.get_data(i), dtype=float) for i in idx]
+        if nf is not None:
+            try:
+                n = int(nf) if np.isfinite(float(nf)) else None
+            except (TypeError, ValueError, OverflowError):
+                n = None
+        if not n:
+            n = probed_frames or expect_frames
+        if not n:
+            md = meta.get("duration")
+            n = int(float(md) * fps) if md not in (None, "") else 0
+        n = int(n or 0)
+        if n >= 2:
+            idx = sorted({min(n - 1, max(0, int(n * f)))
+                          for f in (0.1, 0.4, 0.7, 0.95)})
+            imgs = [np.asarray(rd.get_data(i), dtype=float) for i in idx]
+        else:
+            imgs = [np.asarray(rd.get_data(0), dtype=float)]
         rd.close()
         luma = [float(im.mean()) for im in imgs]
         out["mean_luma"] = [round(v, 1) for v in luma]
@@ -166,9 +399,17 @@ def verify_clip(path: Path, expect_s: float, expect_frames: int,
         out["frame_diff"] = [round(v, 3) for v in diffs]
         if diffs and max(diffs) < 0.5:
             out["problems"].append(f"static video (max diff {max(diffs):.3f})")
-    except Exception as exc:                              # pragma: no cover
-        out["problems"].append(f"decode failed: {exc}")
+    except Exception as exc:
+        out["error"] = {"where": "decode", "type": type(exc).__name__,
+                        "message": str(exc)}
+        out["problems"].append(f"decode failed ({type(exc).__name__}): {exc}")
     out["ok"] = not out["problems"]
+    out["measured"] = {
+        "duration_s": out.get("duration"), "frames": probed_frames,
+        "fps": out.get("r_frame_rate"), "size": f"{out.get('width')}x{out.get('height')}",
+        "mean_luma_min": min(out.get("mean_luma") or [None]) if out.get("mean_luma") else None,
+        "frame_diff_max": max(out.get("frame_diff") or [None]) if out.get("frame_diff") else None,
+    }
     return out
 
 
@@ -182,54 +423,52 @@ def cmd_suite(a) -> int:
 
     tag = "FINAL"
     jobs = [
-        # (tag, RunConfig, renders)
+        # (tag, RunConfig, renders); each render is a CLIP_SPECS entry -- the
+        # single source of truth for window/speed/title/caption
         (f"{tag}_L1_90", dict(controller="feasible", rung="L1", seconds=90.0,
                               start="stance", tag=f"{tag}_L1_90"), [
-            ("final_L1_90s.mp4", "rung L1 - stance hold + weight shift + level change (90 s)",
-             0.0, None, ("the rung-L1 clip: one unbroken episode, no resets, "
-                         "stance hold + weight shift + level change"), 1.0),
+            clip_spec("final_L1_90s.mp4"),
         ]),
         ("BASE_PD", dict(controller="stance_pd", rung="L1", seconds=12.0,
                          start="stance", tag="BASE_PD"), [
-            ("01_baseline_stancepd.mp4", "baseline: StancePD (no feedback)",
-             0.0, None, "the same stance pose under pure position control: it topples", 1.0),
+            clip_spec("01_baseline_stancepd.mp4"),
+        ]),
+        # The topple contrast runs on its own tag: wiring it to BASE_PD was the
+        # F1 hand-entry error (the two tags differ only by "BASE_").
+        ("BASELINE_PD", dict(controller="stance_pd", rung="L1", seconds=10.0,
+                             start="stance", tag="BASELINE_PD"), [
+            clip_spec("01_baseline_pd_topples.mp4"),
         ]),
         ("FAIL_ENTRY_L2", dict(controller="feasible", rung="L2", seconds=30.0,
                                start="stand", tag="FAIL_ENTRY_L2"), [
-            ("99_failure_entry_L2.mp4", "FAILURE: stand -> stance entry (L2 stepping)",
-             1.0, 12.0, "the entry walk: steps complete in isolation but the sequence is not clean yet", 1.0),
+            clip_spec("99_failure_entry_L2.mp4"),
         ]),
         (f"{tag}_L1_push", dict(controller="feasible", rung="L1", seconds=90.0,
                                 start="stance", tag=f"{tag}_L1_push",
                                 pushes=[PushSpec(t=15.0, dur=0.12, fx=-20.0, label="push-20N"),
                                         PushSpec(t=38.0, dur=0.12, fy=20.0, label="push+20N"),
                                         PushSpec(t=62.0, dur=0.12, fx=20.0, label="push+20N")]), [
-            ("L1_90s_with_pushes.mp4", "rung L1 with pushes (3 x 20 N, all recovered)",
-             0.0, 60.0, "3 x 20 N pushes (all recovered): CoM, margin and the push windows are overlaid", 1.0),
+            clip_spec("L1_90s_with_pushes.mp4"),
         ]),
         (f"{tag}_L0_60", dict(controller="feasible", rung="L0", seconds=60.0,
                               start="stance", tag=f"{tag}_L0_60"), [
-            ("L0_hold_30s.mp4", "rung L0: stance hold + posture modulation",
-             0.0, 30.0, "both feet planted throughout: the rung below the ship candidate", 0.5),
+            clip_spec("L0_hold_30s.mp4"),
         ]),
         ("FAIL_PUSH90", dict(controller="feasible", rung="L1", seconds=25.0,
                              start="stance", tag="FAIL_PUSH90",
                              pushes=[PushSpec(t=8.0, dur=0.12, fx=-90.0, label="push-90N")]), [
-            ("99_failure_push90N.mp4", "FAILURE: 90 N push",
-             6.0, 13.0, "above the measured recovery limit: 20 N recovers, 35 N is marginal, 90 N topples", 0.5),
+            clip_spec("99_failure_push90N.mp4"),
         ]),
         ("SLOWMO_L1", dict(controller="feasible", rung="L1", seconds=20.0,
                            start="stance", tag="SLOWMO_L1"), [
-            ("02_slowmo_level_change_quarter_speed.mp4",
-             "slow motion 0.25x: level change down / hold / rise", 3.0, 6.0,
-             "0.25x of the level change: descent, hold, rise (rubric H3)", 1.0),
+            clip_spec("02_slowmo_level_change_quarter_speed.mp4"),
         ]),
     ]
     results = {}
     # 1) SIMULATION pass: takes the heavy-process lock, one run at a time, and
     #    releases it as soon as the traces are saved (~5 min total).  Rendering
     #    never blocks another agent's simulation: it only reads cached traces.
-    with sim_lock("drill suite: 6 short runs"):
+    with sim_lock("drill suite: 7 short runs"):
         for run_tag, cfg_kw, renders in jobs:
             cfg = RunConfig(**cfg_kw)
             res = run(cfg, verbose=True)
@@ -242,26 +481,33 @@ def cmd_suite(a) -> int:
                   f"steps={res.metrics['steps_completed']}", flush=True)
     # 2) RENDER pass: LOCK-FREE (no physics is stepped here).  Priority order:
     #    the rung clip first, then the baseline and one failure clip, then the
-    #    rest -- the last group at diagnostic scale, named *_diag.
+    #    rest -- the last group at diagnostic scale, named *_diag by _final_name.
+    gate_failures = []
     for run_tag, cfg_kw, renders in jobs:
         cfg = RunConfig(**cfg_kw)
         paths = results[run_tag]["paths"]
-        for name, title, t0, t1, caption, scale in renders:
-            if scale < 1.0:
-                name = name.replace(".mp4", "_diag.mp4")
+        for cspec in renders:
+            name = _final_name(cspec["name"], cspec["scale"])
             npz = Path(paths["npz"])
-            meta = _meta_for(npz, name.split("_")[0], title)
-            meta["footer"] = (f"config {npz.name} | one reset, no in-run resets | {caption}")
+            exp = window_expectations(npz, cspec["t0"], cspec["t1"], cspec["speed"])
+            meta = _meta_for(npz, name.split("_")[0], cspec["title"])
+            meta["footer"] = (f"config {npz.name} | one reset, no in-run resets | "
+                              f"{cspec['caption']}")
             r = video_mod.render_trace(video_mod.load_trace(npz), VIDEO / name,
-                                       meta=meta, t0=t0, t1=t1, scale=scale,
+                                       meta=meta, t0=cspec["t0"], t1=cspec["t1"],
+                                       speed=cspec["speed"], scale=cspec["scale"],
                                        sheet_times=tuple(np.linspace(
-                                           t0 + 0.5, float(
-                                               (t1 if t1 else np.load(npz)["t"][-1])) - 0.5, 3)),
-                                       caption=caption)
-            ver = verify_clip(Path(r["mp4"]), expect_s=(t1 or float(
-                np.load(npz)["t"][-1])) - t0, expect_frames=r["frames"])
-            print(f"[suite] rendered {r['mp4']} ({r['frames']} frames) verify={ver}",
-                  flush=True)
+                                           cspec["t0"] + 0.5,
+                                           float(exp["t1_effective"]) - 0.5, 3)),
+                                       caption=cspec["caption"])
+            ver = verify_clip(Path(r["mp4"]), expect_s=exp["expect_s"],
+                              expect_frames=exp["expect_frames"],
+                              speed=cspec["speed"])
+            print(f"[suite] rendered {r['mp4']} ({r['frames']} frames) "
+                  f"verify={json.dumps(ver['measured'])} ok={ver['ok']} "
+                  f"problems={ver['problems']}", flush=True)
+            if not ver["ok"]:
+                gate_failures.append({"clip": name, "problems": ver["problems"]})
             results[run_tag].setdefault("renders", []).append({"name": name, "verify": ver})
             run_blob = json.loads((Path(paths["json"])).read_text())
             rub = rubric_mod.assess(paths["npz"], run_blob)
@@ -271,11 +517,15 @@ def cmd_suite(a) -> int:
                       "provenance": run_blob.get("provenance"),
                       "metrics": run_blob.get("metrics"), "rubric": rub,
                       "rubric_table": rubric_mod.render_table(rub),
-                      "label": title, "caption": caption,
+                      "label": cspec["title"], "caption": cspec["caption"],
                       "clip_verification": ver,
+                      "render": {"t0": cspec["t0"], "t1": cspec["t1"],
+                                 "speed": cspec["speed"], "scale": cspec["scale"],
+                                 "fps": FPS, "frames": r["frames"],
+                                 "window": exp},
+                      "evidence": bool(ver["ok"]),
                       "reproduce": run_blob.get("provenance", {}).get("reproduce"),
-                      "render_command": (f"MUJOCO_GL=egl python scripts/solo_drill_render.py "
-                                         f"render --npz {paths['npz']} --out videos/solo_drill/{name}")}
+                      "render_command": _render_command(paths["npz"], name, cspec)}
             bdir = REPO / "data" / "solo_drill"
             bdir.mkdir(parents=True, exist_ok=True)
             (bdir / (Path(name).stem + ".json")).write_text(
@@ -286,6 +536,15 @@ def cmd_suite(a) -> int:
                       "(no full-drill clip exists)", flush=True)
     (DATA / "suite_summary.json").write_text(json.dumps(results, indent=1, default=str))
     print(json.dumps(results, indent=1, default=str))
+    # EVIDENCE GATE: a clip whose own verification fails is written with
+    # "evidence": false and the suite exits nonzero -- a silently-failing check
+    # can never again coexist with a "verified" claim in the index.
+    if gate_failures:
+        print("[suite] EVIDENCE GATE FAILED (clip is NOT evidence): "
+              f"{json.dumps(gate_failures)}", flush=True)
+        return 1
+    print(f"[suite] evidence gate: all {sum(len(j[2]) for j in jobs)} clips verified",
+          flush=True)
     return 0
 
 
@@ -340,32 +599,24 @@ def cmd_l2suite(a) -> int:
     nbase = _stepping_base(model, ids)
     spec = posture.build_stance(model, posture.StanceSpec(), ids)
     jobs = [
-        # (tag, RunConfig, stance, scheduler, renders)
+        # (tag, RunConfig, stance, scheduler, renders); each render is a
+        # CLIP_SPECS entry (single source of truth for window/speed/text)
         ("L2_ENTRY_SPEC", dict(controller="feasible", rung="L2", seconds=14.0,
                                start="stand", tag="L2_ENTRY_SPEC"), spec, None, [
-            ("L2_isolated_step.mp4", "L2: the first step out of the stand (drill stance base)",
-             0.4, 7.0, "one isolated step: margin-gated lift, world-tracked swing, "
-             "load-gated landing; the rest of the entry is refused on geometry", 1.0)]),
+            clip_spec("L2_isolated_step.mp4")]),
         ("L2_ENTRY_BASE", dict(controller="feasible", rung="L2", seconds=25.0,
                                start="stand", tag="L2_ENTRY_BASE"), nbase, None, [
-            ("final_L2_entry_walk.mp4", "L2: stand -> stepping base, walked",
-             0.4, 16.0, "the entry walk in the base the primitive can use "
-             "(0.25 m wide, 0.06 m deep)", 1.0)]),
+            clip_spec("final_L2_entry_walk.mp4")]),
         ("L2_CYCLE", dict(controller="feasible", rung="L2", seconds=34.0,
                           start="stance", tag="L2_CYCLE"), nbase,
          _l1_plus_step_scheduler(0), [
-            ("L2_cycle_step_diag.mp4", "L2: one step per L1 programme cycle",
-             8.0, 18.0, "level change / rise with one gate-checked step per cycle", 0.5)]),
+            clip_spec("L2_cycle_step_diag.mp4")]),
         ("L2_SHUFFLE", dict(controller="feasible", rung="L2", seconds=34.0,
                             start="stance", tag="L2_SHUFFLE"), nbase, None, [
-            ("L2_shuffle_3steps_diag.mp4", "L2: short shuffle (2-3 steps)",
-             4.0, 18.0, "consecutive single-foot repositions with the settle between", 0.5)]),
+            clip_spec("L2_shuffle_3steps_diag.mp4")]),
         ("L2_STANCE_REFUSED", dict(controller="feasible", rung="L2", seconds=10.0,
                                    start="stance", tag="L2_STANCE_REFUSED"), spec, None, [
-            ("L2_stance_step_refused_diag.mp4",
-             "L2: the drill stance refuses the step (geometry)", 1.0, 8.0,
-             "the same primitive in the 0.495 m stance: every lift needs more CoM "
-             "travel than the robot has; it refuses instead of toppling", 0.5)]),
+            clip_spec("L2_stance_step_refused_diag.mp4")]),
     ]
     results = {}
     with sim_lock("L2 suite"):
@@ -391,18 +642,28 @@ def cmd_l2suite(a) -> int:
                   f"margin_min {results[tag]['margin_min']:+.4f} "
                   f"refusals {results[tag]['refusals']}", flush=True)
     # render pass (lock-free: cached traces only)
+    gate_failures = []
     for tag, cfg_kw, stance, sched, renders in jobs:
         cfg = RunConfig(**cfg_kw)
         paths = results[tag]["paths"]
-        for name, title, t0, t1, caption, scale in renders:
+        for cspec in renders:
+            name = _final_name(cspec["name"], cspec["scale"])
             npz = Path(paths["npz"])
-            meta = _meta_for(npz, name.split("_")[0], title)
-            meta["footer"] = f"config {npz.name} | one reset | {caption}"
+            exp = window_expectations(npz, cspec["t0"], cspec["t1"], cspec["speed"])
+            meta = _meta_for(npz, name.split("_")[0], cspec["title"])
+            meta["footer"] = f"config {npz.name} | one reset | {cspec['caption']}"
             r = video_mod.render_trace(video_mod.load_trace(npz), VIDEO / name,
-                                       meta=meta, t0=t0, t1=t1, scale=scale,
-                                       sheet_times=tuple(np.linspace(t0 + 0.4, t1 - 0.4, 3)),
-                                       caption=caption)
-            ver = verify_clip(Path(r["mp4"]), expect_s=t1 - t0, expect_frames=r["frames"])
+                                       meta=meta, t0=cspec["t0"], t1=cspec["t1"],
+                                       speed=cspec["speed"], scale=cspec["scale"],
+                                       sheet_times=tuple(np.linspace(
+                                           cspec["t0"] + 0.4,
+                                           float(exp["t1_effective"]) - 0.4, 3)),
+                                       caption=cspec["caption"])
+            ver = verify_clip(Path(r["mp4"]), expect_s=exp["expect_s"],
+                              expect_frames=exp["expect_frames"],
+                              speed=cspec["speed"])
+            if not ver["ok"]:
+                gate_failures.append({"clip": name, "problems": ver["problems"]})
             blob = json.loads(Path(paths["json"]).read_text())
             rub = rubric_mod.assess(paths["npz"], blob)
             bundle = {"video": str(VIDEO / name), "contact_sheet": r.get("sheet"),
@@ -410,8 +671,13 @@ def cmd_l2suite(a) -> int:
                       "config": blob.get("config"), "provenance": blob.get("provenance"),
                       "metrics": blob.get("metrics"), "rubric": rub,
                       "rubric_table": rubric_mod.render_table(rub),
-                      "label": title, "caption": caption,
+                      "label": cspec["title"], "caption": cspec["caption"],
                       "clip_verification": ver,
+                      "render": {"t0": cspec["t0"], "t1": cspec["t1"],
+                                 "speed": cspec["speed"], "scale": cspec["scale"],
+                                 "fps": FPS, "frames": r["frames"],
+                                 "window": exp},
+                      "evidence": bool(ver["ok"]),
                       "l2_evidence_notes": results[tag],
                       "reproduce": (f"MUJOCO_GL=egl python scripts/solo_drill_render.py "
                                     f"run --controller feasible --rung {cfg.rung} "
@@ -419,10 +685,16 @@ def cmd_l2suite(a) -> int:
                                     f"--out-tag {cfg.tag}")}
             (REPO / "data" / "solo_drill" / (Path(name).stem + ".json")).write_text(
                 json.dumps(bundle, indent=1, default=str))
-            print(f"[L2] rendered {r['mp4']} verify={ver['ok']} "
-                  f"problems={ver['problems']}", flush=True)
+            print(f"[L2] rendered {r['mp4']} verify={json.dumps(ver['measured'])} "
+                  f"ok={ver['ok']} problems={ver['problems']}", flush=True)
     (DATA / "l2_suite_summary.json").write_text(json.dumps(results, indent=1, default=str))
     print(json.dumps(results, indent=1, default=str))
+    if gate_failures:
+        print("[L2] EVIDENCE GATE FAILED (clip is NOT evidence): "
+              f"{json.dumps(gate_failures)}", flush=True)
+        return 1
+    print(f"[L2] evidence gate: all {sum(len(j[4]) for j in jobs)} clips verified",
+          flush=True)
     return 0
 
 
@@ -500,7 +772,9 @@ def cmd_tracks(a) -> int:
                                    caption=("reference trajectory tracking: the plan is "
                                             "driven by the retargeted track; partial "
                                             "tracking is expected and reported"))
-        ver = verify_clip(Path(r["mp4"]), expect_s=t_end, expect_frames=r["frames"])
+        exp_tr = window_expectations(npz, 0.0, t_end)
+        ver = verify_clip(Path(r["mp4"]), expect_s=exp_tr["expect_s"],
+                          expect_frames=exp_tr["expect_frames"])
         blob = json.loads(Path(paths["json"]).read_text())
         bundle = {"video": str(VIDEO / f"L3_track_{name}_diag.mp4"),
                   "contact_sheet": r.get("sheet"), "trace_npz": paths["npz"],
@@ -545,6 +819,13 @@ class _TrackScheduler:
 # ------------------------------------------------------------ deliverable clip
 DELIVER_SPEC = dict(width=0.30, depth=0.10, reach_cap=0.25, settle_tol=0.026,
                     lean_gain=0.12, v_gate=0.04, pivot_max=0.0)
+
+#: the deliverable clip's claim text (single source: the renderer writes it into
+#: the HUD and the bundle; evidence_check reads it back to check the claims)
+DELIVER_LABEL = "L2 motion: continuous stepping in the drill stance"
+DELIVER_CAPTION = ("rung L2: stance + repeated steps (stalk / backpedal / lateral "
+                   "shuffle); every step is gate-checked on the measured CoM margin")
+DELIVER_SLOWMO_CAPTION = "0.25x: one step cycle (shift, lift, swing, plant, settle)"
 
 
 def deliver_case(model, ids, seconds=95.0, spec_kw=None, tag="L2_MOTION",
@@ -591,6 +872,13 @@ def cmd_deliver(a) -> int:
         res = {"paths": {"npz": str(npz_in), "json": str(npz_in.with_suffix(".json"))},
                "summary": summary, "res": type("R", (), {"trace": trace_in})()}
         a.seconds = float(np.asarray(trace_in["t"])[-1])
+        if not (a.stance_w > 0):
+            print("[deliver] WARNING: rendering a cached trace without --stance-w: "
+                  "the bundle will record the DELIVER_SPEC width "
+                  f"{kw['width']:.2f} m, which need not be the run's own spec "
+                  "(the 2026-10-08 audit: final_L2_motion.json recorded 0.30 m for "
+                  "the M_E28f run whose stance is 0.28 m). Pass the run's width.",
+                  flush=True)
     else:
         with sim_lock("deliverable motion run"):
             spec, sched, res = deliver_case(model, ids, seconds=a.seconds, spec_kw=kw)
@@ -622,14 +910,17 @@ def cmd_deliver(a) -> int:
     # and only then rename over the final name -- a killed render must never
     # leave a partial file occupying the artifact name
     out_name = "final_L2_motion.partial.mp4" if a.safe else "final_L2_motion.mp4"
+    label = DELIVER_LABEL
+    caption = DELIVER_CAPTION
     r = video_mod.render_trace(video_mod.load_trace(npz), VIDEO / out_name,
                                meta=meta, t0=0.0, t1=a.seconds,
+                               label=label,
                                sheet_times=tuple(np.linspace(3.0, a.seconds - 3.0, 3)),
-                               caption=("rung L2: stance + repeated steps (stalk / "
-                                        "backpedal / lateral shuffle); every step is "
-                                        "gate-checked on the measured CoM margin"))
-    ver = verify_clip(Path(r["mp4"]), expect_s=a.seconds, expect_frames=r["frames"])
-    print("[deliver] main clip", ver, flush=True)
+                               caption=caption)
+    exp = window_expectations(npz, 0.0, a.seconds, 1.0)
+    ver = verify_clip(Path(r["mp4"]), expect_s=exp["expect_s"],
+                      expect_frames=exp["expect_frames"])
+    print("[deliver] main clip", json.dumps(ver), flush=True)
     if a.safe:
         if not ver["ok"]:
             print("[deliver] SAFE WRITE ABORTED: verification failed", json.dumps(ver))
@@ -645,15 +936,17 @@ def cmd_deliver(a) -> int:
               f"{ver.get('width')}x{ver.get('height')}, {ver.get('codec_name')}/"
               f"{ver.get('pix_fmt')})", flush=True)
     # 0.25x slow motion of the first complete step cycle
+    slowmo_caption = DELIVER_SLOWMO_CAPTION
     r2 = video_mod.render_trace(video_mod.load_trace(npz),
                                 VIDEO / "L2_motion_slowmo_step_quarter.mp4",
                                 meta=meta, t0=t_first, t1=t_first + 3.4,
-                                speed=0.25, scale=0.5,
+                                speed=0.25, scale=0.5, label=label,
                                 sheet_times=(t_first + 0.2, t_first + 1.7, t_first + 3.2),
-                                caption="0.25x: one step cycle (shift, lift, swing, plant, settle)")
-    ver2 = verify_clip(Path(r2["mp4"]), expect_s=(r2["t1"] - r2["t0"]) / 0.25,
-                       expect_frames=r2["frames"])
-    print("[deliver] slowmo", ver2, flush=True)
+                                caption=slowmo_caption)
+    exp2 = window_expectations(npz, t_first, t_first + 3.4, 0.25)
+    ver2 = verify_clip(Path(r2["mp4"]), expect_s=exp2["expect_s"],
+                       expect_frames=exp2["expect_frames"], speed=0.25)
+    print("[deliver] slowmo", json.dumps(ver2), flush=True)
     rub = rubric_mod.assess(paths["npz"], blob)
     bundle = {"video": str(VIDEO / "final_L2_motion.mp4"), "contact_sheet": r.get("sheet"),
               "slowmo": str(VIDEO / "L2_motion_slowmo_step_quarter.mp4"),
@@ -662,8 +955,16 @@ def cmd_deliver(a) -> int:
               "metrics": blob.get("metrics"), "summary": m,
               "skill_changes": changes, "step_events": step_done,
               "rubric": rub, "rubric_table": rubric_mod.render_table(rub),
+              "label": label, "caption": caption,
               "clip_verification": ver, "slowmo_verification": ver2,
-              "stance_note": (f"stance {kw['width']:.2f} x {kw['depth']:.2f} m: a "
+              "render": {"t0": 0.0, "t1": a.seconds, "speed": 1.0, "scale": 1.0,
+                         "fps": FPS, "frames": r["frames"], "window": exp,
+                         "stance_w": sw, "stance_d": sd},
+              "slowmo_render": {"t0": t_first, "t1": t_first + 3.4, "speed": 0.25,
+                                "scale": 0.5, "fps": FPS, "frames": r2["frames"],
+                                "window": exp2, "caption": slowmo_caption},
+              "evidence": bool(ver["ok"] and ver2["ok"]),
+              "stance_note": (f"stance {sw:.2f} x {sd:.2f} m: a "
                               "documented narrowing from the operator's 0.49 m "
                               "reference -- the crossing CoM travel a lift needs "
                               "grows as half the width, and the measured lateral "
@@ -687,6 +988,11 @@ def cmd_deliver(a) -> int:
                       "margin_min": m["margin_min"], "cadence": m["cadence_s_per_step"],
                       "verify": ver["ok"], "verify_slowmo": ver2["ok"],
                       "skill_changes": changes}, indent=1))
+    if not (ver["ok"] and ver2["ok"]):
+        print("[deliver] EVIDENCE GATE FAILED (clip is NOT evidence): "
+              f"{json.dumps({'main': ver['problems'], 'slowmo': ver2['problems']})}",
+              flush=True)
+        return 1
     return 0
 
 
@@ -851,6 +1157,8 @@ def main(argv=None) -> int:
     d.add_argument("--scale", type=float, default=1.0)
     d.add_argument("--sheet", nargs="*")
     d.add_argument("--caption", default="")
+    d.add_argument("--safe", action="store_true",
+                   help="render to *.partial.mp4, verify, then atomically rename")
     d.set_defaults(func=cmd_render)
 
     p = sub.add_parser("report", help="rubric self-assessment for a run")

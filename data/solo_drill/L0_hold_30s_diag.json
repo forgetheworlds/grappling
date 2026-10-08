@@ -408,22 +408,90 @@
   "n_na": 22
  },
  "rubric_table": "rubric: FINAL_L0_60_feasible_L0_seed0.npz  rung=L0 seed=0  min score=2.0  ship gate=PASS\n  A_stance\n    A1_width             3  0.518                                                        mean lateral foot separation (m); spec >= 0.24 wide\n    A2_base_depth        2  0.247                                                        mean fore-aft foot separation (m); staggered stance (refer\n    A3_knee_bend         3  [0.574, 0.898]                                               mean knee flexion per leg (rad): the crouch comes from the\n    A4_torso_pitch       3  15.2                                                         mean torso tilt from vertical (deg)\n    A5_head_up           3  1.126                                                        mean head site height (m) vs pelvis\n    A6_hands             2  [0.101, 0.22]                                                hand carriage: forward and inside (x forward, |y| small)\n    A7_com_margin        2  0.0296                                                       worst CoM margin inside the support polygon (m)\n    A8_hold              2  {'duration_s': 60.0, 'xy_drift_m': 0.035}                    continuous hold without a fall; the drill stance is held, \n  B_footwork\n    B1_no_slide        n/a  None                                                         n/a: no completed step at rung L0 (stepping is the L2+ com\n    B2_weight_transfer n/a  None                                                         n/a: no completed step at rung L0 (stepping is the L2+ com\n    B3_command_fidelity n/a  None                                                         n/a: no completed step at rung L0 (stepping is the L2+ com\n    B4_cadence         n/a  None                                                         n/a: no completed step at rung L0 (stepping is the L2+ com\n    B5_feet_clear      n/a  None                                                         n/a: no completed step at rung L0 (stepping is the L2+ com\n    B6_posture_moving  n/a  None                                                         n/a: no completed step at rung L0 (stepping is the L2+ com\n  C_level_change\n    C1_drop_depth      n/a  None                                                         n/a: rung L0 has no level-change element (planted-feet hol\n    C2_legs_not_waist  n/a  None                                                         n/a: rung L0 has no level-change element (planted-feet hol\n    C3_margin_in_drop  n/a  None                                                         n/a: rung L0 has no level-change element (planted-feet hol\n    C4_speed           n/a  None                                                         n/a: rung L0 has no level-change element (planted-feet hol\n    C5_reversible      n/a  None                                                         n/a: rung L0 has no level-change element (planted-feet hol\n  D_penetration\n    D1_lead_step       n/a  None                                                         n/a: penetration step not reached at this rung (L4 compone\n    D2_knee_lower      n/a  None                                                         n/a: penetration step not reached at this rung (L4 compone\n    D3_trail_drive     n/a  None                                                         n/a: penetration step not reached at this rung (L4 compone\n    D4_alignment       n/a  None                                                         n/a: penetration step not reached at this rung (L4 compone\n    D5_arms            n/a  None                                                         n/a: penetration step not reached at this rung (L4 compone\n    D6_depth           n/a  None                                                         n/a: penetration step not reached at this rung (L4 compone\n    D7_recoverable     n/a  None                                                         n/a: penetration step not reached at this rung (L4 compone\n  E_recovery\n    E1_return          n/a  None                                                         n/a: penetration step not reached at this rung (L4 compone\n    E2_no_post         n/a  None                                                         n/a: penetration step not reached at this rung (L4 compone\n    E3_time            n/a  None                                                         n/a: penetration step not reached at this rung (L4 compone\n    E4_stability       n/a  None                                                         n/a: penetration step not reached at this rung (L4 compone\n  F_continuity\n    F1_no_resets         3  {'falls': 0, 'resets': 0}                                    one initialisation, zero in-run resets; a fall ends the ru\n    F2_no_stalls         3  0.0                                                          fraction of ticks with no base motion\n    F3_smooth            3  0.0013                                                       95th percentile joint-target change per tick (rad)\n    F4_transitions       2  0.0005                                                       worst reference IK residual (m)\n    F5_repeats           3  8                                                            completed cycles of the element programme\n  G_plausibility\n    G1_mesh_pen          3  -0.0026                                                      worst contact penetration (m); -0.02 is the mesh limit\n    G2_ground_pen        3  -0.0026                                                      ground penetration (m); coarser than the mesh limit\n    G3_foot_slide        3  0.0                                                          worst loaded-foot drift (m)\n    G4_saturation        3  0.0                                                          peak |force| / force range over the run\n    G5_no_glitch         3  {'joint': 0.0391, 'base': 0.0048}                            max per-tick joint (rad) and base (m) change: no pops",
- "label": "rung L0: stance hold + posture modulation",
+ "label": "rung L0: stance hold + posture modulation (t=0-30 s of the 60 s run)",
  "caption": "both feet planted throughout: the rung below the ship candidate",
  "clip_verification": {
   "path": "/home/ubuntu/grappling/videos/solo_drill/L0_hold_30s_diag.mp4",
-  "ok": false,
-  "problems": [
-   "decode failed: cannot convert float infinity to integer"
-  ],
+  "ok": true,
+  "problems": [],
+  "expect": {
+   "seconds": 30.033,
+   "frames": 901,
+   "fps": 30,
+   "speed": 1.0
+  },
   "codec_name": "h264",
   "pix_fmt": "yuv420p",
   "width": 480,
   "height": 360,
   "r_frame_rate": "30/1",
   "nb_frames": "901",
-  "duration": "30.033333"
+  "duration": "30.033333",
+  "mean_luma": [
+   186.0,
+   186.0,
+   185.9,
+   186.0
+  ],
+  "frame_diff": [
+   1.593,
+   0.555,
+   1.309
+  ],
+  "measured": {
+   "duration_s": "30.033333",
+   "frames": 901,
+   "fps": "30/1",
+   "size": "480x360",
+   "mean_luma_min": 185.9,
+   "frame_diff_max": 1.593
+  },
+  "window": {
+   "t0": 0.0,
+   "t1": 30.0,
+   "speed": 1.0,
+   "source": "CLIP_SPECS (renderer spec table)",
+   "t1_effective": 30.0,
+   "trace_end_s": 59.98,
+   "clip_window_s": 30.0
+  },
+  "window_source": "CLIP_SPECS (renderer spec table)"
  },
  "reproduce": "MUJOCO_GL=egl python scripts/solo_drill_render.py run --controller feasible --rung L0 --seconds 60 --seed 0 --start stance --out-tag FINAL_L0_60",
- "render_command": "MUJOCO_GL=egl python scripts/solo_drill_render.py render --npz /home/ubuntu/grappling/data/drill/FINAL_L0_60_feasible_L0_seed0.npz --out videos/solo_drill/L0_hold_30s_diag.mp4"
+ "render_command": "MUJOCO_GL=egl python scripts/solo_drill_render.py render --npz /home/ubuntu/grappling/data/drill/FINAL_L0_60_feasible_L0_seed0.npz --out videos/solo_drill/L0_hold_30s_diag.mp4 --t0 0 --t1 30 --speed 1 --scale 0.5 --title 'rung L0: stance hold + posture modulation (t=0-30 s of the 60 s run)' --caption 'both feet planted throughout: the rung below the ship candidate'",
+ "label_history": [
+  {
+   "label": "rung L0: stance hold + posture modulation",
+   "caption": "both feet planted throughout: the rung below the ship candidate",
+   "replaced": "2026-10-08 by EvidenceFix"
+  }
+ ],
+ "label_correction": "2026-10-08: the label/caption above were refreshed from the renderer's spec table (CLIP_SPECS in scripts/solo_drill_render.py); the previous text is kept in label_history. Note: the artifact's burned-in HUD text was rendered from the OLD text and cannot be changed without a re-render.",
+ "render": {
+  "t0": 0.0,
+  "t1": 30.0,
+  "speed": 1.0,
+  "scale": 0.5,
+  "fps": 30,
+  "frames": "901",
+  "window_source": "CLIP_SPECS (renderer spec table)",
+  "backfilled": "2026-10-08 (window not recorded at render time; recovered from CLIP_SPECS (renderer spec table); corroborated by the artifact duration)"
+ },
+ "clip_verification_history": [
+  {
+   "recorded_before": "2026-10-08",
+   "ok": false,
+   "problems": [
+    "decode failed: cannot convert float infinity to integer"
+   ],
+   "note": "the pre-fix verifier bug (int(inf) on imageio's nframes=inf) recorded false failures; the guard landed in commit 103dcee"
+  }
+ ],
+ "evidence": true,
+ "claim_check": {
+  "checked": "2026-10-08",
+  "status": "evidence",
+  "fails": [],
+  "unverifiable": []
+ }
 }

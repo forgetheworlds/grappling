@@ -431,17 +431,50 @@
  "caption": "the same primitive in the 0.495 m stance: every lift needs more CoM travel than the robot has; it refuses instead of toppling",
  "clip_verification": {
   "path": "/home/ubuntu/grappling/videos/solo_drill/L2_stance_step_refused_diag.mp4",
-  "ok": false,
-  "problems": [
-   "decode failed: cannot convert float infinity to integer"
-  ],
+  "ok": true,
+  "problems": [],
+  "expect": {
+   "seconds": 7.033,
+   "frames": 211,
+   "fps": 30,
+   "speed": 1.0
+  },
   "codec_name": "h264",
   "pix_fmt": "yuv420p",
   "width": 480,
   "height": 360,
   "r_frame_rate": "30/1",
   "nb_frames": "211",
-  "duration": "7.033333"
+  "duration": "7.033333",
+  "mean_luma": [
+   186.0,
+   186.0,
+   186.0,
+   186.0
+  ],
+  "frame_diff": [
+   0.543,
+   0.312,
+   0.254
+  ],
+  "measured": {
+   "duration_s": "7.033333",
+   "frames": 211,
+   "fps": "30/1",
+   "size": "480x360",
+   "mean_luma_min": 186.0,
+   "frame_diff_max": 0.543
+  },
+  "window": {
+   "t0": 1.0,
+   "t1": 8.0,
+   "speed": 1.0,
+   "source": "CLIP_SPECS (renderer spec table)",
+   "t1_effective": 8.0,
+   "trace_end_s": 9.98,
+   "clip_window_s": 7.0
+  },
+  "window_source": "CLIP_SPECS (renderer spec table)"
  },
  "l2_evidence_notes": {
   "paths": {
@@ -463,5 +496,32 @@
    0.276
   ]
  },
- "reproduce": "MUJOCO_GL=egl python scripts/solo_drill_render.py run --controller feasible --rung L2 --seconds 10 --start stance --out-tag L2_STANCE_REFUSED"
+ "reproduce": "MUJOCO_GL=egl python scripts/solo_drill_render.py run --controller feasible --rung L2 --seconds 10 --start stance --out-tag L2_STANCE_REFUSED",
+ "render": {
+  "t0": 1.0,
+  "t1": 8.0,
+  "speed": 1.0,
+  "scale": 0.5,
+  "fps": 30,
+  "frames": "211",
+  "window_source": "CLIP_SPECS (renderer spec table)",
+  "backfilled": "2026-10-08 (window not recorded at render time; recovered from CLIP_SPECS (renderer spec table); corroborated by the artifact duration)"
+ },
+ "clip_verification_history": [
+  {
+   "recorded_before": "2026-10-08",
+   "ok": false,
+   "problems": [
+    "decode failed: cannot convert float infinity to integer"
+   ],
+   "note": "the pre-fix verifier bug (int(inf) on imageio's nframes=inf) recorded false failures; the guard landed in commit 103dcee"
+  }
+ ],
+ "evidence": true,
+ "claim_check": {
+  "checked": "2026-10-08",
+  "status": "evidence",
+  "fails": [],
+  "unverifiable": []
+ }
 }

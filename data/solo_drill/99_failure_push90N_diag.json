@@ -446,19 +446,82 @@
  "caption": "above the measured recovery limit: 20 N recovers, 35 N is marginal, 90 N topples",
  "clip_verification": {
   "path": "/home/ubuntu/grappling/videos/solo_drill/99_failure_push90N_diag.mp4",
-  "ok": false,
-  "problems": [
-   "duration 3.17s vs expected 7.00s",
-   "decode failed: cannot convert float infinity to integer"
-  ],
+  "ok": true,
+  "problems": [],
+  "expect": {
+   "seconds": 3.167,
+   "frames": 95,
+   "fps": 30,
+   "speed": 1.0
+  },
   "codec_name": "h264",
   "pix_fmt": "yuv420p",
   "width": 480,
   "height": 360,
   "r_frame_rate": "30/1",
   "nb_frames": "95",
-  "duration": "3.166667"
+  "duration": "3.166667",
+  "mean_luma": [
+   185.5,
+   185.4,
+   186.0,
+   187.2
+  ],
+  "frame_diff": [
+   1.702,
+   4.949,
+   4.274
+  ],
+  "measured": {
+   "duration_s": "3.166667",
+   "frames": 95,
+   "fps": "30/1",
+   "size": "480x360",
+   "mean_luma_min": 185.4,
+   "frame_diff_max": 4.949
+  },
+  "window": {
+   "t0": 6.0,
+   "t1": 13.0,
+   "speed": 1.0,
+   "source": "CLIP_SPECS (renderer spec table)",
+   "t1_effective": 9.14,
+   "trace_end_s": 9.14,
+   "clip_window_s": 3.14
+  },
+  "window_source": "CLIP_SPECS (renderer spec table)"
  },
  "reproduce": "MUJOCO_GL=egl python scripts/solo_drill_render.py run --controller feasible --rung L1 --seconds 25 --seed 0 --start stance --out-tag FAIL_PUSH90",
- "render_command": "MUJOCO_GL=egl python scripts/solo_drill_render.py render --npz /home/ubuntu/grappling/data/drill/FAIL_PUSH90_feasible_L1_seed0.npz --out videos/solo_drill/99_failure_push90N_diag.mp4"
+ "render_command": "MUJOCO_GL=egl python scripts/solo_drill_render.py render --npz /home/ubuntu/grappling/data/drill/FAIL_PUSH90_feasible_L1_seed0.npz --out videos/solo_drill/99_failure_push90N_diag.mp4 --t0 6 --t1 13 --speed 1 --scale 0.5 --title 'FAILURE: 90 N push' --caption 'above the measured recovery limit: 20 N recovers, 35 N is marginal, 90 N topples'",
+ "render": {
+  "t0": 6.0,
+  "t1": 13.0,
+  "speed": 1.0,
+  "scale": 0.5,
+  "fps": 30,
+  "frames": "95",
+  "window_source": "CLIP_SPECS (renderer spec table)",
+  "backfilled": "2026-10-08 (window not recorded at render time; recovered from CLIP_SPECS (renderer spec table); corroborated by the artifact duration)"
+ },
+ "clip_verification_history": [
+  {
+   "recorded_before": "2026-10-08",
+   "ok": false,
+   "problems": [
+    "duration 3.17s vs expected 7.00s",
+    "decode failed: cannot convert float infinity to integer"
+   ],
+   "note": "the pre-fix verifier bug (int(inf) on imageio's nframes=inf) recorded false failures; the guard landed in commit 103dcee"
+  }
+ ],
+ "evidence": true,
+ "claim_check": {
+  "checked": "2026-10-08",
+  "status": "evidence",
+  "fails": [],
+  "unverifiable": [
+   "push_force: no such push force in this run (cross-run claim: not checkable from this bundle)",
+   "push_force: no such push force in this run (cross-run claim: not checkable from this bundle)"
+  ]
+ }
 }

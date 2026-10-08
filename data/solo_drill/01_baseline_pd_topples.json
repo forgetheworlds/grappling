@@ -433,6 +433,23 @@
   ]
  },
  "reproduce": "MUJOCO_GL=egl python scripts/solo_drill_render.py run --controller stance_pd --rung L1 --seconds 10 --seed 0 --start stance --out-tag BASELINE_PD",
- "render_command": "MUJOCO_GL=egl python scripts/solo_drill_render.py render --npz data/drill/BASELINE_PD_stance_pd_L1_seed0.npz --out videos/solo_drill/01_baseline_pd_topples.mp4",
- "note": "Re-rendered 2026-10-08 by LedgerFix to fix claim-audit defect F1: the clip previously indexed as the topple contrast (01_baseline_stancepd.mp4) was rendered from a DIFFERENT trace, BASE_PD_stance_pd_L1_seed0 (falls=0, pelvis z 0.7235-0.7279 m), which does not topple. THIS clip is rendered from the run that does: BASELINE_PD_stance_pd_L1_seed0, falls=1 at t=8.38 s (pelvis z min 0.299 m)."
+ "render_command": "MUJOCO_GL=egl python scripts/solo_drill_render.py render --npz /home/ubuntu/grappling/data/drill/BASELINE_PD_stance_pd_L1_seed0.npz --out videos/solo_drill/01_baseline_pd_topples.mp4 --t0 0 --speed 1 --scale 1 --title 'baseline: StancePD (no feedback) - TOPPLES' --caption 'baseline: StancePD (no feedback) - the SAME stance pose as the feasible drill; with no feedback the robot TOPPLES at 8.4 s (fall detector fires; pelvis z 0.736 -> 0.299 m)'",
+ "note": "Re-rendered 2026-10-08 by LedgerFix to fix claim-audit defect F1: the clip previously indexed as the topple contrast (01_baseline_stancepd.mp4) was rendered from a DIFFERENT trace, BASE_PD_stance_pd_L1_seed0 (falls=0, pelvis z 0.7235-0.7279 m), which does not topple. THIS clip is rendered from the run that does: BASELINE_PD_stance_pd_L1_seed0, falls=1 at t=8.38 s (pelvis z min 0.299 m).",
+ "render": {
+  "t0": 0.0,
+  "t1": null,
+  "speed": 1.0,
+  "scale": 1.0,
+  "fps": 30,
+  "frames": "252",
+  "window_source": "CLIP_SPECS (renderer spec table)",
+  "backfilled": "2026-10-08 (window not recorded at render time; recovered from CLIP_SPECS (renderer spec table); corroborated by the artifact duration)"
+ },
+ "evidence": true,
+ "claim_check": {
+  "checked": "2026-10-08",
+  "status": "evidence",
+  "fails": [],
+  "unverifiable": []
+ }
 }

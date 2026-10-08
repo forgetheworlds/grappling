@@ -18,7 +18,21 @@ techniques shipped in the same format are included for comparison. Pair counts b
 
 | reference | source | window | duration | frames | pairs | train | val |
 |---|---|---|---|---|---|---|---|
-{CORPUS_TABLE}
+| `stance_hold` | video | 30.4-34.8 s | 4.40 s | 221 | 220 | 154 | 66 |
+| `stance_widen_step` | video | 27.6-30.4 s | 3.60 s | 181 | 180 | 125 | 55 |
+| `level_change_full` | video | 259.7-261.2 s | 2.08 s | 105 | 104 | 72 | 32 |
+| `level_change_fast` | video | 256.9-258.0 s | 1.34 s | 68 | 67 | 46 | 21 |
+| `shot_entry_full` | video | 422.8-431.0 s | 8.20 s | 411 | 410 | 287 | 123 |
+| `shot_recover` | video | 432.5-437.0 s | 7.96 s | 399 | 398 | 278 | 120 |
+| `knee_sprawl_entry` | video | 683.4-686.2 s | 3.36 s | 169 | 168 | 117 | 51 |
+| `knee_sprawl_entry2` | video | 769.5-772.5 s | 6.74 s | 338 | 337 | 235 | 102 |
+| `knee_sprawl_hold` | video | 685.8-690.2 s | 4.40 s | 221 | 220 | 154 | 66 |
+| `knee_sprawl_recover` | video | 779.8-782.2 s | 5.54 s | 278 | 277 | 193 | 84 |
+| `stalk_shuffle` | video | 122.0-131.6 s | 16.82 s | 842 | 841 | 588 | 253 |
+| `circle_step` | video | 178.0-190.0 s | 17.36 s | 869 | 868 | 607 | 261 |
+| `DOUBLE_LEG` | GrappleMap | — | 3.08 s | 155 | 154 | 107 | 47 |
+| `STANCE` | GrappleMap | — | 2.34 s | 118 | 117 | 81 | 36 |
+| **total** | 12 video + 2 GM | — | 82.0 s (video) | 4375 | 4361 | **3044** | **1317** |
 
 **Calibration correction.** The corpus is **4102 video frames (82.0 s @ 50 Hz) + 273 GrappleMap
 frames**, i.e. **4361 pairs** — not "~2.4k frames of 3.6-4.4 s each". Durations span **1.34 s
@@ -71,8 +85,8 @@ rollout, so nothing is lost — but see §6 for the phase finding.
 
 Per reference: pairs `[0, int(0.7*n))` **train**, `[int(0.7*n), n)` **val**; contiguous ranges,
 asserted disjoint on `(reference, frame)` indices (`bc.split_overlap`, test
-`test_time_split_has_zero_overlap_and_is_contiguous`). Table in §1; totals: **{NTR} train /
-{NVAL} val**.
+`test_time_split_has_zero_overlap_and_is_contiguous`). Table in §1; totals: **3044 train /
+1317 val**.
 
 ## 4. BC fit
 

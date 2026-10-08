@@ -7,7 +7,17 @@
 (additive: `joint_mask`, `term_set`, the literature reward inputs),
 `src/solo/train.py` (flags, **all default OFF** — v5's configuration is byte-reproducible).
 **Tests:** `tests/solo/test_lit_reward.py`.
-**Nothing in this file was launched by me.** v5 (`solo-t1-v5`, pid 3196830) was not touched.
+**Nothing in this file was launched by me.** v5 (`solo-t1-v5`, pid 3196830) was not touched —
+the running process imported its modules before any of these edits, and it was never
+signalled, restarted or reconfigured.
+
+**Landable now, flags OFF.** Files: `src/solo/lit.py`, `src/solo/mirror.py`,
+`src/solo/reward.py`, `src/solo/env.py`, `src/solo/train.py`,
+`tests/solo/test_lit_reward.py`, `tests/test_solo.py` (literature inputs added to the shared
+reward hand-state helper). `pytest tests/solo/test_lit_reward.py -q` → **33 passed**;
+`scripts/solo_env_smoke.py smoke` (unmodified peer-owned script) still verifies
+`reward_sum_5s = 248.3`, i.e. v5's reward is byte-unchanged. The frame-stack lever also
+touches `src/solo/train.py` only (single-env path) and refuses loudly on `--n-envs > 1`.
 
 ---
 
@@ -219,7 +229,9 @@ lever (v6g) gated on an observed flattening, not a fix.
 
 Rules applied: every stage is a **single** change on top of the previous stage's best
 checkpoint, never a reward+curriculum or reward+termination bundle; every stage has a
-pre-declared observable, a step budget and a falsifier. **Single-env budget** (v5 measured
+pre-declared observable, a step budget and a falsifier. Each command below is **complete**
+(paste the block as-is; it re-lists everything the run needs, so a stage that is falsified is
+reverted by simply not using its block for the next stage). **Single-env budget** (v5 measured
 ≈265 steps/s with a (256,256) net; the source-shaped (100,50,25) net is faster — measure the
 stage's own rate from its log at 100k and re-project):
 
@@ -266,7 +278,10 @@ to v5 and start from v6b instead. Also falsified if `mean_return_50` *falls* whi
 ### v6b — the joint mask (action space)
 
 ```
-... --reward-set lit --freeze-joints balance --out checkpoints/solo/t1_balance_v6b.pt ...
+MUJOCO_GL=egl .venv/bin/python -m src.solo.train --task balance --steps 1500000 \
+    --rollout-steps 2048 --gamma 0.995 --entropy-coef 0.001 --action-mode residual \
+    --reward-set lit --freeze-joints balance \
+    --out checkpoints/solo/t1_balance_v6b.pt --save-every 50000 --lock off
 ```
 *Single change:* 17 of 29 action dims frozen at the keyframe.
 *Hypothesis:* ~2.3 M parameters of the policy's output are balance-irrelevant; freezing them
@@ -279,10 +294,13 @@ free). Secondary falsifier: `fall_rate` rises (the mask removed a stabilising ar
 ### v6c — the disturbance distribution (train/test magnitude mismatch)
 
 ```
-... --reward-set lit --freeze-joints balance \
+MUJOCO_GL=egl .venv/bin/python -m src.solo.train --task balance --steps 1500000 \
+    --rollout-steps 2048 --gamma 0.995 --entropy-coef 0.001 --action-mode residual \
+    --reward-set lit --freeze-joints balance \
     --push-curriculum off --lit-push interval --lit-push-interval 5.0 \
     --lit-push-min-frac 0.5 --lit-push-max-frac 2.0 --lit-push-cap 12.0 \
-    --lit-push-height 0.95 --lit-push-seed 0 --out checkpoints/solo/t1_balance_v6c.pt ...
+    --lit-push-height 0.95 --lit-push-seed 0 \
+    --out checkpoints/solo/t1_balance_v6c.pt --save-every 50000 --lock off
 ```
 *Single change:* the push distribution: source B's 5 s repeated pushes, magnitude
 `U(0.5,2.0) x J(direction)` clamped to 12 N·s, i.e. the **whole T1 band in every direction**
@@ -302,7 +320,13 @@ cause; stop and re-read the gate calibration rather than extending.
 ### v6d — the PPO mirror loss
 
 ```
-... --mirror-loss-coef 1.0 ... --out checkpoints/solo/t1_balance_v6d.pt
+MUJOCO_GL=egl .venv/bin/python -m src.solo.train --task balance --steps 1500000 \
+    --rollout-steps 2048 --gamma 0.995 --entropy-coef 0.001 --action-mode residual \
+    --reward-set lit --freeze-joints balance \
+    --push-curriculum off --lit-push interval --lit-push-interval 5.0 \
+    --lit-push-min-frac 0.5 --lit-push-max-frac 2.0 --lit-push-cap 12.0 \
+    --lit-push-height 0.95 --lit-push-seed 0 --mirror-loss-coef 1.0 \
+    --out checkpoints/solo/t1_balance_v6d.pt --save-every 50000 --lock off
 ```
 *Single change:* the auxiliary symmetry loss (one extra optimizer step per iteration on
 `mean_j (z_j(s) - [M z(M s)]_j)^2 / (mean z^2 + eps)`, applied after `ppo_update`).
@@ -319,7 +343,13 @@ guessed silently. The coefficient is ours and must be read off the init loss mag
 ### v6e — entropy coefficient 0.0 (own stage, per Main)
 
 ```
-... --entropy-coef 0.0 ... --out checkpoints/solo/t1_balance_v6e.pt
+MUJOCO_GL=egl .venv/bin/python -m src.solo.train --task balance --steps 1000000 \
+    --rollout-steps 2048 --gamma 0.995 --entropy-coef 0.0 --action-mode residual \
+    --reward-set lit --freeze-joints balance \
+    --push-curriculum off --lit-push interval --lit-push-interval 5.0 \
+    --lit-push-min-frac 0.5 --lit-push-max-frac 2.0 --lit-push-cap 12.0 \
+    --lit-push-height 0.95 --lit-push-seed 0 \
+    --out checkpoints/solo/t1_balance_v6e.pt --save-every 50000 --lock off
 ```
 *Single change:* the entropy bonus, source-B-exact (they solved this task family with
 **no** entropy bonus, and the v1 pathology here was an unopposed outward log-std gradient on
@@ -339,7 +369,13 @@ with the exploration failure already diagnosed.
 ### v6f — source-shaped net (100,50,25)
 
 ```
-... --hidden 100,50,25 ... --out checkpoints/solo/t1_balance_v6f.pt
+MUJOCO_GL=egl .venv/bin/python -m src.solo.train --task balance --steps 1500000 \
+    --rollout-steps 2048 --gamma 0.995 --entropy-coef 0.001 --action-mode residual \
+    --hidden 100,50,25 --reward-set lit --freeze-joints balance \
+    --push-curriculum off --lit-push interval --lit-push-interval 5.0 \
+    --lit-push-min-frac 0.5 --lit-push-max-frac 2.0 --lit-push-cap 12.0 \
+    --lit-push-height 0.95 --lit-push-seed 0 \
+    --out checkpoints/solo/t1_balance_v6f.pt --save-every 50000 --lock off
 ```
 *Single change:* the net. Source B's verified architecture is a **(100, tanh, 50, tanh, 25,
 tanh)** policy with a learned log-std and a (100,50,25) ReLU critic; ours is (256,256) and
@@ -355,10 +391,54 @@ change; γ 0.95 is rejected outright (§4).
 ### v6g — gamma (only if a flattening is observed and the horizon is the suspect)
 
 ```
-... --gamma 0.99 ...   # 1.38 s half-life; NOT the default, NOT bundled with anything
+MUJOCO_GL=egl .venv/bin/python -m src.solo.train --task balance --steps 1500000 \
+    --rollout-steps 2048 --gamma 0.99 --entropy-coef 0.001 --action-mode residual \
+    --reward-set lit --freeze-joints balance \
+    --push-curriculum off --lit-push interval --lit-push-interval 5.0 \
+    --lit-push-min-frac 0.5 --lit-push-max-frac 2.0 --lit-push-cap 12.0 \
+    --lit-push-height 0.95 --lit-push-seed 0 \
+    --out checkpoints/solo/t1_balance_v6g.pt --save-every 50000 --lock off
 ```
 *Falsifier:* recovery or stability degrades at 400k (the 2.77 s horizon is what values
 *sustained* standing).
+
+### v6h — partial observability: `--frame-stack 2` — **competing explanation, own stage**
+
+```
+MUJOCO_GL=egl .venv/bin/python -m src.solo.train --task balance --steps 1000000 \
+    --rollout-steps 2048 --gamma 0.995 --entropy-coef 0.001 --action-mode residual \
+    --frame-stack 2 --out checkpoints/solo/t1_balance_v6h.pt \
+    --save-every 50000 --lock off
+```
+*Single change:* the observation history (1 -> 2 frames; the input widens to
+2 x 115 = 230 for the actor and 158 + 115 = 273 for the critic).  Nothing else.
+*Why this is a real competing explanation, grounded:* the observation our actor gets today
+is **memoryless** — `ACTOR_LAYOUT` = base linear velocity (3), base angular velocity (3),
+gravity direction (3), joint positions relative to the keyframe (29), joint velocities (29),
+**previous action** (29), command velocity (3), command stance (2), skill one-hot (10),
+lead leg (1), phase (1).  Present: positions, velocities, previous action, command.
+**Absent: contact state (feet/knees/hands/dorsal), the CoM position and velocity, the support
+centre, tilt, pelvis height, the next push, foot slip, saturation, joint-limit proximity,
+any history beyond one action.**  Those absent fields live in the *privileged* block, which
+only the critic sees — so the value function can measure the CoM offset while the policy
+cannot.  Source A's controller is a (64,64) **LSTM** on the same observation set, and
+T1GateCal/TeacherDataAudit measured that our hand-built balancer's behaviour depends on
+integrator/rate-limiter state that is not observable from a single frame.  A memoryless
+policy may simply be being asked for a non-Markov function.
+*First observable (200k ≈ 10 min — the shortest useful budget, this is a probe not a
+training run):* the no-push probe is unchanged but `mean_upright` on the non-stepping subset
+is at least v5's at the same step count, and the entropy stays below v5's trajectory;
+falsifier: no better than the memoryless run at 400k ⇒ the missing information is *state*
+(not history) and the fix is an observation change, not a stack.
+*Cost:* one flag, no new parameters beyond a wider first layer
+(2 x 115 -> 100 vs 115 -> 100).  **If frame stacking is not enough I would NOT implement a
+recurrent policy yet.**  The design I would use: a GRU/LSTM encoder (64,64) on the actor obs
+per step with the rollout storing per-step hidden states and PPO's GAE computed on sequences
+(burn-in + truncated BPTT over the rollout, minibatch = whole episodes).  Cost: the trainer
+becomes sequential per step (no per-step batching), the checkpoint gains hidden state,
+`ActorCritic` grows an encoder path, and the vec backend must carry sequence boundaries —
+that is a multi-day change to `src/rl`, not a flag.  Frame stacking is the cheap probe first
+because it keeps PPO's per-transition structure exactly as it is and needs one parameter.
 
 ---
 
@@ -399,7 +479,70 @@ against a 14 ms step (≈1 % of an environment step)** on the loaded box. **v5's
 process is untouched by any of this**: it imported the modules at start-up, so the edits
 cannot reach it, and `solo-t1-v5` was never signalled, restarted or reconfigured.
 
-## 7. Which lever I expect to matter most (honest call)
+## 8. Test evidence
+
+`tests/solo/test_lit_reward.py` — new file, **33 tests, 33 passed** (`pytest tests/solo/test_lit_reward.py -q`,
+13.7 s), each asserting numbers on hand-constructed states. Highlights and the numbers they pin:
+
+| test | what it pins (numbers) |
+|---|---|
+| `test_ceiling_matches_the_model_and_is_direction_dependent` | m 33.341142, z_c 0.691852, hull 0.170 x 0.29701, support centre x 0.035484, dCOP/J at 0/45/90/135/180°, `J = m dCOP sqrt(g/z_c)` to 1e-12 |
+| `test_ceiling_from_hull_arithmetic_on_a_hand_hull` | centred 0.2 m square, m=10, z=1, g=10 ⇒ dCOP 0.1, J = 10*0.1*sqrt(10); an off-centre CoM ⇒ 0.05 / 0.15; an outside CoM ⇒ 0 |
+| `test_support_centre_is_the_hull_area_centroid` | the real trapezoid footprint ⇒ 0.0354852 (0.5 mm off the vertex mean 0.035); a trapezoid where the vertex mean is 5.6 cm off; loaded-foot-only and NaN-when-airborne cases |
+| `test_com_support_...` | 1.0 at the hull centre, `e^-1` at a 0.08 m offset, monotone toward the border, gated by uprightness (x0.5), 0.0 when airborne |
+| `test_capture_point_matches_the_cp_implied_velocity` | tau(z_c=0.6919) = 0.2655750 s, v* = 0.1336166 m/s, term 1.0 exactly at the CP-implied velocity, `x_CP == support centre`, 0.8200661 at v=0, 0.4522676 at −v*, sqrt(z) scaling, 0 when airborne/zero-height |
+| `test_grf_even_...` | 1.0 at equal loads, e^-1 at a 75/25 split, e^-4 when one foot carries all, 0.0 with no load |
+| `test_airtime_penalty_fires_once_per_touchdown` | 0 with no touchdown, 0.0 at t_air = 0.4, −0.4 at 0.0, +0.1 at 0.5, −0.8 for both feet (== `PENALTY_MARGIN`), weight 1.0 |
+| `test_orientation_and_base_height_use_the_source_forms` | `e^{-30 tilt²}`: 1.0 / 0.4009766 (10°) / 0.0020753 (26°); `e^{-20|Δpz|}`: 1.0 / 0.36788 (both ±0.05 m); weights 0.20 and 0.05 |
+| `test_smoothing_and_survival_terms` | upright 1.0/0.3; `e^{-5|v|}` 1.0/0.36788; `e^{-0.02 sum|Δa|}` = 0.94365 for 29x0.1; `e^{-0.02 mean|tau|/50}`; arm 0.36788 at 1/3 rad; weights |
+| `test_every_lit_term_is_logged_and_the_total_is_the_weighted_sum` | exact lit totals 1.9162859 (hand state) and 1.97 (CoM on the centre) |
+| `test_lit_set_has_no_double_foot_contact_requirement` | no contact term in the set; the shipped balance set has none either; breaking contact costs 0.0490842 (GRF) and 0.2687284 (whole single-support change) vs a −100 fall |
+| `test_mask_freezes_the_frozen_joints_through_the_real_step_path` | 12 active / 17 frozen; `data.ctrl[frozen] == keyframe` **exactly** in residual **and** absolute mode; active joints move > 0.1 rad; the env config echoes the mask |
+| `test_eval_and_training_build_the_same_mask_from_the_same_source` | factory/env/checkpoint agree; the trainer's env carries the same dict; `term_set` recorded |
+| `test_mirror_map_is_the_geometric_mirror_on_the_real_model` | mirrored perturbed qpos puts every `left` body where the mirrored `right` body is (< 1e-4 m over 13 body pairs, two random perturbations); roll/yaw signs |
+| `test_mirror_maps_are_involutions_and_the_loss_is_zero_when_symmetric` | involution; loss 0.0 for a symmetric bias, **exactly 2.0** for `z = e_0`, 0.0 after mirroring the bias; one SGD step reduces it |
+| `test_push_mode_bernoulli_rate_and_zero_probability` | 350 control steps; p=0.01 ⇒ mean 3.5 pushes/episode within 10 % over 200 episodes; p=0 within 20 episodes; p=1 ⇒ 350; single-timestep duration |
+| `test_push_mode_interval_spacing` | t = 1.0/6.0/11.0 at 5 s; 1/3/5/7 at 2 s; jitter bound; control-step grid |
+| `test_push_magnitudes_follow_the_directional_ceiling` | every frac in [0.5, 2.0]; mean 1.25 ± 0.06; the weak direction means 8.36 N·s vs the lateral 22.75; all 8 directions appear; cap binds; determinism |
+| `test_capped_and_uncapped_push_modes_share_the_ceiling` | 2 x J(180°) = 13.38 < 16 < 2 x J(45°) = 41.45 |
+| `test_gamma_half_life_table` | 2.7657 s (ours) / 0.5405 s (source B) / 0.2703 s (B's gamma at 50 Hz); ratio 5.117 |
+| `test_v5_configuration_is_untouched_by_the_literature_work` | `TASK_TERMS["balance"]`, `RewardWeights()` defaults, gamma 0.995, a default env has no mask/term set |
+| `test_penalty_invariant_holds_for_every_term_set` | old rule `alive > Σ` for all 6 task families, new rule `upright 1.0 > 0.8` for the lit set, both raise cases |
+| `test_lit_flags_parse_and_are_listed` / `test_lit_ceiling_flag_...` | every new flag is in `--help` (and no v5 flag was lost); `--lit-ceiling` prints 14.653 / 33.341142 / n_frozen 17 |
+| `test_lit_burst_runs_end_to_end_through_the_trainer` | 128 real trainer steps with all lit flags: term set recorded, 17 frozen, lit pushes installed and capped, mirror loss reported, checkpoint saved |
+| `test_lit_push_and_v5_are_mutually_exclusive_where_it_matters` | a lit-push run does **not** inherit the v5 ramp; all new defaults are off |
+| `test_lit_weight_overrides_are_validated` | a bad `--lit-weight NAME=VALUE` exits non-zero; `grf_even=0` reaches the weights |
+| `test_lit_curriculum_adapter_is_what_the_vec_backend_calls` | the `schedule_for(steps, seed)` shape the vec backend uses; no ramp; per-worker schedules differ, reproducible; `as_dict` carries the ceiling |
+| `test_frame_stack_widens_the_input_and_stacks_oldest_first` | N frames: actor in 3x115, critic 158+2x115; oldest-first order pinned on synthetic frames; reset re-seeds (no stale frames cross an episode boundary); `--n-envs 2` + N>1 refuses to run |
+| `test_env_feeds_the_literature_inputs_in_one_frame` | the env's lit inputs are physical and world-frame: com_z 0.60–0.75 m, sole spheres on the mat, foot loads ≈ m g (±2x), mass-weighted CoM velocity |
+
+Independent check that v5's configuration is untouched: the **unmodified** S1 harness script
+`scripts/solo_env_smoke.py smoke` still prints its own verification
+(`reward_sum_5s` = 248.3, i.e. ≈1.0/step for the default balance set, `stand_pelvis_z`
+0.79–0.7916, no termination) — the same values as before this work.
+
+`tests/test_solo.py` (the S1 harness suite) gained the literature inputs in its shared
+`_upright` hand state plus `good`/`bad`/`delta` entries for the 11 new terms, so its contract
+("every term in `TERM_FUNCS` ranks a genuine state above its degenerate counterpart") now
+covers the new terms too — the assertion was **strengthened, not relaxed**.
+
+**Attributed failures in the current working tree** (none of them mine; all pre-date or
+post-date my change):
+* `tests/test_solo.py::test_push_schedule_battery_deterministic` (line 360) and
+  `::test_push_curriculum_ramp_and_held_out_boundary` (line 890) assert "held-out magnitudes
+  are strictly above `TRAIN_MAX_IMPULSE`". That is stale after the in-flight R2b redefinition
+  in `eval.py` ("held-out = off-training *heights* inside the in-band magnitudes"), which makes
+  the held-out set contain 4 N·s pushes. Whoever owns the split must update these two.
+* `tests/test_solo.py::test_eval_run_not_certified_for_stand_hold` asserts the balance gate's
+  reasons contain `max_recoverable_impulse` — stale after the same split removed that
+  criterion from `GATES["balance"]`.
+* `tests/solo/test_bc.py` — 1 failure + 5 errors: `data/solo/bc/bc_metrics.json` does not
+  exist yet (ImitationBC's training artifacts are not generated).
+* `tests/solo/test_vec_solo.py::test_env_construction_kwargs_reach_workers` — `NameError:
+  joint_mask`, caught mid-edit in SoloVec's in-flight vec work (they are adding exactly the
+  pass-through this work needs).
+
+## 9. Which lever I expect to matter most (honest call)
 
 **v6a, the reward term set.** The evidence: with *no push at all* the v5-era policy collapsed
 on its own training distribution (`mean_upright` 0.13 / −0.17 / 0.16 on a 2 s deterministic
@@ -413,10 +556,29 @@ Second most likely: **v6c** (disturbance distribution) — not because recovery 
 blocker, but because after v6a/v6b produce a policy that can hold a stand, the gate's push
 criteria are the only ones left that no run has ever moved off zero.
 
-The biggest uncertainty I would name: the `com_support`/`capture_point` geometry terms are
-computed against the **hull area centroid** (3.2 cm forward of the keyframe CoM), while the
-gate's `com_offset` metric is measured against the mean of the two foot sites (3.5 cm
-*behind* the centroid). If the policy learns to satisfy my terms by leaning forward, the two
-numbers will disagree by ~3 cm and the gate read may not move as much as the reward does.
-That is checkable at the first 400k read (`com_offset_max` plus the new pelvis-x drift), and
-it is the one place where a stricter, metric-matched target would be the next fix.
+**Which single stage I would run FIRST, and why.** **v6a (the lit reward set).** Two pieces of
+evidence from our own runs, not from a paper: (i) v5 degraded *from a standing initialisation*
+— the policy started as `a_stand` (the startup check measured 2.6 mrad) and moved to a
+limb-supported crouch on its own training distribution; (ii) the gate's own reference
+(`stand_hold`, a static controller) scores `mean_upright` 0.913 on the non-stepping subset
+while our policy scores 0.665, so the gap is not push recovery — it is holding the stand. A
+policy that abandons a stable equilibrium it was initialised in is missing a *signal* about
+where the equilibrium is; that is what the CoM/support/capture-point/orientation terms supply
+and nothing else in our current reward set does.
+
+**Competing explanations for any v6 result**, recorded so a positive result cannot be
+attributed by default: (1) **reward scale** (the lit set's per-step total is 1.97 vs v5's
+10.0 with `--alive-weight 10` — a scale change alone can change PPO's effective step size and
+value-loss calibration; the diagnostic is `value_loss` and the return curve, and the control
+is the same stage with `--lit-weight upright=5`); (2) **reward alignment** (the lit terms
+target the hull centroid while the gate's `com_offset` is measured against the foot-site
+mean, 3.5 cm apart — §7); (3) **the disturbance distribution** (v6c; the mismatch is real but
+it cannot explain a no-push collapse); (4) **partial observability** (v6h; the actor cannot
+see contacts, the CoM or the support centre, and source A's policy is an LSTM); (5) **the
+optimiser/entropy pathology** already diagnosed (v6e); (6) **capacity/architecture** (v6f).
+Each has its own stage so the attribution is a measurement, not an argument.
+
+**The honest uncertainty I would name first**: whether the gate's non-stepping subset
+(4/8/12 N·s) is inside the *policy's* reachable envelope at all given a memoryless 115-dim
+observation — the ceiling says 4-12 N·s is resistible *with full state feedback*, and the
+hand-built balancer that does it reads hidden state our actor does not have.

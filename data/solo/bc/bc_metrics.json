@@ -1,0 +1,1127 @@
+{
+  "generated": "2026-10-08T15:29:36",
+  "corpus": {
+    "video_refs": [
+      "stance_hold",
+      "stance_widen_step",
+      "level_change_full",
+      "level_change_fast",
+      "shot_entry_full",
+      "shot_recover",
+      "knee_sprawl_entry",
+      "knee_sprawl_entry2",
+      "knee_sprawl_hold",
+      "knee_sprawl_recover",
+      "stalk_shuffle",
+      "circle_step"
+    ],
+    "grapplemap_refs": [
+      "DOUBLE_LEG",
+      "STANCE"
+    ],
+    "used": [
+      "stance_hold",
+      "stance_widen_step",
+      "level_change_full",
+      "level_change_fast",
+      "shot_entry_full",
+      "shot_recover",
+      "knee_sprawl_entry",
+      "knee_sprawl_entry2",
+      "knee_sprawl_hold",
+      "knee_sprawl_recover",
+      "stalk_shuffle",
+      "circle_step",
+      "DOUBLE_LEG",
+      "STANCE"
+    ],
+    "n": 4361,
+    "n_train": 3044,
+    "n_val": 1317,
+    "train_frac": 0.7,
+    "split": {
+      "stance_hold": {
+        "n": 220,
+        "train": [
+          0,
+          154
+        ],
+        "val": [
+          154,
+          220
+        ],
+        "pairs_accounted": 220,
+        "source": "/home/ubuntu/grappling/data/refs_video/stance_hold.npz",
+        "duration_s": 4.4,
+        "frames_src": 221
+      },
+      "stance_widen_step": {
+        "n": 180,
+        "train": [
+          0,
+          125
+        ],
+        "val": [
+          125,
+          180
+        ],
+        "pairs_accounted": 180,
+        "source": "/home/ubuntu/grappling/data/refs_video/stance_widen_step.npz",
+        "duration_s": 3.6,
+        "frames_src": 181
+      },
+      "level_change_full": {
+        "n": 104,
+        "train": [
+          0,
+          72
+        ],
+        "val": [
+          72,
+          104
+        ],
+        "pairs_accounted": 104,
+        "source": "/home/ubuntu/grappling/data/refs_video/level_change_full.npz",
+        "duration_s": 2.08,
+        "frames_src": 105
+      },
+      "level_change_fast": {
+        "n": 67,
+        "train": [
+          0,
+          46
+        ],
+        "val": [
+          46,
+          67
+        ],
+        "pairs_accounted": 67,
+        "source": "/home/ubuntu/grappling/data/refs_video/level_change_fast.npz",
+        "duration_s": 1.34,
+        "frames_src": 68
+      },
+      "shot_entry_full": {
+        "n": 410,
+        "train": [
+          0,
+          287
+        ],
+        "val": [
+          287,
+          410
+        ],
+        "pairs_accounted": 410,
+        "source": "/home/ubuntu/grappling/data/refs_video/shot_entry_full.npz",
+        "duration_s": 8.2,
+        "frames_src": 411
+      },
+      "shot_recover": {
+        "n": 398,
+        "train": [
+          0,
+          278
+        ],
+        "val": [
+          278,
+          398
+        ],
+        "pairs_accounted": 398,
+        "source": "/home/ubuntu/grappling/data/refs_video/shot_recover.npz",
+        "duration_s": 7.96,
+        "frames_src": 399
+      },
+      "knee_sprawl_entry": {
+        "n": 168,
+        "train": [
+          0,
+          117
+        ],
+        "val": [
+          117,
+          168
+        ],
+        "pairs_accounted": 168,
+        "source": "/home/ubuntu/grappling/data/refs_video/knee_sprawl_entry.npz",
+        "duration_s": 3.36,
+        "frames_src": 169
+      },
+      "knee_sprawl_entry2": {
+        "n": 337,
+        "train": [
+          0,
+          235
+        ],
+        "val": [
+          235,
+          337
+        ],
+        "pairs_accounted": 337,
+        "source": "/home/ubuntu/grappling/data/refs_video/knee_sprawl_entry2.npz",
+        "duration_s": 6.74,
+        "frames_src": 338
+      },
+      "knee_sprawl_hold": {
+        "n": 220,
+        "train": [
+          0,
+          154
+        ],
+        "val": [
+          154,
+          220
+        ],
+        "pairs_accounted": 220,
+        "source": "/home/ubuntu/grappling/data/refs_video/knee_sprawl_hold.npz",
+        "duration_s": 4.4,
+        "frames_src": 221
+      },
+      "knee_sprawl_recover": {
+        "n": 277,
+        "train": [
+          0,
+          193
+        ],
+        "val": [
+          193,
+          277
+        ],
+        "pairs_accounted": 277,
+        "source": "/home/ubuntu/grappling/data/refs_video/knee_sprawl_recover.npz",
+        "duration_s": 5.54,
+        "frames_src": 278
+      },
+      "stalk_shuffle": {
+        "n": 841,
+        "train": [
+          0,
+          588
+        ],
+        "val": [
+          588,
+          841
+        ],
+        "pairs_accounted": 841,
+        "source": "/home/ubuntu/grappling/data/refs_video/stalk_shuffle.npz",
+        "duration_s": 16.82,
+        "frames_src": 842
+      },
+      "circle_step": {
+        "n": 868,
+        "train": [
+          0,
+          607
+        ],
+        "val": [
+          607,
+          868
+        ],
+        "pairs_accounted": 868,
+        "source": "/home/ubuntu/grappling/data/refs_video/circle_step.npz",
+        "duration_s": 17.36,
+        "frames_src": 869
+      },
+      "DOUBLE_LEG": {
+        "n": 154,
+        "train": [
+          0,
+          107
+        ],
+        "val": [
+          107,
+          154
+        ],
+        "pairs_accounted": 154,
+        "source": "/home/ubuntu/grappling/data/refs/DOUBLE_LEG.npz",
+        "duration_s": 3.08,
+        "frames_src": 155
+      },
+      "STANCE": {
+        "n": 117,
+        "train": [
+          0,
+          81
+        ],
+        "val": [
+          81,
+          117
+        ],
+        "pairs_accounted": 117,
+        "source": "/home/ubuntu/grappling/data/refs/STANCE.npz",
+        "duration_s": 2.34,
+        "frames_src": 118
+      }
+    },
+    "overlap_pairs": 0,
+    "actor_slice": [
+      0,
+      96
+    ],
+    "mapping": "ctrl_k = clip(q_ref[k+1, 7:36], lo, hi); u_k = (ctrl_k - mid)/half"
+  },
+  "config": {
+    "hidden": [
+      128,
+      128
+    ],
+    "lr": 0.001,
+    "epochs": 300,
+    "batch_size": 128,
+    "seed": 0,
+    "weight_decay": 0.0001,
+    "eval_every": 20,
+    "torch_threads": 2
+  },
+  "history": [
+    {
+      "epoch": 20,
+      "train_mse": 0.0008376560460116403,
+      "train_mae_rad": 0.01780269667506218,
+      "val_mae_rad": 0.07944253832101822
+    },
+    {
+      "epoch": 40,
+      "train_mse": 0.00046928314744339633,
+      "train_mae_rad": 0.012783222831785679,
+      "val_mae_rad": 0.047557611018419266
+    },
+    {
+      "epoch": 60,
+      "train_mse": 0.00042633096139373566,
+      "train_mae_rad": 0.011659946292638779,
+      "val_mae_rad": 0.03454335778951645
+    },
+    {
+      "epoch": 80,
+      "train_mse": 0.0004059374562833303,
+      "train_mae_rad": 0.01110790204256773,
+      "val_mae_rad": 0.030101682990789413
+    },
+    {
+      "epoch": 100,
+      "train_mse": 0.00037078459475499886,
+      "train_mae_rad": 0.010756819508969784,
+      "val_mae_rad": 0.0285737793892622
+    },
+    {
+      "epoch": 120,
+      "train_mse": 0.00037559011495128897,
+      "train_mae_rad": 0.010858606547117233,
+      "val_mae_rad": 0.028229163959622383
+    },
+    {
+      "epoch": 140,
+      "train_mse": 0.0003470789233688265,
+      "train_mae_rad": 0.010384615510702133,
+      "val_mae_rad": 0.027374647557735443
+    },
+    {
+      "epoch": 160,
+      "train_mse": 0.00032500096858711913,
+      "train_mae_rad": 0.010122389532625675,
+      "val_mae_rad": 0.02739129029214382
+    },
+    {
+      "epoch": 180,
+      "train_mse": 0.000358565010780391,
+      "train_mae_rad": 0.01088068075478077,
+      "val_mae_rad": 0.0274959784001112
+    },
+    {
+      "epoch": 200,
+      "train_mse": 0.0003463498566513105,
+      "train_mae_rad": 0.01056031696498394,
+      "val_mae_rad": 0.027826307341456413
+    },
+    {
+      "epoch": 220,
+      "train_mse": 0.00034349217457929626,
+      "train_mae_rad": 0.010815033689141273,
+      "val_mae_rad": 0.027977507561445236
+    },
+    {
+      "epoch": 240,
+      "train_mse": 0.00032132677733898163,
+      "train_mae_rad": 0.010288736782968044,
+      "val_mae_rad": 0.028066391125321388
+    },
+    {
+      "epoch": 260,
+      "train_mse": 0.0003120326109637972,
+      "train_mae_rad": 0.010331012308597565,
+      "val_mae_rad": 0.02745162323117256
+    },
+    {
+      "epoch": 280,
+      "train_mse": 0.00033287650876445696,
+      "train_mae_rad": 0.01039070077240467,
+      "val_mae_rad": 0.028078287839889526
+    },
+    {
+      "epoch": 300,
+      "train_mse": 0.00032599705931109685,
+      "train_mae_rad": 0.010769268497824669,
+      "val_mae_rad": 0.02824241667985916
+    }
+  ],
+  "best": {
+    "epoch": 140,
+    "val_mae_rad": 0.027374647557735443
+  },
+  "train": {
+    "per_joint_rad": [
+      0.016892036657967575,
+      0.016328210935034036,
+      0.007851158549027253,
+      0.010490640459919135,
+      0.008909116056587762,
+      0.022577903539412237,
+      0.03029512379298258,
+      0.016766012791024448,
+      0.008916698579105868,
+      0.014104396321742473,
+      0.013622166035039901,
+      0.014139265466395616,
+      0.006056026686853632,
+      0.013859449336420377,
+      0.03131029561655561,
+      0.012190138554947653,
+      0.00790378082914006,
+      0.006904387904552004,
+      0.00840996461328123,
+      2.9034428732664544e-05,
+      0.00038426614195541365,
+      5.260255359518649e-06,
+      0.009501866321617616,
+      0.006991772581552799,
+      0.006545290958935179,
+      0.009428524712445482,
+      0.0005623651853218708,
+      1.4648742034419117e-05,
+      0.00016403085303695467
+    ],
+    "mean_rad": 0.010384614927826944,
+    "n_train": 3044
+  },
+  "validation": {
+    "bc": {
+      "per_joint_rad": [
+        0.053655769120893454,
+        0.045571321925643296,
+        0.01802170370121832,
+        0.030642329953750616,
+        0.018129153250324586,
+        0.035061761085060816,
+        0.12711765807622172,
+        0.05308474518937418,
+        0.027475990134709315,
+        0.045291336231535806,
+        0.027840405867846564,
+        0.03479843948565413,
+        0.020075494457311938,
+        0.033618139067625966,
+        0.04249707510788067,
+        0.02702993333772185,
+        0.018016966116735825,
+        0.01905578333432472,
+        0.021196432234427666,
+        3.408512175021708e-05,
+        0.0004404443469095179,
+        6.4736259402661486e-06,
+        0.03768095504040625,
+        0.018100930238686048,
+        0.020238416811393708,
+        0.018395917289598683,
+        0.0005441576392162791,
+        1.4297960251111669e-05,
+        0.00022864174709758778
+      ],
+      "mean_rad": 0.027374646810327967
+    },
+    "stand_baseline_rad": {
+      "per_joint_rad": [
+        1.2484736623109831,
+        0.22759649355686962,
+        0.29756035726263413,
+        1.2590455259343138,
+        0.16406829654752408,
+        0.22135606215599266,
+        1.5402968175815226,
+        0.3131989313755086,
+        0.28360182929673133,
+        1.2237816820535639,
+        0.2543631460713293,
+        0.17864313510421753,
+        0.15841465016885845,
+        0.18368342859451645,
+        0.3194914612834527,
+        1.0525572748507137,
+        0.21598864243333338,
+        0.34832776391032777,
+        0.6291800893235292,
+        0.0,
+        0.0,
+        0.0,
+        1.0415327717311071,
+        0.1766729431958485,
+        0.37673469064304005,
+        0.5326696106489703,
+        0.0,
+        0.0,
+        0.0
+      ],
+      "mean_rad": 0.4223185953805134
+    },
+    "mean_baseline_rad": {
+      "per_joint_rad": [
+        0.44442994954080567,
+        0.2324550899438499,
+        0.2568959079418474,
+        0.4500889932750223,
+        0.17701577736715918,
+        0.058304804317518055,
+        0.8844423999028019,
+        0.33028665535068846,
+        0.27779088297244825,
+        0.4944796896307918,
+        0.2610060337169616,
+        0.1782305209571916,
+        0.15840097670156664,
+        0.18583776158471063,
+        0.3155738312420261,
+        0.30269455508251053,
+        0.2114651926871159,
+        0.1862942311167924,
+        0.3718571044333197,
+        0.0,
+        0.0,
+        0.0,
+        0.3245558294311644,
+        0.17123564599806024,
+        0.3388082979565029,
+        0.23047922694636996,
+        0.0,
+        0.0,
+        0.0
+      ],
+      "mean_rad": 0.23595273648611126
+    },
+    "margins": {
+      "vs_stand_factor": 15.427362343947397,
+      "vs_mean_factor": 8.619389251703167,
+      "reduction_vs_stand": 0.9351801054706977
+    },
+    "n_val": 1317
+  },
+  "phase_report": {
+    "stance_hold": {
+      "min": 0.0,
+      "max": 0.0,
+      "n_unique": 1,
+      "constant": true,
+      "skill_onehot_argmax": 0
+    },
+    "stance_widen_step": {
+      "min": 0.0,
+      "max": 0.0,
+      "n_unique": 1,
+      "constant": true,
+      "skill_onehot_argmax": 0
+    },
+    "level_change_full": {
+      "min": 0.0,
+      "max": 0.0,
+      "n_unique": 1,
+      "constant": true,
+      "skill_onehot_argmax": 0
+    },
+    "level_change_fast": {
+      "min": 0.0,
+      "max": 0.0,
+      "n_unique": 1,
+      "constant": true,
+      "skill_onehot_argmax": 0
+    },
+    "shot_entry_full": {
+      "min": 0.0,
+      "max": 0.0,
+      "n_unique": 1,
+      "constant": true,
+      "skill_onehot_argmax": 0
+    },
+    "shot_recover": {
+      "min": 0.0,
+      "max": 0.0,
+      "n_unique": 1,
+      "constant": true,
+      "skill_onehot_argmax": 0
+    },
+    "knee_sprawl_entry": {
+      "min": 0.0,
+      "max": 0.0,
+      "n_unique": 1,
+      "constant": true,
+      "skill_onehot_argmax": 0
+    },
+    "knee_sprawl_entry2": {
+      "min": 0.0,
+      "max": 0.0,
+      "n_unique": 1,
+      "constant": true,
+      "skill_onehot_argmax": 0
+    },
+    "knee_sprawl_hold": {
+      "min": 0.0,
+      "max": 0.0,
+      "n_unique": 1,
+      "constant": true,
+      "skill_onehot_argmax": 0
+    },
+    "knee_sprawl_recover": {
+      "min": 0.0,
+      "max": 0.0,
+      "n_unique": 1,
+      "constant": true,
+      "skill_onehot_argmax": 0
+    },
+    "stalk_shuffle": {
+      "min": 0.0,
+      "max": 0.0,
+      "n_unique": 1,
+      "constant": true,
+      "skill_onehot_argmax": 0
+    },
+    "circle_step": {
+      "min": 0.0,
+      "max": 0.0,
+      "n_unique": 1,
+      "constant": true,
+      "skill_onehot_argmax": 0
+    },
+    "DOUBLE_LEG": {
+      "min": 0.0,
+      "max": 0.0,
+      "n_unique": 1,
+      "constant": true,
+      "skill_onehot_argmax": 0
+    },
+    "STANCE": {
+      "min": 0.0,
+      "max": 0.0,
+      "n_unique": 1,
+      "constant": true,
+      "skill_onehot_argmax": 0
+    }
+  },
+  "ambiguity": {
+    "exclude_frames": 25,
+    "material_rad": 0.25,
+    "per_ref": {
+      "stance_hold": {
+        "n": 220,
+        "act_err_median_rad": 0.08438018521508686,
+        "act_err_mean_rad": 0.10410224552881304,
+        "act_err_p90_rad": 0.18755458529186952,
+        "frac_gt_material": 0.0
+      },
+      "stance_widen_step": {
+        "n": 180,
+        "act_err_median_rad": 0.126814885461129,
+        "act_err_mean_rad": 0.1524436506728892,
+        "act_err_p90_rad": 0.24451027224272337,
+        "frac_gt_material": 0.09444444444444444
+      },
+      "level_change_full": {
+        "n": 104,
+        "act_err_median_rad": 0.21119186013454633,
+        "act_err_mean_rad": 0.21076075668960698,
+        "act_err_p90_rad": 0.28724019806621487,
+        "frac_gt_material": 0.3269230769230769
+      },
+      "level_change_fast": {
+        "n": 67,
+        "act_err_median_rad": 0.20694761264801947,
+        "act_err_mean_rad": 0.1970449658605037,
+        "act_err_p90_rad": 0.2218335270703714,
+        "frac_gt_material": 0.0
+      },
+      "shot_entry_full": {
+        "n": 410,
+        "act_err_median_rad": 0.10388958925797692,
+        "act_err_mean_rad": 0.11901626280218881,
+        "act_err_p90_rad": 0.20774267521148604,
+        "frac_gt_material": 0.01951219512195122
+      },
+      "shot_recover": {
+        "n": 398,
+        "act_err_median_rad": 0.08464608043938654,
+        "act_err_mean_rad": 0.11326996930765755,
+        "act_err_p90_rad": 0.25852708244743355,
+        "frac_gt_material": 0.10552763819095477
+      },
+      "knee_sprawl_entry": {
+        "n": 168,
+        "act_err_median_rad": 0.06631107888456526,
+        "act_err_mean_rad": 0.13155007631430596,
+        "act_err_p90_rad": 0.3500250539691338,
+        "frac_gt_material": 0.25595238095238093
+      },
+      "knee_sprawl_entry2": {
+        "n": 337,
+        "act_err_median_rad": 0.10552290263622954,
+        "act_err_mean_rad": 0.11240823583701699,
+        "act_err_p90_rad": 0.20965260296276664,
+        "frac_gt_material": 0.05341246290801187
+      },
+      "knee_sprawl_hold": {
+        "n": 220,
+        "act_err_median_rad": 0.055227434230232395,
+        "act_err_mean_rad": 0.05803780919877364,
+        "act_err_p90_rad": 0.09302570804264122,
+        "frac_gt_material": 0.0
+      },
+      "knee_sprawl_recover": {
+        "n": 277,
+        "act_err_median_rad": 0.1764964441437294,
+        "act_err_mean_rad": 0.18492638800720212,
+        "act_err_p90_rad": 0.24776866860686156,
+        "frac_gt_material": 0.08664259927797834
+      },
+      "stalk_shuffle": {
+        "n": 841,
+        "act_err_median_rad": 0.10892087525865854,
+        "act_err_mean_rad": 0.11336793886239932,
+        "act_err_p90_rad": 0.16228262427857346,
+        "frac_gt_material": 0.0
+      },
+      "circle_step": {
+        "n": 868,
+        "act_err_median_rad": 0.12290175347325516,
+        "act_err_mean_rad": 0.12357758412512594,
+        "act_err_p90_rad": 0.18290917972046633,
+        "frac_gt_material": 0.0
+      },
+      "DOUBLE_LEG": {
+        "n": 154,
+        "act_err_median_rad": 0.29840180792354953,
+        "act_err_mean_rad": 0.30081874214421567,
+        "act_err_p90_rad": 0.39983680718528947,
+        "frac_gt_material": 0.6558441558441559
+      },
+      "STANCE": {
+        "n": 117,
+        "act_err_median_rad": 0.0046650375528322855,
+        "act_err_mean_rad": 0.004665037552832288,
+        "act_err_p90_rad": 0.00466503755283229,
+        "frac_gt_material": 0.0
+      }
+    },
+    "val_to_train_nn": {
+      "n": 1317,
+      "act_err_median_rad": 0.1196649242010824,
+      "act_err_mean_rad": 0.12402560946112391,
+      "act_err_p90_rad": 0.2046434581848845,
+      "frac_gt_material": 0.040242976461655276,
+      "frac_nearest_is_same_ref": 0.7000759301442673
+    }
+  },
+  "rollouts": [
+    {
+      "name": "stance_hold",
+      "steps": 220,
+      "reference_steps": 220,
+      "completed_reference": true,
+      "fell": false,
+      "termination": null,
+      "fall_time": null,
+      "collapsed": true,
+      "pelvis_z_min": 0.18175543614175457,
+      "joint_err_mean": 0.2286300060755287,
+      "joint_err_first_half": 0.21784646301307037,
+      "joint_err_last_half": 0.23941354913798701,
+      "joint_err_final": 0.25348866839795847,
+      "root_err_mean": 0.6442321595221202,
+      "site_err_mean": 0.7523907881472685,
+      "site_err_max": 1.0019835805217665
+    },
+    {
+      "name": "stance_widen_step",
+      "steps": 180,
+      "reference_steps": 180,
+      "completed_reference": true,
+      "fell": false,
+      "termination": null,
+      "fall_time": null,
+      "collapsed": true,
+      "pelvis_z_min": 0.17325570492848677,
+      "joint_err_mean": 0.2602441791667021,
+      "joint_err_first_half": 0.2778912976986745,
+      "joint_err_last_half": 0.24259706063472986,
+      "joint_err_final": 0.23241634987806176,
+      "root_err_mean": 0.9315548786053337,
+      "site_err_mean": 0.9705893723418697,
+      "site_err_max": 1.2883167062128948
+    },
+    {
+      "name": "level_change_full",
+      "steps": 104,
+      "reference_steps": 104,
+      "completed_reference": true,
+      "fell": false,
+      "termination": null,
+      "fall_time": null,
+      "collapsed": true,
+      "pelvis_z_min": 0.08565593066174958,
+      "joint_err_mean": 0.34852294987208027,
+      "joint_err_first_half": 0.3182045322346625,
+      "joint_err_last_half": 0.3788413675094982,
+      "joint_err_final": 0.38451265296138376,
+      "root_err_mean": 0.4621136371680597,
+      "site_err_mean": 0.5323418146471008,
+      "site_err_max": 0.7794050876065456
+    },
+    {
+      "name": "level_change_fast",
+      "steps": 67,
+      "reference_steps": 67,
+      "completed_reference": true,
+      "fell": false,
+      "termination": null,
+      "fall_time": null,
+      "collapsed": true,
+      "pelvis_z_min": 0.18904147807413302,
+      "joint_err_mean": 0.27453731782551916,
+      "joint_err_first_half": 0.25962201894264314,
+      "joint_err_last_half": 0.287694130981708,
+      "joint_err_final": 0.2888239116489473,
+      "root_err_mean": 0.6017174078413703,
+      "site_err_mean": 0.5534182522790244,
+      "site_err_max": 0.9601547561695036
+    },
+    {
+      "name": "shot_entry_full",
+      "steps": 410,
+      "reference_steps": 410,
+      "completed_reference": true,
+      "fell": false,
+      "termination": null,
+      "fall_time": null,
+      "collapsed": true,
+      "pelvis_z_min": 0.1999023395044512,
+      "joint_err_mean": 0.29472476522102176,
+      "joint_err_first_half": 0.2795416311215175,
+      "joint_err_last_half": 0.3099078993205261,
+      "joint_err_final": 0.3162448813180985,
+      "root_err_mean": 0.9863244161770138,
+      "site_err_mean": 1.0730024167137555,
+      "site_err_max": 1.5528779119831013
+    },
+    {
+      "name": "shot_recover",
+      "steps": 70,
+      "reference_steps": 398,
+      "completed_reference": false,
+      "fell": true,
+      "termination": "dorsal",
+      "fall_time": 1.400000000000001,
+      "collapsed": true,
+      "pelvis_z_min": 0.09431370781815292,
+      "joint_err_mean": 0.3642628022498551,
+      "joint_err_first_half": 0.3100786254907624,
+      "joint_err_last_half": 0.41844697900894773,
+      "joint_err_final": 0.42210365812630657,
+      "root_err_mean": 0.366529900656096,
+      "site_err_mean": 0.5807130501253739,
+      "site_err_max": 0.7907584100662921
+    },
+    {
+      "name": "knee_sprawl_entry",
+      "steps": 168,
+      "reference_steps": 168,
+      "completed_reference": true,
+      "fell": false,
+      "termination": null,
+      "fall_time": null,
+      "collapsed": true,
+      "pelvis_z_min": 0.18353718405371056,
+      "joint_err_mean": 0.37446814011390056,
+      "joint_err_first_half": 0.3423639326114119,
+      "joint_err_last_half": 0.4065723476163893,
+      "joint_err_final": 0.4120359515778777,
+      "root_err_mean": 0.30058033358389236,
+      "site_err_mean": 0.3973190594308294,
+      "site_err_max": 0.4747031418683548
+    },
+    {
+      "name": "knee_sprawl_entry2",
+      "steps": 337,
+      "reference_steps": 337,
+      "completed_reference": true,
+      "fell": false,
+      "termination": null,
+      "fall_time": null,
+      "collapsed": true,
+      "pelvis_z_min": 0.1477070606476979,
+      "joint_err_mean": 0.4257418699677029,
+      "joint_err_first_half": 0.3602549502047482,
+      "joint_err_last_half": 0.4909710452215827,
+      "joint_err_final": 0.5036047131901281,
+      "root_err_mean": 1.769091397950405,
+      "site_err_mean": 1.6964013580136974,
+      "site_err_max": 2.782125105156486
+    },
+    {
+      "name": "knee_sprawl_hold",
+      "steps": 220,
+      "reference_steps": 220,
+      "completed_reference": true,
+      "fell": false,
+      "termination": null,
+      "fall_time": null,
+      "collapsed": true,
+      "pelvis_z_min": 0.19154257640043393,
+      "joint_err_mean": 0.3331584569041677,
+      "joint_err_first_half": 0.31595551612796097,
+      "joint_err_last_half": 0.3503613976803745,
+      "joint_err_final": 0.3624827901363608,
+      "root_err_mean": 0.6754645716746948,
+      "site_err_mean": 0.6913648160670121,
+      "site_err_max": 1.0449289451238246
+    },
+    {
+      "name": "knee_sprawl_recover",
+      "steps": 277,
+      "reference_steps": 277,
+      "completed_reference": true,
+      "fell": false,
+      "termination": null,
+      "fall_time": null,
+      "collapsed": true,
+      "pelvis_z_min": 0.19075248497139702,
+      "joint_err_mean": 0.4433049257679042,
+      "joint_err_first_half": 0.4534610584499358,
+      "joint_err_last_half": 0.43313646790647137,
+      "joint_err_final": 0.44593917232055336,
+      "root_err_mean": 0.6851708738143744,
+      "site_err_mean": 0.898048725234962,
+      "site_err_max": 1.1489673026536307
+    },
+    {
+      "name": "stalk_shuffle",
+      "steps": 841,
+      "reference_steps": 841,
+      "completed_reference": true,
+      "fell": false,
+      "termination": null,
+      "fall_time": null,
+      "collapsed": true,
+      "pelvis_z_min": 0.1763945088963752,
+      "joint_err_mean": 0.2403355930273411,
+      "joint_err_first_half": 0.22132903626915704,
+      "joint_err_last_half": 0.25933753016202965,
+      "joint_err_final": 0.25680008433802887,
+      "root_err_mean": 2.0693377235662926,
+      "site_err_mean": 2.03278894150398,
+      "site_err_max": 2.7232649153940556
+    },
+    {
+      "name": "circle_step",
+      "steps": 868,
+      "reference_steps": 868,
+      "completed_reference": true,
+      "fell": false,
+      "termination": null,
+      "fall_time": null,
+      "collapsed": true,
+      "pelvis_z_min": 0.19214888989339127,
+      "joint_err_mean": 0.2304472674971914,
+      "joint_err_first_half": 0.2298449642510101,
+      "joint_err_last_half": 0.23104957074337273,
+      "joint_err_final": 0.38868801473893305,
+      "root_err_mean": 1.1198300674729307,
+      "site_err_mean": 1.2116086341007302,
+      "site_err_max": 2.082772790492646
+    },
+    {
+      "name": "DOUBLE_LEG",
+      "steps": 154,
+      "reference_steps": 154,
+      "completed_reference": true,
+      "fell": false,
+      "termination": null,
+      "fall_time": null,
+      "collapsed": true,
+      "pelvis_z_min": 0.20779361577359454,
+      "joint_err_mean": 0.3009066130829352,
+      "joint_err_first_half": 0.2979502737050447,
+      "joint_err_last_half": 0.3038629524608258,
+      "joint_err_final": 0.379936062289696,
+      "root_err_mean": 0.6180407326018774,
+      "site_err_mean": 0.7513802706364272,
+      "site_err_max": 1.0515451135121046
+    },
+    {
+      "name": "STANCE",
+      "steps": 117,
+      "reference_steps": 117,
+      "completed_reference": true,
+      "fell": false,
+      "termination": null,
+      "fall_time": null,
+      "collapsed": true,
+      "pelvis_z_min": 0.21191786915335256,
+      "joint_err_mean": 0.305728021893892,
+      "joint_err_first_half": 0.27106823615803044,
+      "joint_err_last_half": 0.3398364957733282,
+      "joint_err_final": 0.3313641719310614,
+      "root_err_mean": 0.7295359095571265,
+      "site_err_mean": 0.7548461855686086,
+      "site_err_max": 1.2222529653794545
+    }
+  ],
+  "imitation": {
+    "weights": {
+      "site": 1.0,
+      "joint_pose": 0.25,
+      "joint_vel": 0.1,
+      "root": 0.3,
+      "com": 0.2,
+      "site_scale_m": 0.05,
+      "joint_pose_scale_rad": 0.35,
+      "joint_vel_scale_rps": 1.5,
+      "root_scale_m": 0.1,
+      "com_scale_m": 0.08,
+      "term_joint_rad": 0.6,
+      "term_root_xy_m": 0.3,
+      "term_pelvis_drop_m": 0.35,
+      "term_site_m": 0.12
+    },
+    "presets": {
+      "site_primary": {
+        "site": 1.0,
+        "joint_pose": 0.25,
+        "joint_vel": 0.1,
+        "root": 0.3,
+        "com": 0.2,
+        "site_scale_m": 0.05,
+        "joint_pose_scale_rad": 0.35,
+        "joint_vel_scale_rps": 1.5,
+        "root_scale_m": 0.1,
+        "com_scale_m": 0.08,
+        "term_joint_rad": 0.6,
+        "term_root_xy_m": 0.3,
+        "term_pelvis_drop_m": 0.35,
+        "term_site_m": 0.12
+      },
+      "joint_only": {
+        "site": 0.0,
+        "joint_pose": 1.0,
+        "joint_vel": 0.3,
+        "root": 0.3,
+        "com": 0.2,
+        "site_scale_m": 0.05,
+        "joint_pose_scale_rad": 0.35,
+        "joint_vel_scale_rps": 1.5,
+        "root_scale_m": 0.1,
+        "com_scale_m": 0.08,
+        "term_joint_rad": 0.6,
+        "term_root_xy_m": 0.3,
+        "term_pelvis_drop_m": 0.35,
+        "term_site_m": 0.12
+      },
+      "site_only": {
+        "site": 1.0,
+        "joint_pose": 0.0,
+        "joint_vel": 0.0,
+        "root": 0.3,
+        "com": 0.2,
+        "site_scale_m": 0.05,
+        "joint_pose_scale_rad": 0.35,
+        "joint_vel_scale_rps": 1.5,
+        "root_scale_m": 0.1,
+        "com_scale_m": 0.08,
+        "term_joint_rad": 0.6,
+        "term_root_xy_m": 0.3,
+        "term_pelvis_drop_m": 0.35,
+        "term_site_m": 0.12
+      }
+    },
+    "site_weight_table": {
+      "left_toe": {
+        "class": "LOW",
+        "weight": 0.5
+      },
+      "right_toe": {
+        "class": "LOW",
+        "weight": 0.5
+      },
+      "left_heel": {
+        "class": "LOW",
+        "weight": 0.5
+      },
+      "right_heel": {
+        "class": "LOW",
+        "weight": 0.5
+      },
+      "left_ankle": {
+        "class": "HIGH",
+        "weight": 4.0
+      },
+      "right_ankle": {
+        "class": "HIGH",
+        "weight": 4.0
+      },
+      "left_knee": {
+        "class": "HIGH",
+        "weight": 4.0
+      },
+      "right_knee": {
+        "class": "HIGH",
+        "weight": 4.0
+      },
+      "left_hip": {
+        "class": "HIGH",
+        "weight": 4.0
+      },
+      "right_hip": {
+        "class": "HIGH",
+        "weight": 4.0
+      },
+      "left_shoulder": {
+        "class": "HIGH",
+        "weight": 4.0
+      },
+      "right_shoulder": {
+        "class": "HIGH",
+        "weight": 4.0
+      },
+      "left_elbow": {
+        "class": "MED",
+        "weight": 1.5
+      },
+      "right_elbow": {
+        "class": "MED",
+        "weight": 1.5
+      },
+      "left_wrist": {
+        "class": "MED",
+        "weight": 1.5
+      },
+      "right_wrist": {
+        "class": "MED",
+        "weight": 1.5
+      },
+      "core": {
+        "class": "HIGH",
+        "weight": 4.0
+      },
+      "neck": {
+        "class": "HIGH",
+        "weight": 4.0
+      },
+      "head": {
+        "class": "HIGH",
+        "weight": 4.0
+      }
+    }
+  }
+}

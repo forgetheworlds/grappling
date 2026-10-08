@@ -1,16 +1,22 @@
 # MISSION.md — Full Operator Brief (verbatim record, 2026-10-07)
 
-> **STATUS NOTE (2026-10-08, RepoTrim) — the ACTIVE milestone is `docs/SOLO_DRILL.md`.**
-> The two-robot wrestling pipeline described below is **superseded for the current milestone**
-> and was approved by the operator for deletion. It is *scheduled* for removal, not yet removed:
-> the two-robot code is currently an import-level prerequisite of the active path
-> (`src/rl/net.py` imports `wrestling.env`; `src/solo/fall.py` imports `wrestling.backdet` for the
-> back-to-mat termination of SOLO_DRILL §4), and `src/rl/{vec,trainer,rollout}.py` are held as
-> pattern-source until the solo vec backend lands. **When it is removed it will live only in git
-> history, recoverable with `git show 72956f3:<path>`** (`72956f3` is the ref immediately before the
-> 2026-10-08 trim; the first trim commit is `46fb84f`). The ordered excision plan, the deleted-file
-> manifest and the kept-off-mandate list are in `reports/2026-10-08/repo_trim.md`. Read this file as
-> the long-term intent record; read `docs/SOLO_DRILL.md` for what is being built now.
+> **STATUS NOTE (2026-10-08, RepoTrim → DecoupleDelete) — the ACTIVE milestone is `docs/SOLO_DRILL.md`.**
+> The two-robot wrestling pipeline described below is **superseded for the current milestone** and was
+> **removed** by the operator's order on 2026-10-08, after the mandate path stopped depending on it:
+> the calibrated back-to-mat detector was moved **verbatim** to `src/solo/detector.py` (driven by
+> `src/solo/fall.py`; body sha256 identical, 37,504 differential replays with 0 mismatches) and the two
+> action-layout constants `N_JOINTS`/`ACT_SLICE` to `src/rl/constants.py` (used by `src/rl/net.py`).
+> Deleted in commit `24ac3b3` (14 files, 235 KB tracked): `src/wrestling/**`, the two-robot
+> `src/rl/{obs,privileged,reward,scripted,curriculum,vec,rollout,trainer}.py`,
+> `tests/test_{rl,wrestling}.py`, `scripts/train_ppo.py`. **Everything deleted lives in git history:
+> recover any path with `git show 24ac3b3^:<path>`** (that ref also predates the earlier 2026-10-08
+> trim, whose first deletion commit was `46fb84f`, pre-trim ref `72956f3`). Deliberately kept: the
+> ledger-cited evidence (`videos/env/**` E4, `videos/refs/**`, `data/refs/**`,
+> `data/backdet_calibration.json`, `checkpoints/rl/smoke_stage_c.pt`) and the scripts that produce it
+> (`scripts/{eval_ppo,render_env_videos,calibrate_backdet}.py`, now inert), plus `src/scorer`,
+> `src/teacher`, `src/retarget` and `robots/**`. Extraction/deletion manifest, the number-preservation
+> proof and the final re-grep are in `reports/2026-10-08/repo_trim.md` §11. Read this file as the
+> long-term intent record; read `docs/SOLO_DRILL.md` for what is being built now.
 
 Transport artifacts (doubled line-break corruption) repaired; wording otherwise unchanged.
 This file is the AUTHORITATIVE record of intent. `goal.md` is the working distillation;
