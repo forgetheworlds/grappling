@@ -23,3 +23,10 @@ data/datasets/
 # Agent/harness session state + MuJoCo runtime logs (never commit)
 .omo/
 MUJOCO_LOG.TXT
+
+# Operator reference media + credentials (copyright + live session tokens: never commit)
+data/references/**/*.mp4
+data/references/**/*.webm
+data/references/**/*.mkv
+data/references/**/*.info.json
+data/references/cookies*.txt
