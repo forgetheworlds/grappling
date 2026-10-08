@@ -1867,3 +1867,26 @@ scripts/calibrate_scorer.py, scripts/score_trace.py, tests/test_scorer.py.
     the checkpoint's own config.train as authoritative, so a task change needs either explicit
     overrides on every task-dependent field or a fresh run; decide at launch, not now.
   * Artifact owed: videos/solo_drill/02_stance_movement.mp4 + a VISUALS index entry.
+- v6b VERDICT (stopped at 401,408; snapshots 100k/200k/301k/401k kept) -- the lever works on falls,
+  the run still degrades:
+  * pre-registered 400k falsifier MET IN LETTER: recovery 0.0417 > 0 and fall 0.250 < 0.375.
+  * BUT the trajectory degrades: fall 0.292 (200k) -> 0.250 (301k) -> 0.250 (401k); recovery 0.333
+    -> 0.292 -> 0.042; upright 0.813 -> 0.797 -> 0.744; no-push at 401k: fall 0.125, upright 0.590,
+    pelvis 0.482 m -- the crouch escape (the audit's P0-2).
+  * THE REWARD AUDIT THAT SETTLED IT (v6b@301k policy rolled out under its own lit config, no push):
+    the crouched policy scores **0.809/step** vs the certified stance's **1.9654/step**.  The reward
+    is NOT the problem (no hole): the policy simply fails to optimise it.  The arithmetic: standing
+    ~786 discounted vs crouch ~324, but standing risks ~30% falls (-1500 x 0.3 = -450) -> the two
+    are nearly equal, and the critic cannot resolve the gap: EV 0.692 (bar >=0.7), value_rmse 12.01
+    against return std 20.7 = 0.58, advantage std 11.51 ~= the value RMSE -- the advantage IS the
+    value error.
+  * DIAGNOSIS: a critic-conditioning failure (the audit's deferred P0-3), not a reward-weight hole.
+- v6c LAUNCHED (service `solo-t1-v6c`, pid 3574902): v6b's exact command + ONE lever,
+  `--normalise-returns` (training rewards / a running return-std, PAST episodes only, floor 1.0 --
+  reward ratios untouched, critic targets O(1)).  Smoke-verified: value_loss 5,000-25,000 -> 0.03-0.58.
+  Pre-registered reads: 100k health EV >= 0.85 (FALSIFIER: EV < 0.75 -> the normalisation is not the
+  bottleneck, look at capacity/lr), 200k/400k monitor fall <= 0.15 AND upright >= 0.85 (the crouch
+  gone), 1.5M the full gate.
+- health verdict fix (commit `e9aca1d`): the verdict names the checkpoint's OWN reward set instead of
+  flagging the historical reference sets' sub-1% deltas; verified in production ("VERDICT OK" for a
+  balance_lit checkpoint whose own set is KEYFRAME MAXIMAL).

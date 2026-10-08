@@ -96,6 +96,11 @@ class TrainConfig:
     # is byte-reproducible with v5's configuration.  See
     # ``reports/2026-10-08/lit_balance.md`` for the sources and the staged plan.
     reward_set: str = "default"        # "default" | "lit" (TaskReward term_set)
+    #: divide the training rewards by a running estimate of the return std
+    #: (past episodes only, floored at 1.0).  Leaves the reward's ratios intact
+    #: and makes the critic's targets O(1): the v6b read showed value_rmse 12.0
+    #: against advantage std 11.5, i.e. the advantage was the value error.
+    normalise_returns: bool = False
     freeze_joints: bool = False        # freeze non-balance joints at the keyframe
     lit_weights: tuple[tuple[str, float], ...] = ()   # RewardWeights overrides
     lit_push: str = "off"              # "off" | "bernoulli" | "interval"
@@ -476,12 +481,32 @@ class SoloTrainer:
             last_value = float(self.net.value(
                 torch.from_numpy(self._stacked(self._obs)[1]).unsqueeze(0))[0])
         batch = RolloutBatch(actor_obs=actor, critic_obs=critic, actions_unit=actions,
-                            logp=logp, values=values, rewards=rewards, dones=dones,
+                            logp=logp, values=values,
+                            rewards=rewards / self._reward_scale(), dones=dones,
                             meta={"task": self.cfg.task, "steps": self.steps_done})
         batch.finalize(np.array([last_value], dtype=np.float64), cfg)
         return batch
 
     # ------------------------------------------------------------- vec collect
+    def _reward_scale(self) -> float:
+        """Divisor that normalises the training rewards to O(1) (1.0 = off).
+
+        The v6b finding this exists for: with ``termination=1500`` the returns
+        span roughly [-1500, +800], the critic's value_rmse reached 12.0 against
+        an advantage std of 11.5 -- i.e. the advantage WAS the value error -- and
+        the policy could not resolve a measured 1.16/step difference between the
+        certified stance (1.965/step) and the crouch it drifted into (0.809/step).
+        Scaling the rewards by a running estimate of the return std leaves the
+        reward's *ratios* untouched and makes the critic's targets O(1).
+
+        The scale uses only PAST episode returns (``self.recent_returns``), so no
+        look-ahead leaks into the update; it is floored at 1.0 so early training
+        (no completed episodes) is unchanged.
+        """
+        if not self.cfg.normalise_returns or not self.recent_returns:
+            return 1.0
+        return float(max(np.std(np.asarray(self.recent_returns, np.float64)), 1.0))
+
     def collect_vec(self):
         """Rollout of ``rollout_steps`` control steps over ``n_envs`` workers.
 
@@ -533,7 +558,8 @@ class SoloTrainer:
         with torch.no_grad():
             last_value = self.net.value(torch.from_numpy(obs["critic"])).numpy()
         batch = RolloutBatch(actor_obs=actor, critic_obs=critic, actions_unit=actions,
-                            logp=logp, values=values, rewards=rewards, dones=dones,
+                            logp=logp, values=values,
+                            rewards=rewards / self._reward_scale(), dones=dones,
                             meta={"task": self.cfg.task, "steps": self.steps_done,
                                   "n_envs": N})
         batch.finalize(np.asarray(last_value, np.float64), cfg)
@@ -777,6 +803,12 @@ def main(argv=None) -> int:
     ap.add_argument("--log-every", type=int, default=2048)
     ap.add_argument("--push-seed", type=int, default=0,
                     help="seed of the ramped training push schedule")
+    ap.add_argument("--normalise-returns", action="store_true",
+                    help="divide training rewards by a running return-std estimate "
+                         "(past episodes only, floor 1.0): reward ratios unchanged, "
+                         "critic targets O(1).  For runs whose terminal penalty "
+                         "dwarfs the per-step shaping (e.g. --lit-weight "
+                         "termination=1500).")
     ap.add_argument("--reward-set", choices=("default", "lit", "movement_lit"),
                     default="default",
                     help="reward term set: 'default' = the task family's own terms "
@@ -880,6 +912,7 @@ def main(argv=None) -> int:
                       grad_clip_actor=args.grad_clip_actor,
                       grad_clip_critic=args.grad_clip_critic,
                       reward_set=args.reward_set,
+                      normalise_returns=bool(args.normalise_returns),
                       freeze_joints=(args.freeze_joints == "balance"),
                       lit_weights=_parse_lit_weights(args.lit_weight),
                       lit_push=args.lit_push,
