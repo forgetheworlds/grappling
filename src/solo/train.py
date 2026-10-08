@@ -777,10 +777,13 @@ def main(argv=None) -> int:
     ap.add_argument("--log-every", type=int, default=2048)
     ap.add_argument("--push-seed", type=int, default=0,
                     help="seed of the ramped training push schedule")
-    ap.add_argument("--reward-set", choices=("default", "lit"), default="default",
+    ap.add_argument("--reward-set", choices=("default", "lit", "movement_lit"),
+                    default="default",
                     help="reward term set: 'default' = the task family's own terms "
                          "(unchanged); 'lit' = the literature balance set (sources "
-                         "A+B, see reports/2026-10-08/lit_balance.md)")
+                         "A+B, see reports/2026-10-08/lit_balance.md); "
+                         "'movement_lit' = the same set + yaw tracking, for the "
+                         "movement stage (the T2 gate's yaw_err criterion)")
     ap.add_argument("--freeze-joints", choices=("off", "balance"), default="off",
                     help="freeze the non-balance joints (arms, wrists, hip/waist "
                          "yaw) at their a_stand keyframe ctrl, so the residual acts "

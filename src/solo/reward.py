@@ -235,6 +235,12 @@ LIT_BALANCE_TERMS: tuple[str, ...] = (
 
 LIT_TERM_SETS: dict[str, tuple[str, ...]] = {
     "balance_lit": LIT_BALANCE_TERMS,
+    #: the movement stage (T1-movement / the T2 gate): the same balance set plus
+    #: yaw-rate tracking, because ``vel_stand`` tracks only the linear command and
+    #: a circle/step command's ``wz`` would otherwise carry no gradient at all --
+    #: the T2 gate's ``yaw_err_abs_mean`` would then be unreachable by
+    #: construction.  Additive: ``balance_lit`` is untouched.
+    "movement_lit": LIT_BALANCE_TERMS + ("track_ang",),
 }
 
 #: every selectable term set (task families + literature sets)
@@ -779,3 +785,15 @@ if __name__ == "__main__":  # self-check
     v_fall = discounted_return(falling, tr.gamma, tr.terminal(good.cmd and "fall")[0])
     assert v_up > v_fall, (v_up, v_fall)
     print("horizon check:", {"upright": round(v_up, 3), "collapse": round(v_fall, 3)})
+    # movement set: the balance set + yaw tracking, and the yaw term must actually
+    # respond to the command's wz (a turn error is the only thing it can see)
+    assert LIT_TERM_SETS["movement_lit"] == LIT_BALANCE_TERMS + ("track_ang",)
+    mv = TaskReward("locomotion", term_set="movement_lit")
+    turning = RewardInputs(cmd=Command(vx=0.3, vy=0.0, wz=0.4), yaw_rate=0.4,
+                           vel_local=np.array([0.3, 0.0]), torso_up_z=1.0, pelvis_z=0.79)
+    r_turn, terms_turn = mv.step(turning)
+    r_still, terms_still = mv.step(replace(turning, yaw_rate=0.0))
+    assert terms_turn["track_ang"] > terms_still["track_ang"], (terms_turn, terms_still)
+    print("movement check:", {"tracking_wz": round(terms_turn["track_ang"], 4),
+                              "ignoring_wz": round(terms_still["track_ang"], 4),
+                              "terms": len(terms_turn)})
