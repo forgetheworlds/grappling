@@ -174,3 +174,35 @@ def test_terminal_stance_is_required():
     rep = check_executability(tr, _spec(seg, _ref_time(seg)))
     assert not rep.ok
     assert "terminal_stance" in _failed(rep)
+
+
+def test_captured_demo_exports_as_a_loadable_reference(tmp_path):
+    """The captured demo must BE the refinement's reference, not need a conversion.
+
+    The refinement stage (``scripts/solo_imitation_train.py``) conditions on a
+    ``solo.bc.ReferenceTrack``; the capture used to write only ``trace.npz``,
+    whose key names ``load_reference`` does not read -- so the whole leg would
+    have failed only after a two-hour capture.  This pins the contract: the
+    exported arrays load through ``load_reference`` with the trace's own qpos/t
+    and the provenance survives.
+    """
+    from solo.bc import load_reference
+    from solo.demo import reference_arrays
+
+    seg = _segments()
+    tr = _good_trace()
+    tr["qpos"] = np.zeros((N, 36), np.float64)
+    tr["qpos"][:, 2] = tr["pelvis_z"]
+    tr["t"] = T
+    meta = {"source": "solo_demo_capture:cem", "name": "t", "episode": 0,
+            "seed": 0, "n_ticks": N, "terminated_t": None}
+    out = reference_arrays(tr, meta)
+    assert set(out) == {"qpos_a", "t", "meta"}
+    p = tmp_path / "reference.npz"
+    np.savez_compressed(p, **out)
+    track = load_reference(p)
+    assert track.qpos.shape == (N, 36)
+    assert np.allclose(track.qpos[:, 2], tr["pelvis_z"])
+    assert np.allclose(track.t, T)
+    assert track.meta["source"] == "solo_demo_capture:cem"
+    assert track.meta["n_ticks"] == N

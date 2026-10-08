@@ -389,7 +389,8 @@ def plan_capture(spec: CaptureSpec) -> dict:
     files = []
     for i in range(spec.episodes):
         d = root / f"ep{i:02d}_seed{spec.seed + i}"
-        files += [str(d / "trace.npz"), str(d / "meta.json"), str(d / "spec.npz")]
+        files += [str(d / "trace.npz"), str(d / "reference.npz"),
+                  str(d / "meta.json"), str(d / "spec.npz")]
         if spec.check:
             files.append(str(d / "check.json"))
         if spec.source == "cem":
@@ -1455,6 +1456,18 @@ def _git_commit() -> str | None:
         return None
 
 
+def reference_arrays(trace: dict, meta: dict) -> dict:
+    """The captured episode in ``solo.bc.load_reference``'s format.
+
+    The demo IS the imitation target for the refinement stage, so the export is a
+    contract, not a convenience: ``qpos_a``/``t`` are exactly the keys
+    ``load_reference`` reads and ``meta`` is its JSON provenance string.
+    """
+    return {"qpos_a": np.asarray(trace["qpos"], np.float64),
+            "t": np.asarray(trace["t"], np.float64),
+            "meta": json.dumps(meta)}
+
+
 def run_capture(spec: CaptureSpec, *, verbose: bool = True) -> dict:
     """Run every episode, write the dataset, optionally check each trace."""
     from solo.scene import load_solo_model
@@ -1482,6 +1495,21 @@ def run_capture(spec: CaptureSpec, *, verbose: bool = True) -> dict:
         ep_dir = root / f"ep{i:02d}_seed{seed}"
         ep_dir.mkdir(parents=True, exist_ok=True)
         np.savez_compressed(ep_dir / "trace.npz", **res["trace"])
+        # the SAME episode in the reference format ``solo.bc.load_reference`` reads
+        # (qpos_a/t/meta): the captured demo IS the imitation target, so the
+        # refinement stage must not need a second conversion step
+        np.savez_compressed(
+            ep_dir / "reference.npz",
+            **reference_arrays(res["trace"], {
+                "source": f"solo_demo_capture:{spec.source}",
+                "name": name, "episode": i, "seed": seed,
+                "entry_ref": _rel(spec.ref),
+                "recover_ref": _rel(spec.recover_ref),
+                "rate_ticks_per_s": spec.rate_ticks_per_s,
+                "n_ticks": int(res["n_ticks"]),
+                "terminated_t": res["terminated_t"],
+                "net_travel_m": entry["meta"].get("net_travel_m"),
+            }))
         tracks.save(ep_dir / "spec.npz")
         if res.get("theta") is not None:
             np.savez_compressed(ep_dir / "theta.npz", theta=res["theta"])
