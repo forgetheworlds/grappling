@@ -174,6 +174,25 @@ Entries appended as experiments run (Phase 2 onward).
   design concern: phases.py infers PRONE from pelvis height/velocity alone, switching the
   stabilizer off for any low pelvis regardless of cause — mitigation/justification requested.
 
+### E4 (2026-10-08) — env rule videos (EnvVideo) + prior-art review (PriorArt)
+- EnvVideo: all five rule demonstrations rendered and verified (h264 960x720, decode-clean):
+  draw-on-timeout, back-contact -> 0.30 s persistence -> trigger -> score -> reset, knees/hands
+  with dorsal=0 -> exchange CONTINUES, simultaneous back events -> ambiguous (same control step),
+  3 boundary events -> forfeit. Also visible: the P0 ambiguity hold (trigger 1.70 s -> end 1.80 s).
+- FINDING (affects solo env design): the two-robot env's default random-STANCE standing reset is
+  NOT balanceable by the position-servo G1 — every exchange after the first collapses within ~2 s;
+  the video agent had to substitute the verified-stable `stand` keyframe to produce honest rule
+  demos. DECISION: solo-env resets come from the `stand` keyframe with verified-holdable noise.
+- PriorArt (docs/prior_art_humanoid_control.md): (1) penalty-only rewards make FALLING optimal
+  (episode ends, penalties stop) -> every task needs a positive per-step alive/upright term that
+  dominates per-step penalties while upright; (2) no reward detects a statue — gates must be
+  held-out push batteries (published ablation: dropping the balance term collapses max
+  recoverable push 230 N -> 21 N); (3) at 50 Hz gamma=0.99 = ~2 s horizon, too short — use
+  0.995-0.997; (4) portable G1 templates exist (joystick-style vertex tracking + feet air/slide
+  terms) — weights are starting points, not tuned values; (5) CPU realism: 222-437 steps/s here
+  -> 10M steps = 5-14 h, 100M = 2-4 days; published 147M-400M budgets are 5-60 days, so balance
+  is reachable overnight but long-horizon locomotion is not.
+
 ### E3 (2026-10-08) — M0 audit results (MotorAudit; reports/2026-10-08/motor_audit.md)
 - ABSENT (no code at all): (1) dynamic-balance push recovery — there is NO push/perturbation
   machinery in the repo (no xfrc/qfrc/apply_force); (2) ALL locomotion — walk fwd/back/
