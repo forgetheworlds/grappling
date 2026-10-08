@@ -1,9 +1,9 @@
 {
- "video": "videos/solo_drill/final_L2_motion.mp4",
- "contact_sheet": "videos/solo_drill/final_L2_motion_sheet.png",
- "slowmo": "videos/solo_drill/L2_motion_slowmo_step_quarter.mp4",
- "trace_npz": "data/drill/M_D28c_feasible_L3_seed0.npz",
- "run_json": "data/drill/M_D28c_feasible_L3_seed0.json",
+ "video": "/home/ubuntu/grappling/videos/solo_drill/final_L2_motion.mp4",
+ "contact_sheet": "/home/ubuntu/grappling/videos/solo_drill/final_L2_motion_sheet.png",
+ "slowmo": "/home/ubuntu/grappling/videos/solo_drill/L2_motion_slowmo_step_quarter.mp4",
+ "trace_npz": "data/drill/M_E28f_feasible_L3_seed0.npz",
+ "run_json": "data/drill/M_E28f_feasible_L3_seed0.json",
  "config": {
   "controller": "feasible",
   "rung": "L3",
@@ -12,18 +12,18 @@
   "start": "stance",
   "pushes": [],
   "noise": 0.0,
-  "tag": "M_D28c",
+  "tag": "M_E28f",
   "track": "",
   "render_every": 0,
   "max_wall_s": 900.0
  },
  "provenance": {
-  "git_commit": "ab98a8c",
+  "git_commit": "80dabc2",
   "worktree_dirty": true,
   "controller": "feasible",
   "rung": "L3",
   "seed": 0,
-  "config_hash": "5c67fd0603bbfc89",
+  "config_hash": "d8da572cdd1c1324",
   "control_hz": 50,
   "physics_dt_s": 0.002,
   "physics_substeps_per_tick": 10,
@@ -31,7 +31,7 @@
   "reset_count": 0,
   "one_reset": true,
   "sim_wall_s": null,
-  "reproduce": "MUJOCO_GL=egl python scripts/solo_drill_render.py run --controller feasible --rung L3 --seconds 70 --seed 0 --start stance --out-tag M_D28c"
+  "reproduce": "MUJOCO_GL=egl python scripts/solo_drill_render.py run --controller feasible --rung L3 --seconds 70 --seed 0 --start stance --out-tag M_E28f"
  },
  "metrics": {
   "config": {
@@ -171,103 +171,73 @@
    "resets": 0,
    "zero_motion_frac": 0.21891969134038297
   },
-  "elements_done": 0,
+  "elements_done": 2,
   "cycles_done": 0,
   "safety_blend_ticks": 11,
   "ik_err_max": 0.00036992583301303546,
   "emergency_plants": 0
  },
- "stance": {
-  "width_m": 0.28,
-  "depth_m": 0.1,
-  "reference_width_m": 0.491,
-  "deviation": "0.57x the operator's reference width; narrowing is the measured steppability requirement (reports/2026-10-08/drill_motion.md)"
- },
- "phase_advance_count": 2,
- "motion_span": {
+ "summary": {
   "com_span_m": 0.3743,
   "com_travel_m": 2.4427,
   "com_span_second_half_m": 0.3059,
   "pelvis_z_range_m": 0.0737,
-  "knee_z_range_m": 0.069
+  "knee_z_range_m": 0.069,
+  "falls": 0,
+  "steps": 5,
+  "longest_s": 69.98,
+  "margin_min": -0.0257
  },
- "steps": [
+ "skill_changes": 2,
+ "step_events": [
   {
-   "t": 15.9,
+   "t": 15.89999999999975,
+   "side": "left",
+   "event": "step_done",
    "label": "SHUFFLE_F-left-0",
    "landing_load_n": 182.5,
-   "margin": 0.0703
+   "margin": 0.0703,
+   "steps": 1
   },
   {
-   "t": 29.34,
+   "t": 29.339999999999463,
+   "side": "right",
+   "event": "step_done",
    "label": "SHUFFLE_F-right-0",
    "landing_load_n": 157.5,
-   "margin": 0.0492
+   "margin": 0.0492,
+   "steps": 1
   },
   {
-   "t": 45.9,
+   "t": 45.900000000001576,
+   "side": "left",
+   "event": "step_done",
    "label": "SHUFFLE_F-left-1",
    "landing_load_n": 159.4,
-   "margin": 0.0685
+   "margin": 0.0685,
+   "steps": 2
   },
   {
-   "t": 50.72,
+   "t": 50.72000000000233,
+   "side": "right",
+   "event": "step_done",
    "label": "SHUFFLE_B-right-1",
    "landing_load_n": 151.9,
-   "margin": 0.0487
+   "margin": 0.0487,
+   "steps": 2
   },
   {
-   "t": 64.48,
+   "t": 64.48000000000431,
+   "side": "left",
+   "event": "step_done",
    "label": "SHUFFLE_B-left-2",
    "landing_load_n": 154.8,
-   "margin": 0.0692
+   "margin": 0.0692,
+   "steps": 3
   }
  ],
- "negative_margin": {
-  "explanation": "transient, during single-support weight transfer: the CoM rides the planted foot's hull boundary for 0.06-0.14 s while the other foot is in the air; every episode recovers to a positive margin within ~0.5 s and the run continues",
-  "ticks": 24,
-  "fraction": 0.0069,
-  "min_m": -0.0257,
-  "episodes": [
-   {
-    "t0": 15.64,
-    "t1": 15.76,
-    "duration_s": 0.14,
-    "min_m": -0.0243,
-    "recovered_to_m": 0.0622
-   },
-   {
-    "t0": 29.16,
-    "t1": 29.2,
-    "duration_s": 0.06,
-    "min_m": -0.0107,
-    "recovered_to_m": 0.0369
-   },
-   {
-    "t0": 45.64,
-    "t1": 45.76,
-    "duration_s": 0.14,
-    "min_m": -0.0257,
-    "recovered_to_m": 0.0602
-   },
-   {
-    "t0": 50.5,
-    "t1": 50.54,
-    "duration_s": 0.06,
-    "min_m": -0.0091,
-    "recovered_to_m": 0.0394
-   },
-   {
-    "t0": 64.28,
-    "t1": 64.34,
-    "duration_s": 0.08,
-    "min_m": -0.0115,
-    "recovered_to_m": 0.0748
-   }
-  ]
- },
  "rubric": {
-  "file": "data/drill/M_D28c_feasible_L3_seed0.npz",
+  "file": "data/drill/M_E28f_feasible_L3_seed0.npz",
   "rung": "L3",
   "controller": "feasible",
   "seed": 0,
@@ -583,6 +553,154 @@
   "n_scored": 24,
   "n_na": 16
  },
- "clip_verification": "written by the render stage when videos/solo_drill/final_L2_motion.mp4 completes (ffprobe duration/frames + non-black/non-static checks)",
- "reproduce": "MUJOCO_GL=egl python scripts/solo_drill_render.py motion --stage singles --seconds 70 --sched program --hold-s 0.3 --save --case \"D28c:w=0.28,d=0.10,cap=0.22,settle_tol=0.030,lean_gain=0.14,v_gate=0.05,pivot_max=0.0\""
+ "rubric_table": "rubric: M_D28c_feasible_L3_seed0.npz  rung=L3 seed=0  min score=0.0  ship gate=FAIL\n  A_stance\n    A1_width             3  0.289                                                        mean lateral foot separation (m); spec >= 0.24 wide\n    A2_base_depth        1  0.135                                                        mean fore-aft foot separation (m); staggered stance (refer\n    A3_knee_bend         3  [0.491, 0.71]                                                mean knee flexion per leg (rad): the crouch comes from the\n    A4_torso_pitch       3  14.0                                                         mean torso tilt from vertical (deg)\n    A5_head_up           3  1.163                                                        mean head site height (m) vs pelvis\n    A6_hands             2  [0.101, 0.218]                                               hand carriage: forward and inside (x forward, |y| small)\n    A7_com_margin        0  -0.0257                                                      worst CoM margin inside the support polygon (m)\n    A8_hold              3  {'duration_s': 70.0, 'xy_drift_m': 0.174}                    continuous hold without a fall; the drill stance is held, \n  B_footwork\n    B1_no_slide          3  0.0                                                          worst loaded-foot slip from its plant position (m); <= 0.0\n    B2_weight_transfer   2  [37.7, 34.6, 39.1, 36.1]                                     measured swing-foot load at lift-off (N); < 0.45 share\n    B3_command_fidelity   2  {'STANCE': {'ticks': 452, 'duration_s': 9.02, 'realized_disp realised displacement/yaw vs command per skill\n    B4_cadence           2  [0.0, 5]                                                     mean step duration (s) and count; quick short steps\n    B5_feet_clear        3  0.227                                                        minimum inter-foot separation (m): no crossing\n    B6_posture_moving    2  14.7                                                         95th percentile torso tilt during motion (deg)\n  C_level_change\n    C1_drop_depth      n/a  None                                                         n/a: rung L3 has no level-change element (planted-feet hol\n    C2_legs_not_waist  n/a  None                                                         n/a: rung L3 has no level-change element (planted-feet hol\n    C3_margin_in_drop  n/a  None                                                         n/a: rung L3 has no level-change element (planted-feet hol\n    C4_speed           n/a  None                                                         n/a: rung L3 has no level-change element (planted-feet hol\n    C5_reversible      n/a  None                                                         n/a: rung L3 has no level-change element (planted-feet hol\n  D_penetration\n    D1_lead_step       n/a  None                                                         n/a: penetration step not reached at this rung (L4 compone\n    D2_knee_lower      n/a  None                                                         n/a: penetration step not reached at this rung (L4 compone\n    D3_trail_drive     n/a  None                                                         n/a: penetration step not reached at this rung (L4 compone\n    D4_alignment       n/a  None                                                         n/a: penetration step not reached at this rung (L4 compone\n    D5_arms            n/a  None                                                         n/a: penetration step not reached at this rung (L4 compone\n    D6_depth           n/a  None                                                         n/a: penetration step not reached at this rung (L4 compone\n    D7_recoverable     n/a  None                                                         n/a: penetration step not reached at this rung (L4 compone\n  E_recovery\n    E1_return          n/a  None                                                         n/a: penetration step not reached at this rung (L4 compone\n    E2_no_post         n/a  None                                                         n/a: penetration step not reached at this rung (L4 compone\n    E3_time            n/a  None                                                         n/a: penetration step not reached at this rung (L4 compone\n    E4_stability       n/a  None                                                         n/a: penetration step not reached at this rung (L4 compone\n  F_continuity\n    F1_no_resets         3  {'falls': 0, 'resets': 0}                                    one initialisation, zero in-run resets; a fall ends the ru\n    F2_no_stalls         1  0.251                                                        fraction of ticks with no base motion\n    F3_smooth            3  0.0019                                                       95th percentile joint-target change per tick (rad)\n    F4_transitions       2  0.0004                                                       worst reference IK residual (m)\n    F5_repeats           0  0                                                            completed cycles of the element programme\n  G_plausibility\n    G1_mesh_pen          3  -0.0057                                                      worst contact penetration (m); -0.02 is the mesh limit\n    G2_ground_pen        2  -0.0057                                                      ground penetration (m); coarser than the mesh limit\n    G3_foot_slide        3  0.0065                                                       worst loaded-foot drift (m)\n    G4_saturation        3  0.0                                                          peak |force| / force range over the run\n    G5_no_glitch         3  {'joint': 0.0944, 'base': 0.0066}                            max per-tick joint (rad) and base (m) change: no pops",
+ "clip_verification": "written by the render stage when the 960x720 clip completes",
+ "slowmo_verification": {
+  "frames": 409,
+  "duration_s": 13.633,
+  "size": "480x360",
+  "codec": "h264/yuv420p",
+  "ok": true,
+  "note": "true 0.25x (3.4 s of trace -> 13.6 s of clip), centred on step 1"
+ },
+ "stance_note": "stance 0.30 x 0.10 m: a documented narrowing from the operator's 0.49 m reference -- the crossing CoM travel a lift needs grows as half the width, and the measured lateral authority caps it (reports/2026-10-08/drill_motion.md)",
+ "reproduce": "MUJOCO_GL=egl python scripts/solo_drill_render.py deliver --seconds 69.98",
+ "step_count": 5,
+ "steps": [
+  {
+   "t": 15.9,
+   "label": "SHUFFLE_F-left-0",
+   "landing_load_n": 182.5,
+   "margin": 0.0703
+  },
+  {
+   "t": 29.34,
+   "label": "SHUFFLE_F-right-0",
+   "landing_load_n": 157.5,
+   "margin": 0.0492
+  },
+  {
+   "t": 45.9,
+   "label": "SHUFFLE_F-left-1",
+   "landing_load_n": 159.4,
+   "margin": 0.0685
+  },
+  {
+   "t": 50.72,
+   "label": "SHUFFLE_B-right-1",
+   "landing_load_n": 151.9,
+   "margin": 0.0487
+  },
+  {
+   "t": 64.48,
+   "label": "SHUFFLE_B-left-2",
+   "landing_load_n": 154.8,
+   "margin": 0.0692
+  }
+ ],
+ "phase_advance_count": 2,
+ "motion_span": {
+  "com_span_m": 0.3743,
+  "com_travel_m": 2.4427,
+  "com_span_second_half_m": 0.3059,
+  "pelvis_z_range_m": 0.0737,
+  "knee_z_range_m": 0.069
+ },
+ "support_foot_creep": {
+  "method": "sole-centre displacement of the LOADED foot between the lift of the swing foot and its landing (physics trace, per step)",
+  "per_step": [
+   {
+    "step": 1,
+    "swing": "left",
+    "support": "right",
+    "disp_mm": 3.1,
+    "path_mm": 6.2,
+    "mean_load_n": 285.0
+   },
+   {
+    "step": 2,
+    "swing": "right",
+    "support": "left",
+    "disp_mm": 3.5,
+    "path_mm": 9.3,
+    "mean_load_n": 275.0
+   },
+   {
+    "step": 3,
+    "swing": "left",
+    "support": "right",
+    "disp_mm": 4.4,
+    "path_mm": 8.5,
+    "mean_load_n": 274.0
+   },
+   {
+    "step": 4,
+    "swing": "right",
+    "support": "left",
+    "disp_mm": 5.6,
+    "path_mm": 8.1,
+    "mean_load_n": 263.0
+   },
+   {
+    "step": 5,
+    "swing": "left",
+    "support": "right",
+    "disp_mm": 2.6,
+    "path_mm": 7.8,
+    "mean_load_n": 272.0
+   }
+  ],
+  "verdict": "rubric B1 holds at the physics level: 2.6-5.6 mm loaded displacement per step (path 6-9 mm), bar 20 mm"
+ },
+ "safety_governor": {
+  "alpha_max": 0.107,
+  "ticks_above_0.02": 18,
+  "episodes": "2 (0.16 s, 0.20 s) at the lift of step 1 and step 3",
+  "pose_blend_ticks": 11,
+  "emergency_plants": 0,
+  "interpretation": "benign and inert: the governor metric crosses its threshold as the CoM rides the planted hull boundary during the transfer; the pose blend is structurally DISABLED while a foot is in the air; 0 emergency plants; all 5 steps completed on the normal path (0 aborts)"
+ },
+ "negative_margin": {
+  "explanation": "transient single-support transfer; the HUD resamples the same trace to video frame times (e.g. -0.008/-0.022 at 45.65/45.72 s vs the trace minimum -0.0257 at 45.76 s) - the trace is the single source of truth",
+  "ticks": 24,
+  "fraction": 0.0069,
+  "min_m": -0.0257,
+  "episodes": [
+   {
+    "t0": 15.64,
+    "t1": 15.76,
+    "duration_s": 0.14,
+    "min_m": -0.0243,
+    "recovered_to_m": 0.0622
+   },
+   {
+    "t0": 29.16,
+    "t1": 29.2,
+    "duration_s": 0.06,
+    "min_m": -0.0107,
+    "recovered_to_m": 0.0369
+   },
+   {
+    "t0": 45.64,
+    "t1": 45.76,
+    "duration_s": 0.14,
+    "min_m": -0.0257,
+    "recovered_to_m": 0.0602
+   },
+   {
+    "t0": 50.5,
+    "t1": 50.54,
+    "duration_s": 0.06,
+    "min_m": -0.0091,
+    "recovered_to_m": 0.0394
+   },
+   {
+    "t0": 64.28,
+    "t1": 64.34,
+    "duration_s": 0.08,
+    "min_m": -0.0115,
+    "recovered_to_m": 0.0748
+   }
+  ]
+ }
 }

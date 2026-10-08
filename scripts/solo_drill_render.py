@@ -607,13 +607,17 @@ def cmd_deliver(a) -> int:
     print("[deliver] skill changes", changes, flush=True)
     npz = Path(paths["npz"])
     blob = json.loads(Path(paths["json"]).read_text())
-    meta = _meta_for(npz, "L2", "L2 motion: continuous stepping in the drill stance")
-    meta["footer"] = (f"stance {kw['width']:.2f} x {kw['depth']:.2f} m wide "
-                      f"(reference is 0.49 m wide: narrowed for steppability) | "
-                      f"scripted feedback, one reset, no in-run resets")
     step_done = [e for e in blob["events"] if e.get("event") == "step_done"]
+    meta = _meta_for(npz, "L2", "L2 motion: continuous stepping in the drill stance")
+    sw = a.stance_w if a.stance_w > 0 else kw["width"]
+    sd = a.stance_d if a.stance_d > 0 else kw["depth"]
+    meta["stance"] = f"{sw:.2f} x {sd:.2f} m (reference 0.49 m: narrowed for steppability)"
+    meta["step_times"] = [round(float(e["t"]), 2) for e in step_done]
+    meta["footer"] = (f"run: {Path(paths['npz']).name} | stance {sw:.2f} x {sd:.2f} m | "
+                      f"scripted feedback, one reset, no in-run resets | "
+                      f"steps {len(step_done)}, falls {blob['metrics']['falls']}")
     summary_from_trace = motion.motion_span(npz and video_mod.load_trace(npz))
-    t_first = float(step_done[0]["t"]) - 1.6 if step_done else 4.0
+    t_first = float(step_done[0]["t"]) - 1.2 if step_done else 4.0
     r = video_mod.render_trace(video_mod.load_trace(npz), VIDEO / "final_L2_motion.mp4",
                                meta=meta, t0=0.0, t1=a.seconds,
                                sheet_times=tuple(np.linspace(3.0, a.seconds - 3.0, 3)),
@@ -625,9 +629,9 @@ def cmd_deliver(a) -> int:
     # 0.25x slow motion of the first complete step cycle
     r2 = video_mod.render_trace(video_mod.load_trace(npz),
                                 VIDEO / "L2_motion_slowmo_step_quarter.mp4",
-                                meta=meta, t0=t_first, t1=t_first + 9.0,
+                                meta=meta, t0=t_first, t1=t_first + 3.4,
                                 speed=0.25, scale=0.5,
-                                sheet_times=(t_first + 1.0, t_first + 4.5, t_first + 8.0),
+                                sheet_times=(t_first + 0.2, t_first + 1.7, t_first + 3.2),
                                 caption="0.25x: one step cycle (shift, lift, swing, plant, settle)")
     ver2 = verify_clip(Path(r2["mp4"]), expect_s=(r2["t1"] - r2["t0"]) / 0.25,
                        expect_frames=r2["frames"])
@@ -649,8 +653,18 @@ def cmd_deliver(a) -> int:
               "reproduce": (f"MUJOCO_GL=egl python scripts/solo_drill_render.py "
                             f"deliver --seconds {a.seconds:g}")}
     (REPO / "data" / "solo_drill").mkdir(parents=True, exist_ok=True)
-    (REPO / "data" / "solo_drill" / "final_L2_motion.json").write_text(
-        json.dumps(bundle, indent=1, default=str))
+    # merge into the existing bundle rather than replace it: the hand-assembled
+    # evidence (per-step loaded creep, safety-governor analysis, margin
+    # reconciliation) must survive the render pass
+    bpath = REPO / "data" / "solo_drill" / "final_L2_motion.json"
+    if bpath.exists():
+        try:
+            prev = json.loads(bpath.read_text())
+            prev.update(bundle)
+            bundle = prev
+        except Exception:                               # pragma: no cover
+            pass
+    bpath.write_text(json.dumps(bundle, indent=1, default=str))
     print(json.dumps({"steps": m["steps"], "falls": m["falls"],
                       "margin_min": m["margin_min"], "cadence": m["cadence_s_per_step"],
                       "verify": ver["ok"], "verify_slowmo": ver2["ok"],
@@ -869,6 +883,8 @@ def main(argv=None) -> int:
     dv.add_argument("--seconds", type=float, default=95.0)
     dv.add_argument("--set", action="append")
     dv.add_argument("--npz", default="")
+    dv.add_argument("--stance-w", type=float, default=0.0)
+    dv.add_argument("--stance-d", type=float, default=0.0)
     dv.set_defaults(func=cmd_deliver)
 
     a = ap.parse_args(argv)

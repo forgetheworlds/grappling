@@ -322,8 +322,11 @@ class DrillProgramSched:
         self.state = "hold"
         self.t_enter = 0.0
         self.steps0 = 0
+        self.events: list = []
+        self._t_prev = 0.0
 
     def reset(self, model, data) -> None:
+        self.events = []
         self.ix = 0
         self.steps_in_block = 0
         self.state = "hold"
@@ -342,8 +345,12 @@ class DrillProgramSched:
             self.t_enter = t
             self.steps0 = self._steps(ctrl)
         name, skill, p, n = self._block()
+        self._t_prev = t
         if n == 0:                                  # a plain hold block
             if t - self.t_enter >= self.block_hold_s:
+                self.events.append({"event": "element_done", "phase": name,
+                                    "how": "hold", "t": round(t, 3),
+                                    "elapsed": round(t - self.t_enter, 3)})
                 self.ix += 1
                 self.t_enter = t
                 self.steps0 = self._steps(ctrl)
@@ -363,6 +370,9 @@ class DrillProgramSched:
             self.steps0 = self._steps(ctrl)
             self.state = "hold"
             if self.steps_in_block >= n:
+                self.events.append({"event": "element_done", "phase": name,
+                                    "how": "steps", "t": round(t, 3),
+                                    "elapsed": round(t - self.t_enter, 3)})
                 self.steps_in_block = 0
                 self.ix += 1
         return DrillCommand(skill=skill, phase=f"{name} step {self.steps_in_block + 1}/{n}",
@@ -370,7 +380,8 @@ class DrillProgramSched:
                             vy=float(p.get("vy", 0.0)))
 
     def drain_events(self):
-        return []
+        ev, self.events = self.events, []
+        return ev
 
 
 class DeliverableSched:

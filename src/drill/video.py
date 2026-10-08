@@ -92,7 +92,8 @@ def render_trace(trace: dict, out_mp4: Path | str, *, meta: dict | None = None,
 
     from . import scene as scene_mod
 
-    frames = sample_frames(trace, fps=fps, t0=t0, t1=t1, speed=speed)
+    frames = sample_frames(trace, fps=max(1, int(round(fps / max(1e-6, speed)))),
+                           t0=t0, t1=t1, speed=1.0)
     model = scene_mod.load_model(None)
     if scale != 1.0:
         width, height = int(width * scale), int(height * scale)
@@ -106,7 +107,11 @@ def render_trace(trace: dict, out_mp4: Path | str, *, meta: dict | None = None,
     keep, t_keep = {}, {}
     sheet_times = sheet_times or ()
     n = len(frames["t"])
-    writer = imageio.get_writer(out_mp4, fps=fps * (1.0 / speed), quality=8,
+    # slow motion = sample the trace FASTER and play at the nominal rate: a
+    # writer fps of fps/speed played the clip back at 1.0x (independent clip
+    # check, 2026-10-08), so the writer always uses ``fps`` and the *sampling*
+    # rate carries the slowdown
+    writer = imageio.get_writer(out_mp4, fps=fps, quality=8,
                                 macro_block_size=None, mode="I")
     try:
         base_xy = np.asarray(frames["qpos"])[:, :2].mean(axis=0) if n else np.zeros(2)
@@ -210,8 +215,12 @@ def _hud_lines(frames: dict, i: int, meta: dict, label: str) -> list:
     err = float(np.linalg.norm(np.asarray(frames["e_track"])[i]))
     knee = np.asarray(frames["knee_z"])[i]
     phase = (meta.get("phases") or {}).get(round(t, 1), "")
+    step_times = meta.get("step_times") or []
+    k_done = sum(1 for tt in step_times if tt <= t + 1e-9)
+    stepping = not bool(np.asarray(frames["plan_planted"])[i].all())
     out = [
-        f"t={t:6.2f}s   {meta.get('title', '')}",
+        f"t={t:6.2f}s   {meta.get('title', '')}   step {k_done}/{len(step_times)}"
+        f"{'  (swing)' if stepping else ''}",
         f"controller {meta.get('controller_kind', '')}   seed {meta.get('seed', 0)}"
         f"   rung {meta.get('rung', '')}   {label}",
         _label_row(skill, cmd, phase),
@@ -219,10 +228,16 @@ def _hud_lines(frames: dict, i: int, meta: dict, label: str) -> list:
         f"track err {err:.3f} m   foot load L/R {load[0]:5.0f}/{load[1]:5.0f} N",
         f"sole clearance L/R {clear[0]*100:+.1f}/{clear[1]*100:+.1f} cm   "
         f"knee z {knee[0]:.2f}/{knee[1]:.2f} m",
+        f"stance {meta.get('stance', '')}   governor alpha {alpha:.2f}"
+        f"{'  (blend inactive: foot in the air)' if stepping else ''}",
     ]
     if push > 0.5:
         out.append(f"*** PUSH {push:.0f} N ({meta.get('push_labels', '')}) ***")
-    if alpha > 0.05:
+    if alpha > 0.05 and not stepping:
+        # the red line is only truthful when the response can actually act: the
+        # pose blend is disabled while a foot is in the air (the stepper's own
+        # aborts are the in-step response), so flashing "emergency" at a lift is
+        # misleading (independent clip check, 2026-10-08)
         out.append(f"!! safety blend alpha={alpha:.2f} (emergency response active)")
     if meta.get("footer"):
         out.append(meta["footer"])

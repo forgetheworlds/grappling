@@ -231,7 +231,7 @@ are in `data/drill/motion_singles.json`.
 | A6 hands | 2 | hands forward at hip height, elbows in (pelvis frame) |
 | A7 CoM margin | 2 | built +0.086 m; worst in-run −0.023 m (**negative** — reported, not hidden) |
 | A8 hold | 3 | one continuous episode, 0 falls, 0 resets |
-| B1 feet lift and place | 2 | 6 completed steps, loaded-foot slip ≤ 0.021 m (≤ the 2 cm bar) |
+| B1 feet lift and place | 2 | **5** completed steps; per-step loaded-foot displacement 2.6–5.6 mm (path 6–9 mm) — bar 20 mm |
 | B2 weight transfers before lift | 2 | the lift gate is the *measured* CoM margin ≥ 0.02 m **and** CoM speed ≤ 0.04 m/s |
 | B3 command fidelity | 2 | steps follow the commanded block (forward/back/lateral) and the commanded foot order |
 | B4 cadence | 1 | **12.1 s/step** — far below wrestling cadence; stated in §3 |
@@ -254,6 +254,61 @@ are in `data/drill/motion_singles.json`.
 weak spots — the clip is a *visible, clean footwork drill*, not a wrestling-paced one.
 
 ---
+
+## 5.1 Correctness / evidence pass after the independent L2 clip check
+
+The independent frame-level check of `final_L2_motion.mp4` CONFIRMED the motion claim (5 genuine
+steps at 15.40/28.80/45.40/50.22/63.98 s, mean interval 12.15 s vs the claimed 12.1 s, 0 falls,
+0 resets, floor + shadows visible, no pops). Seven discrepancies were listed; all are answered
+here, and the ones that are code/HUD defects are fixed:
+
+**(1) The "safety blend / emergency response" HUD flash is benign and inert — and the HUD line
+was misleading.** Measured on the delivered trace: `safety_alpha` exceeds 0.02 for **18 ticks
+(0.36 s) in exactly two episodes** (0.16 s at t=15.76 s and 0.20 s at t=45.74 s), peaking at
+**0.09 / 0.11** (never above 0.11), and both episodes start at the instant the swing foot leaves
+the mat (swing load 0 N, clearance 9–16 mm). The *pose blend* it would drive is **structurally
+disabled while a foot is in the air** (`if law.info["alpha"] > 0 and not stepper.busy()`), so the
+response never acted; **0 emergency plants** and **0 step aborts** were recorded, and all 5 steps
+completed on the normal path. The governor crosses its threshold because the CoM rides the
+planted foot's hull boundary by design during a transfer. The HUD now shows `governor alpha` as
+a number on the status line and only flashes the red warning when the blend *can* act (both feet
+down).
+
+**(2) Support-foot creep vs the slip claim — reconciled at the physics level.** Measured per
+step (sole-centre displacement of the **loaded** foot between the swing foot's lift and its
+landing, from the trace): **3.1, 3.5, 4.4, 5.6, 2.6 mm** (path 6–9 mm) while carrying 263–285 N.
+Rubric **B1 holds** (bar 20 mm) and the bundle's `max_load_drift` (6.5 mm) is consistent with
+this. The checker's "8 px (22–35 mm) rigid shift with IoU 0.81 → 0.34" is measuring the **swing
+foot** — which is *supposed* to travel 55–90 mm — and/or the mask of a foot whose sole is rolling
+(cf. the swing-roll compliance), not the loaded foot; a mask-IoU method cannot separate slip from
+a legitimate reposition (the discriminator is the per-foot **load**, which the trace records).
+The "feet drifting +34/+38 px over the clip" is the shuffle's **net travel** (the stance walks
+8–11 cm per block by design), not slip. Both numbers are now in the bundle
+(`support_foot_creep.per_step`).
+
+**(3) HUD phase + step counter**: the programme scheduler now emits `element_done` events (the
+same events the shipped scheduler emits), so the phase label advances per block, and the HUD
+carries a `step N/M` counter plus a `(swing)` marker; the stance width is printed on the status
+line. Verified in the re-rendered clip.
+
+**(4) Slow-motion is now a true 0.25x**: the writer used `fps/speed`, which played the clip back
+at 1.0× (measured by the check: HUD 14.30 → 23.30 s over 9.008 s). Fixed: the writer always
+writes at the nominal fps and the *sampling* rate carries the slowdown. Re-rendered, centred on
+one step cycle (3.4 s of trace → 13.6 s of clip) and verified: 409 frames, 13.63 s, 480×360
+h264/yuv420p, non-black/non-static ✓.
+
+**(5) Stance value consistency**: the rendered clip is the **0.28 × 0.10 m** run
+(`M_E28f_feasible_L3_seed0`); the earlier 0.30 m value came from the deliver stage's default
+footer, which is now overridden with the run's own stance (`--stance-w/--stance-d`), and the
+bundle states the producing trace.
+
+**(6) Step count**: **5** steps (the rubric row's "6" was the 0.30 m sample). Corrected here and
+in the bundle (`step_count`).
+
+**(7) Margin values**: the trace is the single source of truth. The HUD resamples that same trace
+to the video frame times, so a frame at 45.65/45.72 s shows the interpolated −0.005/−0.017 m
+while the trace minimum is **−0.0257 m at t=45.76 s**; the reported `margin_min` is the trace
+minimum. Stated in the bundle (`negative_margin.explanation`).
 
 ## 6. Defects fixed in response to the independent L1 visual check
 

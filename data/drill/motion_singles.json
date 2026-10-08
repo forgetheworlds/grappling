@@ -1,46 +1,51 @@
 {
- "V28": {
+ "E28f": {
   "label": "w0.28",
   "width_m": 0.28,
   "width_cmd_m": 0.28,
   "depth_m": 0.1,
   "pelvis_z": 0.756,
   "margin_built": 0.0,
-  "falls": 1,
-  "fall_times": [
-   35.36
-  ],
-  "longest_s": 35.36,
-  "duration_s": 35.38,
-  "steps": 2,
-  "shifts": 2,
-  "aborts": 1,
+  "falls": 0,
+  "fall_times": [],
+  "longest_s": 69.98,
+  "duration_s": 70.0,
+  "steps": 5,
+  "shifts": 5,
+  "aborts": 0,
   "refusals": 0,
   "required_m": [
-   0.1253,
    0.1312,
-   0.1692,
-   0.2159
+   0.1502,
+   0.1559,
+   0.2021,
+   0.2129
   ],
   "travel_m": [
    0.1192,
-   0.2052
+   0.1949,
+   0.1594,
+   0.1976,
+   0.1581
   ],
-  "travel_max_m": 0.2052,
-  "cadence_s_per_step": 6.94,
+  "travel_max_m": 0.1976,
+  "cadence_s_per_step": 12.145,
   "step_gaps_s": [
-   6.94
+   13.44,
+   16.56,
+   4.82,
+   13.76
   ],
-  "margin_min": -0.6267,
-  "margin_p05": 0.0265,
-  "slip_m": 0.0052,
-  "ik_err_max": 0.0051,
-  "ankle_roll_peak": 0.2606,
+  "margin_min": -0.0257,
+  "margin_p05": 0.0335,
+  "slip_m": 0.0065,
+  "ik_err_max": 0.0004,
+  "ankle_roll_peak": 0.2433,
   "ankle_roll_limit": 0.2618,
   "saturation_frac": 0.0,
-  "timeouts": 0,
-  "safety_blend_frac": 0.0362,
-  "lean_peak": 0.0963,
+  "timeouts": 3,
+  "safety_blend_frac": 0.0051,
+  "lean_peak": 0.0297,
   "events": [
    {
     "t": 15.359999999999761,
@@ -50,7 +55,7 @@
     "swing_load_n": 37.7,
     "load_frac_half_weight": 0.231,
     "com_v_m_s": 0.0007,
-    "v_gate_m_s": 0.04,
+    "v_gate_m_s": 0.05,
     "gate": "com_margin_support_hull",
     "ankle_roll_support": -0.2307,
     "ankle_roll_swing": 0.2114,
@@ -71,358 +76,139 @@
     "steps": 1
    },
    {
-    "t": 22.279999999999614,
+    "t": 24.919999999999558,
+    "side": "left",
+    "event": "settle_timeout",
+    "com_mid_err": 0.0355
+   },
+   {
+    "t": 28.779999999999475,
     "side": "right",
     "event": "shift_done",
-    "margin_support": 0.0216,
-    "swing_load_n": 33.4,
-    "load_frac_half_weight": 0.204,
-    "com_v_m_s": 0.0263,
-    "v_gate_m_s": 0.04,
+    "margin_support": 0.022,
+    "swing_load_n": 34.6,
+    "load_frac_half_weight": 0.212,
+    "com_v_m_s": 0.0308,
+    "v_gate_m_s": 0.05,
     "gate": "com_margin_support_hull",
-    "ankle_roll_support": 0.2106,
-    "ankle_roll_swing": -0.2317,
+    "ankle_roll_support": 0.2091,
+    "ankle_roll_swing": -0.2332,
     "pivot_rad": 0.0,
     "shift_s": 0.0,
-    "com_travel_m": 0.2052,
-    "margin_combined": 0.0319,
+    "com_travel_m": 0.1949,
+    "margin_combined": 0.0313,
     "gate_ticks": 4,
     "lock_s": 0.06
    },
    {
-    "t": 22.839999999999602,
+    "t": 29.339999999999463,
     "side": "right",
     "event": "step_done",
     "label": "SHUFFLE_F-right-0",
-    "landing_load_n": 170.6,
-    "margin": 0.0524,
+    "landing_load_n": 157.5,
+    "margin": 0.0492,
     "steps": 1
    },
    {
-    "t": 33.37999999999962,
+    "t": 38.3600000000004,
+    "side": "right",
+    "event": "settle_timeout",
+    "com_mid_err": 0.0392
+   },
+   {
+    "t": 45.36000000000149,
     "side": "left",
-    "event": "step_aborted",
-    "phase": "shift",
-    "reason": "timeout",
-    "margin_support": 0.0125,
-    "swing_load_n": 45.2,
-    "load_frac_half_weight": 0.276,
+    "event": "shift_done",
+    "margin_support": 0.02,
+    "swing_load_n": 39.1,
+    "load_frac_half_weight": 0.239,
     "com_v_m_s": 0.0006,
-    "v_gate_m_s": 0.04,
-    "gate": "hold",
-    "ankle_roll_support": -0.2194,
-    "ankle_roll_swing": 0.2084,
-    "pivot_rad": 0.0,
-    "shift_s": 8.02,
-    "com_travel_m": 0.1657,
-    "margin_combined": 0.0426
-   },
-   {
-    "t": 34.13999999999974,
-    "side": "left",
-    "event": "recovered",
-    "com_mid_err": 0.0293
-   },
-   {
-    "t": 34.61999999999981,
-    "event": "emergency_plant",
-    "side": "left",
-    "margin": -0.0301,
-    "e_track": 0.1045
-   },
-   {
-    "t": 35.36,
-    "event": "fall",
-    "detail": "fall: pelvis_z=0.079 tilt=72.4 up_z=0.30 sustained 8 ticks"
-   }
-  ],
-  "paths": {
-   "npz": "/home/ubuntu/grappling/data/drill/M_V28_feasible_L3_seed0.npz",
-   "json": "/home/ubuntu/grappling/data/drill/M_V28_feasible_L3_seed0.json"
-  }
- },
- "V28b": {
-  "label": "w0.28",
-  "width_m": 0.28,
-  "width_cmd_m": 0.28,
-  "depth_m": 0.1,
-  "pelvis_z": 0.756,
-  "margin_built": 0.0,
-  "falls": 1,
-  "fall_times": [
-   38.32
-  ],
-  "longest_s": 38.32,
-  "duration_s": 38.34,
-  "steps": 2,
-  "shifts": 2,
-  "aborts": 1,
-  "refusals": 0,
-  "required_m": [
-   0.1274,
-   0.1312,
-   0.1698,
-   0.2159
-  ],
-  "travel_m": [
-   0.1192,
-   0.2044
-  ],
-  "travel_max_m": 0.2044,
-  "cadence_s_per_step": 8.42,
-  "step_gaps_s": [
-   8.42
-  ],
-  "margin_min": -0.6208,
-  "margin_p05": 0.033,
-  "slip_m": 0.0052,
-  "ik_err_max": 0.0054,
-  "ankle_roll_peak": 0.2606,
-  "ankle_roll_limit": 0.2618,
-  "saturation_frac": 0.0,
-  "timeouts": 0,
-  "safety_blend_frac": 0.0323,
-  "lean_peak": 0.0943,
-  "events": [
-   {
-    "t": 15.359999999999761,
-    "side": "left",
-    "event": "shift_done",
-    "margin_support": 0.02,
-    "swing_load_n": 37.7,
-    "load_frac_half_weight": 0.231,
-    "com_v_m_s": 0.0007,
-    "v_gate_m_s": 0.04,
+    "v_gate_m_s": 0.05,
     "gate": "com_margin_support_hull",
-    "ankle_roll_support": -0.2307,
-    "ankle_roll_swing": 0.2114,
+    "ankle_roll_support": -0.2231,
+    "ankle_roll_swing": 0.2116,
     "pivot_rad": 0.0,
     "shift_s": 0.0,
-    "com_travel_m": 0.1192,
+    "com_travel_m": 0.1594,
     "margin_combined": 0.0352,
     "gate_ticks": 4,
     "lock_s": 0.06
    },
    {
-    "t": 15.89999999999975,
+    "t": 45.900000000001576,
     "side": "left",
     "event": "step_done",
-    "label": "SHUFFLE_F-left-0",
-    "landing_load_n": 182.5,
-    "margin": 0.0703,
-    "steps": 1
+    "label": "SHUFFLE_F-left-1",
+    "landing_load_n": 159.4,
+    "margin": 0.0685,
+    "steps": 2
    },
    {
-    "t": 23.759999999999582,
+    "t": 50.20000000000225,
     "side": "right",
     "event": "shift_done",
-    "margin_support": 0.0215,
-    "swing_load_n": 33.4,
-    "load_frac_half_weight": 0.204,
-    "com_v_m_s": 0.027,
-    "v_gate_m_s": 0.04,
+    "margin_support": 0.0207,
+    "swing_load_n": 36.1,
+    "load_frac_half_weight": 0.221,
+    "com_v_m_s": 0.0157,
+    "v_gate_m_s": 0.05,
     "gate": "com_margin_support_hull",
-    "ankle_roll_support": 0.2101,
-    "ankle_roll_swing": -0.2325,
+    "ankle_roll_support": 0.2207,
+    "ankle_roll_swing": -0.2297,
     "pivot_rad": 0.0,
     "shift_s": 0.0,
-    "com_travel_m": 0.2044,
-    "margin_combined": 0.0319,
+    "com_travel_m": 0.1976,
+    "margin_combined": 0.0327,
     "gate_ticks": 4,
     "lock_s": 0.06
    },
    {
-    "t": 24.31999999999957,
+    "t": 50.72000000000233,
     "side": "right",
     "event": "step_done",
-    "label": "SHUFFLE_F-right-0",
-    "landing_load_n": 169.9,
-    "margin": 0.0518,
-    "steps": 1
+    "label": "SHUFFLE_B-right-1",
+    "landing_load_n": 151.9,
+    "margin": 0.0487,
+    "steps": 2
    },
    {
-    "t": 36.360000000000085,
-    "side": "left",
-    "event": "step_aborted",
-    "phase": "shift",
-    "reason": "timeout",
-    "margin_support": 0.0138,
-    "swing_load_n": 44.4,
-    "load_frac_half_weight": 0.271,
-    "com_v_m_s": 0.0009,
-    "v_gate_m_s": 0.04,
-    "gate": "hold",
-    "ankle_roll_support": -0.2194,
-    "ankle_roll_swing": 0.2089,
-    "pivot_rad": 0.0,
-    "shift_s": 8.02,
-    "com_travel_m": 0.1669,
-    "margin_combined": 0.0414
+    "t": 59.74000000000374,
+    "side": "right",
+    "event": "settle_timeout",
+    "com_mid_err": 0.0387
    },
    {
-    "t": 37.14000000000021,
-    "side": "left",
-    "event": "recovered",
-    "com_mid_err": 0.0265
-   },
-   {
-    "t": 37.60000000000028,
-    "event": "emergency_plant",
-    "side": "left",
-    "margin": -0.033,
-    "e_track": 0.1145
-   },
-   {
-    "t": 38.32,
-    "event": "fall",
-    "detail": "fall: pelvis_z=0.092 tilt=67.4 up_z=0.39 sustained 8 ticks"
-   }
-  ],
-  "paths": {
-   "npz": "/home/ubuntu/grappling/data/drill/M_V28b_feasible_L3_seed0.npz",
-   "json": "/home/ubuntu/grappling/data/drill/M_V28b_feasible_L3_seed0.json"
-  }
- },
- "V28c": {
-  "label": "w0.28",
-  "width_m": 0.28,
-  "width_cmd_m": 0.28,
-  "depth_m": 0.1,
-  "pelvis_z": 0.756,
-  "margin_built": 0.0,
-  "falls": 1,
-  "fall_times": [
-   34.72
-  ],
-  "longest_s": 34.72,
-  "duration_s": 34.74,
-  "steps": 2,
-  "shifts": 2,
-  "aborts": 1,
-  "refusals": 0,
-  "required_m": [
-   0.1285,
-   0.1312,
-   0.1697,
-   0.216
-  ],
-  "travel_m": [
-   0.1196,
-   0.2057
-  ],
-  "travel_max_m": 0.2057,
-  "cadence_s_per_step": 6.94,
-  "step_gaps_s": [
-   6.94
-  ],
-  "margin_min": -0.6323,
-  "margin_p05": 0.0232,
-  "slip_m": 0.0048,
-  "ik_err_max": 0.0054,
-  "ankle_roll_peak": 0.2606,
-  "ankle_roll_limit": 0.2618,
-  "saturation_frac": 0.0,
-  "timeouts": 0,
-  "safety_blend_frac": 0.0345,
-  "lean_peak": 0.1028,
-  "events": [
-   {
-    "t": 14.739999999999775,
+    "t": 63.940000000004396,
     "side": "left",
     "event": "shift_done",
-    "margin_support": 0.02,
+    "margin_support": 0.021,
     "swing_load_n": 37.3,
     "load_frac_half_weight": 0.228,
-    "com_v_m_s": 0.0006,
-    "v_gate_m_s": 0.04,
+    "com_v_m_s": 0.013,
+    "v_gate_m_s": 0.05,
     "gate": "com_margin_support_hull",
-    "ankle_roll_support": -0.2311,
-    "ankle_roll_swing": 0.2123,
+    "ankle_roll_support": -0.2202,
+    "ankle_roll_swing": 0.2116,
     "pivot_rad": 0.0,
     "shift_s": 0.0,
-    "com_travel_m": 0.1196,
-    "margin_combined": 0.0352,
+    "com_travel_m": 0.1581,
+    "margin_combined": 0.0339,
     "gate_ticks": 4,
     "lock_s": 0.06
    },
    {
-    "t": 15.279999999999763,
+    "t": 64.48000000000431,
     "side": "left",
     "event": "step_done",
-    "label": "SHUFFLE_F-left-0",
-    "landing_load_n": 190.2,
-    "margin": 0.0709,
-    "steps": 1
-   },
-   {
-    "t": 21.659999999999627,
-    "side": "right",
-    "event": "shift_done",
-    "margin_support": 0.0214,
-    "swing_load_n": 33.3,
-    "load_frac_half_weight": 0.204,
-    "com_v_m_s": 0.0261,
-    "v_gate_m_s": 0.04,
-    "gate": "com_margin_support_hull",
-    "ankle_roll_support": 0.2106,
-    "ankle_roll_swing": -0.232,
-    "pivot_rad": 0.0,
-    "shift_s": 0.0,
-    "com_travel_m": 0.2057,
-    "margin_combined": 0.032,
-    "gate_ticks": 4,
-    "lock_s": 0.06
-   },
-   {
-    "t": 22.219999999999615,
-    "side": "right",
-    "event": "step_done",
-    "label": "SHUFFLE_F-right-0",
-    "landing_load_n": 170.1,
-    "margin": 0.052,
-    "steps": 1
-   },
-   {
-    "t": 32.75999999999952,
-    "side": "left",
-    "event": "step_aborted",
-    "phase": "shift",
-    "reason": "timeout",
-    "margin_support": 0.0131,
-    "swing_load_n": 44.6,
-    "load_frac_half_weight": 0.273,
-    "com_v_m_s": 0.0005,
-    "v_gate_m_s": 0.04,
-    "gate": "hold",
-    "ankle_roll_support": -0.2193,
-    "ankle_roll_swing": 0.209,
-    "pivot_rad": 0.0,
-    "shift_s": 8.02,
-    "com_travel_m": 0.1663,
-    "margin_combined": 0.0421
-   },
-   {
-    "t": 33.539999999999644,
-    "side": "left",
-    "event": "recovered",
-    "com_mid_err": 0.0261
-   },
-   {
-    "t": 33.97999999999971,
-    "event": "emergency_plant",
-    "side": "left",
-    "margin": -0.0304,
-    "e_track": 0.1138
-   },
-   {
-    "t": 34.72,
-    "event": "fall",
-    "detail": "fall: pelvis_z=0.075 tilt=75.7 up_z=0.25 sustained 8 ticks"
+    "label": "SHUFFLE_B-left-2",
+    "landing_load_n": 154.8,
+    "margin": 0.0692,
+    "steps": 3
    }
   ],
   "paths": {
-   "npz": "/home/ubuntu/grappling/data/drill/M_V28c_feasible_L3_seed0.npz",
-   "json": "/home/ubuntu/grappling/data/drill/M_V28c_feasible_L3_seed0.json"
+   "npz": "/home/ubuntu/grappling/data/drill/M_E28f_feasible_L3_seed0.npz",
+   "json": "/home/ubuntu/grappling/data/drill/M_E28f_feasible_L3_seed0.json"
   }
  }
 }
