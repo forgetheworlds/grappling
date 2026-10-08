@@ -70,3 +70,19 @@ architecture + justification; 14 exact observation spec; 15 exact action spec;
 16 trained checkpoints; 17 experiment ledger; 18 technique evaluation; 19 match
 evaluation; 20 failure videos; 21 technique/drilling videos; 22 final technical
 report; 23 final_wrestling_match.mp4.
+
+## Addendum 2026-10-08 — foundational motor curriculum (operator directive)
+
+Evidence showed the robots cannot yet hold stance or move under control (references topple
+under position servos; 30k PPO steps without imitation = 13% standing time). Before
+adversarial wrestling, prove motor competence in dependency order:
+
+| M1 dynamic balance | M2 locomotion | M3 whole-body coordination | M4 wrestling locomotion | M5 wrestling techniques |
+|---|---|---|---|---|
+| stay up, recover from pushes | walk/turn/stop at commanded velocities | arms/torso without losing balance | stance, shuffle, circle, level change, knee drop, ground recovery | GrappleMap techniques, resistance, selection, self-play |
+
+Rules added: advancement gates are per-capability metrics with held-out conditions (never
+exchange-outcome rate); never promote because the opponent collapses; success must be
+attributable to the attempted technique; evaluation metrics ≠ rewards; no frozen
+observation/action interface before evidence. Full specification:
+`docs/MOTOR_CURRICULUM.md`. MISSION.md remains verbatim and authoritative.
