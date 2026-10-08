@@ -15,20 +15,26 @@ itself (`steps_done = 1,501,184`).
 
 | step | fall (bar ≤0.05) | fall held-out (≤0.10) | upright (≥0.84) | t_stab (≤1.0 s) | com_max (≤0.20 m) | recovery | ends valid |
 |---|---|---|---|---|---|---|---|
-| 100,352 | 0.458 | — | 0.652 | — | 0.161 | — | — |
-| 301,056 | 0.708 | — | 0.583 | — | 0.322 | — | — |
 | 501,760 | 0.167 | 0.188 | 0.856 | 0.240 | 0.141 | 0.542 | — |
 | **600,064** | **0.083** | **0.125** | 0.833 | 0.336 | 0.139 | 0.583 | 0.417 |
 | **1,501,184** | **0.375** | **0.438** | 0.874 | **None** | 0.164 | **0.0** | **0.0** |
 
+Only these three rows are attributable to v6a: they were measured by hand
+against its checkpoint. The stored files `t1_v2_monitor_100352.json` and
+`t1_v2_monitor_301056.json` predate run tagging and may belong to v5 (its
+300k read was fall 0.708 / upright 0.583); they are deliberately NOT listed
+here — see §4.2.
+
 The final read fails four criteria (fall, held-out fall, time-to-stability,
 `survivor_valid_stance_rate` 0.0 vs the bar 1.0) and passes two (upright, com).
 
-**The run did not converge — it peaked at 600k and then degraded.** The 600k
-state was the best of the run, and it is gone: the trainer's `save_every` wrote
-every snapshot to the same output path, so the only surviving artifact is the
-degraded final state. (Fixed in `0b1bbef`: periodic saves now also write a
-step-stamped snapshot beside the rolling "latest".)
+**Among the measured states the run peaked at 600k and then degraded.** No
+state between 600k and 1.5M survives, so whether the decline was monotone is
+unknown — which is itself the first defect in §4. The 600k state was the best
+measured, and it is gone: the trainer's `save_every` wrote every snapshot to
+the same output path, so the only surviving artifact is the degraded final
+state. (Fixed in `0b1bbef`: periodic saves now also write a step-stamped
+snapshot beside the rolling "latest".)
 
 ## 2. Mechanism (from the per-episode traces, not inferred)
 
