@@ -95,6 +95,10 @@ class RolloutCollector:
         self.decision_obs = None
         self.decision_obs_opp = None
         self.cmds = None
+        # per-env technique-similarity samples of the exchange in progress; the
+        # mean is attached to the exchange record so the curriculum's
+        # execution-criterion gate (stages A-C) can measure it
+        self._sim_samples: list[list[float]] = [[] for _ in range(vec.n_envs)]
 
     # ---------------------------------------------------------------- rollout
     def collect(self, n_steps: int | None = None, *, noise_std: float = 0.0,
@@ -172,9 +176,14 @@ class RolloutCollector:
             r_learner = batch.rewards[:, self.lit].astype(np.float64)
             for i in range(N):
                 q_self, q_opp = _learner_qpos(batch.priv[i], self.learner_robot)
+                sample: dict = {}
                 r_learner[i] += self.stage_reward.shaping(
                     technique=self.cmds[i].technique, phase=self.cmds[i].phase,
-                    phase_next=next_cmds[i].phase, qpos_self=q_self, qpos_opp=q_opp)
+                    phase_next=next_cmds[i].phase, qpos_self=q_self, qpos_opp=q_opp,
+                    sample=sample)
+                sim = sample.get("similarity")
+                if sim is not None:
+                    self._sim_samples[i].append(float(sim))
 
             obs_a[t], obs_c[t], act_u[t] = learner_obs, critic_obs, unit
             logp[t], values[t], rewards[t] = logp_t, value_t, r_learner
@@ -184,7 +193,11 @@ class RolloutCollector:
             for i in range(N):
                 rec = batch.infos[i].get("exchange_ended")
                 if rec is not None:
-                    meta["exchange_records"].append(dict(rec, env=int(i)))
+                    samples = self._sim_samples[i]
+                    meta["exchange_records"].append(dict(
+                        rec, env=int(i),
+                        similarity=(float(np.mean(samples)) if samples else None)))
+                    self._sim_samples[i] = []
                 if self.cmds[i].technique is not None:
                     meta["techniques"].append(self.cmds[i].technique)
                 if batch.dones[i]:

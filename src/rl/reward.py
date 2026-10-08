@@ -16,6 +16,18 @@ Terms (weights come from :class:`RewardWeights`, one set per stage):
 * ``progress``    -- potential-based shaping ``w * (gamma * phase' - phase)``
                      on the normalized command clock (Ng et al. 1999; adds no
                      bias to the optimal policy).  0 without a command.
+
+                     **Design decision (2026-10-08 audit).**  ``reference_phase``
+                     (``rl.obs``) is a pure function of ``exchange_time``, so
+                     this term is "phase in *time*", not progress in the world:
+                     it is the same signal for a robot that is executing,
+                     standing still, or lying down.  It is therefore **not** a
+                     task-progress signal and must not be read as one.  The term
+                     stays available (the PISTY A-D skeletons weight it), but
+                     motor-curriculum tasks (M1-M4, docs/MOTOR_CURRICULUM.md §2)
+                     MUST default ``progress`` to 0: their progress must be
+                     measured physically (distance/velocity/height/CoM), not on
+                     the command clock.  See reports/2026-10-08/p0_fixes.md.
 * ``engagement``  -- per-second rate ``w * dt`` while the pelvis distance to
                      the opponent is within ``engage_radius`` (anti-stall
                      pressure, "minimal shaping" late).
@@ -147,12 +159,20 @@ class StageReward:
 
     # -------------------------------------------------------------- learner side
     def shaping(self, *, technique: str | None, phase: float, phase_next: float,
-                qpos_self: np.ndarray, qpos_opp: np.ndarray) -> float:
+                qpos_self: np.ndarray, qpos_opp: np.ndarray,
+                sample: dict | None = None) -> float:
         """Per-step shaping reward for the learner transition ``s -> s'``.
 
         ``phase`` is the normalized command phase of state ``s`` (used to score
         similarity), ``phase_next`` that of ``s'`` (the potential difference
         ``gamma*phi(s') - phi(s)``).  Without a command the progress term is 0.
+
+        ``sample`` (optional out-dict): this call's own similarity measurement is
+        written to ``sample["similarity"]`` when the call scored the attempt.
+        Used by the rollout collector to aggregate per-exchange execution
+        competence for the curriculum's advancement gate
+        (:class:`rl.curriculum.ExchangeSample`); :attr:`last_similarity` stays
+        the last *scored* value for logging.
         """
         w = self.weights
         r = 0.0
@@ -165,6 +185,8 @@ class StageReward:
             if self._score_phase % self.scorer.score_every == 1:
                 sim = self._similarity_for(technique, phase, qpos_self, qpos_opp)
                 self.last_similarity = sim
+                if sample is not None and sim is not None:
+                    sample["similarity"] = sim
                 if sim is not None:
                     r += w.technique_similarity * sim * self.dt * self.scorer.score_every
         # engagement pressure

@@ -19,9 +19,16 @@ Exchange / match rules (implemented here, see ``docs/MISSION.md`` Phase 3)
 * Back-to-mat is decided by :class:`wrestling.backdet.BackToMatDetector`
   (dorsal torso mat contact + torso tilt + low pelvis, sustained); a single
   collision bit never ends an exchange.  Knees/hands/sprawl are legal.
-* Simultaneous back events: the first trigger wins; if both robots trigger
-  within ``AMBIGUITY_WINDOW_S`` (0.10 s) the exchange is *ambiguous*: no
-  score, logged for review (MISSION).
+* Simultaneous back events: the exchange does **not** end on the first
+  trigger.  It stays open for up to ``AMBIGUITY_WINDOW_S`` (0.10 s = 5 control
+  steps) after that trigger, so a second, slightly later trigger from the
+  other wrestler is still observed (the detector needs ``confirm_s`` of
+  sustained dorsal contact, so two near-simultaneous falls confirm in
+  *different* steps).  It ends early as soon as both robots have triggered.
+  Resolution is :func:`resolve_back_events` over all triggers observed in the
+  window: if both are within ``AMBIGUITY_WINDOW_S`` of each other the exchange
+  is *ambiguous* (no score, logged for review, MISSION); otherwise the earlier
+  trigger loses -- i.e. the other wrestler wins.
 * Anti-run-away: the competition area is a circle of radius ``mat_radius``
   (default :data:`MAT_RADIUS` = 1.5 m) centered at the world origin -- the
   scene's floor is an unbounded plane, so the mat extent is declared here.
@@ -98,6 +105,14 @@ MAT_RADIUS = 1.5
 OOB_REENTRY_HYSTERESIS = 0.05
 OOB_EVENTS_TO_FORFEIT = 3
 AMBIGUITY_WINDOW_S = 0.10
+"""Back-trigger ambiguity window (s).
+
+Two meanings, both fixed at 0.10 s: (a) the resolution rule -- two triggers
+whose confirmation times differ by <= this are ambiguous; (b) the **hold** --
+after the first trigger the exchange stays open this long (5 control steps at
+50 Hz) so the second trigger of a near-simultaneous pair is actually observed
+before :func:`resolve_back_events` runs.
+"""
 EXCHANGE_TIMEOUT = 20.0
 MATCH_CLOCK = 180.0
 #: per-exchange RNG stream: seed_i = base_seed + i * EXCHANGE_SEED_STRIDE
@@ -475,6 +490,7 @@ class WrestlingEnv:
         self._match_start = float(self.data.time)
         self._oob = {r: 0 for r in ROBOTS}
         self._outside = {r: False for r in ROBOTS}
+        self._back_hold_start: float | None = None
         self.backdet.reset()
         self.match_over = False
         self.last_exchange: ExchangeRecord | None = None
@@ -609,19 +625,32 @@ class WrestlingEnv:
         winner: str | None = None
         ambiguous = False
 
-        if any(t is not None for t in triggers.values()):
-            winner, ambiguous = resolve_back_events(triggers)
-            cause = "back"
-        if cause is None:
+        # A back trigger is terminal, but the *other* wrestler's trigger can
+        # land a step or two later (the detector confirms after `confirm_s` of
+        # sustained dorsal contact, so two near-simultaneous falls confirm in
+        # different steps).  Hold the exchange open for at most
+        # `AMBIGUITY_WINDOW_S` after the first trigger so that second trigger is
+        # observed, resolve then, and end early once both robots have triggered.
+        # Back resolution outranks oob/timeout, exactly as before the hold.
+        held = self._back_hold_start
+        first = min((t for t in triggers.values() if t is not None), default=None)
+        if first is not None:
+            if held is None:
+                self._back_hold_start = held = first
+            both = all(t is not None for t in triggers.values())
+            if both or self.time - held >= AMBIGUITY_WINDOW_S - 1e-9:
+                winner, ambiguous = resolve_back_events(triggers)
+                cause = "back"
+        else:
             for robot in ROBOTS:
                 if self._oob[robot] >= OOB_EVENTS_TO_FORFEIT:
                     winner = "b" if robot == "a" else "a"
                     cause = "oob"
                     break
-        if cause is None and self.exchange_time >= self.exchange_timeout - 1e-9:
-            cause = "timeout"
-        if cause is None and self.match_time >= self.match_clock - 1e-9:
-            cause = "match_end"
+            if cause is None and self.exchange_time >= self.exchange_timeout - 1e-9:
+                cause = "timeout"
+            if cause is None and self.match_time >= self.match_clock - 1e-9:
+                cause = "match_end"
 
         if cause is None:
             return None
@@ -672,6 +701,7 @@ class WrestlingEnv:
         self.exchange_start = float(self.data.time)
         self._oob = {r: 0 for r in ROBOTS}
         self._outside = {r: False for r in ROBOTS}
+        self._back_hold_start = None
         self.backdet.reset()
 
     # ------------------------------------------------------------------ extras

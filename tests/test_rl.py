@@ -29,8 +29,9 @@ from rl.checkpoint import (FORMAT_VERSION, apply_checkpoint, load_checkpoint,  #
                            restore_rng, rng_state, save_checkpoint,
                            warm_start_from_bc)
 from rl.curriculum import (AdvanceRule, CommandScheduler, Curriculum,  # noqa: E402
-                           PISTY_STAGES, PerturbationSchedule, RewardWeights,
-                           StageConfig, stage_by_key, stage_from_dict)
+                           ExchangeSample, PISTY_STAGES, PerturbationSchedule,
+                           RewardWeights, StageConfig, stage_by_key,
+                           stage_from_dict)
 from rl.net import (ActionMapper, ActorCritic, NetConfig, action_mapper_for,  # noqa: E402
                     count_out_of_bounds, robot_action_bounds)
 from rl.obs import (COMMAND_DIM, ENV_OBS_DIM, N_TECHNIQUES, TECHNIQUES,  # noqa: E402
@@ -337,33 +338,309 @@ def test_curriculum_stage_schedule_and_roundtrip():
         stage_by_key("Z")
 
 
-def test_curriculum_advance_rule():
-    stage = StageConfig(key="T", name="test", techniques=("DOUBLE_LEG",),
-                        advance=AdvanceRule(min_steps=5, threshold=0.5, window_episodes=4))
-    cur = Curriculum(stages=(stage, stage), start_index=0)
-    for _ in range(4):
+def _rule(**kw):
+    """Outcome-criterion advance rule with small test-scale numbers."""
+    base = dict(min_steps=5, window_episodes=10, criterion="outcome",
+                min_successes=1, min_rate=0.5)
+    base.update(kw)
+    return AdvanceRule(**base)
+
+
+def _cur(rule):
+    st = StageConfig(key="T", name="test", techniques=("DOUBLE_LEG",), advance=rule)
+    return Curriculum(stages=(st, st), start_index=0)
+
+
+def _ladder(*keys):
+    """Curriculum over the shipped stages ``keys`` (shared StageConfig objects)."""
+    return Curriculum(stages=tuple(stage_by_key(k) for k in keys))
+
+
+def test_curriculum_outcome_criterion_gate():
+    """Outcome-gated stages: wins advance, draws/losses never count."""
+    cur = _cur(_rule())
+    for _ in range(10):
         cur.on_exchange(1)
-    assert cur.metric() == 1.0
+    assert cur.metric() == 1.0 and cur.successes() == 10
     assert cur.maybe_advance() is False           # min_steps not reached
     cur.tick(5)
     assert cur.maybe_advance() is True
     assert cur.index == 1 and cur.steps_in_stage == 0 and len(cur.window) == 0
-    # below threshold: never advances
-    cur2 = Curriculum(stages=(stage, stage), start_index=0)
-    for o in (1, -1, -1, 1):
-        cur2.on_exchange(o)
+    # a partial window never advances, however good
+    cur2 = _cur(_rule(window_episodes=4))
+    for _ in range(3):
+        cur2.on_exchange(1)
     cur2.tick(100)
-    assert cur2.metric() == 0.5 and cur2.maybe_advance() is True  # threshold is inclusive
-    cur3 = Curriculum(stages=(stage, stage), start_index=0)
-    for o in (-1, -1, 0, -1):
+    assert cur2.maybe_advance() is False
+    # below the rate gate: one win in ten is not a pass
+    cur3 = _cur(_rule())
+    for o in (-1, -1, 1, -1, -1, 0, -1, -1, -1, 0):
         cur3.on_exchange(o)
     cur3.tick(100)
-    assert cur3.metric() == 0.125 and cur3.maybe_advance() is False
-    # draws count as half
-    cur4 = Curriculum(stages=(stage, stage), start_index=0)
-    for o in (0, 0, 0, 0):
+    assert cur3.successes() == 1 and cur3.metric() == 0.1
+    assert cur3.maybe_advance() is False
+    # rate gate is inclusive: five wins in ten advances
+    cur4 = _cur(_rule())
+    for o in (1, 1, 1, 1, 1, 0, 0, -1, 0, 0):
         cur4.on_exchange(o)
-    assert cur4.metric() == 0.5
+    cur4.tick(100)
+    assert cur4.metric() == 0.5 and cur4.maybe_advance() is True
+
+
+def test_draws_without_evidence_never_advance_any_stage():
+    """§3: no stage advances on draws alone when nothing else is demonstrated.
+
+    Draws carry no success signal at all for the outcome criterion, and for the
+    A-C execution criterion a draw is a success only when the attempt itself was
+    measured as competent -- a draw with no measurement (scorer unavailable) is
+    not evidence.
+    """
+    for key in ("A", "B", "C", "D"):
+        cur = _cur(stage_by_key(key).advance)
+        for _ in range(2_000):
+            cur.on_exchange(0)                    # draws only, no measurement
+            cur.tick(1)
+            assert cur.maybe_advance() is False, key
+        assert cur.successes() == 0 and cur.metric() == 0.0 and cur.stage.key == "T"
+
+
+def test_stage_a_high_similarity_window_advances():
+    """A (imitation vs stand_hold) advances on execution competence.
+
+    The partner draws forever, so the gate must be the stage's own objective:
+    attempts scoring above the similarity floor with the learner staying up.
+    """
+    rule = stage_by_key("A").advance
+    assert rule.criterion == "execution"
+    cur = _ladder("A", "B")
+    for _ in range(rule.window_episodes):
+        cur.on_exchange(0, similarity=0.8, stood=True)      # stand_hold draws
+    cur.tick(rule.min_steps)
+    assert cur.successes() == rule.window_episodes and cur.metric() == 1.0
+    assert cur.maybe_advance() is True and cur.stage.key == "B"
+
+
+def test_stage_a_low_similarity_or_falls_do_not_advance():
+    """A: sub-threshold execution and falls are non-success, so no promotion."""
+    rule = stage_by_key("A").advance
+    cur = _ladder("A", "B")
+    for _ in range(rule.window_episodes):
+        cur.on_exchange(0, similarity=rule.min_similarity - 0.1, stood=True)
+    cur.tick(rule.min_steps)
+    assert cur.successes() == 0 and cur.metric() == 0.0
+    assert cur.maybe_advance() is False
+    # a fall outranks a high similarity score (no-fall criterion)
+    cur2 = _ladder("A", "B")
+    for _ in range(rule.window_episodes):
+        cur2.on_exchange(0, similarity=0.95, stood=False)
+    cur2.tick(rule.min_steps)
+    assert cur2.successes() == 0 and cur2.maybe_advance() is False
+    # a single competent attempt among failures does not clear the rate gate
+    cur3 = _ladder("A", "B")
+    for i in range(rule.window_episodes):
+        cur3.on_exchange(0, similarity=0.9 if i == 0 else 0.1, stood=True)
+    cur3.tick(rule.min_steps)
+    assert cur3.successes() == 1 and cur3.metric() < rule.min_rate
+    assert cur3.maybe_advance() is False
+
+
+def test_stage_d_all_draws_do_not_advance():
+    """D (resistance): an all-draw window never advances, whatever else it shows."""
+    cur = _ladder("D", "E")
+    for _ in range(200):
+        cur.on_exchange(0, similarity=1.0, stood=True)   # perfect execution
+        cur.tick(1)
+        assert cur.maybe_advance() is False
+    assert cur.successes() == 0 and cur.metric() == 0.0 and cur.stage.key == "D"
+    # losses are equally non-advancing
+    cur2 = _ladder("D", "E")
+    for _ in range(200):
+        cur2.on_exchange(-1, similarity=1.0, stood=True)
+        cur2.tick(1)
+        assert cur2.maybe_advance() is False
+
+
+def test_stage_d_wins_in_window_advance():
+    """D: wins in the window advance the stage once the step floor is met."""
+    rule = stage_by_key("D").advance
+    assert rule.criterion == "outcome"
+    cur = _ladder("D", "E")
+    for i in range(rule.window_episodes):
+        cur.on_exchange(1 if i < rule.window_episodes // 2 else -1)
+    assert cur.metric() == 0.5 and cur.maybe_advance() is False   # steps short
+    cur.tick(rule.min_steps)
+    assert cur.maybe_advance() is True and cur.stage.key == "E"
+    assert cur.steps_in_stage == 0 and len(cur.window) == 0
+
+
+def test_advance_rule_rejects_degenerate_gates():
+    """The anti-self-deception invariants are structural, not advisory."""
+    with pytest.raises(ValueError):
+        _rule(min_successes=0)
+    with pytest.raises(ValueError):
+        _rule(min_rate=0.0)
+    with pytest.raises(ValueError):
+        _rule(min_rate=1.5)
+    with pytest.raises(ValueError):
+        _rule(criterion="wins")
+    with pytest.raises(ValueError):
+        _rule(min_similarity=1.5)
+
+
+def test_success_hook_is_the_attribution_seam():
+    """The hook (MISSION "success attributable to the technique") can reject a
+    success; asking it to accept one does not bypass the criterion."""
+    seen: list[ExchangeSample] = []
+
+    def reject_everything(sample):
+        seen.append(sample)
+        return False
+
+    cur = _cur(_rule(success_hook=reject_everything))
+    for _ in range(10):
+        cur.on_exchange(1, similarity=0.7, stood=True)
+    cur.tick(100)
+    assert cur.successes() == 0 and cur.metric() == 0.0
+    assert cur.maybe_advance() is False
+    # the hook saw the window's samples (exactly those, however often evaluated)
+    assert len(cur.window) == 10
+    assert {id(s) for s in seen} == {id(s) for s in cur.window}
+    assert all((s.outcome, s.similarity, s.stood) == (1, 0.7, True) for s in seen)
+
+    accept = _cur(_rule(success_hook=lambda s: s.outcome > 0))
+    for _ in range(10):
+        accept.on_exchange(1)
+    accept.tick(100)
+    assert accept.successes() == 10 and accept.maybe_advance() is True
+    # a hook cannot manufacture success where the criterion failed
+    closed = _cur(_rule(success_hook=lambda s: True))
+    for _ in range(10):
+        closed.on_exchange(0, similarity=0.0, stood=True)
+    closed.tick(100)
+    assert closed.successes() == 0 and closed.maybe_advance() is False
+
+
+def test_advance_rule_dict_is_checkpoint_safe():
+    """Stage configs stay serialisable: the runtime-only hook is not recorded."""
+    ruled = _rule(success_hook=lambda s: True)
+    d = ruled.as_dict()
+    assert "success_hook" not in d
+    assert d == {"min_steps": 5, "window_episodes": 10, "criterion": "outcome",
+                 "min_successes": 1, "min_rate": 0.5, "min_similarity": 0.5}
+    assert AdvanceRule(**d).as_dict() == d
+
+
+def test_curriculum_window_roundtrip_with_samples():
+    """Checkpoint state keeps every field of the rolling window."""
+    cur = _ladder("A", "B")
+    cur.on_exchange(0, similarity=0.8, stood=True)
+    cur.on_exchange(0, similarity=None, stood=True)
+    cur.on_exchange(0, similarity=0.3, stood=False)
+    cur.tick(17)
+    state = cur.state_dict()
+    assert state["window"] == [{"outcome": 0, "similarity": 0.8, "stood": True},
+                               {"outcome": 0, "similarity": None, "stood": True},
+                               {"outcome": 0, "similarity": 0.3, "stood": False}]
+    other = _ladder("A", "B")
+    other.load_state_dict(state)
+    assert other.state_dict() == state
+    assert other.successes() == 1 and other.metric() == pytest.approx(1 / 3)
+
+
+def test_gate_status_explains_a_stuck_stage():
+    """A stage that cannot advance reports why (telemetry for long runs)."""
+    rule = stage_by_key("A").advance
+    cur = _ladder("A", "B")
+    for _ in range(rule.window_episodes):
+        cur.on_exchange(0)                       # no similarity measurement
+    cur.tick(rule.min_steps)
+    st = cur.gate_status()
+    assert st["criterion"] == "execution" and st["successes"] == 0
+    assert st["unmeasured"] == rule.window_episodes and st["metric"] == 0.0
+    assert st["window"] == st["window_episodes"] and st["stage"] == "A"
+    assert cur.maybe_advance() is False
+
+
+class _StubScorer:
+    """Stand-in scorer adapter (the real one is optional): fixed similarity.
+
+    ``score_every`` must be > 1: ``StageReward`` scores on calls where the
+    counter ``% score_every == 1`` (the shipped default is 5).
+    """
+
+    available = True
+    note = "stub"
+    score_every = 5
+
+    def __init__(self, total: float = 0.9):
+        self.total = float(total)
+
+    def similarity(self, technique, frac, self_qpos, opp_qpos) -> float:
+        return self.total
+
+
+def test_collector_measures_per_exchange_similarity(model):
+    """The execution gate's signal is measured by the rollout loop itself.
+
+    The collector attaches the mean technique-similarity of each attempt to the
+    exchange record, so the A-C gate has real per-exchange evidence.
+    """
+    vec = VecWrestlingEnv(1, backend="sequential", seed=0, learner_robot="a",
+                          opponent_spec=OpponentSpec("stand_hold"), env_kwargs=SMOKE_ENV)
+    cfg = PPOConfig(rollout_steps=220, n_envs=1, seed=0)
+    sr = StageReward(RewardWeights(technique_similarity=0.4))
+    sr.scorer = _StubScorer(0.9)
+    rc = RolloutCollector(policy=make_policy(cfg), mapper=action_mapper_for(model, "a"),
+                          scheduler=CommandScheduler(("DOUBLE_LEG",), seed=0),
+                          stage_reward=sr, cfg=cfg)
+    rc.attach(vec)
+    try:
+        rb = rc.collect(220)
+    finally:
+        vec.close()
+    recs = rb.meta["exchange_records"]
+    assert recs, "no exchange ended inside the smoke rollout"
+    for r in recs:
+        assert r["similarity"] == pytest.approx(0.9)
+    # without a scorer the same records carry no measurement (not a zero)
+    sr.scorer = None
+    vec2 = VecWrestlingEnv(1, backend="sequential", seed=0, learner_robot="a",
+                           opponent_spec=OpponentSpec("stand_hold"), env_kwargs=SMOKE_ENV)
+    rc2 = RolloutCollector(policy=make_policy(cfg), mapper=action_mapper_for(model, "a"),
+                           scheduler=CommandScheduler(("DOUBLE_LEG",), seed=0),
+                           stage_reward=StageReward(RewardWeights(technique_similarity=0.4)),
+                           cfg=cfg)
+    rc2.attach(vec2)
+    try:
+        rb2 = rc2.collect(220)
+    finally:
+        vec2.close()
+    assert rb2.meta["exchange_records"]
+    assert all(r["similarity"] is None for r in rb2.meta["exchange_records"])
+
+
+def test_trainer_feeds_exchange_samples_into_the_gate(model, tmp_path):
+    """``_absorb`` hands the gate outcome + similarity + held-ground."""
+
+    def rec(winner, loser, cause, similarity, back=None, oob=None):
+        return {"winner": winner, "loser": loser, "cause": cause, "duration": 1.0,
+                "back_triggers": back or {"a": None, "b": None},
+                "oob_events": oob or {"a": 0, "b": 0}, "similarity": similarity}
+
+    cfg = PPOConfig(n_envs=1, rollout_steps=8, seed=0)
+    t = Trainer(cfg, out_path=tmp_path / "ck.pt", curriculum=_ladder("A", "B"),
+                backend="sequential", env_kwargs=SMOKE_ENV, verbose=0)
+    t._absorb({"exchange_records": [
+        rec("a", "b", "back", 0.8, back={"a": None, "b": 1.0}),      # win, stayed up
+        rec(None, None, "timeout", None),                            # draw, unmeasured
+        rec("b", "a", "oob", 0.9, oob={"a": 3, "b": 0}),             # forfeit -> not stood
+        rec("a", "b", "back", None, back={"a": 0.5, "b": 1.0}),      # learner fell
+    ]}, {})
+    assert [(s.outcome, s.similarity, s.stood) for s in t.curriculum.window] == [
+        (1, 0.8, True), (0, None, True), (-1, 0.9, False), (1, None, False)]
+    assert (t.stats["wins"], t.stats["losses"], t.stats["draws"]) == (2, 1, 1)
+    # only the measured, upright win is a success for the execution gate
+    assert t.curriculum.successes() == 1 and t.curriculum.metric() == 0.25
 
 
 def test_command_scheduler_determinism():

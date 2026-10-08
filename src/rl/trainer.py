@@ -121,8 +121,15 @@ class Trainer:
                 s["losses"] += 1
             else:
                 s["draws"] += 1
-            self.curriculum.on_exchange(1 if rec.get("winner") == learner
-                                        else -1 if rec.get("loser") == learner else 0)
+            # the advancement gate sees the per-exchange sample: outcome,
+            # technique-scorer similarity (None when unmeasured) and whether the
+            # learner held its own ground (no back taken, no OOB forfeit); see
+            # rl.curriculum.ExchangeSample
+            stood = ((rec.get("back_triggers") or {}).get(learner) is None
+                     and not (rec.get("cause") == "oob" and rec.get("loser") == learner))
+            self.curriculum.on_exchange(
+                1 if rec.get("winner") == learner else -1 if rec.get("loser") == learner else 0,
+                similarity=rec.get("similarity"), stood=stood)
         if update_stats:
             self._last_update = dict(update_stats)
 

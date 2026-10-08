@@ -12,30 +12,58 @@ at an opponent checkpoint for current/snapshot self-play), technique command
 on/off + which techniques are sampled, reward weights
 ``{technique_similarity, progress, outcome, oob, engagement}``, perturbation
 schedule (action noise ramp, command-clock jitter), optional phase-3 teacher
-BC checkpoint for warm start, and an advance rule (min steps + rolling
-outcome-rate threshold).
+BC checkpoint for warm start, and an advance rule whose *criterion* is a
+per-stage choice (see below).
 
-Advance rule (deterministic): a stage advances once
-``steps_in_stage >= rule.min_steps`` AND the rolling window holds at least
-``rule.window_episodes`` exchanges AND ``metric >= rule.threshold``, where
-``metric = (wins + 0.5 * draws) / n`` over the window (draws = timeouts and
-ambiguous endings).
+Advance rule (deterministic): the rolling window holds one
+:class:`ExchangeSample` per finished exchange (outcome, mean technique-scorer
+similarity, stood/fallen).  A stage advances once
+``steps_in_stage >= rule.min_steps`` AND the window holds at least
+``rule.window_episodes`` exchanges AND the window holds at least
+``rule.min_successes`` successes AND ``successes / window_episodes >=
+rule.min_rate``, where a *success* is, per :class:`AdvanceRule`:
 
-The *weights* below are the curriculum skeleton, not tuning results: they
-encode the MISSION ordering (similarity decreases, outcome dominates late)
-and are recorded in every checkpoint so later experiments are traceable.
+* ``criterion="outcome"`` (resistance/attack-vs-defense, D-E) -- the learner
+  won the exchange.  Draws (timeouts, ambiguous endings) and losses occupy
+  window slots as non-success, so an all-draw or all-loss window can never
+  advance (``docs/MOTOR_CURRICULUM.md`` §3: "Gates are per-capability metrics,
+  never exchange/outcome rate"; "Never promote because the opponent collapses").
+* ``criterion="execution"`` (imitation/drilling, A-C) -- the learner **stayed on
+  its feet** AND its attempt **scored >= rule.min_similarity on the technique
+  scorer**: the stage's own objective, not the exchange outcome.  This is
+  required because a stage-A-C partner (``stand_hold``) draws forever -- an
+  outcome gate there is unsatisfiable -- and because "wins" against a collapsing
+  partner are exactly the E1 self-deception case (§0, §3.2).  Without a
+  similarity measurement (scorer unavailable, or the learner is not the
+  technique's executor) there is no evidence, hence no success and no promotion.
+
+The pre-fix rule was ``metric = (wins + 0.5 * draws) / n >= 0.5``, under which an
+all-draw window scored exactly the 0.5 threshold and promoted a stage with zero
+demonstrated success.  ``min_successes >= 1`` and ``min_rate > 0`` are enforced
+as invariants of :class:`AdvanceRule`.
+
+The *gate numbers* below are the curriculum skeleton, not tuning results
+(``min_similarity``/``min_rate``/``window_episodes``/``min_steps``): they are
+**placeholders** to be set experimentally per §5 and are recorded in every
+checkpoint so later experiments are traceable (see
+``reports/2026-10-08/p0_fixes.md``).
 """
 
 from __future__ import annotations
 
 from collections import deque
 from dataclasses import asdict, dataclass, field
+from typing import Callable
 
 import numpy as np
 
 from .obs import TECHNIQUES, TechniqueCommand, reference_phase
 from .reward import RewardWeights
 from .scripted import OpponentSpec
+
+#: Success criteria for a stage's advancement gate (see :class:`AdvanceRule`):
+#: ``"outcome"`` = learner wins; ``"execution"`` = stayed up + scorer similarity.
+CRITERIA = ("outcome", "execution")
 
 
 @dataclass(frozen=True)
@@ -59,16 +87,113 @@ class PerturbationSchedule:
 
 
 @dataclass(frozen=True)
-class AdvanceRule:
-    """When a stage is considered passed (see module docstring)."""
+class ExchangeSample:
+    """One finished exchange as the advancement gate sees it.
 
-    min_steps: int = 20_000
-    metric: str = "outcome_rate"
-    threshold: float = 0.5
-    window_episodes: int = 20
+    ``outcome``
+        ``+1`` learner win, ``-1`` learner loss, ``0`` draw (timeout or
+        ambiguous ending).
+    ``similarity``
+        mean technique-scorer similarity in ``[0, 1]`` over the attempt, or
+        ``None`` when no measurement exists (scorer unavailable, term disabled,
+        or the learner is not the technique's executor).
+    ``stood``
+        True when the learner held its own ground for the whole exchange: no
+        back-to-mat trigger against it and no out-of-bounds forfeit (the no-fall
+        criterion of the execution gate).
+    """
+
+    outcome: int
+    similarity: float | None = None
+    stood: bool = True
 
     def as_dict(self) -> dict:
-        return asdict(self)
+        return {"outcome": int(self.outcome),
+                "similarity": None if self.similarity is None else float(self.similarity),
+                "stood": bool(self.stood)}
+
+    @classmethod
+    def from_dict(cls, d: dict) -> "ExchangeSample":
+        sim = d.get("similarity")
+        return cls(outcome=int(d["outcome"]),
+                   similarity=None if sim is None else float(sim),
+                   stood=bool(d.get("stood", True)))
+
+
+@dataclass(frozen=True)
+class AdvanceRule:
+    """When a stage is considered passed (see module docstring).
+
+    All fields are configurable per stage:
+
+    ``min_steps``
+        control steps the stage must have trained for.
+    ``window_episodes``
+        rolling window size in exchanges; the gate is only evaluated on a full
+        window.
+    ``criterion``
+        what counts as a *success* in the window: ``"outcome"`` (the learner
+        won the exchange; draws and losses are non-success) or ``"execution"``
+        (the learner stayed on its feet AND the attempt scored at least
+        ``min_similarity`` on the technique scorer).  A-C use ``"execution"``
+        because their partner draws forever and because wins against a
+        collapsing partner prove nothing; D-E use ``"outcome"``.
+    ``min_successes``
+        minimum number of successes in the window.  Must be ``>= 1``: a stage
+        may never advance without at least one demonstrated success
+        (MOTOR_CURRICULUM.md §3).  Raise it to tighten a stage.  For
+        ``criterion="outcome"`` a success is a win, so this is the earlier
+        ``min_wins`` floor.
+    ``min_rate``
+        minimum ``successes / window_episodes``.  Must be in ``(0, 1]``; there
+        is no half credit, so a winless/draw-only (or, for A-C, a
+        low-similarity or falling) window scores 0.0 and cannot advance.
+    ``min_similarity``
+        per-exchange scorer gate for ``criterion="execution"`` (ignored by the
+        outcome criterion).
+    ``success_hook``
+        **Extension point (not implemented logic).**  Optional predicate taking
+        the :class:`ExchangeSample`; when set, a success must also be accepted
+        by it.  This is the seam for MISSION's later "success attributable to
+        the attempted technique" requirement: the attribution verdict arrives
+        with the attempt/technique attached, and only then can an
+        ``outcome``-criterion stage (D-E) demand that the win was caused by the
+        attempted technique rather than by the opponent collapsing.  It is a
+        runtime-only field: :meth:`as_dict` omits it (a callable cannot be
+        checkpointed), so a resumed run re-installs it from its config.  The
+        A-C execution criterion is deliberately *declarative* fields rather
+        than a hook, so the shipped stages stay checkpoint/resume-exact.
+    """
+
+    min_steps: int = 20_000
+    window_episodes: int = 20
+    criterion: str = "outcome"
+    min_successes: int = 1
+    min_rate: float = 0.5
+    min_similarity: float = 0.5
+    success_hook: Callable[[ExchangeSample], bool] | None = None
+
+    def __post_init__(self):
+        if self.criterion not in CRITERIA:
+            raise ValueError(f"unknown advance criterion {self.criterion!r}; known: {list(CRITERIA)}")
+        if int(self.min_successes) < 1:
+            raise ValueError(
+                "AdvanceRule.min_successes must be >= 1: a stage may never advance "
+                "without at least one demonstrated success (MOTOR_CURRICULUM.md §3)")
+        if not 0.0 < float(self.min_rate) <= 1.0:
+            raise ValueError(
+                f"AdvanceRule.min_rate must be in (0, 1], got {self.min_rate!r}: "
+                "draws/falls count as non-success, so a non-positive gate could be "
+                "cleared by a window without demonstrated success")
+        if not 0.0 <= float(self.min_similarity) <= 1.0:
+            raise ValueError(
+                f"AdvanceRule.min_similarity must be in [0, 1], got {self.min_similarity!r}")
+
+    def as_dict(self) -> dict:
+        d = asdict(self)
+        # the hook is runtime-only (callables do not survive checkpointing)
+        d.pop("success_hook", None)
+        return d
 
 
 @dataclass(frozen=True)
@@ -110,7 +235,11 @@ PISTY_STAGES: tuple[StageConfig, ...] = (
         opponent=OpponentSpec("stand_hold"),
         weights=RewardWeights(technique_similarity=0.6, progress=0.4, outcome=1.0, oob=1.0, engagement=0.0),
         perturbations=PerturbationSchedule(0.0, 0.0, ramp_steps=1, phase_jitter_s=0.0),
-        advance=AdvanceRule(min_steps=20_000, threshold=0.5, window_episodes=10),
+        # gate = execution competence (scorer similarity + stayed up), not wins:
+        # the stand_hold partner draws forever, so a wins-only gate here is
+        # unsatisfiable (and wins vs a collapsing partner prove nothing, §3.2)
+        advance=AdvanceRule(min_steps=20_000, window_episodes=10, criterion="execution",
+                            min_successes=1, min_rate=0.5, min_similarity=0.5),
     ),
     StageConfig(
         key="B", name="randomized drilling",
@@ -118,7 +247,8 @@ PISTY_STAGES: tuple[StageConfig, ...] = (
         opponent=OpponentSpec("stand_hold"),
         weights=RewardWeights(technique_similarity=0.5, progress=0.4, outcome=1.0, oob=1.0, engagement=0.0),
         perturbations=PerturbationSchedule(0.0, 0.03, ramp_steps=20_000, phase_jitter_s=0.3),
-        advance=AdvanceRule(min_steps=30_000, threshold=0.5, window_episodes=20),
+        advance=AdvanceRule(min_steps=30_000, window_episodes=20, criterion="execution",
+                            min_successes=1, min_rate=0.5, min_similarity=0.5),
     ),
     StageConfig(
         key="C", name="dynamic drilling",
@@ -126,7 +256,8 @@ PISTY_STAGES: tuple[StageConfig, ...] = (
         opponent=OpponentSpec("reference_replay", technique="STANCE", loop=True),
         weights=RewardWeights(technique_similarity=0.4, progress=0.3, outcome=1.0, oob=1.0, engagement=0.01),
         perturbations=PerturbationSchedule(0.03, 0.05, ramp_steps=30_000, phase_jitter_s=0.3),
-        advance=AdvanceRule(min_steps=40_000, threshold=0.5, window_episodes=20),
+        advance=AdvanceRule(min_steps=40_000, window_episodes=20, criterion="execution",
+                            min_successes=1, min_rate=0.5, min_similarity=0.5),
     ),
     StageConfig(
         key="D", name="resistance",
@@ -137,7 +268,11 @@ PISTY_STAGES: tuple[StageConfig, ...] = (
         opponent=OpponentSpec("reference_replay", technique="SPRAWL", loop=True),
         weights=RewardWeights(technique_similarity=0.15, progress=0.2, outcome=1.5, oob=1.0, engagement=0.02),
         perturbations=PerturbationSchedule(0.05, 0.05, ramp_steps=1, phase_jitter_s=0.5),
-        advance=AdvanceRule(min_steps=40_000, threshold=0.5, window_episodes=20),
+        # gate = exchange outcome: draws/losses never advance; the
+        # "success attributable to the attempted technique" hook is a documented
+        # placeholder for D-E (see AdvanceRule.success_hook), not implemented yet
+        advance=AdvanceRule(min_steps=40_000, window_episodes=20, criterion="outcome",
+                            min_successes=1, min_rate=0.5),
     ),
     StageConfig(
         key="E", name="attack vs defense",
@@ -218,7 +353,7 @@ class CommandScheduler:
 
 
 class Curriculum:
-    """Stage pointer + rolling outcome window + deterministic advance rule."""
+    """Stage pointer + rolling exchange window + deterministic advance rule."""
 
     def __init__(self, stages: tuple[StageConfig, ...] = PISTY_STAGES, start_index: int = 0):
         if not 0 <= start_index < len(stages):
@@ -226,8 +361,9 @@ class Curriculum:
         self.stages = tuple(stages)
         self.index = int(start_index)
         self.steps_in_stage = 0
-        self.window: deque[int] = deque(maxlen=self.stages[self.index].advance.window_episodes
-                                        if self.stages[self.index].advance else 20)
+        self.window: deque[ExchangeSample] = deque(
+            maxlen=self.stages[self.index].advance.window_episodes
+            if self.stages[self.index].advance else 20)
 
     # ------------------------------------------------------------------ state
     @property
@@ -241,34 +377,87 @@ class Curriculum:
     def tick(self, steps: int = 1) -> None:
         self.steps_in_stage += int(steps)
 
-    def on_exchange(self, outcome: int) -> None:
-        """Record one exchange result: +1 learner win, -1 loss, 0 draw."""
-        o = int(np.sign(outcome))
+    def on_exchange(self, outcome: int, *, similarity: float | None = None,
+                    stood: bool = True) -> None:
+        """Record one finished exchange in the rolling window.
+
+        ``outcome``: +1 learner win, -1 loss, 0 draw.  ``similarity``: mean
+        technique-scorer similarity of the attempt (``None`` when the scorer was
+        unavailable or the learner is not the technique's executor) -- the
+        signal the A-C execution gate needs.  ``stood``: the learner did not go
+        to its own back during the exchange.
+        """
         if len(self.window) == self.window.maxlen:
             self.window.popleft()
-        self.window.append(o)
+        self.window.append(ExchangeSample(outcome=int(np.sign(outcome)),
+                                          similarity=similarity, stood=bool(stood)))
 
     # ------------------------------------------------------------------ metric
-    def metric(self, name: str = "outcome_rate") -> float | None:
-        if name != "outcome_rate":
-            raise KeyError(name)
+    def _success(self, sample: ExchangeSample) -> bool:
+        """Is one window entry a demonstrated success for the current stage?
+
+        ``criterion="outcome"``: the learner won (draws/losses never count).
+        ``criterion="execution"``: the learner stayed up AND the attempt scored
+        at least ``min_similarity``; an unmeasured attempt (``similarity is
+        None``) is not evidence and never counts.  A stage's ``success_hook``
+        (the documented seam for MISSION's "success attributable to the
+        attempted technique" gate) can only *reject* a success, never grant one.
+        """
+        rule = self.stage.advance
+        if rule is None:
+            return False
+        if rule.criterion == "outcome":
+            ok = sample.outcome > 0
+        else:  # "execution"
+            ok = (sample.stood and sample.similarity is not None
+                  and sample.similarity >= rule.min_similarity)
+        if ok and rule.success_hook is not None:
+            ok = bool(rule.success_hook(sample))
+        return bool(ok)
+
+    def successes(self) -> int:
+        """Demonstrated successes in the rolling window."""
+        return sum(1 for s in self.window if self._success(s))
+
+    def gate_status(self) -> dict:
+        """Why the current stage is (not) advancing (telemetry/debug)."""
+        rule = self.stage.advance
+        if rule is None:
+            return {"stage": self.stage.key, "rule": None, "window": len(self.window)}
+        return {"stage": self.stage.key, "criterion": rule.criterion,
+                "steps_in_stage": self.steps_in_stage, "min_steps": rule.min_steps,
+                "window": len(self.window), "window_episodes": rule.window_episodes,
+                "successes": self.successes(), "min_successes": rule.min_successes,
+                "metric": self.metric(), "min_rate": rule.min_rate,
+                "unmeasured": sum(1 for s in self.window if s.similarity is None)}
+
+    def metric(self) -> float | None:
+        """Rolling success rate over the window (``None`` if it is empty).
+
+        ``successes / window size`` under the stage's criterion.  Every
+        non-success (draws and losses for ``"outcome"``; unmeasured,
+        low-similarity or falling attempts for ``"execution"``) occupies a
+        window slot and contributes 0, so a window without demonstrated success
+        scores 0.0 and can never clear ``min_rate > 0`` -- promotion without
+        evidence is impossible by construction (``docs/MOTOR_CURRICULUM.md`` §3).
+        """
         if not self.window:
             return None
-        w = sum(1 for x in self.window if x > 0)
-        d = sum(1 for x in self.window if x == 0)
-        return (w + 0.5 * d) / len(self.window)
+        return self.successes() / len(self.window)
 
     def maybe_advance(self) -> bool:
         """Advance if the current stage's rule is satisfied (returns True once)."""
         rule = self.stage.advance
         if rule is None or self.done:
             return False
-        m = self.metric(rule.metric)
         if self.steps_in_stage < rule.min_steps:
             return False
-        if m is None or len(self.window) < rule.window_episodes:
+        if len(self.window) < rule.window_episodes:
             return False
-        if m < rule.threshold:
+        if self.successes() < rule.min_successes:
+            return False
+        m = self.metric()
+        if m is None or m < rule.min_rate:
             return False
         self.index += 1
         self.steps_in_stage = 0
@@ -279,7 +468,7 @@ class Curriculum:
     # ------------------------------------------------------------------ io
     def state_dict(self) -> dict:
         return {"index": self.index, "steps_in_stage": self.steps_in_stage,
-                "window": list(self.window)}
+                "window": [s.as_dict() for s in self.window]}
 
     def load_state_dict(self, d: dict) -> None:
         idx = int(d.get("index", 0))
@@ -290,7 +479,7 @@ class Curriculum:
         rule = self.stage.advance
         self.window = deque(maxlen=rule.window_episodes if rule else 20)
         for x in d.get("window", []):
-            self.window.append(int(x))
+            self.window.append(ExchangeSample.from_dict(x))
 
 
 if __name__ == "__main__":  # self-check
@@ -304,12 +493,28 @@ if __name__ == "__main__":  # self-check
     c1 = sch.command(0, 1, 0.0)
     c2 = sch.command(0, 1, 0.0)
     assert c1 == c2 and 0.0 <= c1.phase <= 1.0
+    assert [s.advance.criterion for s in PISTY_STAGES[:3]] == ["execution"] * 3
+    assert D.advance.criterion == "outcome" and E.advance is None
+    # stage A (execution gate): competent stand_hold draws advance the stage
     cur = Curriculum(start_index=0)
     for _ in range(10):
-        cur.on_exchange(1)
+        cur.on_exchange(0, similarity=0.8, stood=True)
     cur.tick(A.advance.min_steps)
-    assert cur.metric() == 1.0
+    assert cur.metric() == 1.0 and cur.successes() == 10
     assert cur.maybe_advance() and cur.stage.key == "B"
+    # ... but draws without an execution measurement never do
+    blind = Curriculum(start_index=0)
+    for _ in range(200):
+        blind.on_exchange(0)
+    blind.tick(100_000)
+    assert blind.metric() == 0.0 and blind.successes() == 0
+    assert not blind.maybe_advance() and blind.stage.key == "A"
+    # stage D (outcome gate): all-draw windows never advance (MOTOR_CURRICULUM §3)
+    dcur = Curriculum(start_index=3)
+    for _ in range(200):
+        dcur.on_exchange(0, similarity=1.0, stood=True)   # best possible execution
+    dcur.tick(100_000)
+    assert dcur.metric() == 0.0 and not dcur.maybe_advance() and dcur.stage.key == "D"
     print("rl.curriculum self-check OK:", {"stages": [s.key for s in PISTY_STAGES],
                                            "A_weights": A.weights.as_dict(),
                                            "E_weights": E.weights.as_dict()})

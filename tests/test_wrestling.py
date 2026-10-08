@@ -2,8 +2,9 @@
 
 Fast subset (runs in a few seconds): reset determinism/randomization, obs and
 action contract, controller plumbing, the exchange loop (timeout draw, back
-event, ambiguous double fall, OOB forfeit, match clock) and detector unit
-semantics (persistence, knees/hands/sprawl negatives, latch).
+event, ambiguity -- both same-step and cross-step triggers -- OOB forfeit, match
+clock) and detector unit semantics (persistence, knees/hands/sprawl negatives,
+latch).
 
 The calibration sweep itself lives in scripts/calibrate_backdet.py; here we
 only pin the calibrated operating point to data/backdet_calibration.json.
@@ -26,9 +27,9 @@ from wrestling.backdet import (FLOOR_GEOM, ROBOTS, BackDetConfig,  # noqa: E402
                                BackFeatures, BackToMatDetector,
                                back_features, body_maps, confirmed_mask,
                                first_confirmed_index)
-from wrestling.env import (OBS_DIM, QPOS_SLICE,  # noqa: E402
+from wrestling.env import (AMBIGUITY_WINDOW_S, OBS_DIM, QPOS_SLICE,  # noqa: E402
                            START_ANGLE_JITTER_DEG, START_DISTANCE_JITTER,
-                           START_JOINT_NOISE, STEP_DT, ReferenceReplay,
+                           START_JOINT_NOISE, STEP_DT, SUBSTEPS, ReferenceReplay,
                            StandHold, WrestlingEnv, keyframe_pair_qpos,
                            load_wrestling_model, obs_layout,
                            reference_trace, resolve_back_events)
@@ -212,7 +213,9 @@ def test_sprawl_replay_back_event_scores(model):
     t_b = rec.back_triggers["b"]
     assert t_b is not None and rec.back_triggers["a"] is None
     assert t_b >= env.backdet.cfg.confirm_s
-    assert rec.duration == pytest.approx(t_b, abs=STEP_DT)
+    # the exchange is held one ambiguity window past the (only) trigger so a
+    # near-simultaneous counterpart trigger could still be observed
+    assert rec.duration == pytest.approx(t_b + AMBIGUITY_WINDOW_S, abs=STEP_DT)
     assert rec.end_back["b"]["dorsal"] is True
     assert reward == pytest.approx((1.0, -1.0))
     assert 1.0 < rec.duration < 5.0  # terminates long before the 20 s timeout
@@ -265,6 +268,91 @@ def test_simultaneous_falls_ambiguous(model):
     assert rec.back_triggers["a"] is not None and rec.back_triggers["b"] is not None
     assert abs(rec.back_triggers["a"] - rec.back_triggers["b"]) <= 0.10
     assert rec.end_back["a"]["dorsal"] and rec.end_back["b"]["dorsal"]
+
+
+def _raised_supine_pair(model, dz: float):
+    """(q_a, q_b): the settled supine pose 1.8 m apart, with robot ``a`` raised
+    ``dz`` above the mat so its back lands (and triggers) after ``b``'s."""
+    q_b = _sprawl_settled_supine(model).copy()
+    q_a = q_b.copy()
+    q_a[0] += 1.8                    # same pose translated -> identical dynamics
+    q_a[2] += dz
+    return q_a, q_b
+
+
+def _detector_trigger_times(model, q_a, q_b, max_steps: int = 80):
+    """Detector-only control run (no env): when would each back trigger fire?
+
+    Steps the same physics and control (joint targets = the start pose) at the
+    env's 50 Hz control rate and samples the detector, so the returned times are
+    directly comparable to the env's recorded ``back_triggers``.
+    """
+    data = mujoco.MjData(model)
+    data.qpos[QPOS_SLICE["a"]] = q_a
+    data.qpos[QPOS_SLICE["b"]] = q_b
+    data.ctrl[:29] = q_a[7:36]
+    data.ctrl[29:58] = q_b[7:36]
+    mujoco.mj_forward(model, data)
+    det = BackToMatDetector()
+    for _ in range(max_steps):
+        for _ in range(SUBSTEPS):
+            mujoco.mj_step(model, data)
+        det.update(model, data, float(data.time))
+    return dict(det.triggers)
+
+
+def test_cross_step_back_triggers_ambiguous(model):
+    """Two authentic back triggers 0.04-0.08 s apart (3 steps) are ambiguous.
+
+    The first trigger is at ``t_b``; robot ``a`` lands ~0.06 s later.  Before
+    the ambiguity hold the exchange ended at ``t_b`` and ``a`` was never
+    observed (winner "a", no ambiguity); now the exchange stays open for the
+    window, so both triggers land in the record and the exchange is ambiguous.
+    """
+    q_a, q_b = _raised_supine_pair(model, 0.02)
+    env = WrestlingEnv(model=model, seed=0, match_clock=10.0)
+    env.reset(seed=0, pose=(q_a, q_b))
+    info, reward = _run_exchange(env)
+    rec = env.exchange_log[0]
+    t_a, t_b = rec.back_triggers["a"], rec.back_triggers["b"]
+    assert t_a is not None and t_b is not None, "second trigger was not held for"
+    gap = t_a - t_b
+    assert STEP_DT < gap <= AMBIGUITY_WINDOW_S, f"cross-step gap {gap} outside (step, window]"
+    assert gap == pytest.approx(0.06, abs=STEP_DT)
+    assert rec.cause == "back" and rec.ambiguous is True
+    assert rec.winner is None and rec.loser is None
+    assert reward == pytest.approx((0.0, 0.0))
+    assert rec.duration == pytest.approx(t_a, abs=1e-6)   # ended at the SECOND trigger
+    assert rec.end_back["a"]["dorsal"] and rec.end_back["b"]["dorsal"]
+    assert info["exchange_ended"]["ambiguous"] is True and not info["match_over"]
+    # the hold is deterministic: the same scenario resolves identically
+    env2 = WrestlingEnv(model=model, seed=0, match_clock=10.0)
+    env2.reset(seed=0, pose=(q_a, q_b))
+    _run_exchange(env2)
+    assert env2.exchange_log[0].as_dict() == rec.as_dict()
+
+
+def test_second_trigger_outside_window_yields_first_trigger_winner(model):
+    """The hold is bounded: a back trigger landing outside the window is never
+    seen and the first trigger alone decides the exchange."""
+    q_a, q_b = _raised_supine_pair(model, 0.20)
+    env = WrestlingEnv(model=model, seed=0, match_clock=10.0)
+    env.reset(seed=0, pose=(q_a, q_b))
+    info, reward = _run_exchange(env)
+    rec = env.exchange_log[0]
+    t_b = rec.back_triggers["b"]
+    assert t_b is not None and rec.back_triggers["a"] is None
+    assert rec.cause == "back" and rec.ambiguous is False
+    assert rec.winner == "a" and rec.loser == "b"      # only b's back was taken
+    assert reward == pytest.approx((1.0, -1.0))
+    # bounded hold: resolution one ambiguity window after the first trigger
+    assert rec.duration == pytest.approx(t_b + AMBIGUITY_WINDOW_S, abs=1e-6)
+    # premise, measured by the detector alone: a's back lands 0.20 s after b's,
+    # i.e. after the exchange has already been resolved
+    det = _detector_trigger_times(model, q_a, q_b)
+    assert det["b"] == pytest.approx(t_b, abs=STEP_DT)
+    assert det["a"] - det["b"] == pytest.approx(0.20, abs=STEP_DT)
+    assert det["a"] > AMBIGUITY_WINDOW_S and det["a"] > rec.duration
 
 
 def test_oob_forfeit(model):

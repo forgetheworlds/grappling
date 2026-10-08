@@ -174,6 +174,36 @@ Entries appended as experiments run (Phase 2 onward).
   design concern: phases.py infers PRONE from pelvis height/velocity alone, switching the
   stabilizer off for any low pelvis regardless of cause — mitigation/justification requested.
 
+### E6 (2026-10-08) — P0 acceptance-logic fixes (P0Fixes; verified by orchestrator)
+- Curriculum gate rewritten: success is now per-stage — criterion='execution' for A-C (held ground
+  AND mean technique-similarity >= min_similarity) and 'outcome' for D (learner won); draws,
+  losses and unmeasured attempts are non-success slots. Old code provably advanced a stage on an
+  all-draw window (metric 0.5 >= 0.5); new code cannot (min_successes >= 1 enforced).
+  Wiring added: exchange record -> StageReward.shaping(sample=) -> RolloutCollector (per-exchange
+  similarity) -> Trainer -> Curriculum.on_exchange. success_hook left as the documented
+  attribution seam (can only reject, never grant); min_similarity=0.5 is a PLACEHOLDER.
+- Back-to-mat ambiguity now real: after the first trigger the exchange stays open up to
+  AMBIGUITY_WINDOW_S simulating normally, then resolves over all observed triggers. Measured:
+  cross-step gap 0.06 s -> ambiguous (was: winner decided by the first trigger); gap 0.20 s ->
+  first-trigger winner after a bounded 0.10 s hold. Knees/hands still non-terminal; ExchangeRecord
+  semantics unchanged.
+- Tests: 115 passed (was 89) incl. cross-step ambiguity, bounded hold, all-draws-never-advance for
+  every shipped stage, stage-A similarity advance/low-similarity block, degenerate-gate rejection,
+  checkpoint-safety of the new rule.
+
+### E5 (2026-10-08) — operator stance/technique constraint (from personal reference)
+- OPERATOR PREFERENCE (2026-10-08): reference video https://vimeo.com/501599802 shows the technique
+  he favours; his own variation keeps the leg "a little bit more back for balance" — priority is
+  that the robot CAN balance, so rear-leg-back / CoM-over-support geometry is the sanctioned
+  adjustment direction when a reference posture is not holdable.
+- Consistent with our measurements: the STANCE crouch is not open-loop holdable (CoM behind the
+  support polygon; ankle 39/50 Nm) and the two-robot random-STANCE reset collapses every exchange.
+  Rear-leg-back geometry is the cheapest relationship-preserving repair.
+- BLOCKER (no action taken): the video could not be fetched from this host — yt-dlp fails with
+  "Failed to fetch macos OAuth token: HTTP Error 401" and the player config endpoint returns
+  non-JSON. If the file is dropped on the box (any path under data/references/), we will extract
+  frames and fold its geometry into the stance + penetration-step references.
+
 ### E4 (2026-10-08) — env rule videos (EnvVideo) + prior-art review (PriorArt)
 - EnvVideo: all five rule demonstrations rendered and verified (h264 960x720, decode-clean):
   draw-on-timeout, back-contact -> 0.30 s persistence -> trigger -> score -> reset, knees/hands
