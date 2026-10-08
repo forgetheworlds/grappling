@@ -184,6 +184,28 @@ Entries appended as experiments run (Phase 2 onward).
   needed a reset or a fall. All motion-producing agents (teacher, drill, mocap reference) are bound
   to the rubric.
 
+### E22 (2026-10-08) — PROCESS FAILURE (orchestrator): a mid-write clip was committed; restored
+- WHAT HAPPENED: the corrected-HUD re-render ran as a background job INSIDE the drill agent's process;
+  when that agent finished, the job died mid-write, leaving videos/solo_drill/final_L2_motion.mp4 at
+  525 frames / 17.5 s / 2.33 MB — overwriting the verified 70 s / 2100-frame clip. The orchestrator
+  then committed that partial in f41cf40, violating its OWN rule (EVIDENCE_PROTOCOL: verify duration
+  and frame count before committing any mp4). Detected by re-checking the artifact instead of trusting
+  the "render in flight" note.
+- FIX: restored the verified clip from commit ef8c1b8's predecessor (ef8c1b2) — 2100 frames,
+  70.000 s, 960x720; the slow-motion clip is the corrected 409-frame / 13.633 s version at 480x360
+  (labelled diagnostic). No data lost.
+- PROCESS RULES NOW ENFORCED (for all agents and the orchestrator):
+  1) RENDERS WRITE TO A TEMP PATH, get ffprobe-verified (duration + frames + codec/pix_fmt/resolution
+     + a non-black/non-static sample), and are then ATOMICALLY RENAMED over the final name. A partial
+     file must never occupy a final artifact name.
+  2) RENDERS RUN AS SUPERVISED JOBS (named bash services) that outlive an agent's turn — never as
+     in-process background tasks that die with the agent.
+  3) The orchestrator re-checks duration/frames of any mp4 immediately before committing it, and
+     treats "render finished" as an unverified claim otherwise.
+- LESSON: the same class of error as the earlier .omo sweep and the oversized yield — a checkable
+  artifact was committed without running the check. The fix is mechanical, not attitudinal: verify at
+  the moment of commit.
+
 ### E21 (2026-10-08) — L2 discrepancies resolved: safety flash benign/inert, B1 holds, evidence fixed
 - EMERGENCY HUD FLASH — BENIGN AND INERT, and the HUD was misleading: safety_alpha > 0.02 for only
   18 ticks (0.36 s) in exactly 2 episodes (0.16 s at t=15.76, 0.20 s at t=45.74), peaking 0.09/0.11,
