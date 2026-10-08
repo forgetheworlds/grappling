@@ -402,19 +402,27 @@ def install_push_curriculum(env: SoloEnv, tc: dict, steps: int, episode_seed: in
 # critic diagnosis: explained variance over a training-style rollout
 # --------------------------------------------------------------------------
 def rollout_diagnosis(net, env: SoloEnv, tc: dict, steps: int, episode_seed: int, *,
-                      push_curriculum: bool = True, grad_probe: bool = True) -> dict:
+                      push_curriculum: bool = True, grad_probe: bool = True,
+                      reward_scale: float = 1.0) -> dict:
     """Mirror of ``SoloTrainer.collect`` minus the update: sampled actions,
     critic values, GAE targets from the checkpoint's own gamma/lam.
 
     Cheap (~2048 env steps) and reports the numbers the PPO update acts on:
     explained variance, value RMSE, advantage mean/std, return mean/std, and
     (``grad_probe``) the unclipped grad norms of the policy vs value loss terms.
+
+    ``reward_scale`` must be the trainer's ``--normalise-returns`` divisor for
+    the checkpoint under test: the critic is trained on ``reward / scale``, so
+    scoring it against RAW rewards reports EV ~ 0 no matter how well it fits
+    (measured on v6c@100k: the critic's output std was 0.1 against raw return
+    std 14.5).  Everything here is then in the same units as the critic.
     """
     import torch
 
     from rl.ppo import compute_gae
 
     torch.set_num_threads(1)
+    scale = float(reward_scale) if reward_scale else 1.0
     gamma = float(tc.get("gamma", 0.995))
     lam = float(tc.get("lam", 0.95))
     obs = env.reset(seed=int(episode_seed))
@@ -439,7 +447,7 @@ def rollout_diagnosis(net, env: SoloEnv, tc: dict, steps: int, episode_seed: int
         actions[t] = unit
         next_obs, reward, terminated, truncated, info = env.step(
             env.ctrl_from_policy(unit))
-        rewards[t] = float(reward)
+        rewards[t] = float(reward) / scale
         dones[t] = 1.0 if (terminated or truncated) else 0.0
         if terminated or truncated:
             seed += 1
@@ -771,9 +779,22 @@ def cmd_health(args) -> int:
     # the rollout mirrors training conditions at the checkpoint's step: the
     # push curriculum is reinstalled (the no-push probes above disabled it).
     install_push_curriculum(env, tc, steps, episode_seed)
+    # the trainer's --normalise-returns divisor: recorded in the checkpoint state,
+    # or recomputed from its own recent_returns (same formula, so snapshots taken
+    # before the field existed read correctly too).  1.0 when the lever is off.
+    _st = ckpt.get("state") or {}
+    _scale = _st.get("ret_scale")
+    if _scale is None and bool(tc.get("normalise_returns", False)):
+        _rr = _st.get("recent_returns") or []
+        _scale = float(max(np.std(np.asarray(_rr, np.float64)), 1.0)) if len(_rr) else 1.0
+    _scale = float(_scale or 1.0)
+    if _scale != 1.0:
+        print(f"[health] critic was trained on rewards / {_scale:.3f} "
+              f"(--normalise-returns): scoring against the same scale")
     rollout = rollout_diagnosis(net, env, tc, int(args.rollout_steps),
                                 episode_seed, push_curriculum=bool(
-                                    tc.get("push_curriculum", True)))
+                                    tc.get("push_curriculum", True)),
+                                reward_scale=_scale)
     # --- keyframe optimality (reduced grid by default: 1 + 29*4 conditions)
     keyframe = None
     if not args.no_keyframe:

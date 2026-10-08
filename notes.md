@@ -1890,3 +1890,26 @@ scripts/calibrate_scorer.py, scripts/score_trace.py, tests/test_scorer.py.
 - health verdict fix (commit `e9aca1d`): the verdict names the checkpoint's OWN reward set instead of
   flagging the historical reference sets' sub-1% deltas; verified in production ("VERDICT OK" for a
   balance_lit checkpoint whose own set is KEYFRAME MAXIMAL).
+- v6c 100k PRE-REGISTERED READ -- THE CRITIC GATE FAILED, with a measurement caveat recorded:
+  * The first read reported EV +0.001 and value std 0.1 against return std 14.5 -- a UNITS
+    MISMATCH, not a training result: with --normalise-returns the critic is trained on
+    reward/scale (scale = the running return std, 738.9 at this save), so scoring it against RAW
+    rewards is guaranteed to read EV ~ 0.  FIXED: the scale is now recorded in the checkpoint
+    state (`ret_scale`) AND recomputed from `recent_returns` as a fallback (so snapshots taken
+    before the field existed read correctly), and `rollout_diagnosis` divides its rollout rewards
+    by it.  Verified: the critic's output and the probe's returns are now in one scale
+    (mean -0.4 std 0.1 both).
+  * With the fix: **explained_variance -3.579** (falsifier < 0.75 FIRED), value_rmse 0.14 against
+    normalised return std 0.1.  CAVEAT, stated because it bounds the claim: the probe's normalised
+    returns have std 0.1 while the TRAINING returns' normalised std is ~1 (the trainer's
+    value_loss 0.03-0.58 over 0.5*MSE implies a normalised RMSE of 0.24-1.08) -- so the probe is a
+    ~10x narrower distribution than training, and the EV number mixes "does the critic fit" with
+    "does it generalise to a different episode draw".  What is NOT in doubt: the critic is far
+    from a fitted value function in either scale.
+  * Behaviour at 100k (7% of the run, early): no-push fall 0.000, upright 0.542, pelvis 0.445 --
+    the same crouch phase v6a and v6b passed through at this step, so the behavioural reads
+    (200k/400k) are what decide.
+  * NEXT LEVER IF THE CRITIC STAYS UNFIT (pre-registered, not yet run): critic capacity/lr/loss --
+    the value term's grad norm is now 0.15 vs the policy's 18.97, i.e. the value term no longer
+    binds anything; candidates are a separate critic lr, wider trunk, or a Huber value loss (the
+    returns are heavy-tailed by construction: a fall is -1500 raw).

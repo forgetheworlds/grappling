@@ -626,6 +626,7 @@ class SoloTrainer:
             cfg_env = self.vec.config()      # worker-0 conditions + seed block
             state = {"steps_done": self.steps_done, "iteration": self.iteration,
                      "recent_returns": self.recent_returns,
+                     "ret_scale": self._reward_scale(),
                      "_vec_ep_returns": list(self._vec_ep_returns),
                      "vec": self.vec.state()}
         else:
@@ -633,6 +634,7 @@ class SoloTrainer:
             state = {"steps_done": self.steps_done, "iteration": self.iteration,
                      "episode_seed": self.episode_seed,
                      "recent_returns": self.recent_returns,
+                     "ret_scale": self._reward_scale(),
                      "_ep_return": self._ep_return}
         return save_checkpoint(
             p, policy=self.net, optimizer=self.optimizer,
