@@ -581,6 +581,12 @@ class SoloTrainer:
             if self.cfg.save_every and self.steps_done % self.cfg.save_every < \
                     per_iter:
                 self.save()
+                if self.cfg.out:
+                    # step-stamped snapshot beside the rolling "latest": a run that
+                    # degrades late (v6a: fall 0.083 at 600k -> 0.375 at 1.5M) must
+                    # stay diagnosable and selectable after the fact
+                    p = Path(self.cfg.out)
+                    self.save(str(p.with_name(f"{p.stem}_{self.steps_done}{p.suffix}")))
         if self.cfg.out:
             self.save()
         return self.last_stats

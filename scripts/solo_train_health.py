@@ -553,8 +553,17 @@ def _grad_norm_probe(net, tc: dict, actor_obs, critic_obs, actions, logp, adv,
 # trend reads
 # --------------------------------------------------------------------------
 def health_trend(ckpt_path: str | Path | None = None) -> list[dict]:
-    """Upright/fall readings already on disk (monitor + health snapshots)."""
+    """Upright/fall readings already on disk (monitor + health snapshots).
+
+    When ``ckpt_path`` is given, only rows whose recorded ``run`` matches the
+    checkpoint's stem are returned: monitor rows used to be named by step count
+    alone, so reads from different runs (v5 at 1.1M and v6a at 1.1M) overwrote
+    or shadowed each other.  Rows that predate run tagging cannot be attributed
+    and are excluded, with the count reported.
+    """
+    run = Path(ckpt_path).stem if ckpt_path else None
     out = []
+    legacy = 0
     pats = ["t1_*monitor_*.json", "solo_health_*.json", "health_*.json"]
     seen = set()
     for pat in pats:
@@ -572,6 +581,14 @@ def health_trend(ckpt_path: str | Path | None = None) -> list[dict]:
                 up = (d.get("policy") or {}).get("mean_upright")
             if up is None:
                 continue
+            row_run = d.get("run") or (
+                Path(d["checkpoint"]).stem if d.get("checkpoint") else None)
+            if run is not None:
+                if row_run is None:
+                    legacy += 1
+                    continue
+                if row_run != run:
+                    continue
             out.append({
                 "source": p.name,
                 "steps": d.get("steps"),
@@ -581,6 +598,9 @@ def health_trend(ckpt_path: str | Path | None = None) -> list[dict]:
                 "action_mode": d.get("action_mode"),
                 "verdict": d.get("verdict"),
             })
+    if legacy:
+        print(f"[health] trend: {legacy} stored read(s) predate run tagging "
+              f"(unattributable) and were excluded")
     out.sort(key=lambda r: (r["steps"] if r["steps"] is not None else 10**12,
                             r["source"]))
     return out
@@ -785,7 +805,7 @@ def cmd_health(args) -> int:
     inventory = term_inventory(nopush, DEFAULT_CONFIGS[1])
     inventory_battery = (term_inventory(battery, DEFAULT_CONFIGS[1])
                          if battery else None)
-    trend = health_trend()
+    trend = health_trend(args.ckpt)
     snapshot = {
         "checkpoint": str(args.ckpt), "steps": steps, "action_mode": mode,
         "residual_scale": scale, "alive_weight": weights.alive,

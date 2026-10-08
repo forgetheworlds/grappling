@@ -397,11 +397,11 @@ def cmd_monitor(args) -> int:
                _clip_factory(f"T1 monitor - learned policy (steps={steps})",
                              "T1 battery push (8 directions, 3 heights)",
                              int(args.clip_seconds * 30), clip_ep))
-    rep = evaluate(lambda env, seed: PolicyController(net, name=f"t1_monitor_{steps}",
+    rep = evaluate(lambda env, seed: PolicyController(net, name=f"{src.stem}_{steps}",
                                                       stochastic=False),
                    task="balance", seed0=0, push_plan=pushes,
                    gate=GATES["balance"], out_dir=METRICS_DIR, verbose=False,
-                   max_episode_s=4.0, name=f"t1_monitor_{steps}",
+                   max_episode_s=4.0, name=f"{src.stem}_{steps}",
                    clip_factory=factory,
                    env_kwargs={"action_mode": mode, "residual_scale": residual_scale})
     clips = take_clips(rep)
@@ -410,15 +410,16 @@ def cmd_monitor(args) -> int:
     # it here (the baselines path does the same via ``_render``).
     if clips:
         model = load_solo_model()
-        rep["media"] = _render(clips[0], model, f"t1_monitor_{steps}",
+        rep["media"] = _render(clips[0], model, f"{src.stem}_{steps}",
                                _verdict_line(rep),
-                               f"the LEARNED policy (steps={steps}) on the T1 "
-                               f"battery - {rep['verdict']}")
+                               f"the LEARNED policy ({src.stem}, steps={steps}) on "
+                               f"the T1 battery - {rep['verdict']}")
     base = {}
     bpath = METRICS_DIR / "t1_gate_baselines.json"
     if bpath.exists():
         base = json.loads(bpath.read_text()).get("controllers", {})
-    row = {"steps": steps, "action_mode": mode,
+    row = {"steps": steps, "action_mode": mode, "run": src.stem,
+           "checkpoint": str(src),
            "residual_scale": residual_scale, "verdict": rep["verdict"],
            "reasons": rep["reasons"], "aggregate": agg,
            "media": rep.get("media"),
@@ -428,7 +429,7 @@ def cmd_monitor(args) -> int:
                               "time_to_stability_mean", "com_offset_max",
                               "recovery_success_rate")}
                          for k, v in base.items()}}
-    write_json(METRICS_DIR / f"t1_v2_monitor_{steps}.json", row)
+    write_json(METRICS_DIR / f"t1_v2_monitor_{src.stem}_{steps}.json", row)
     print(f"monitor steps={steps} verdict={rep['verdict']} "
           f"fall={agg['fall_rate']:.3f}/{agg['fall_rate_heldout']:.3f}(held) "
           f"upright={agg['mean_upright']} recovery={agg['recovery_success_rate']} "
