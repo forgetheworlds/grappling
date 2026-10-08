@@ -1815,3 +1815,27 @@ scripts/calibrate_scorer.py, scripts/score_trace.py, tests/test_scorer.py.
   fall-penalty artefact), 800k/1.5M the full gate, and a keyframe-optimality re-run to prove the
   weight change preserves the certified-stance acceptance (the term never fires in a no-push scan).
   ~293 steps/s measured under the live capture load.
+- CEM CAPTURE (the operator's experiment, full budget) — RAN, DEMO REJECTED: 41,840 rollouts in
+  3,643.8 s; the episode fell at t=2.34 s (131 ticks) and the checker failed 7/9 criteria
+  (`no_fall, contact_sequence, torso_pitch, com_margin, no_saturation, travel, terminal_stance`;
+  knee_depth and no_foot_slide passed).  Landmark RMS 0.4881 m vs passthrough 0.4967 m: the CEM
+  bought almost nothing.  Artifacts: data/solo/demos/shot_entry_full_a_cem/ep00_seed0/{trace,spec,
+  reference,theta}.npz + check.json (the exit code 1 is `--check` reporting the failure).
+- THE DEMO'S FAILURE IS IN THE PRE-STEP CROUCH, and one of its "failures" was OUR METRIC BUG:
+  * `pitch_deg` read `qpos[base_qadr:base_qadr+7]` -- for a free joint that is (px,py,pz,qw,qx,qy,qz),
+    so the yaw formula consumed the POSITION and qw as (w,x,y,z): the heading, and the SIGN of the
+    sagittal lean, depended on where the robot stood.  On the reference this produced a 122.6 deg
+    pitch jump in one 20 ms tick (all joints <6 deg/tick), so the checker's `torso_pitch` bar
+    (max deviation <= 15 deg) was UNSATISFIABLE and its reported "172 deg at t=1.9 s" was the
+    artifact, not the demo.  FIXED (commit `da57924`): the quaternion slice + a regression test
+    (translation/yaw invariance).  Reference pitch is now smooth (max 2.37 deg/tick, 33.5..70.2 deg).
+  * With the fixed metric the demo TRACKS the reference's torso to **8.5 deg over its first second**
+    (bar 15) and then diverges as it falls (max 239 deg at t=2.5 s).  The fall is at 2.34 s, BEFORE
+    the reference's lead-foot plant (3.62 s): the robot cannot hold the pre-step crouch -- pitch
+    60-70 deg, CoM ahead of the support (`com_margin` FAIL) -- not even for the ~1.2 s the reference
+    spends there.  So: the pipeline runs; demo generation fails in the crouch phase, not in the
+    step/penetration it never reached.
+  * NEXT AT THE RETARGETING RUNG (the isolated root cause, per the fidelity report): the reference's
+    grounding is one constant per take (feet hover +0.111 m / penetrate -0.067 m), so its support
+    polygon -- and any CoM-margin claim built on it -- is off by up to 10 cm.  Re-ground per frame
+    before spending another capture budget.
