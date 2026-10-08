@@ -79,6 +79,10 @@ def parse_args(argv=None):
     ap.add_argument("--pushes", default=None,
                     help="comma impulse magnitudes (N*s) for per-episode random "
                          "pushes (S7 scaled disturbances), e.g. '4,8,12'")
+    ap.add_argument("--clock", default="fixed", choices=("fixed", "gated"),
+                    help="gated: the reference advances only while the robot "
+                         "tracks it (progress is earned; the anti-freeze bound "
+                         "is 2x reference duration with no completion credit)")
     ap.add_argument("--target-kl", type=float, default=0.03)
     return ap.parse_args(argv)
 
@@ -171,8 +175,10 @@ def quick_eval(net: ActorCritic, task: TrackingTask, seeds=EVAL_SEEDS) -> dict:
                          ic_noise=task.ic_noise, xy_noise=task.xy_noise,
                          yaw_jitter_deg=task.yaw_jitter,
                          deviation_mode="hard",
+                         clock_mode=task.clock_mode,
                          seed=int(seeds[i % len(seeds)]))
-        task.env.horizon = seg.duration_s + 2.0
+        task.env.horizon = (2.0 if task.clock_mode == "gated" else 1.0) \
+            * seg.duration_s + 2.0
         obs = ep.reset(seed=int(seeds[i % len(seeds)]))
         R, steps, success, cause = 0.0, 0, False, None
         site, joint = [], []
@@ -257,7 +263,8 @@ def main(argv=None) -> int:
                         deviation_mode="soft" if args.soft_updates > 0 else "hard",
                         soft_penalty=args.soft_penalty,
                         push_impulses=tuple(float(x) for x in args.pushes.split(","))
-                        if args.pushes else None)
+                        if args.pushes else None,
+                        clock_mode=args.clock)
     if args.soft_updates > 0:
         task.set_deviation_mode("soft")
     print(f"[track-train] stage={args.stage} segments={len(task.segs)} "

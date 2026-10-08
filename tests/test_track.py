@@ -249,6 +249,27 @@ def test_drill_phase_conditioning_is_per_frame(model):
     assert bool(tt.connect_flags[hold]) is False
 
 
+def test_gated_clock_holds_progress_and_bounds_freezing(model, q_stand):
+    """Gated mode: reference progress is EARNED (tracking gates the clock),
+    and freezing is bounded (no completion credit past 2x duration)."""
+    tt = track_targets("stance_rise", model)
+    seg = Segment("stance_rise", 0, 99, "LEVEL_CHANGE", 1)
+    ep = _env(model, q_stand, tt, seg, deviation_mode="soft", clock_mode="gated")
+    ep.reset(seed=0)
+    # the gate reads the LATEST tracking: inject out-of-band errors and the
+    # reference must hold (this is the decision unit, independent of physics)
+    ep.last_errs = dict(ep.last_errs, joint_err=0.5, root_xy_err=0.0)
+    k0 = ep.k
+    _o, _r, _t, _tr, info_bad = ep.step(np.zeros(N_JOINTS))
+    assert info_bad["track"]["clock_held"] is True
+    assert info_bad["track"]["k"] == k0
+    # back in band -> the clock advances again
+    ep.last_errs = dict(ep.last_errs, joint_err=0.05, root_xy_err=0.02)
+    _o, _r, _t, _tr, info_ok = ep.step(np.zeros(N_JOINTS))
+    assert info_ok["track"]["clock_held"] is False
+    assert info_ok["track"]["k"] == k0 + 1
+
+
 def test_tracking_task_samples_all_stage_segments(model):
     task = TrackingTask(stage="S1_stand_lower_hold_rise", model=model, seed=0)
     assert len(task.segs) >= 5

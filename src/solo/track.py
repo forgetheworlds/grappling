@@ -258,9 +258,9 @@ class TrackWeights:
     im: ImitationWeights = ImitationWeights()
     # movement accomplishment
     w_root: float = 0.6
-    sigma_root_xy: float = 0.06          # m (tight: the LOWER failure drifts the
-    #: root 0.156 m in 0.36 s while feet stay planted -- with sigma 0.12 the
-    #: first 10 diverging frames cost ~5 % reward and give no gradient)
+    sigma_root_xy: float = 0.08          # m: tight enough to see drift early
+    #: (the LOWER failure drifts 0.156 m in 0.36 s), loose enough to permit the
+    #: balance-mandated fore-aft modifications the brief sanctions
     sigma_root_z: float = 0.04           # m (shallow phases)
     sigma_root_z_deep: float = 0.12      # m (reference pelvis below deep_z_below)
     deep_z_below: float = 0.55           # m
@@ -556,7 +556,9 @@ class TrackingEnv:
                  ic_noise: float = 0.0, xy_noise: float = 0.0,
                  yaw_jitter_deg: float = 0.0, seed: int = 0,
                  ahead_frames: int = AHEAD_FRAMES,
-                 deviation_mode: str = "hard", soft_penalty: float = 2.0):
+                 deviation_mode: str = "hard", soft_penalty: float = 2.0,
+                 clock_mode: str = "fixed",
+                 gate_joint_rad: float = 0.30, gate_root_xy_m: float = 0.12):
         self.env = env
         self.seg = seg
         self.tt = tt
@@ -571,8 +573,25 @@ class TrackingEnv:
             raise ValueError(deviation_mode)
         self.deviation_mode = deviation_mode
         self.soft_penalty = float(soft_penalty)
+        if clock_mode not in ("fixed", "gated"):
+            raise ValueError(clock_mode)
+        #: "gated": the reference frame advances only while the robot actually
+        #: tracks it (joint err <= gate_joint_rad AND anchored root xy err <=
+        #: gate_root_xy_m).  The v1 references are kinematic retargets whose
+        #: TIMING is often dynamically infeasible even where the poses are not
+        #: (E12: 6.9 % statically holdable) -- a wall-locked clock forces the
+        #: policy to chase a target it cannot match and punishes the very
+        #: deviation that balance requires.  A gated clock makes reference
+        #: PROGRESS a tracked accomplishment: freezing is bounded (an episode
+        #: that never reaches the end earns no completion bonus and is cut at
+        #: 2x the reference duration), and "advancing phases without real
+        #: motion" is impossible by construction.
+        self.clock_mode = clock_mode
+        self.gate_joint_rad = float(gate_joint_rad)
+        self.gate_root_xy_m = float(gate_root_xy_m)
         self.N = seg.k1 - seg.k0
         self.k = 0
+        self._steps = 0
         self.anchor_xy = np.zeros(2)
         self.last_terms: dict[str, float] = {}
         self.last_errs: dict[str, float] = {}
@@ -704,6 +723,7 @@ class TrackingEnv:
     def observation(self) -> dict:
         base = self.env.observation()
         block, priv, errs = self._feat()
+        self.last_errs = errs  # the gated clock reads the latest tracking
         actor = np.concatenate([base["actor"], block]).astype(np.float32)
         critic = np.concatenate([base["actor"], block, base["privileged"],
                                  priv]).astype(np.float32)
@@ -721,7 +741,20 @@ class TrackingEnv:
         prev_ctrl = (None if self.env._prev_ctrl is None
                      else np.asarray(self.env._prev_ctrl, np.float64))
         obs, _env_r, terminated, truncated, info = self.env.step(unit_action)
-        self.k += 1
+        self._steps += 1
+        clock_held = False
+        # gated clock: reference progress is EARNED by tracking; when held,
+        # the base action re-serves the SAME reference frame so the robot can
+        # catch up instead of chasing an unreachable moving target
+        if self.clock_mode == "gated" and self.last_errs:
+            e = self.last_errs
+            if (e["joint_err"] > self.gate_joint_rad
+                    or e["root_xy_err"] > self.gate_root_xy_m):
+                clock_held = True
+            else:
+                self.k += 1
+        else:
+            self.k += 1
         block, priv, errs = self._feat()
         ctrl = np.asarray(self.env.data.ctrl, np.float64)
         action_delta = 0.0 if prev_ctrl is None else float(
@@ -761,6 +794,11 @@ class TrackingEnv:
         if cause is not None:
             reward -= self.w.terminal_penalty
             terminated = True
+        elif self._steps >= 2 * self.N and self.clock_mode == "gated":
+            # anti-freeze bound: the reference end was never reached within
+            # twice the reference duration -> no completion credit
+            cause = "clock_budget"
+            truncated = True
         elif self.k >= self.N - 1:
             reward += self.w.completion_bonus
             success = True
@@ -775,6 +813,8 @@ class TrackingEnv:
         info = {**info, "track": {"segment": self.seg.name, "label": self.seg.label,
                                   "k": self.k, "frames": self.N,
                                   "cause": cause, "success": success,
+                                  "clock_held": bool(clock_held),
+                                  "steps": self._steps,
                                   "terms": terms, "errs": errs}}
         return out, float(reward), terminated, truncated, info
 
@@ -788,7 +828,8 @@ class TrackingTask:
                  push_schedule=None, record_metrics: bool = True,
                  stage_override: list[Segment] | None = None,
                  deviation_mode: str = "hard", soft_penalty: float = 2.0,
-                 push_impulses: tuple[float, ...] | None = None):
+                 push_impulses: tuple[float, ...] | None = None,
+                 clock_mode: str = "fixed"):
         from .scene import stand_frame
 
         if stage not in STAGE_ORDER:
@@ -814,9 +855,11 @@ class TrackingTask:
         #: these impulse magnitudes (N*s), 1-3 per episode at random times.
         self.push_impulses = tuple(push_impulses) if push_impulses else None
         self._dynamic_pushes = self.push_impulses is not None
+        self.clock_mode = clock_mode
         self.ep = TrackingEnv(self.env, self.segs[0], track_targets(
             self.segs[0].source, self.model), weights=self.w, q_stand=self.q_stand,
-            deviation_mode=deviation_mode, soft_penalty=self.soft_penalty)
+            deviation_mode=deviation_mode, soft_penalty=self.soft_penalty,
+            clock_mode=clock_mode)
         self.episode = 0
 
     def sample_segment(self) -> Segment:
@@ -844,8 +887,10 @@ class TrackingTask:
                               yaw_jitter_deg=self.yaw_jitter,
                               seed=int(self.rng.integers(0, 2**31 - 1)),
                               deviation_mode=self.deviation_mode,
-                              soft_penalty=self.soft_penalty)
-        self.env.horizon = seg.duration_s + 2.0
+                              soft_penalty=self.soft_penalty,
+                              clock_mode=self.clock_mode)
+        self.env.horizon = (2.0 if self.clock_mode == "gated" else 1.0) \
+            * seg.duration_s + 2.0
         if self._dynamic_pushes:
             n = int(self.rng.integers(1, 4))
             specs = []
