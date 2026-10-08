@@ -1980,6 +1980,38 @@ scripts/calibrate_scorer.py, scripts/score_trace.py, tests/test_scorer.py.
   cannot be cheaper than falling.  Read: upright >= 0.84 AND fall <= 0.05 at 400k; falsifier: if the
   crouch persists, the drift is a value-error artefact and the lever is critic capacity, not the
   termination structure.
+- TWO-AGENT PIPELINE (operator brief) -- GATE VERDICTS, both agents done:
+  * AGENT 1 (MotionRef, 3 commits, 2h27m + 5m30s fix round): ACCEPTED after one defect round.  The
+    orchestrator independently re-verified the load-bearing claims: grounding fixed (stance median
+    sole z +0.0376 -> -0.0112 m), REPEAT seam closure 0.0008 rad at the true loop point, per-step
+    joint deltas <= 0.119 rad, the loader prints the 23-phase table, no `expert_action` field
+    anywhere, and the dynamic-probe frames were WATCHED ("FELL at 1.18s (kept, honest failure)").
+    Returned and fixed: a broken test from its own last commit, the BC corpus invalidated by the
+    re-grounding (rebuilt from v1), and an understated penetration limitation (~1.1 cm in HELD
+    postures, at the G2 bar).  Suite after fixes: 310 passed.
+  * AGENT 2 (MotionLearn, 8 commits, 1h23m): ACCEPTED AS PARTIAL, honestly reported.  Built:
+    src/solo/track.py (reference-conditioned env, 55-dim REF block fixing the dead obs[114]),
+    7-stage curriculum over 37 segments, eval/render tooling, baselines with provenance, 14 tests.
+    PROVEN: reference conditioning real (nearest-centroid phase classification 0.854 vs 0.083
+    chance); anti-gaming hole CLOSED (a pelvis drop >0.20 m below a standing reference is terminal,
+    same consequence as a fall, + 4.2x reward dominance); and -- a first for this project -- the
+    policy HOLDS Agent 1's deep 0.345 m-wide stance in real MuJoCo physics (site RMS 0.027-0.052 m,
+    joint 0.03-0.05 rad, upright 0.997, contacts matching the reference).
+    BLOCKER, diagnosed and independently consistent: the dynamic LOWER segment fails at 0.36 s in
+    all 6 arms (~700k steps) with feet planted and joints tracking at 0.04 rad while the ROOT
+    drifts 0.156 m fore-aft in 0.36 s -- the v1 references' TIMING is dynamically infeasible.  This
+    converges with two independent measurements from this session (the retargeted crouch topples in
+    1.18-1.24 s under its own targets; a 41,840-rollout CEM search reached only 2.34 s) and with
+    Agent 1's own `known_infeasible` label on that segment.  Three measurements, one conclusion.
+    HONESTY SIGNALS: the final continuous drill video was correctly WITHHELD (criteria not met);
+    the failure clip is kept beside the passing one; the session-budget cut (~44 updates) is
+    reported rather than dressed up.
+    VERIFIED BY THE ORCHESTRATOR: 324 tests pass, the terminal rule is in the code, the baselines
+    and provenance JSONs exist.
+  * NEXT BOTTLENECK IS AT THE REFERENCE LAYER, NOT THE RL LAYER: an offline dynamic re-timing /
+    re-shaping pass (bake the operator-sanctioned geometry repairs into the reference once, then
+    fixed-clock training) is the identified next task, with two supporting levers (reward root PATH
+    progress instead of path+time; use the repo's dynamics-in-the-loop CEM solutions as targets).
 - v6d FINAL (1,501,184 steps, `steps_done` verified in the checkpoint): fall 0.083 / held 0.125,
   upright **0.551**, recovery **0.0**, maxJ_held 0.0, t_stab None, com_max 0.186 -> not_certified.
   Series: 200k 0.167/0.708/0.208/12 -> **400k 0.083/0.799/0.5/8 (the peak)** -> 600k (read in flight)
