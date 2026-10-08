@@ -198,6 +198,47 @@ Entries appended as experiments run (Phase 2 onward).
   (v3, launched), (3) TERMINATION-PENALTY MAGNITUDE if v3 still collapses — reducing the −100 is the
   named next lever rather than "adding reward signal", which is already dense.
 
+### E31 (2026-10-08) — LITERATURE CHECK ("if something is failing, search"): four levers, and a CORRECTION to E30
+- SOURCES (read in full, not summarised from abstracts): van Marum et al., "Revisiting Reward Design
+  and Evaluation for Robust Humanoid Standing and Walking" (arXiv:2404.19173) — a humanoid SaW
+  controller with OUR EXACT interface (policy outputs joint-space PD setpoints, 50 Hz control, 2 kHz
+  PD, PPO, episodic with early termination on fall); Yang et al., "Learning Whole-body Motor Skills
+  for Humanoids" (arXiv:2002.02991) — one policy learning ankle/hip/foot-tilt/stepping push recovery.
+- BUDGET — the uncomfortable comparison: 2002.02991 trained on a SINGLE 4-CORE i7-6700K and converged
+  in TWO DAYS. Our runs are 2M steps ≈ 1.6 h. We are ~30x short of a demonstrated budget for this
+  exact capability class on comparable hardware. "Balance is unlearnable here" is not supported by
+  two-hour runs; the honest statement is "we have not yet spent the budget this literature used".
+- CORRECTION TO E30 defect 2: I accepted the "~13 N*s analytic non-stepping ceiling" from eval.py's
+  note without checking it. The published formula (2002.02991 eq. 6) is J_reject = m*dCOP*sqrt(g/z_c);
+  with G1-scale numbers (m ~ 35 kg, z_c ~ 0.72 m) and our MEASURED stance (0.315 m wide x 0.351 m
+  deep => dCOP ~ 0.16-0.18 m) that gives ~20-23 N*s, i.e. ABOVE the 16 N*s bar. If that holds, the T1
+  bar does NOT require stepping; the real defect is a TRAIN/TEST MAGNITUDE MISMATCH (curriculum reaches
+  12 N*s, gate tests 16-25 N*s). T1GateCal is corrected to compute the ceiling from the model before
+  finalising any threshold, and the operator's capability split stands, but its justification is now
+  the measured ceiling + the train/test gap, not the stale 13 N*s figure.
+- FOUR TRANSFERABLE LEVERS, in expected impact order:
+  1. DISTURBANCE DISTRIBUTION: 2002.02991 applies pushes repeatedly (about every 5 s) drawn from
+     [0.5x, 2x] the analytic ceiling; 2404.19173 applies a 1% per-frame chance of a 200-800 N
+     single-timestep push. We ramp slowly to 12 N*s and then TEST at 16-25. Train across the tested
+     range instead.
+  2. MODEL + ACTION SIZE: 2002.02991 reaches full push recovery with a 100-50-25 MLP controlling only
+     11 joints, upper body LOCKED. We use 2x256 over all 29 joints. Smaller net + a joint mask
+     (arms/waist frozen at the stand keyframe) is a first-order sample-efficiency lever.
+  3. MISSING REWARD TERMS: CoM horizontal target = the CENTRE OF THE SUPPORT POLYGON ("to provide
+     maximum disturbance compensation"), CoM velocity target from the capture point, a heavily
+     weighted roll/pitch orientation term (their largest, 0.2), base height exp(-20|pz-ch|), even
+     left/right GRF distribution, action-difference + torque/energy smoothing, and a per-touchdown
+     airtime penalty (0.4) to regularize step frequency.
+  4. STANDING MUST NOT REQUIRE DOUBLE FOOT CONTACT: 2404.19173 states this explicitly — rewarding
+     double contact penalizes the recovery steps that require breaking contact and makes walk->stand
+     choose the nearest stance rather than the most stable. Standing should emerge from the other terms.
+  Also: PPO mirror loss for symmetry (2404.19173); and their evaluation metrics (standing fall %,
+  angular error + lateral drift from a 2 ft circle, distance travelled vs commanded, energy per metre)
+  map onto our T1/T2/T3 gates without needing motion capture.
+- DISPATCHED: LitImplement (all of the above behind default-OFF flags, with per-term unit tests that
+  assert numbers on hand-constructed states, a joint-mask test through the real step path, and a
+  ready-to-paste v6 command line — NOT launched, so v5 stays interpretable). T1GateCal corrected.
+
 ### E30 (2026-10-08) — T1's GATE IS UNATTAINABLE AS WRITTEN (verified) — the second reason no policy passed
 - VERIFIED by reading `data/solo/metrics/t1_gate_baselines.json` (stored measurements) against
   `src/solo/eval.py` GATES["balance"]. `stand_hold`, the scripted reference hold, passes only 2 of 7
