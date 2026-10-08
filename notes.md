@@ -198,6 +198,31 @@ Entries appended as experiments run (Phase 2 onward).
   (v3, launched), (3) TERMINATION-PENALTY MAGNITUDE if v3 still collapses — reducing the −100 is the
   named next lever rather than "adding reward signal", which is already dense.
 
+### E35 (2026-10-08) — SIXTH CANDIDATE CAUSE: partial observability (our actor is memoryless; the expert is not)
+- THE OBSERVATION: our actor observation is MEMORYLESS — frame_stack = 1, with the previous action as
+  the only history — while the standing-and-walking controller we are learning from (arXiv:2404.19173)
+  uses a (64,64) LSTM over a comparable observation set, and TeacherDataAudit measured that our own
+  hand-built balancer's behaviour depends on HIDDEN state (integrators, alpha = 1.0, rate-limiter memory)
+  that is not observable. So the teacher's non-Markovianity is plausibly not an accident of that
+  implementation but a symptom of the task class.
+- WHY IT BELONGS ON THE LIST: it is a SIXTH candidate cause, independent of the five already recorded —
+  (1) exploration failure (E26/E27), (2) interface bugs (E27/ConfigFix), (3) an unattainable gate (E30),
+  (4) reward misalignment (E33), (5) data/teacher fitness (E34). Every one of the first five was
+  diagnosed only after the fact; this one is being recorded BEFORE v6 so a v6 outcome is not attributed
+  to reward by default.
+- GROUNDING (what to check rather than assume): our actor obs does carry joint positions/velocities,
+  base velocity, gravity-relative orientation, contacts, the previous action and the command, which makes
+  a memoryless policy PLAUSIBLE for pure balance — but not obviously sufficient for TIME-INDEXED
+  reference tracking. ImitationBC independently found the related gap: the actor layout has a shot-phase
+  field and a 12-way skill one-hot but NO per-skill clock and NO reference/ghost pose (marker targets are
+  critic-only), so the same observed pose+velocity can map to different reference frames with different
+  actions. That is partial observability of exactly the kind that caps tracking and then masquerades as a
+  data-quality problem.
+- LEVER, STAGED: PPOConfig already supports `frame_stack > 1`, so a frame stack is the CHEAP probe
+  (no architecture change); a small recurrent layer is the expensive one and is deliberately deferred.
+  Dispatched to LitImplement as its own stage — one lever per run, with a falsifier, never bundled with a
+  reward change — and recorded as an explicit alternative explanation for v6's result.
+
 ### E34 (2026-10-08) — TEACHER IS A WEAK *AND NON-MARKOVIAN* EXPERT; 0/5 data sources fit the S5/S6 plan -> the demonstration strategy must change
 - VERDICT (TeacherDataAudit, report reports/2026-10-08/teacher_data_audit.md; 8/8 self-checks pass,
   16 tests pass): the teacher is a WEAK EXPERT. Cloning its actions reproduces "not falling", not a drill.
