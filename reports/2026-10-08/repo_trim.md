@@ -10,7 +10,7 @@ using *evidence per item* (reference map), never names.
 | **PIN** | `61e8bd1a5723f218ce4f7b1b882ece3af9f24e85` | HEAD when the baseline test count was taken (immutable) |
 | **DELREF** | `72956f3` | HEAD immediately *before* the deletions → every deleted path is recoverable with `git show 72956f3:<path>` |
 | **TRIM** | `46fb84f` | the deletion commit itself |
-| HEAD now | `96478e1` | after concurrent peer commits (E30/E31/E33, T2 gate) |
+| HEAD now | `4875e73` (local) | after concurrent peer commits (E30/E31/E33, T2 gate, T1-gate calibration); the after-count worktree was taken at `96478e1` |
 
 Method: a reference map was built from (a) real import statements (`from X import`, `import X.Y`)
 across all `.py/.mjs`, (b) `scripts/*.py` and `workflows/*.js` entry points, (c) `tests/**`,
