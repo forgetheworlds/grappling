@@ -328,9 +328,13 @@ defects: imageio reports `nframes: inf` for these ffmpeg-written mp4s, and the `
 turned it into an int (OverflowError); the `isfinite` guard landed in commit `103dcee` (09:08), AFTER these
 bundles were written. RE-VERIFIED 2026-10-08 with the CURRENT `verify_clip`: all 8 indexed clips return
 `ok: true` (h264/yuv420p, non-static). No bundle was rewritten; VISUALS 10b now states the status
-explicitly. Three clips are genuinely KNOWN-BAD as artifacts — truncated mid-write, NOT merely unverified:
-`99_failure_entry_L2.mp4` (1.867 s / 56 frames vs an expected 11 s), `99_failure_push90N_diag.mp4`
-(3.167 s / 95 frames vs an expected 7 s), `final_L2_entry_walk.mp4` (9.23 s of 15.6 s; not indexed).
+explicitly. **CORRECTION (2026-10-08, EvidenceFix, frame-exact): NO artifact is KNOWN-BAD — my first
+pass wrongly called the three "duration mismatch" clips truncated. An episode that ENDS IN A FALL is
+shorter than its render window, and the frame counts match `round((min(t1, trace_end) - t0) * 30) + 1`
+exactly: `99_failure_entry_L2.mp4` 56 frames / 1.867 s (fall at 2.82 s), `99_failure_push90N_diag.mp4`
+95 frames / 3.167 s (fall at 9.14 s), `final_L2_entry_walk.mp4` 277 frames / 9.233 s (fall at 9.60 s,
+window t0=0.4). The old "expected 11 s / 7 s / 15.6 s" ignored the episode end. All three re-verify
+`ok:true`, non-static.**
 Also found while fixing (not in DeltaAudit's 11): the M_P30→M_E28f provenance staleness in the 10b row
 (F2 note) and the "0.25x" slowmo mis-label above.
 
@@ -372,10 +376,12 @@ Also found while fixing (not in DeltaAudit's 11): the M_P30→M_E28f provenance 
   not asked to own. Reported to Main.
 
 - NOT FIXED / OUT OF SCOPE: the artifacts themselves were not re-rendered except F1's (the constraint was
-  "keep renders short", and 6 of the 8 indexed clips are honest footage of the run they cover — only their
-  labels/windows/truncation were wrong). The slowmo and the two truncated failure clips still need a
-  re-render if they are to be cited as evidence; the commands are unchanged
-  (`render --npz … --out …`, with `--speed 0.25` for the slowmo and a full-window `t1` for the failures).
+  "keep renders short", and the indexed clips are honest footage of the run they cover — only their
+  labels/windows/provenance were wrong; there is no truncation). What still NEEDS a re-render to match
+  its own (now-corrected) label is the slow-motion clip: `02_slowmo_level_change_quarter_speed.mp4` on
+  disk is the old 3.033 s / 91-frame 1.0x render, while EvidenceFix's corrected `CLIP_SPECS` entry now
+  specifies t=0–8.06 s at `speed=0.25`. Commands are unchanged
+  (`render --npz … --out …`, with `--speed 0.25` for the slowmo).
 
 ### E31 (2026-10-08) — LITERATURE CHECK ("if something is failing, search"): four levers, and a CORRECTION to E30
 - SOURCES (read in full, not summarised from abstracts): van Marum et al., "Revisiting Reward Design
