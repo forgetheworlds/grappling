@@ -105,13 +105,13 @@ STAGE_ORDER: tuple[str, ...] = (
 )
 #: stage -> (ic joint noise rad, xy noise m, yaw jitter deg, start-frame jitter)
 STAGE_CONDITIONS: dict[str, tuple[float, float, float, int]] = {
-    "S1_stand_lower_hold_rise": (0.00, 0.0, 0.0, 0),
-    "S2_first_step": (0.01, 0.005, 2.0, 0),
-    "S3_footwork": (0.01, 0.01, 3.0, 0),
-    "S4_level_change": (0.01, 0.01, 3.0, 0),
-    "S5_entry_recovery": (0.01, 0.01, 3.0, 0),
+    "S1_stand_lower_hold_rise": (0.00, 0.0, 0.0, 15),
+    "S2_first_step": (0.01, 0.005, 2.0, 15),
+    "S3_footwork": (0.01, 0.01, 3.0, 20),
+    "S4_level_change": (0.01, 0.01, 3.0, 15),
+    "S5_entry_recovery": (0.01, 0.01, 3.0, 20),
     "S6_connected_drill": (0.005, 0.005, 2.0, 0),
-    "S7_robustness": (0.02, 0.015, 5.0, 25),
+    "S7_robustness": (0.02, 0.015, 5.0, 60),
 }
 
 
@@ -258,8 +258,10 @@ class TrackWeights:
     im: ImitationWeights = ImitationWeights()
     # movement accomplishment
     w_root: float = 0.6
-    sigma_root_xy: float = 0.12          # m
-    sigma_root_z: float = 0.06           # m (shallow phases)
+    sigma_root_xy: float = 0.06          # m (tight: the LOWER failure drifts the
+    #: root 0.156 m in 0.36 s while feet stay planted -- with sigma 0.12 the
+    #: first 10 diverging frames cost ~5 % reward and give no gradient)
+    sigma_root_z: float = 0.04           # m (shallow phases)
     sigma_root_z_deep: float = 0.12      # m (reference pelvis below deep_z_below)
     deep_z_below: float = 0.55           # m
     w_site: float = 1.0                  # the PRIMARY tracking term (landmarks)
@@ -825,11 +827,17 @@ class TrackingTask:
             self.rng = np.random.default_rng(int(seed))
         seg = self.sample_segment()
         tt = track_targets(seg.source, self.model)
-        max_k0 = max(seg.k1 - 1 - max(300, seg.k1 - seg.k0), seg.k0)
-        if self.start_jitter > 0 and seg.k1 - seg.k0 > 300:
-            k0 = int(self.rng.integers(seg.k0, max_k0 + 1))
-            seg = Segment(seg.source, k0, min(k0 + 300, seg.k1), seg.label,
-                          seg.lead, seg.connect, seg.validity, seg.weight)
+        n = seg.k1 - seg.k0
+        if self.start_jitter > 0 and n > 3 * self.start_jitter:
+            # mid-segment starts (BeyondMimic's keyframe-proximity resets): the
+            # policy first learns to finish the tail from a live start, which
+            # bootstraps the harder early frames; window = remainder of the
+            # segment (capped at 300 frames).
+            j = int(self.rng.integers(0, min(self.start_jitter, n // 3)))
+            k0 = seg.k0 + j
+            k1 = min(k0 + max(n - j, 1), seg.k1 if n <= 300 else k0 + 300)
+            seg = Segment(seg.source, k0, k1, seg.label, seg.lead, seg.connect,
+                          seg.validity, seg.weight)
         self.ep = TrackingEnv(self.env, seg, tt, weights=self.w,
                               q_stand=self.q_stand, ic_noise=self.ic_noise,
                               xy_noise=self.xy_noise,
