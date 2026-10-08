@@ -198,6 +198,26 @@ Entries appended as experiments run (Phase 2 onward).
   (v3, launched), (3) TERMINATION-PENALTY MAGNITUDE if v3 still collapses — reducing the −100 is the
   named next lever rather than "adding reward signal", which is already dense.
 
+### E27 (2026-10-08) — BUG: the residual action path double-mapped; v4's premise was void
+- CONFIRMED BY READING CODE (not inferred): `env.step(action)` calls `resolve_action` (env.py:367-376,
+  358-364) which in residual mode returns `clip(base + residual_scale*tanh(action))`, while the
+  trainer pre-mapped the action with `ctrl_from_unit(unit) = mid + half*unit` (train.py:164,
+  env.py:338-347). Net effect: `ctrl = base + 0.5*tanh(mid + half*unit)`. At `unit = 0` that is
+  `base + 0.5*tanh(mid)` — for a joint with ctrlrange midpoint 1.0 rad that is a +0.38 rad offset, so
+  the commanded pose was NOT the `a_stand` keyframe. v4 therefore never initialised as the stand
+  controller, and any gate read from it would have been misattributed to the residual idea.
+- ACTION: v4 stopped (14m53s in, before it could produce a misleading result); SoloEnv dispatched to
+  make the mapping mode-aware in one place (absolute keeps `ctrl_from_unit`; residual passes the RAW
+  unit action because `step` applies `base + scale*tanh(·)` itself), with four required tests —
+  crucially `unit = 0 ⇒ data.ctrl == env._base_action` asserted THROUGH the real `step` path, the
+  absolute-mode behaviour preserved, a round-trip `ctrl == base + scale*tanh(unit)`, and the same
+  check applied to the evaluation/monitor path (a shared bug there would invalidate every gate read).
+- GENERALISED LESSON (added to the mid-run probe skill): when a run's premise is an INITIALISATION
+  property (e.g. "at init the policy is the base controller"), assert it mechanically at startup and
+  print the number — here a one-line max-abs-difference between the first step's ctrl and
+  `_base_action` would have caught it before 15 minutes of training and before any interpretation.
+  Shaping/optimizer levers should not be blamed while an unverified interface premise is in play.
+
 ### E26 (2026-10-08) — T1 v3 (alive-weight 10): return rose, behaviour did not — explore-vs-shape diagnosed
 - RESULT: v3 finished 2.0M steps (exit 0, checkpoint t1_balance_v3.pt). Gate (48-push battery vs
   baselines): fall_rate 0.104 / held-out 0.083, mean_upright **0.0475**, recovery 0.0, maxJ_held 0.0,
