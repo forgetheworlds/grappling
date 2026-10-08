@@ -1963,3 +1963,20 @@ scripts/calibrate_scorer.py, scripts/score_trace.py, tests/test_scorer.py.
   configuration that both keeps the policy off the floor AND recovering; the remaining gap to T1 is
   the upright bar (0.799 vs 0.84), which is the crouch-under-push behaviour documented at 200k.
   Next: 800k read, then the 1.5M gate.
+- v6d 800k READ -- LATE DEGRADATION AGAIN, so it is SYSTEMIC, not lever-specific:
+  fall 0.125, upright **0.516** (was 0.799 at 400k), recovery **0.0** (was 0.5), maxJ_held **0.0**
+  (was 8.0).  Trend: 200k 0.167/0.708/0.208/12 -> 400k 0.083/0.799/0.5/8 -> 800k 0.125/0.516/0.0/0.
+  v6a peaked at 600k and degraded; v6d peaks at 400k and degrades -- the SAME collapse-into-crouch
+  shape in both, with different levers.  The 400k snapshot (fall 0.083 = best of any v6 run, upright
+  0.799, recovery 0.5) is the best T1 candidate so far and is preserved.
+  READING: the two critic levers fixed the *early* trajectory (v6d reaches at 400k what v6a reached
+  at 600k, with better recovery) but neither fixes the late drift.  The remaining structural defect
+  is the one the audit's P0-2 named and this session measured twice: with a 1500 fall penalty against
+  ~1.16/step of posture shaping, a crouch that avoids one fall is worth ~1000 steps of posture, so
+  the crouch is a local optimum UNLESS leaving the stance ends the episode.  The operator's own T1
+  definition ("maintain a good stance") says exactly that: an invalid stance is a failure.
+  NEXT LEVER (pre-registered, not yet implemented): a stance-validity TERMINATION in the env (the
+  shared stance predicate false for >~0.5 s -> terminal, same penalty as a fall), so crouching
+  cannot be cheaper than falling.  Read: upright >= 0.84 AND fall <= 0.05 at 400k; falsifier: if the
+  crouch persists, the drift is a value-error artefact and the lever is critic capacity, not the
+  termination structure.
