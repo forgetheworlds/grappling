@@ -198,6 +198,185 @@ Entries appended as experiments run (Phase 2 onward).
   (v3, launched), (3) TERMINATION-PENALTY MAGNITUDE if v3 still collapses — reducing the −100 is the
   named next lever rather than "adding reward signal", which is already dense.
 
+### E33 (2026-10-08) — v5 VERDICT: NEGATIVE (stopped) — reward misalignment, the fourth distinct cause; and the T1 gate is now calibrated + attainable
+- v5 RESULT (stopped at 28m8s, step ~301k): the policy DEGRADED away from its own validated warm start.
+  @100k fall 0.458/0.542 held, upright 0.652, com_max 0.161; @301k fall 0.708/0.667 held, upright 0.583,
+  com_max 0.322. It initialised AT the scripted stand pose (startup max|ctrl-base| = 0.002645 rad) and
+  learned its way BELOW it (stand_hold: fall 0.292, upright 0.849). Stopped on that evidence rather than
+  burning the box to 2M steps.
+- FOURTH CAUSE, and again a different one: (1) exploration failure (E26/E27), (2) interface bugs (E27,
+  ConfigFix), (3) an unattainable gate (E30), now (4) REWARD MISALIGNMENT — nothing in the balance
+  reward penalises deviating from the base pose, so with residual_scale 0.5 (about +-0.38 rad) the policy
+  is free to wander into a posture that scores better while standing worse. The literature's pose /
+  base-height / action-difference terms (E31) target exactly this, and LitImplement is implementing them.
+  Shape of the lesson: every failure so far was attributable AFTER the fact, and none of the three earlier
+  explanations predicted this one.
+- CEILING MEASURED (settles E30/E31): J_reject = m*dCOP*sqrt(g/z_c) with m = 33.3411 kg and CoM
+  z_c = 0.6919 m from the model gives 6.69-20.72 N*s DIRECTION-DEPENDENT. The "~13 N*s scalar" in
+  eval.py:313 AND pushes.py:18-19 is WRONG. 16 N*s sits inside the LATERAL envelope; 20/25 N*s exceed the
+  envelope in every direction. So the <=12 N*s gating cap is justified by matching the TRAINING
+  distribution, NOT by physics — different justifications, and only this one is true.
+- T1 GATE CALIBRATED (T1GateCal; 17 tests pass, tests/solo/ 25 pass). Proposed IN-BAND gate (magnitudes
+  <= 12 N*s): fall_rate <= 0.05; mean_upright >= 0.84; time_to_stability <= 1.0 s; com_offset_max
+  <= 0.20 m; fall_rate_heldout <= 0.10 over held-out CONDITIONS = off-training application heights
+  {0.79, 1.10} (training fixes height 0.95). The old magnitude-based held-out definition would have been
+  left EMPTY by the cap and passed vacuously; the new one is non-empty (16) and disjoint from training.
+  stand_hold PASSES (fall 0.0417, upright 0.913239, t_stab 0.1233, com_max 0.1236, held-out fall 0.0625);
+  zero_action and random_init_policy FAIL; v5@100k FAILS (0.375 / 0.665). The intended uprightness bar's
+  own provenance was wrong: its "StandHold measured 0.923" came from the OLD in-train-only 40-episode
+  battery; on the shipped battery the reference is 0.849118 — so the bar was unattainable by construction.
+- CAVEAT RECORDED SO IT IS NOT OVERREAD: with the capability split a scripted hold passes T1, so T1
+  certifies a FLOOR ("at least as good as the hand-engineered stabiliser"), not that learning added
+  value. The value of learning is demonstrated at T5-T7, not by T1.
+- DISPOSITION: v5 stopped, box free, and NO filler run launched — a run whose reward is known-misaligned
+  would only produce another unattributable artifact. v6 = literature stage 1 (pose/base-height/
+  action-difference terms, frozen non-balancing joints) once LitImplement lands, measured against the
+  corrected gate. The eval.py gate diff is PENDING-OWNER on T2Gate's dirty file.
+
+### E32 (2026-10-08) — CLAIM AUDIT: all 11 defects corrected (7 FALSE, 4 UNVERIFIABLE) + the F1 contrast clip RE-RENDERED
+- NOTE ON THE ID: this correction entry was ticketed as E31, but E31 was already taken by the literature
+  check (added concurrently, commit 72956f3). The ledger is append-only, so it lands as E32. Nothing has
+  been deleted or rewritten anywhere in notes.md: every false sentence is kept verbatim and carries an
+  inline `+[CORRECTED: …]` marker (the E23b/E28/E29 convention).
+- AUTHORITY: `reports/2026-10-08/claim_audit.md` (DeltaAudit) + my own re-checks of the files it names.
+  Disposition table appended to that report (see its "Disposition" section).
+
+**The 7 FALSE claims — all CORRECTED-INLINE:**
+- **F1** (was WORST) "the PD baseline (`01_baseline_stancepd.mp4`) topples on the identical pose at 8.4 s"
+  — sources `docs/VISUALS.md:21` (10b row) and `notes.md` E13 ("Same-pose PD baseline TOPPLES at 8.4 s").
+  Measured: the indexed clip is rendered from `BASE_PD_stance_pd_L1_seed0` — falls=0, pelvis z
+  0.7235-0.7279 m for the full 11.98 s — while the run that topples is the SEPARATE
+  `BASELINE_PD_stance_pd_L1_seed0` (falls=1 @ 8.38 s, pelvis z min 0.299 m). → **RE-RENDERED** as
+  `videos/solo_drill/01_baseline_pd_topples.mp4` (see below). The old file is kept, relabelled for what
+  it actually is (a stable 12 s base-PD hold), and its bundle carries a `caption_correction`.
+- **F2** `final_L2_motion.mp4` "95 s, 6 steps, 0.30 m" — source `docs/VISUALS.md:21`. Measured: the clip
+  is **70.000 s / 2100 frames** (ffprobe), bundle `step_count = 5` (t = 15.9/29.34/45.9/50.72/64.48). The
+  95 s / 6 steps / 0.30 m figures are the SUPERSEDED `M_P30` run; the shipped clip is `M_E28f`
+  (69.98 s / 5 steps / 0.28 m, rung L3). → **CORRECTED-INLINE** (row now also states the bundle's own
+  `ship gate=FAIL`, which the row omitted).
+- **F3** `L1_90s_with_pushes.mp4` "a 90 s rung-L1 clip" — `docs/VISUALS.md:21`. Measured: **60.033 s /
+  1801 frames** (ffprobe) for a 89.98 s run, because `cmd_suite` renders the window t=0–60 s by design
+  (not a mid-write truncation, as DeltaAudit assumed) — so the t=62 s third push is not in the clip.
+  → **CORRECTED-INLINE** (row now states run 90 s ≠ clip 60 s and that only 2 of 3 pushes are visible).
+- **F4** "L0 = the same stance held 60 s" — `docs/VISUALS.md:21`. Measured: the RUN is 59.98 s
+  (`FINAL_L0_60`) but the indexed CLIP `L0_hold_30s_diag.mp4` is **30.033 s / 901 frames @ 480x360**
+  (ffprobe), a deliberate t=0–30 s diagnostic window. → **CORRECTED-INLINE** (also fixed the name: the
+  real file carries the `_diag` suffix).
+- **F5** E26 "→ NOT CERTIFIED (2/7)" — `notes.md` E26. Measured: `data/solo/metrics/t1_v2_monitor_2000896.json`
+  lists 6 FAIL / 1 PASS = **1/7** (`not_certified`). → **CORRECTED-INLINE** (marker at that sentence).
+- **F6** E14 "Every clip is ffprobe-verified … plus a non-black/non-static check" — `notes.md` E14.
+  Measured: every bundle indexed in VISUALS 10b records `clip_verification.ok: false` (12 of 13 bundles,
+  all with "decode failed: cannot convert float infinity to integer"). → **CORRECTED-INLINE**; the clips
+  themselves got a disposition too (below).
+- **F8** indexed path `99_failure_push90N.mp4` — `docs/VISUALS.md:21`. Measured: no such file; the real
+  file is `99_failure_push90N_diag.mp4` (and `L0_hold_30s.mp4` is really `L0_hold_30s_diag.mp4`).
+  → **CORRECTED-INLINE** (artifact list now names the files that exist).
+
+**The 4 UNVERIFIABLE claims — marked UNVERIFIABLE, each inline:**
+- **F7** E18 "w=0.30 → 6 steps, 0 falls, 13.7 s/step" (`notes.md` E18). Measured: `data/drill/motion_widths.json`
+  has NO 0.30 row (0.21/0.28/0.35/0.42/0.495) and the on-disk 0.30 m run `M_S30_feasible_L3_seed0.json`
+  FELL (falls=1 @ 41.82 s, 2 steps). Not silently rewritten to the on-disk run — the on-disk run is a
+  DIFFERENT measurement, and it contradicts the claim.
+- **F9** E19 "slip_max 0.019 m" (`notes.md` E19). Measured: `M_D28c_feasible_L3_seed0.json` stores
+  max_tick_slip_m 0.00051 m / max_load_drift_m 0.0065 m; no 0.019 m anywhere in the file. Not rewritten —
+  the 0.019 m figure has no artifact behind it.
+- **F10** E13 stance snapshot 0.315×0.351 m / pelvis 0.720 m / margin +0.077 m / tilt 9.2° / "18 cycles"
+  (`notes.md` E13). Measured: the CURRENT `stance_report.json` says 0.4945 m × 0.2413 m / 0.728 m / 0.0861 m
+  / 14.9°, and `FINAL_L1_90` has cycles_done=30. Superseded-on-disk, not a different measurement to
+  substitute; "18 cycles" was already corrected in E17. L1 "89.98 s, 0 falls" is CONFIRMED.
+- **F11** E11 STAND_UP scorer 0.324 (`notes.md` E11). Measured: `data/teacher_stats.json` (5 seeds)
+  STAND_UP scorer_mean = 0.5768; 0.324 is DOUBLE_LEG's current value and STAND_UP's pre-rebuild value
+  (E13 records 0.324 → 0.577). Stale, not a conflicting run.
+
+**F1 — WHAT WAS RE-RENDERED, AND WHAT THE VIEWER SEES.** The toppling run HAS a cached trace
+(`data/drill/BASELINE_PD_stance_pd_L1_seed0.npz`, 420 samples @ 50 Hz = 8.38 s; its `.json` has no
+`provenance` block, so `reproduce` is `run --controller stance_pd --rung L1 --seconds 10 --seed 0 --start
+stance --out-tag BASELINE_PD`). Rendered with the existing renderer, no re-simulation:
+`MUJOCO_GL=egl python scripts/solo_drill_render.py render --npz
+data/drill/BASELINE_PD_stance_pd_L1_seed0.npz --out videos/solo_drill/01_baseline_pd_topples.mp4
+--title "baseline: StancePD (no feedback) - the same stance pose TOPPLES" --caption "…topples at 8.4 s…"`.
+Result: **252 frames, ffprobe duration 8.400000 s** vs trace 8.38 s, `verify_clip` **ok: true**, no
+problems, non-static (frame_diff 0.679 / 1.196 / 4.417 — the last window is the fall). Bundle written to
+`data/solo_drill/01_baseline_pd_topples.json` (rubric `ship gate=FAIL`, as expected for a baseline).
+**WHAT TO LOOK FOR:** one G1 in the L1 stance under pure position control with NO balance feedback — it
+holds briefly, then tips and goes down at ≈8.4 s (pelvis z 0.736 → 0.299 m). Contrast with
+`final_L1_90s.mp4`/`final_L2_motion.mp4`, which do not fall.
+
+**F1 MECHANISM — one-off or systematic? (asked by Main).** `cmd_suite` builds
+`jobs = [(run_tag, cfg_kw, [(name, title, t0, t1, caption, scale), …])]` and derives the npz mechanically
+from `results[run_tag]["paths"]["npz"]` (script:187-232 at c9ab9a2), so the tag→npz attach itself is sound
+— there is no automatic mis-attach that silently retargets other clips. The defect is that the CLAIM text
+is hand-typed per clip and never asserted against the wired trace: the `BASE_PD` job (12 s `stance_pd`,
+falls=0) carried the caption "it topples", and the toppling `BASELINE_PD` trace is wired to NO render job.
+Two near-duplicate hand-typed tags (`BASE_PD` vs `BASELINE_PD`) is exactly the trap. CODE SIDE NOT
+DONE HERE: Main routed all clip-integrity code fixes to EvidenceFix, and LedgerFix reverted the
+one-line caption edit it had briefly made, so `scripts/solo_drill_render.py` is untouched by this
+entry (the `BASE_PD` caption still reads "it topples"). The exact patch was handed over: caption ->
+"…stays up for 12 s (does NOT topple; the toppling baseline is the separate BASELINE_PD run, rendered
+as 01_baseline_pd_topples.mp4)", title -> "…- 12 s hold, NO fall". EvidenceAudit's independent wiring sweep
+(`reports/2026-10-08/clip_wiring_audit.md`) agrees and adds THREE additive automatic mechanisms, all now
+recorded in VISUALS 10b: (1) `scale<1` clips are renamed to `*_diag` AFTER the table names them
+(script:250-251), so any doc copying the table name cites a non-existent file (this is F8); (2) the render
+loop passes NO `speed` to `render_trace` (script:246-262), so the SLOWMO job's "0.25x" claim is
+structurally unrenderable there — `02_slowmo_level_change_quarter_speed.mp4` measures 3.033 s for a 3.0 s
+window = 1.0x, and its t=3–6 s window contains only the hold; (3) hand-typed t0/t1 windows are never
+checked against the event claimed (F3). VERDICT: systemic for "clip labels/claims are never
+corroborated by the verifier"; NOT systemic for "a wrong attach retargets other clips".
+
+**F6 DISPOSITION for the clips that failed their own check.** The failures are a VERIFIER bug, not clip
+defects: imageio reports `nframes: inf` for these ffmpeg-written mp4s, and the `verify_clip` of the day
+turned it into an int (OverflowError); the `isfinite` guard landed in commit `103dcee` (09:08), AFTER these
+bundles were written. RE-VERIFIED 2026-10-08 with the CURRENT `verify_clip`: all 8 indexed clips return
+`ok: true` (h264/yuv420p, non-static). No bundle was rewritten; VISUALS 10b now states the status
+explicitly. Three clips are genuinely KNOWN-BAD as artifacts — truncated mid-write, NOT merely unverified:
+`99_failure_entry_L2.mp4` (1.867 s / 56 frames vs an expected 11 s), `99_failure_push90N_diag.mp4`
+(3.167 s / 95 frames vs an expected 7 s), `final_L2_entry_walk.mp4` (9.23 s of 15.6 s; not indexed).
+Also found while fixing (not in DeltaAudit's 11): the M_P30→M_E28f provenance staleness in the 10b row
+(F2 note) and the "0.25x" slowmo mis-label above.
+
+**EVIDENCEAUDIT'S INDEPENDENT SWEEP (`reports/2026-10-08/clip_wiring_audit.md`) — folded in per Main:**
+- **Two statements, kept separate.** (a) THE VERIFICATION ITSELF WAS BROKEN: `verify_clip` recorded
+  `ok:false` on **12 of 13** bundles ("cannot convert float infinity to integer"), and the `isfinite`
+  guard only landed in commit `103dcee` (09:08) AFTER those bundles were written (pre-`103dcee` line:
+  `n = int(meta.get("nframes") or expect_frames)` → `int(inf)`) — so **no clip in the index was ever
+  machine-corroborated**, while E14 claimed every clip was ffprobe+non-static verified. (b) **F1 is a
+  ONE-OFF HAND-ENTRY error**: the name→npz binding is a shared `jobs` table with a mechanical tag→npz
+  lookup, so F1 must NOT be read as evidence of a systemic *binding* bug in either direction. The
+  *label* problem is systemic: every caption is hand-typed free text never compared to the trace.
+- **SEVEN clips are contradicted by their own retained data** (EvidenceAudit's ranking): (1)
+  `final_L2_motion` — index 95 s / 6 steps / 0.30 m vs artifact **70.000 s / 5 steps / 0.28 m**
+  (`M_E28f`; the claimed numbers are the superseded `M_P30`, and the row's own bundle scores
+  `ship gate=FAIL`); (2) `01_baseline_stancepd` (F1); (3)
+  `02_slowmo_level_change_quarter_speed` — claims 0.25x, measures **1.0x**, and its 3–6 s window holds
+  neither the descent nor the rise; (4) `final_L1_90s` — label claims "weight shift + level change",
+  pelvis moves 2.8 mm after t=8 s (the row already carried that correction); (5)
+  `L2_shuffle_3steps_diag` — label "2-3 steps" vs `steps_completed=4` (bundle-only, not indexed);
+  (6) `L1_90s_with_pushes` (F3); (7) `L0_hold_30s` (F4). `L2_cycle_step_diag` is not false but is
+  silent on its own run's fall at 22.56 s. **DISPOSITION: rows 1/3/4/6/7 CORRECTED-INLINE in
+  `docs/VISUALS.md` to the artifact's REAL numbers — NOT re-rendered** (the shipped clips are honest
+  footage of the runs they cover; the labels/windows/provenance were what was wrong). Row 5 is
+  bundle-only and is passed to EvidenceFix's label-integrity pass.
+- **STILL UNCORROBORATED:** **19** clips in the other indexed families (7 `videos/refs`, 7
+  `videos/teacher` — also 320x240, violating VISUALS.md:4's own "960x720" rule — and 5 `videos/env`)
+  have **no per-clip bundle anywhere in `data/`** (family reports only), and 9 files in
+  `videos/solo_drill/` (the baseline probes) remain unindexed/unbundled. Recorded here; indexing them
+  is EvidenceFix/Main's call, not mine.
+- **F1 CLIP — the mid-write sighting, superseded.** EvidenceAudit saw `01_baseline_pd_topples.mp4` at
+  **524,336 B with `moov atom not found`** at 14:35:52 and flagged a possible safe-write violation.
+  That was MID-WRITE: the render completed at ~14:37 and the final file (1,111,764 B) re-verifies clean
+  (`verify_clip` ok, no problems; ffprobe 8.400000 s / 252 frames; non-static). No action needed; the
+  `*.partial.mp4`-then-rename preference is noted for EvidenceFix.
+- **FLAGGED, NOT FIXED (outside my scope):** `docs/STATUS.md:28` cites
+  `videos/solo_drill/final_L2_motion.mp4` + `data/solo_drill/final_L2_motion.json` as the evidence for
+  "same-pose PD baseline topples at 8.4 s" — the same mis-citation class as F1, in a doc LedgerFix was
+  not asked to own. Reported to Main.
+
+- NOT FIXED / OUT OF SCOPE: the artifacts themselves were not re-rendered except F1's (the constraint was
+  "keep renders short", and 6 of the 8 indexed clips are honest footage of the run they cover — only their
+  labels/windows/truncation were wrong). The slowmo and the two truncated failure clips still need a
+  re-render if they are to be cited as evidence; the commands are unchanged
+  (`render --npz … --out …`, with `--speed 0.25` for the slowmo and a full-window `t1` for the failures).
+
 ### E31 (2026-10-08) — LITERATURE CHECK ("if something is failing, search"): four levers, and a CORRECTION to E30
 - SOURCES (read in full, not summarised from abstracts): van Marum et al., "Revisiting Reward Design
   and Evaluation for Robust Humanoid Standing and Walking" (arXiv:2404.19173) — a humanoid SaW
@@ -340,7 +519,10 @@ Entries appended as experiments run (Phase 2 onward).
 ### E26 (2026-10-08) — T1 v3 (alive-weight 10): return rose, behaviour did not — explore-vs-shape diagnosed
 - RESULT: v3 finished 2.0M steps (exit 0, checkpoint t1_balance_v3.pt). Gate (48-push battery vs
   baselines): fall_rate 0.104 / held-out 0.083, mean_upright **0.0475**, recovery 0.0, maxJ_held 0.0,
-  t_stab none, com_offset_max 0.769 → NOT CERTIFIED (2/7).
+  t_stab none, com_offset_max 0.769 → NOT CERTIFIED (2/7). +[CORRECTED 2026-10-08 (F5): "2/7" is
+  FALSE — the stored monitor `data/solo/metrics/t1_v2_monitor_2000896.json` (steps=2000896) lists
+  6 FAIL / 1 PASS = **1/7** (verdict `not_certified`); only `fall_rate_heldout` 0.083 PASSes. The
+  per-metric numbers in this entry are otherwise correct. Evidence: DeltaAudit claim_audit.md.]
 - CONTRAST across the three runs (fall | held-out fall | upright | recovery):
   v1 0.125 | 0.125 | 0.006 | 0.0 → v2 0.042 | 0.000 | 0.0415 | 0.0 → v3 0.104 | 0.083 | 0.0475 | 0.0,
   against StandHold 0.292 | 0.958 | 0.849 | 0.25. The alive-weight change RAISED THE RETURN
@@ -538,7 +720,11 @@ Entries appended as experiments run (Phase 2 onward).
 - DELIVERED L2 MOTION RUN (data/drill/M_D28c_feasible_L3_seed0.npz, clip rendering):
   69.98 s, 0 falls, 0 resets, 5/5 steps, 0 refusals/aborts, cadence 12.1 s/step, CoM span 0.374 m
   (0.306 m in the second half), com_travel 2.44 m, pelvis-z range 0.074 m, slip_max 0.019 m,
-  phase_advance_count 2, margin_min -0.0257 m. NEGATIVE MARGIN EXPLAINED: 24 of 3500 ticks (0.69%)
+  phase_advance_count 2, margin_min -0.0257 m. +[CORRECTED 2026-10-08 (F9): UNVERIFIABLE — "slip_max
+  0.019 m" does not appear in the cited run `data/drill/M_D28c_feasible_L3_seed0.json`: its stored
+  `metrics.slip` gives max_tick_slip_m 0.00051 m and max_load_drift_m 0.0065 m. Every OTHER number in
+  this row (69.98 s, 0 falls, 5/5 steps, com_travel 2.44 m, span 0.374 m, margin_min -0.0257 m,
+  24/3500 ticks) matches the file. Evidence: DeltaAudit claim_audit.md F9.] NEGATIVE MARGIN EXPLAINED: 24 of 3500 ticks (0.69%)
   in 5 episodes of 0.06-0.14 s, depths -0.009 to -0.0257 m, each recovering to +0.037..+0.075 m
   within ~0.5 s; positive margin 99.3% of the run; none during a hold. Rubric: A1=1 (0.28 vs 0.49 m),
   A3/A4/A6/A7=2, A5/A8=3; B1/B2/B3/B6=2, B4=1 (cadence); F1/F3/F4=3, F2/F5=2; G=3/3/2/3;
@@ -557,6 +743,11 @@ Entries appended as experiments run (Phase 2 onward).
   plus the fore-aft distance to the support footprint centre; measured authority 0.14 m (shipped cap)
   to 0.20 m (delivered travel). Stepping is possible up to ~0.30 m width: w=0.28 -> 3 steps, 0 falls,
   17.5 s/step; w=0.30 -> 6 steps, 0 falls, 13.7 s/step; w=0.21 -> 4 steps, 1 fall, 13.3 s/step;
+  +[CORRECTED 2026-10-08 (F7): UNVERIFIABLE / effectively FALSE — `data/drill/motion_widths.json` has
+  NO 0.30 row (its rows are w_cmd 0.21 / 0.28 / 0.35 / 0.42 / 0.495), and the on-disk 0.30 m run
+  `M_S30_feasible_L3_seed0.json` FELL (falls=1 @ 41.82 s, 2 steps). There is no artifact behind
+  "w=0.30 -> 6 steps, 0 falls". The other width rows in this entry match the file exactly
+  (w0.21 4 steps/1 fall/13.32 s; w0.28 3 steps/0 falls/17.53 s). Evidence: DeltaAudit claim_audit.md F7.]
   w=0.35/0.42/0.495 -> past authority (falls or refusals; the operator's 0.495 m width is STRUCTURALLY
   un-steppable: 59 refusals, refused rather than toppled). DELIVERED CHOICE: 0.28 m (57% of the
   reference width) as a documented deviation justified by steppability.
@@ -708,6 +899,13 @@ Entries appended as experiments run (Phase 2 onward).
   final_L1_90s.mp4 → 01_baseline_stancepd.mp4 → 99_failure_entry_L2.mp4 → pushes → L0/slowmo at 0.5
   scale named `_diag`. Every clip is ffprobe-verified (h264/yuv420p/960x720, duration+frames vs the
   trace) plus a non-black/non-static check, with a data/solo_drill/<name>.json evidence bundle.
+  +[CORRECTED 2026-10-08 (F6): FALSE as written — EVERY bundle indexed in VISUALS row 10b records
+  `clip_verification.ok: false`. 01_baseline_stancepd, L0_hold_30s_diag, L1_90s_with_pushes,
+  02_slowmo_level_change_quarter_speed, final_L1_90s, 99_failure_entry_L2 and 99_failure_push90N_diag
+  all carry "decode failed: cannot convert float infinity to integer" (the two 99_failure_* clips also
+  a duration mismatch), so the non-black/non-static half never ran. The ONLY `ok: true` bundle is
+  final_L2_motion.json, and even it verified the temp path `final_L2_motion.partial.mp4`. DeltaAudit
+  named 4; a full re-scan of all 13 bundles shows the same failure class in 12. Evidence: claim_audit.md.]
 - STANCE now matches the operator's measured reference on width (0.495 m vs spec 0.491) with hands
   at hip height; torso pitch 15.3° vs 47° recorded as a morphology-bound difference (CoP inside four
   5 mm contact spheres; ankle roll saturates at 0.26 rad). Margin improved: built +0.086 m, worst
@@ -722,8 +920,24 @@ Entries appended as experiments run (Phase 2 onward).
   18 programme cycles, worst CoM margin +0.023 m, loaded-foot slip 0.000 m, actuator saturation
   0.00, worst contact penetration -2.7 mm, worst tilt 13.6 deg. Built stance: 0.315 m wide x
   0.351 m deep, pelvis 0.720 m, CoM margin +0.077 m (analytic hull of the 8 sole contact spheres),
-  knees 0.56/0.85 rad, torso 9.2 deg, both soles flat. Same-pose PD baseline TOPPLES at 8.4 s —
+  knees 0.56/0.85 rad, torso 9.2 deg, both soles flat. +[CORRECTED 2026-10-08 (F10): UNVERIFIABLE /
+  SUPERSEDED on disk — the CURRENT `data/drill/stance_report.json` reports width_m 0.4945, base_depth_m
+  0.2413, pelvis_z 0.728, com_margin_m 0.0861, torso_tilt_deg 14.9, knee_flex 0.575/0.751 rad. The
+  0.315 m x 0.351 m / pelvis 0.720 m / margin +0.077 m / tilt 9.2° figures describe an EARLIER stance
+  build that was overwritten and can no longer be checked against disk; do NOT read them as current.
+  Also "18 programme cycles" (line above) is not in the run: `FINAL_L1_90_feasible_L1_seed0.json` has
+  cycles_done=30 (the "18 cycles" claim was already corrected in E17). L1 "90 s, 0 falls" is CONFIRMED
+  (89.98 s, falls 0). Evidence: DeltaAudit claim_audit.md.] Same-pose PD baseline TOPPLES at 8.4 s —
   a clean contrast for the video. Push limit measured: 20 N recovered 2/2, 35 N 1/3, >=50 N 0.
+  +[CORRECTED 2026-10-08 (F1): the sentence above — kept verbatim — was WRONG about the shipped
+  artifact. The run that topples is `data/drill/BASELINE_PD_stance_pd_L1_seed0.npz` (falls=1 @ 8.38 s,
+  pelvis min 0.299 m). The clip that shipped as `01_baseline_stancepd.mp4` was rendered from a
+  DIFFERENT trace, `BASE_PD_stance_pd_L1_seed0.npz` (falls=0; pelvis 0.7235-0.7279 m over the whole
+  11.98 s), so the shipped clip showed NO fall. Mechanism: `cmd_suite`'s hand-written render tuple
+  wires run_tag `BASE_PD` for that filename while its caption claims a topple; `BASELINE_PD` is not
+  wired into any render job. See E32 for the full wiring analysis. FIXED: the contrast is re-rendered
+  from the toppling run as `videos/solo_drill/01_baseline_pd_topples.mp4` (verified). Evidence:
+  DeltaAudit claim_audit.md F1.]
   Ladder: L0 clean; L1 clean; L2 PARTIAL (isolated step clean: slip 0.000 m, 3.8 cm clearance,
   load-gated lift; but the stand->stance entry walk falls at 5.8 s); L3/L4 not attempted.
   Artifacts: src/drill/* (13 modules incl. rubric.py), scripts/solo_drill_render.py,
@@ -791,7 +1005,12 @@ Entries appended as experiments run (Phase 2 onward).
   Missed: STANCE 0.758, DOUBLE_LEG 0.520, SPRAWL 0.316, SINGLE_LEG 0.267, BODY_LOCK 0.200
   (baseline best-achievable 0.229), STAND_UP 0.000. SCORER gate (0.85) met by NO technique:
   best SNAPDOWN 0.808 (min phase 0.72), BODY_LOCK 0.679, SPRAWL 0.559, STANCE 0.547,
-  SINGLE_LEG 0.361, DOUBLE_LEG 0.324, STAND_UP 0.324.
+  SINGLE_LEG 0.361, DOUBLE_LEG 0.324, STAND_UP 0.324. +[CORRECTED 2026-10-08 (F11): the STAND_UP
+  figure is STALE — `data/teacher_stats.json` (5 seeds) gives STAND_UP scorer_mean = 0.5768; 0.324 is
+  DOUBLE_LEG's current value AND STAND_UP's PRE-rebuild value (E13 records the rebuild moving STAND_UP
+  0.324 -> 0.577). This entry predates that rebuild. Every other scorer mean listed here matches the
+  JSON (SNAPDOWN 0.808, BODY_LOCK 0.679, SPRAWL 0.559, STANCE 0.547, SINGLE_LEG 0.361, DOUBLE_LEG
+  0.324). Evidence: DeltaAudit claim_audit.md F11.]
 - BODY_LOCK remediation DISPROVEN as a contact-softness problem: a derived scene
   (robots/wrestling_scene_soft.xml, solref (0.010,1.0) / solimp (0.95,0.99,0.001,0.5,2.0) on 142
   geoms) left inter-robot penetration UNCHANGED at 5.9 cm and self-penetration at 4.4 cm, with
