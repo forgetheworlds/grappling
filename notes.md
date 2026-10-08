@@ -137,6 +137,32 @@ this before working and MUST append their verified facts.
 Format per entry: id | question | prediction | result | conclusion.
 Entries appended as experiments run (Phase 2 onward).
 
+### E2 (2026-10-08) — external engineering audit: orchestrator verdict, claim by claim
+- TRUE (verified in tree): (a) references track joints (≤0.06 rad) while physical execution
+  fails — already banked; (b) wins≠competence — E1 is the worked example; (c) the progress
+  reward is CLOCK-based (`obs.reference_phase` is a pure function of exchange_time), so it
+  carries no physical-progress signal (bias-free shaping, weak signal) —
+  src/rl/reward.py:16,159-161, src/rl/obs.py:116-120; (d) curriculum can advance on draws:
+  metric=(wins+0.5*draws)/n with threshold 0.5 (src/rl/curriculum.py:18-22,113,121,129,140)
+  → all-draw window satisfies it. FIX IN FLIGHT (P0Fixes);
+  (e) the 0.10 s simultaneous-fall ambiguity window is unreachable across control steps
+  (env ends the exchange on the first trigger; env.py:609-614) — only same-step ambiguity
+  works. FIX IN FLIGHT (P0Fixes); (f) actor obs lacks opponent limb detail (shot-onset
+  cues) — to be measured in the observation ablation, not assumed.
+- FALSE in the current tree (do not chase): teacher "undefined G" (G=9.81 at
+  controller.py:65); "one-row sqrt regularizer" (stabilizers.py solve_offsets uses
+  sqrt(reg)*eye(29) with 29 zero targets — correct diagonal form); "_support_xy uses
+  data.time" (support_center uses ctx.ref_support[frame]; no data.time in controller.py).
+  TeacherRetry asked to confirm + add a default-tick finite-output regression test.
+- ACCEPTED as scope statements, not bugs: the scorer is a GEOMETRY diagnostic (no force or
+  grip semantics) — it must not be treated as proof of execution; contact/grip physics
+  (no articulated fingers) and foot-contact-model adequacy must be validated before/
+  alongside M1-M2; opponents must not be proxies that collapse on their own.
+- ADOPTED into the motor curriculum: the six diagnostic video types (balance A/B with
+  overlays; ghost-reference vs actual; reward-vs-behaviour; contact/clinch force transfer;
+  locomotion/coordination tracking; genuine exchange vs stationary/moving/competent
+  opponent) and their "paired baseline vs candidate on identical seeds" discipline.
+
 ### 2026-10-08 — Phase 5 infra (RLTrainer, verified by orchestrator)
 - FACT: PPO/resistance infra in src/rl (obs, privileged, net, ppo, rollout, checkpoint,
   trainer, curriculum, reward, scripted, vec). Actor obs 92-dim (84 env obs + 7 technique

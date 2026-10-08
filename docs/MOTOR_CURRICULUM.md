@@ -126,7 +126,27 @@ Required for every milestone, no exceptions:
 - The current outcome-based advancement logic is superseded by §3 for M1–M4; wrestling stages
   (M5) keep MISSION's rules with the added "success attributable to the technique" requirement.
 
-## 8. Documentation duties
+## 8. Diagnostic video suite (adopted from external engineering audit, 2026-10-08)
+
+Motion evidence alone is not proof; these diagnose *why* a stage succeeds or fails. Each uses
+recorded seeds/configs, renders a paired baseline-vs-candidate comparison from identical
+scenarios, and overlays numbers (no decorative footage).
+
+| # | video | purpose | stage |
+|---|---|---|---|
+| V01 | balance A/B: PD-only vs stabilized controller under identical pushes | does the controller actually extend standing time / improve recovery? (overlay pelvis height, torso tilt, CoM, foot contacts, saturation) | M1 gate evidence |
+| V02 | ghost reference vs physics robot | where exactly does execution diverge from intent? (overlay site/joint error, penetration, contact forces) | M4/M5 |
+| V03 | reward vs behaviour: stationary / collapsing / attempting agent, live reward components | find rewards that look good while the behaviour is absent (exploit audit) | M1–M5, every reward change |
+| V04 | contact & clinch validity: collision geoms + force vectors visible | does the arm actually transfer force, or just sit near the limb? does contact slip? | M4/M5 prerequisite |
+| V05 | locomotion & coordination: changing commands + arm reach while moving (target vs actual, slip, falls) | velocity tracking without falling; arm use without balance loss | M2/M3 gate evidence |
+| V06 | genuine exchange: same attack vs stationary / moving / competent defender, failures included | skill proof requires a resisting opponent, not a collapsing one | M5, abandons-policy check |
+
+Prerequisites these videos presuppose (must be validated during M1/M2 harness work):
+contact-model adequacy (foot friction/slip, force transfer through the hand/arm chain),
+actuator saturation accounting, and penetration/contact reporting that is trustworthy enough
+to serve as evidence.
+
+## 9. Documentation duties
 
 - This file is the working curriculum for foundational motor learning; `docs/CURRICULUM.md`
   continues to own the wrestling technique curriculum.
