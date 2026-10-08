@@ -1783,3 +1783,35 @@ scripts/calibrate_scorer.py, scripts/score_trace.py, tests/test_scorer.py.
   keyframe scan had the SAME baseline-action bug as cmd_keyframe (it kept reporting a false
   "balance_lit MISALIGNED +2.161%") and its gradient probe now reads the checkpoint's
   grad_clip_actor/critic (no false "critic-bound" flag with the split clips active).
+- v6a FINAL READ (1,501,184 steps, `steps_done` verified in the checkpoint; the service log's
+  tail was ring-buffered and stopped at 609 -- the checkpoint is authoritative):
+  * THE GATE VERDICT: **not_certified**.  fall_rate 0.375 (bar 0.05), fall_rate_heldout 0.438
+    (bar 0.10), time_to_stability None (bar <=1.0), ends_in_valid_stance 0.0; PASS mean_upright
+    0.874 (bar 0.84), com_offset_max 0.164 (bar 0.20).  Artifact clip rendered
+    (videos/solo_drill/baselines/t1_monitor_1501184.mp4).
+  * v6a DID NOT MONOTONICALLY IMPROVE: monitor fall 0.167 (501,760) -> **0.083 (600,064, the
+    peak)** -> 0.375 (1,501,184); recovery 0.583 -> 0.0; max_recoverable_impulse 12 -> 0 N*s.
+    The 600k state is GONE (the trainer's periodic save overwrote the single output path).
+  * MECHANISM (per-episode traces, not inference): at 600k falls occur ONLY at 12 N*s and 10/24
+    episodes end in a valid stance; at 1.5M falls occur at 4/8/12 N*s and 0/24 end valid, with a
+    HIGHER mean pelvis (0.712 vs 0.668 m) and limit_prox_max 1.0.  The late policy stands taller
+    and braces instead of recovering.  The lit shaping maxes at 1.97/step, so standing the rest
+    of an episode is worth ~340 discounted at gamma=0.995 while the fall penalty was 400: a late
+    fall was nearly FREE, so the gradient bought posture, not recovery.  The push curriculum is
+    NOT the trigger (it saturates at 420k, before the peak).
+  * CRITIC (health, 1.5M): explained_variance +0.893 (bar >=0.7, PASS); value_rmse 15.52 vs
+    return std 46.4 = 0.334 (the 0.25 aspiration is NOT met; the GAE advantage std 15.18 vs
+    value_rmse 15.5 says the advantage is nearly all value error); grad norms value-term 354 vs
+    policy-term 19.95 with the split clips ACTIVE.  sigma 0.0821 (bar <=0.15).
+- RECORD-INTEGRITY FIXES (commit `0b1bbef`, forced by the above): periodic saves now also write a
+  step-stamped snapshot beside the rolling "latest"; monitor rows are run-tagged
+  (`t1_v2_monitor_<run>_<steps>.json` + `run`/`checkpoint` fields -- rows were keyed by step count
+  alone, so v5 and v6a reads at the same step collided); `health_trend(ckpt)` filters to the
+  checkpoint's own run and reports how many unattributable legacy rows it excluded.
+- v6b LAUNCHED (service `solo-t1-v6b`, pid 3554679, 2026-10-08): v6a's exact command with ONE
+  lever -- `--lit-weight termination=1500` (3.8x v6a's 400; > 4x the max standing value) -- so a
+  fall is strictly dominated by any recovery trajectory.  Pre-registered reads: 400k snapshot
+  (recovery_success_rate > 0 and fall < 0.375; FALSIFIER: recovery stays 0 -> the brace is not a
+  fall-penalty artefact), 800k/1.5M the full gate, and a keyframe-optimality re-run to prove the
+  weight change preserves the certified-stance acceptance (the term never fires in a no-push scan).
+  ~293 steps/s measured under the live capture load.
