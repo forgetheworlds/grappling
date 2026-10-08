@@ -254,6 +254,12 @@ Entries appended as experiments run (Phase 2 onward).
   NOT balanceable by the position-servo G1 — every exchange after the first collapses within ~2 s;
   the video agent had to substitute the verified-stable `stand` keyframe to produce honest rule
   demos. DECISION: solo-env resets come from the `stand` keyframe with verified-holdable noise.
+- Frame-level verification (FrameCheck, reports/2026-10-08/env_videos_frame_check.md): all five
+  clips MATCH their claims (49 frames + contact sheets inspected, full-decode, blackdetect,
+  HUD-pixel check). Recorded artifacts: (a) robots topple in the takedown clip (disclosed phase-2
+  limitation); (b) supine robots hold arms stiffly (no controllers); (c) the OOB offender GLIDES
+  across the mat with planted feet instead of stepping — scripted root motion, i.e. a rubric-B1
+  (no foot sliding) violation to avoid in the drill deliverable.
 - PriorArt (docs/prior_art_humanoid_control.md): (1) penalty-only rewards make FALLING optimal
   (episode ends, penalties stop) -> every task needs a positive per-step alive/upright term that
   dominates per-step penalties while upright; (2) no reward detects a statue — gates must be
