@@ -392,14 +392,28 @@ def cmd_monitor(args) -> int:
 
     pushes = battery_pushes(magnitudes=tuple(args.magnitudes), directions=args.directions,
                             heights=(0.79, 0.95, 1.10), seed=0)
+    clip_ep = len(pushes) - 1               # the largest push: the acceptance clip
+    factory = (None if args.no_video else
+               _clip_factory(f"T1 monitor - learned policy (steps={steps})",
+                             "T1 battery push (8 directions, 3 heights)",
+                             int(args.clip_seconds * 30), clip_ep))
     rep = evaluate(lambda env, seed: PolicyController(net, name=f"t1_monitor_{steps}",
                                                       stochastic=False),
                    task="balance", seed0=0, push_plan=pushes,
                    gate=GATES["balance"], out_dir=METRICS_DIR, verbose=False,
                    max_episode_s=4.0, name=f"t1_monitor_{steps}",
+                   clip_factory=factory,
                    env_kwargs={"action_mode": mode, "residual_scale": residual_scale})
-    take_clips(rep)
+    clips = take_clips(rep)
     agg = rep["aggregate"]
+    # The clip of the LEARNED policy is the T1 acceptance artifact's source: render
+    # it here (the baselines path does the same via ``_render``).
+    if clips:
+        model = load_solo_model()
+        rep["media"] = _render(clips[0], model, f"t1_monitor_{steps}",
+                               _verdict_line(rep),
+                               f"the LEARNED policy (steps={steps}) on the T1 "
+                               f"battery - {rep['verdict']}")
     base = {}
     bpath = METRICS_DIR / "t1_gate_baselines.json"
     if bpath.exists():
@@ -407,6 +421,7 @@ def cmd_monitor(args) -> int:
     row = {"steps": steps, "action_mode": mode,
            "residual_scale": residual_scale, "verdict": rep["verdict"],
            "reasons": rep["reasons"], "aggregate": agg,
+           "media": rep.get("media"),
            "baselines": {k: {m: v.get(m) for m in
                              ("fall_rate", "fall_rate_heldout",
                               "max_recoverable_impulse_heldout", "mean_upright",

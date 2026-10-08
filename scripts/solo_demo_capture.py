@@ -130,7 +130,7 @@ def _spec(args) -> CaptureSpec:
         cem_samples=args.cem_samples, cem_iters=args.cem_iters,
         cem_knot_ticks=args.cem_knot_ticks, cem_window=args.cem_window,
         cem_stride=args.cem_stride, cem_mask=args.cem_mask,
-        cem_early_stop=args.cem_early_stop,
+        cem_early_stop=args.cem_early_stop, cem_seed=args.seed,
         action_mode=args.action_mode,
         residual_scale=args.residual_scale, check=args.check,
         rate_ticks_per_s=args.rate)

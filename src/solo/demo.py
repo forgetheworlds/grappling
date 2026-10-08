@@ -149,6 +149,8 @@ class CaptureSpec:
     cem_theta_max: float = 0.8
     cem_mask: str = "legs_waist"     # all | legs_waist | legs
     cem_early_stop: float = 0.02     # relative improvement per iter to continue
+    #: seed of the CEM search itself (independent of the episode seed)
+    cem_seed: int = 0
     action_mode: str = DEFAULT_ACTION_MODE
     residual_scale: float = DEFAULT_RESIDUAL_SCALE
     check: bool = True
@@ -757,6 +759,8 @@ class SourceContext:
     markers: dict
     track: np.ndarray
     M: int
+    #: the episode's initial qpos (the sampling source's rollouts start from it)
+    q0: np.ndarray
 
 
 class DemoSource:
@@ -1331,6 +1335,13 @@ def run_episode(model, spec: CaptureSpec, exec_spec: ExecSpec, repaired: dict,
         "pitch_deg", "margin", "sat_frac", "foot_slip", "limit_prox")}
     prev_action = np.zeros(29)
     obs_prev = None
+
+    def _phase_kind(t_abs: float) -> str:
+        """The reference's own phase label at absolute track time ``t_abs``."""
+        for kind, t0, t1 in (exec_spec.phase_segments or ()):
+            if float(t0) <= t_abs < float(t1):
+                return str(kind)
+        return "?"
     terminated_t = None
     termination = None
     tick = 0
@@ -1382,7 +1393,7 @@ def run_episode(model, spec: CaptureSpec, exec_spec: ExecSpec, repaired: dict,
         rec["t"].append(t)
         rec["ref_time"].append(rt)
         rec["segment"].append(int(repaired["segment"][tick]))
-        rec["phase"].append(teacher.phase_kind(t))
+        rec["phase"].append(_phase_kind(t))
         rec["qpos"].append(np.asarray(data.qpos, float).copy())
         rec["qvel"].append(np.asarray(data.qvel, float).copy())
         rec["ctrl"].append(np.asarray(ctrl, float))
