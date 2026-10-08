@@ -4,7 +4,7 @@
 **Deliverables:** `src/solo/bc.py` (dataset + BC fit + baselines + open-loop rollout),
 `src/solo/imitation.py` (DeepMimic-style terms, two families + deviation predicate),
 `scripts/solo_bc_train.py`, `tests/solo/test_bc.py`, `data/solo/bc/{dataset.npz,bc_policy.pt,bc_metrics.json}`,
-this report. **Status:** `pytest tests/solo/test_bc.py -q` -> **{TESTS} passed**.
+this report. **Status:** `pytest tests/solo/test_bc.py -q` -> **13 passed**.
 No RL training was launched (a `solo-t1-v5` service owns the box).
 
 ---
@@ -93,26 +93,41 @@ asserted disjoint on `(reference, frame)` indices (`bc.split_overlap`, test
 Model: `rl.net.Actor` (reused), hidden `(128,128)` tanh, input 96 -> output 29, `tanh` squashed.
 Inputs standardised with **train-set** mean/std (stored in the checkpoint). Loss: MSE in
 **radians** on the joint targets (physically meaningful per-joint scale). Adam lr 1e-3,
-weight decay 1e-4 (explicit regularisation — the corpus is small), batch 128, 600 epochs,
-best-val checkpoint. Seed 0 (deterministic). CPU-only, 2 torch threads, {TRAIN_TIME}.
+weight decay 1e-4 (explicit regularisation — the corpus is small), batch 128, 300 epochs,
+best-val checkpoint. Seed 0 (deterministic). CPU-only, 2 torch threads, ≈6 min wall (the
+`bc_train_final2` service, 6 m 10 s).
 
-**Overfit check (train/val curves, every 25 epochs):**
+**Overfit check (train/val curves, every 20 epochs):**
 
 | epoch | train MSE | train MAE (rad) | val MAE (rad) |
 |---|---|---|---|
-{CURVE_TABLE}
+| 20 | 0.000838 | 0.01780 | 0.07944 |
+| 40 | 0.000469 | 0.01278 | 0.04756 |
+| 60 | 0.000426 | 0.01166 | 0.03454 |
+| 80 | 0.000406 | 0.01111 | 0.03010 |
+| 100 | 0.000371 | 0.01076 | 0.02857 |
+| 120 | 0.000376 | 0.01086 | 0.02823 |
+| **140** | 0.000347 | 0.01038 | **0.02737** (best) |
+| 160 | 0.000325 | 0.01012 | 0.02739 |
+| 180 | 0.000359 | 0.01088 | 0.02750 |
+| 200 | 0.000346 | 0.01056 | 0.02783 |
+| 220 | 0.000343 | 0.01082 | 0.02798 |
+| 240 | 0.000321 | 0.01029 | 0.02807 |
+| 260 | 0.000312 | 0.01033 | 0.02745 |
+| 280 | 0.000333 | 0.01039 | 0.02808 |
+| 300 | 0.000326 | 0.01077 | 0.02824 |
 
 **Held-out (val) joint error vs both constant baselines** (mean |pred - target| over val pairs,
 rad; per-joint table in §7):
 
 | policy | val MAE (rad) | vs BC |
 |---|---|---|
-| **BC policy** | **{BC_VAL}** | — |
-| stand-keyframe constant (`ctrl = a_stand`) | {STAND_VAL} | x{VS_STAND} worse |
-| mean-pose constant (mean of train targets) | {MEAN_VAL} | x{VS_MEAN} worse |
+| **BC policy** | **0.02737** | — |
+| stand-keyframe constant (`ctrl = a_stand`) | 0.42232 | x15.43 worse |
+| mean-pose constant (mean of train targets) | 0.23595 | x8.62 worse |
 
 Margin asserted in the test: **BC <= 0.50 x stand AND <= 0.50 x mean** (measured
-{VS_STAND}x / {VS_MEAN}x better). Train MAE {BC_TRAIN} rad (gap {GAP}).
+15.43x / 8.62x better). Train MAE 0.01038 rad (gap 0.01699).
 
 ## 5. Open-loop rollout (no expert correction)
 
@@ -123,14 +138,34 @@ start pose `q_ref[0]`, velocities from the one-sided finite differences of the s
 
 | reference | steps | result | fall time (cause) | joint err 1st half | last half | site err mean (m) |
 |---|---|---|---|---|---|---|
-{ROLLOUT_TABLE}
+| `stance_hold` | 220/220 | survived, collapsed | pelvis min 0.182 m | 0.218 | 0.239 | 0.752 |
+| `stance_widen_step` | 180/180 | survived, collapsed | pelvis min 0.173 m | 0.278 | 0.243 | 0.971 |
+| `level_change_full` | 104/104 | survived, collapsed | pelvis min 0.086 m | 0.318 | 0.379 | 0.532 |
+| `level_change_fast` | 67/67 | survived, collapsed | pelvis min 0.189 m | 0.260 | 0.288 | 0.553 |
+| `shot_entry_full` | 410/410 | survived, collapsed | pelvis min 0.200 m | 0.280 | 0.310 | 1.073 |
+| `shot_recover` | 70/398 | **FELL** | t=1.40 s (dorsal) | 0.310 | 0.418 | 0.581 |
+| `knee_sprawl_entry` | 168/168 | survived, collapsed | pelvis min 0.184 m | 0.342 | 0.407 | 0.397 |
+| `knee_sprawl_entry2` | 337/337 | survived, collapsed | pelvis min 0.148 m | 0.360 | 0.491 | 1.696 |
+| `knee_sprawl_hold` | 220/220 | survived, collapsed | pelvis min 0.192 m | 0.316 | 0.350 | 0.691 |
+| `knee_sprawl_recover` | 277/277 | survived, collapsed | pelvis min 0.191 m | 0.453 | 0.433 | 0.898 |
+| `stalk_shuffle` | 841/841 | survived, collapsed | pelvis min 0.176 m | 0.221 | 0.259 | 2.033 |
+| `circle_step` | 868/868 | survived, collapsed | pelvis min 0.192 m | 0.230 | 0.231 | 1.212 |
+| `DOUBLE_LEG` | 154/154 | survived, collapsed | pelvis min 0.208 m | 0.298 | 0.304 | 0.751 |
+| `STANCE` | 117/117 | survived, collapsed | pelvis min 0.212 m | 0.271 | 0.340 | 0.755 |
 
-{FALL_NARRATIVE}
+**The honest verdict: 13 of 14 rollouts sink into a collapse (pelvis 0.086–0.212 m) and one
+(`shot_recover`) falls outright at t=1.40 s (dorsal) after 70 of its 398 steps.** The joint error
+does not diverge — the tracking stays in the 0.22–0.45 rad band and the *last* half is not
+materially worse than the first — but the pose prior reproduces the reference's low, crouched
+postures without the balance layer that the references themselves do not have: the references are
+kinematically valid and dynamically infeasible (6/7 fail naive PD), and an open-loop policy
+trained to imitate them inherits exactly that. This is the expected, reported outcome; the
+deliverable is a *pose prior* that reproduces the movement, not instant feasibility.
 
 ## 6. Phase / observation-ambiguity check (Main's interface question)
 
 * **The actor phase field (offset 114) is NOT populated for this corpus**: with the constant
-  `DEFAULT_COMMAND` (skill `STANCE`) it is identically **0.0** for all {NPAIR} pairs
+  `DEFAULT_COMMAND` (skill `STANCE`) it is identically **0.0** for all 4361 pairs
   (`bc.corpus_phase_report`; test `test_phase_field_is_constant_for_the_corpus`). `solo.env`
   only advances a clock while the command skill is `SHOT_DOUBLE_LEG` (`_make_ctx`), and that
   clock is an **env camera clock, not a reference clock**.
@@ -139,8 +174,8 @@ start pose `q_ref[0]`, velocities from the one-sided finite differences of the s
   (test `test_phase_field_is_live_when_the_shot_skill_is_commanded`).
 * **Cost of the missing clock, measured** (`bc.ambiguity_report`): in the standardised
   (joint pose, joint velocity) space, each held-out frame's nearest *non-local* train frame
-  demands a **median {NN_MED} rad / p90 {NN_P90} rad different target**, and
-  **{NN_FRAC}% of held-out frames have a >0.25 rad twin** (nearest-neighbour check excludes
+  demands a **median 0.120 rad / p90 0.205 rad different target**, and
+  **4.0% of held-out frames have a >0.25 rad twin** (nearest-neighbour check excludes
   +/-25 frames = 0.5 s). So pose+velocity *mostly* disambiguate the phase, but a material
   minority does not — the same observation can correspond to different reference phases with
   genuinely different targets. This is an obs-contract gap, not a data-quality problem.
@@ -154,7 +189,39 @@ start pose `q_ref[0]`, velocities from the one-sided finite differences of the s
 
 | joint | BC | stand const | mean-pose const |
 |---|---|---|---|
-{PER_JOINT_TABLE}
+| 0 | 0.05366 | 1.24847 | 0.44443 |
+| 1 | 0.04557 | 0.22760 | 0.23246 |
+| 2 | 0.01802 | 0.29756 | 0.25690 |
+| 3 | 0.03064 | 1.25905 | 0.45009 |
+| 4 | 0.01813 | 0.16407 | 0.17702 |
+| 5 | 0.03506 | 0.22136 | 0.05830 |
+| 6 | 0.12712 | 1.54030 | 0.88444 |
+| 7 | 0.05308 | 0.31320 | 0.33029 |
+| 8 | 0.02748 | 0.28360 | 0.27779 |
+| 9 | 0.04529 | 1.22378 | 0.49448 |
+| 10 | 0.02784 | 0.25436 | 0.26101 |
+| 11 | 0.03480 | 0.17864 | 0.17823 |
+| 12 | 0.02008 | 0.15841 | 0.15840 |
+| 13 | 0.03362 | 0.18368 | 0.18584 |
+| 14 | 0.04250 | 0.31949 | 0.31557 |
+| 15 | 0.02703 | 1.05256 | 0.30269 |
+| 16 | 0.01802 | 0.21599 | 0.21147 |
+| 17 | 0.01906 | 0.34833 | 0.18629 |
+| 18 | 0.02120 | 0.62918 | 0.37186 |
+| 19 | 0.00003 | 0.00000 | 0.00000 |
+| 20 | 0.00044 | 0.00000 | 0.00000 |
+| 21 | 0.00001 | 0.00000 | 0.00000 |
+| 22 | 0.03768 | 1.04153 | 0.32456 |
+| 23 | 0.01810 | 0.17667 | 0.17124 |
+| 24 | 0.02024 | 0.37673 | 0.33881 |
+| 25 | 0.01840 | 0.53267 | 0.23048 |
+| 26 | 0.00054 | 0.00000 | 0.00000 |
+| 27 | 0.00001 | 0.00000 | 0.00000 |
+| 28 | 0.00023 | 0.00000 | 0.00000 |
+
+(Joint indices are the model's actuated-joint order. The worst joint is 6 — 0.127 rad, still 12x
+better than its stand constant; the best are the wrist/arm joints (19–21, 26–28) which the
+references barely move, hence the ~0 baselines.)
 
 ## 8. Imitation reward module (`src/solo/imitation.py`) — for the RL refinement stage
 
@@ -238,4 +305,12 @@ scheduled as a background run, and the T1 trainer service must be stopped first.
   hidden, and they are expected (naive PD fails similarly).
 * The site term compares FK(qpos_a) targets; the residual between those and the original
   landmarks is the solve's `landmark_rms` (weighted 0.042-0.068 m across the 12 tracks).
-* {LIMITS_EXTRA}
+* **The prior is not deployable as-is**: every rollout collapses (§5). The RL refinement stage must
+  supply the balance layer; the pose prior only supplies the movement.
+* **No inter-skill transitions in the corpus** (§1) — the continuous drill (S8) needs a transition
+  curriculum, not a longer BC fit.
+* **~4% of held-out frames are genuinely ambiguous** in pose+velocity alone (§6) — a floor on the
+  prior's error until the reference clock is in the observation.
+* The open-loop rollout used the env's `absolute` action mode with jitter off; the residual path
+  (the training mode) was not rolled out — its collapse profile may differ.
+* Training wall time (~6 min) is a single shared-box observation, not a throughput claim.
