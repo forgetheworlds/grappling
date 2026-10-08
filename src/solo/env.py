@@ -47,8 +47,9 @@ import numpy as np
 
 from . import markers as markers_mod
 from .curriculum import DEFAULT_CURRICULUM, PushCurriculum
-from .commands import (DEFAULT_COMMAND, N_SKILLS, Command, CommandFilter,
-                       CommandRanges, CommandSampler, CommandSchedule, Skill)
+from .commands import (DEFAULT_COMMAND, N_SKILLS, T2_TRAIN_RANGES, Command,
+                       CommandFilter, CommandRanges, CommandSampler,
+                       CommandSchedule, Skill)
 from .fall import (ContactState, DorsalDetector, FallDetConfig, FallDetector,
                    fall_features)
 from .markers import DEFAULT_PLAN, SHOT_PLAN, MarkerPlan
@@ -136,7 +137,11 @@ def _preset_tasks() -> dict[str, TaskSpec]:
                             push_curriculum=DEFAULT_CURRICULUM),
         "locomotion": TaskSpec(
             name="locomotion", horizon=8.0,
-            command_sampler=CommandSampler(skills=_LOCOMOTION_SKILLS, seed=0),
+            # sample the T2 TRAINING domain only: the gate's held-out commands
+            # (solo.eval.HELDOUT_COMMANDS) sit outside these bounds, so the
+            # default locomotion task can never train on them.
+            command_sampler=CommandSampler(ranges=T2_TRAIN_RANGES,
+                                           skills=_LOCOMOTION_SKILLS, seed=0),
             command_hold_s=1.5),
         "stance": TaskSpec(
             name="stance", horizon=8.0,
@@ -290,6 +295,10 @@ class SoloEnv:
                                         seed=self.seed)
         self._prev_ctrl = None
         self._prev_pelvis_z = float(self.data.qpos[2])
+        self._prev_pelvis_xy = self._pelvis_xy().copy()
+        self._prev_foot_xy = {sid: np.asarray(self.data.site_xpos[sid][:2],
+                                              np.float64).copy()
+                              for sid in self._foot_sites}
         self._prev_action = np.zeros(N_JOINTS)
         self._prev_contact = [False, False]
         self._foot_air = [0.0, 0.0]
@@ -759,14 +768,38 @@ class SoloEnv:
         ctx = self._last_ctx
         com_offset = (float(np.linalg.norm(np.asarray(ctx.com_to_support_xy)))
                       if ctx is not None else None)
+        vel_local = np.asarray(inp.vel_local, np.float64)
+        # T2 (locomotion) measurement support: per-axis tracking error, the
+        # pelvis path step, and the *position* travel of each loaded foot (the
+        # point-sampled ``slip`` above cannot see a slow drag: MuJoCo's friction
+        # constraint zeroes the relative velocity within a substep while the
+        # positions still integrate).
+        pelvis_xy = self._pelvis_xy()
+        body_step = None
+        if self._prev_pelvis_xy is not None:
+            body_step = float(np.linalg.norm(pelvis_xy - self._prev_pelvis_xy))
+        self._prev_pelvis_xy = pelvis_xy.copy()
+        slip_travel = 0.0
+        for sid, loaded in zip(self._foot_sites,
+                               (contacts.left_foot, contacts.right_foot)):
+            xy = np.asarray(self.data.site_xpos[sid][:2], np.float64)
+            prev_xy = self._prev_foot_xy.get(sid)
+            if loaded and prev_xy is not None:
+                slip_travel += float(np.linalg.norm(xy - prev_xy))
+            self._prev_foot_xy[sid] = xy.copy()
         row = self.recorder.add(
             t=float(self.data.time),
-            vel_err=float(np.linalg.norm(inp.vel_local
+            vel_err=float(np.linalg.norm(vel_local
                                          - np.array([self.command.vx, self.command.vy]))),
+            vx_err=float(vel_local[0] - self.command.vx),
+            vy_err=float(vel_local[1] - self.command.vy),
             yaw_err=abs(inp.yaw_rate - self.command.wz),
             upright=f.torso_up_z, tilt_deg=f.tilt_deg, pelvis_z=f.pelvis_z,
             stance_err=f.pelvis_z - self.command.stance_height,
             slip=float(np.max(inp.foot_slip)),
+            slip_travel=slip_travel,
+            body_step=body_step,
+            cmd_vx=self.command.vx, cmd_vy=self.command.vy, cmd_wz=self.command.wz,
             speed=float(np.linalg.norm(np.asarray(inp.vel_local, np.float64))),
             com_offset=com_offset,
             steps_taken=int(self._step_events),

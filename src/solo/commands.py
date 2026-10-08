@@ -130,6 +130,18 @@ class Command:
 #: default command: stand still at the verified-stable stance
 DEFAULT_COMMAND = Command()
 
+#: T2 (locomotion) *training* command domain -- deliberately narrower than the
+#: feasible :class:`CommandRanges` so the gate's held-out commands (see
+#: ``solo.eval.HELDOUT_COMMANDS``) lie outside it by a real margin.  The
+#: locomotion task preset samples inside these bounds and nothing else; the
+#: held-out set is a property of the *range*, not of a seed (a seed holds
+#: nothing out when the sampler covers the range).  Same pattern as
+#: ``pushes.TRAIN_MAX_IMPULSE``: train below the boundary, gate above it.
+T2_TRAIN_RANGES = CommandRanges(vx=(-0.15, 0.35), vy=(-0.12, 0.12),
+                                wz=(-0.30, 0.30),
+                                stance_height=(0.70, 0.80),
+                                stance_width=(0.23, 0.42))
+
 
 class CommandSampler:
     """Seeded sampler over the feasible ranges, coherent with the skill label.

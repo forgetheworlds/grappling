@@ -27,6 +27,7 @@ upright (T2).
 
 from __future__ import annotations
 
+import math
 from dataclasses import dataclass, field
 from pathlib import Path
 
@@ -36,7 +37,7 @@ from .commands import Command, CommandSchedule, Skill
 from .env import SoloEnv
 from .obs import ACTOR_DIM
 from .pushes import PushSpec
-from .scene import N_JOINTS, load_solo_model, stand_frame
+from .scene import N_JOINTS, STEP_DT, load_solo_model, stand_frame
 
 
 class StandHoldController:
@@ -174,6 +175,76 @@ class PolicyController:
             else:
                 unit = self.policy.actor.deterministic_unit(t).cpu().numpy()[0]
         return env.ctrl_from_policy(unit)
+
+
+class PlantedFootDragController:
+    """T2 metric-discrimination probe: *sliding instead of stepping*.
+
+    Holds the stand keyframe and translates the root every control step while
+    both feet stay loaded, so the loaded feet are dragged along the floor.  It
+    stays upright (measured mean uprightness 0.9998) and never terminates, and
+    the **point-sampled** ``slip`` reads the same as a standing robot (MuJoCo's
+    friction constraint zeroes the relative velocity within a substep while the
+    positions still integrate).  It is the case the position-based
+    ``slip_ratio`` criterion exists for: measured 1.75-2.0 m of loaded-foot
+    travel per metre travelled, vs <=0.57 for a mechanism that moves the body
+    while the loaded foot is *not* travelling.
+    """
+
+    name = "planted_foot_drag"
+
+    def __init__(self, speed: float = 0.50):
+        self.speed = float(speed)
+        self.hold = StandHoldController()
+
+    def __call__(self, env, data) -> np.ndarray:
+        yaw = env._yaw()
+        d = self.speed * STEP_DT
+        env.data.qpos[0] += math.cos(yaw) * d
+        env.data.qpos[1] += math.sin(yaw) * d
+        return self.hold(env, data)
+
+
+class AirborneTransferController:
+    """T2 metric-discrimination probe: a **load-transfer** mechanism.
+
+    Crouches, leaves the floor with both feet, translates the root only while
+    airborne, then absorbs the landing -- so no loaded foot travels with the
+    body.  Counterpart of :class:`PlantedFootDragController`: equal purpose
+    (displacement), opposite slip-while-loaded signature (measured
+    ``slip_ratio`` 0.22-0.42 with 3-9 step events, vs >=1.75 for the drag).
+
+    This is a *metric probe*, not a gait and not a policy: it topples within
+    ~1.5 s (measured) and fails the tracking/uprightness criteria of the T2
+    gate.  It exists to show the slip criterion separates the two mechanisms.
+    """
+
+    name = "airborne_transfer"
+
+    def __init__(self, speed: float = 0.20, period: float = 0.35,
+                 crouch: float = 0.12, squash: float = 0.60):
+        m = load_solo_model()
+        _, ctrl = stand_frame(m)
+        self.base = ctrl.copy()
+        self.speed = float(speed)
+        self.period = float(period)
+        self.crouch = float(crouch)
+        self.squash = float(squash)
+
+    def __call__(self, env, data) -> np.ndarray:
+        ph = (float(data.time) % self.period) / self.period
+        target = self.base.copy()
+        amp = self.crouch if ph < 0.5 else self.squash
+        c = math.sin(math.pi * (ph if ph < 0.5 else ph - 0.5) / 0.5) * amp
+        for off in (0, 6):
+            target[off + 3] += c            # knee flex (crouch / absorb)
+            target[off + 0] += -0.5 * c     # hip compensation
+        if 0.25 < ph < 0.60:                # airborne: this is the "step"
+            yaw = env._yaw()
+            d = self.speed * STEP_DT
+            env.data.qpos[0] += math.cos(yaw) * d
+            env.data.qpos[1] += math.sin(yaw) * d
+        return env.action_from_ctrl(np.clip(target, env.lo, env.hi))
 
 
 #: forward-command schedule for the T2 probes (steady 0.3 m/s shuffle)

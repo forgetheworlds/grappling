@@ -8,12 +8,17 @@ field                definition
 ===================  ==========================================================
 ``t``                sim time (s)
 ``vel_err``          ||(v_xy_local - cmd.(vx,vy))|| (m/s)
+``vx_err``           v_xy_local.x - cmd.vx (signed, m/s)
+``vy_err``           v_xy_local.y - cmd.vy (signed, m/s)
 ``yaw_err``          |wz_local - cmd.wz| (rad/s)
 ``upright``          torso_link local +z . world +z in [-1, 1]
 ``tilt_deg``         arccos(upright) in degrees
 ``pelvis_z``         pelvis height (m)
 ``stance_err``       pelvis_z - cmd.stance_height (m)
 ``slip``             max horizontal foot-site speed among *loaded* feet (m/s)
+``slip_travel``      sum over *loaded* feet of |xy displacement this step| (m)
+``body_step``        |pelvis xy displacement this step| (m)
+``cmd_vx``/``cmd_vy``/``cmd_wz``  the filtered command in force this step
 ``contact_l/r``      floor contact of each foot (0/1)
 ``knee_contact``     knee mat contact (0/1; diagnostics, never terminal)
 ``hand_contact``     hand/wrist mat contact (0/1)
@@ -47,8 +52,10 @@ METRICS_DIR = Path(__file__).resolve().parents[2] / "data" / "solo" / "metrics"
 
 #: per-step fields written to JSONL (order fixed for readability)
 METRIC_FIELDS: tuple[str, ...] = (
-    "t", "vel_err", "yaw_err", "upright", "tilt_deg", "pelvis_z", "stance_err",
-    "slip", "speed", "com_offset", "steps_taken",
+    "t", "vel_err", "vx_err", "vy_err", "yaw_err", "upright", "tilt_deg",
+    "pelvis_z", "stance_err",
+    "slip", "slip_travel", "body_step", "cmd_vx", "cmd_vy", "cmd_wz",
+    "speed", "com_offset", "steps_taken",
     "contact_l", "contact_r", "knee_contact", "hand_contact",
     "torso_contact", "dorsal_contact", "act_delta", "sat_frac", "limit_prox",
     "hand_err", "reward",

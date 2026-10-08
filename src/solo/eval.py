@@ -14,6 +14,7 @@ aggregated metrics and the verdict + reasons, and the exact env ``config()``.
 from __future__ import annotations
 
 import json
+import math
 import time
 from dataclasses import dataclass, field
 from pathlib import Path
@@ -21,7 +22,8 @@ from typing import Callable, Iterable, Sequence
 
 import numpy as np
 
-from .commands import CommandSchedule
+from .commands import (DEFAULT_COMMAND, T2_TRAIN_RANGES, Command, CommandRanges,
+                       CommandSchedule, Skill)
 from .env import SoloEnv
 from .metrics import (METRICS_DIR, METRIC_FIELDS, com_offset_max,
                       recovery_time, summarize_rows)
@@ -43,6 +45,10 @@ GATE_METRICS: tuple[str, ...] = (
     "com_offset_max", "steps_after_push_mean", "steps_total_mean",
     "steps_per_s", "n_episodes", "n_steps",
     "hand_err_mean", "shot_depth_max", "shot_exit_rate",
+    # T2 (locomotion) aggregate names -- all measured, none reward-derived
+    "vx_err_abs_mean", "vy_err_abs_mean", "yaw_err_abs_mean",
+    "slip_ratio_mean", "dist_err_mean", "travelled_m_mean",
+    "commanded_m_mean", "slip_travel_mean", "loaded_step_frac_mean",
 )
 
 
@@ -103,6 +109,194 @@ class TaskGate:
                              for c in self.criteria]}
 
 
+# ==========================================================================
+# T2 (locomotion / M2) gate inputs: held-out commands + derived thresholds
+# ==========================================================================
+#
+# The gate is *behavioural*: a controller is judged on physically meaningful
+# outcomes measured on commands held out from training.  Reward is never a
+# criterion (see ``tests/solo/test_locomotion_gate.py``).
+
+# T2 training command domain -- owned by ``solo.commands`` (imported above, so
+# ``solo.eval.T2_TRAIN_RANGES`` resolves): deliberately NARROWER than the
+# feasible ``CommandRanges``.  The locomotion task preset samples inside these
+# bounds (``env.TASKS``); the gate evaluates *outside* them, so "held out" is a
+# property of the command range, not of a seed (a seed alone holds nothing out
+# when the sampler covers the range).  ``tests/solo/test_locomotion_gate.py``
+# asserts the disjointness.
+
+#: minimum margin (m/s, rad/s) by which every held-out command must sit
+#: outside :data:`T2_TRAIN_RANGES` on at least one axis
+T2_HELDOUT_MARGIN = 0.04
+
+#: T2 evaluation episode length (s)
+T2_EPISODE_S = 6.0
+
+#: T2 measurements start here (s): a jittered reset drops the robot and the
+#: feet skid 0.1-0.2 m in the first ~0.5 s of *every* episode.  Tracking
+#: errors, slip and travelled/commanded distance are measured from
+#: ``T2_SETTLE_S`` on; uprightness and terminations stay episode-wide.
+T2_SETTLE_S = 0.5
+
+#: denominator floor for ``slip_ratio`` (m): stand-still episodes travel a
+#: little during the transient and dividing by an ~0 path is meaningless
+T2_SLIP_RATIO_MIN_TRAVEL = 0.10
+
+#: held-out commands: feasible (inside ``CommandRanges``) but outside the
+#: training domain above by >= ``T2_HELDOUT_MARGIN`` on >=1 axis.  Each is a
+#: magnitude/axis combination the trainer is not allowed to sample: top speed
+#: (0.40/0.45 m/s), full-rate turns in place (+/-0.45 rad/s), lateral shuffle
+#: (+/-0.18 m/s), backward travel (-0.20 m/s) and a three-axis mixed command.
+HELDOUT_COMMANDS: tuple[Command, ...] = (
+    Command(vx=0.45, vy=0.0, wz=0.0, skill_id=int(Skill.SHUFFLE_F)),
+    Command(vx=0.40, vy=0.0, wz=0.40, skill_id=int(Skill.CIRCLE_L)),
+    Command(vx=0.0, vy=0.18, wz=0.0, skill_id=int(Skill.SHUFFLE_L)),
+    Command(vx=0.0, vy=-0.18, wz=0.0, skill_id=int(Skill.SHUFFLE_R)),
+    Command(vx=0.0, vy=0.0, wz=-0.45, skill_id=int(Skill.CIRCLE_R)),
+    Command(vx=-0.20, vy=0.0, wz=0.0, skill_id=int(Skill.RETREAT)),
+    Command(vx=0.38, vy=-0.17, wz=0.35, skill_id=int(Skill.CIRCLE_L)),
+)
+
+#: tiny-command reference set (NOT held out -- inside the training range by
+#: design): the "commanded (nearly) nothing, so holding still is correct"
+#: case.  A gate that cannot certify *this* would be vacuously impossible.
+TINY_COMMANDS: tuple[Command, ...] = (
+    Command(vx=0.02, vy=0.0, wz=0.0, skill_id=int(Skill.SHUFFLE_F)),
+    Command(vx=0.0, vy=0.0, wz=0.02, skill_id=int(Skill.CIRCLE_L)),
+)
+
+
+def heldout_command_outside(cmd: Command,
+                            ranges: CommandRanges | None = None) -> dict:
+    """Per-axis margin by which ``cmd`` lies outside ``ranges`` (0 = inside)."""
+    r = T2_TRAIN_RANGES if ranges is None else ranges
+    out = {}
+    for axis, rng in (("vx", r.vx), ("vy", r.vy), ("wz", r.wz)):
+        v = float(getattr(cmd, axis))
+        lo, hi = float(rng[0]), float(rng[1])
+        out[axis] = max(lo - v, v - hi, 0.0)
+    return out
+
+
+def is_heldout_command(cmd: Command, ranges: CommandRanges | None = None,
+                       margin: float = T2_HELDOUT_MARGIN) -> bool:
+    """True iff ``cmd`` is outside the training domain by >= ``margin``."""
+    return max(heldout_command_outside(cmd, ranges).values()) >= margin - 1e-9
+
+
+def t2_oscillation_schedule(*, period_s: float = 0.75,
+                            episode_s: float = T2_EPISODE_S) -> CommandSchedule:
+    """Held-out command-reversal schedule (the "command oscillation" exploit).
+
+    Alternates a held-out forward command with a held-out backward command.
+    A controller that "tracks" by drifting in one direction cannot track the
+    reversals; a controller that oscillates to farm a tracking reward pays the
+    same error on both halves.
+    """
+    fwd, back = HELDOUT_COMMANDS[0], HELDOUT_COMMANDS[5]
+    segs, t, i = [], 0.0, 0
+    while t < episode_s - 1e-9:
+        segs.append((t, fwd if i % 2 == 0 else back))
+        t += float(period_s)
+        i += 1
+    return CommandSchedule(segs, default=fwd)
+
+
+def heldout_command_plan(*, episode_s: float = T2_EPISODE_S,
+                         oscillation: bool = True) -> list[CommandSchedule]:
+    """One held-out episode per command (steady), plus the reversal schedule."""
+    plan = [CommandSchedule.steady(c) for c in HELDOUT_COMMANDS]
+    if oscillation:
+        plan.append(t2_oscillation_schedule(episode_s=episode_s))
+    return plan
+
+
+def tiny_command_plan() -> list[CommandSchedule]:
+    """Reference episodes: commands small enough that holding still tracks them."""
+    return [CommandSchedule.steady(c) for c in TINY_COMMANDS]
+
+
+#: T2 thresholds.  Every number is *derived* from the measured baseline table
+#: (``data/solo/metrics/t2_gate_baselines.json``); the rule for each is in the
+#: criterion note and repeated in ``reports/2026-10-08/t2_gate.md``.  Nothing
+#: here is invented and nothing is reward-based.
+T2_THRESHOLDS: dict[str, float] = {
+    # 25% of the smallest held-out |vx| (0.40 m/s)
+    "vx_err_abs_mean": 0.10,
+    # 25% of the smallest held-out |vy| (0.18 m/s)
+    "vy_err_abs_mean": 0.045,
+    # 33% of the smallest held-out |wz| (0.45 rad/s)
+    "yaw_err_abs_mean": 0.15,
+    # between the worst measured non-falling uprightness (StandHold 0.9999)
+    # and the best measured falling one (FallForward 0.76)
+    "mean_upright": 0.95,
+    # measured: every displacing baseline either falls or topples
+    "fall_rate": 0.10,
+    "dorsal_rate": 0.10,
+    # 15% of the smallest held-out speed (0.40 m/s); measured standing slip is
+    # <=0.008 m/s, measured sliding slip >=0.098 m/s
+    "slip_mean": 0.06,
+    # bracket between the load-transfer measurements (<=0.57) and the
+    # planted-foot drags (>=1.75)
+    "slip_ratio_mean": 0.80,
+    # 15% of the smallest held-out commanded path (0.40 m/s x 5.5 s = 2.2 m)
+    "dist_err_mean": 0.30,
+}
+
+
+def locomotion_episode_metrics(rows: list[dict],
+                               *, settle_s: float = T2_SETTLE_S) -> dict:
+    """Per-episode T2 quantities from the recorded rows (settled window only).
+
+    ``slip_ratio`` is the discriminating anti-exploit metric: metres travelled
+    by *loaded* feet per metre the pelvis travelled.  It is position-based on
+    purpose -- the per-step ``slip`` field is a single velocity sample taken
+    after MuJoCo's friction constraint has already zeroed any slow drag, so a
+    planted-foot slider reads the same ``slip`` as a standing robot.
+    """
+    settled = [r for r in rows if float(r.get("t", 0.0)) >= float(settle_s)]
+    if not settled:
+        settled = list(rows)
+
+    def abs_mean(key: str) -> float | None:
+        vals = [abs(float(r[key])) for r in settled if r.get(key) is not None]
+        return round(float(np.mean(vals)), 6) if vals else None
+
+    def mean(key: str) -> float | None:
+        vals = [float(r[key]) for r in settled if r.get(key) is not None]
+        return round(float(np.mean(vals)), 6) if vals else None
+
+    def p95(key: str) -> float | None:
+        vals = [float(r[key]) for r in settled if r.get(key) is not None]
+        return round(float(np.percentile(vals, 95)), 6) if vals else None
+
+    travelled = sum(float(r["body_step"]) for r in settled
+                    if r.get("body_step") is not None)
+    commanded = sum(math.hypot(float(r["cmd_vx"]), float(r["cmd_vy"])) * STEP_DT
+                    for r in settled
+                    if r.get("cmd_vx") is not None and r.get("cmd_vy") is not None)
+    slip_travel = sum(float(r["slip_travel"]) for r in settled
+                      if r.get("slip_travel") is not None)
+    loaded_steps = sum(1 for r in settled
+                       if r.get("contact_l") or r.get("contact_r"))
+    return {
+        "settle_s": float(settle_s),
+        "n_steps_settled": len(settled),
+        "vx_err_abs_mean": abs_mean("vx_err"),
+        "vy_err_abs_mean": abs_mean("vy_err"),
+        "yaw_err_abs_mean": abs_mean("yaw_err"),
+        "slip_mean_settled": mean("slip"),
+        "slip_p95_settled": p95("slip"),
+        "travelled_m": round(travelled, 4),
+        "commanded_m": round(commanded, 4),
+        "dist_err_m": round(abs(travelled - commanded), 4),
+        "slip_travel_m": round(slip_travel, 4),
+        "slip_ratio": round(slip_travel / max(travelled, T2_SLIP_RATIO_MIN_TRAVEL),
+                            4),
+        "loaded_step_frac": round(loaded_steps / max(1, len(settled)), 4),
+    }
+
+
 #: provisional gates.  Thresholds are placeholders (no baseline tuning yet);
 #: S2 sets them from measured baselines and the held-out battery.
 GATES: dict[str, TaskGate] = {
@@ -128,11 +322,37 @@ GATES: dict[str, TaskGate] = {
              "(reports/2026-10-08/solo_env.md section 5)"),
     "locomotion": TaskGate(
         "T2_locomotion",
-        (Criterion("vel_err_mean", "<=", 0.15, "m/s"),
-         Criterion("yaw_err_mean", "<=", 0.25, "rad/s"),
-         Criterion("mean_upright", ">=", 0.97, "tracking must not be bought with falls"),
-         Criterion("fall_rate", "<=", 0.05)),
-        note="tracking is always paired with uprightness"),
+        (Criterion("vx_err_abs_mean", "<=", T2_THRESHOLDS["vx_err_abs_mean"],
+                   "m/s; 25% of the smallest held-out |vx| (0.40 m/s); "
+                   "provenance: baseline table (StandHold+tiny 0.02 PASS, "
+                   "StandHold@held-out 0.30 FAIL)"),
+         Criterion("vy_err_abs_mean", "<=", T2_THRESHOLDS["vy_err_abs_mean"],
+                   "m/s; 25% of the smallest held-out |vy| (0.18 m/s); "
+                   "provenance: baseline table"),
+         Criterion("yaw_err_abs_mean", "<=", T2_THRESHOLDS["yaw_err_abs_mean"],
+                   "rad/s; 33% of the smallest held-out |wz| (0.45 rad/s); "
+                   "provenance: baseline table"),
+         Criterion("mean_upright", ">=", T2_THRESHOLDS["mean_upright"],
+                   "tracking must not be bought with a topple; provenance: "
+                   "StandHold 0.9999 vs FallForward 0.76"),
+         Criterion("fall_rate", "<=", T2_THRESHOLDS["fall_rate"],
+                   "falls per episode; provenance: every displacing baseline falls"),
+         Criterion("dorsal_rate", "<=", T2_THRESHOLDS["dorsal_rate"],
+                   "back-to-mat terminations (also a fall here)"),
+         Criterion("slip_mean", "<=", T2_THRESHOLDS["slip_mean"],
+                   "m/s loaded-foot speed (point sample); provenance: standing "
+                   "<=0.008, sliding >=0.098"),
+         Criterion("slip_ratio_mean", "<=", T2_THRESHOLDS["slip_ratio_mean"],
+                   "m loaded-foot travel per m travelled -- sliding instead of "
+                   "stepping; provenance: load-transfer <=0.57, drag >=1.75"),
+         Criterion("dist_err_mean", "<=", T2_THRESHOLDS["dist_err_mean"],
+                   "m; |travelled - commanded| path length; 15% of the smallest "
+                   "held-out commanded path (2.2 m); provenance: baseline table")),
+        provisional=False,
+        note="T2 (S3) gate: held-out commands outside T2_TRAIN_RANGES; measured "
+             "over the settled window (t >= 0.5 s); thresholds DERIVED from "
+             "data/solo/metrics/t2_gate_baselines.json -- see "
+             "reports/2026-10-08/t2_gate.md. No reward term is a criterion."),
     "stance": TaskGate(
         "T3_stance",
         (Criterion("stance_err_mean", "<=", 0.08, "m pelvis-height error"),
@@ -259,6 +479,7 @@ def run_episode(env: SoloEnv, controller: Callable, seed: int, *,
         "shot_depth_max": round(float(getattr(env, "_shot_max_depth", 0.0)), 4),
         "shot_exited": bool(getattr(env, "_shot_exited", False)),
         "hand_err": hand_err_mean,
+        **(locomotion_episode_metrics(rows) if env.task == "locomotion" else {}),
     })
     summary["__rows"] = rows
     return summary
@@ -297,9 +518,32 @@ def _episode_metric(summary: dict, metric: str) -> float | None:
     if metric == "stance_err_mean":
         return (m.get("stance_err") or {}).get("mean")
     if metric == "slip_mean":
+        # locomotion episodes carry the settled-window value (see
+        # locomotion_episode_metrics); other tasks keep the episode-wide stat
+        if summary.get("slip_mean_settled") is not None:
+            return summary["slip_mean_settled"]
         return (m.get("slip") or {}).get("mean")
     if metric == "slip_p95":
+        if summary.get("slip_p95_settled") is not None:
+            return summary["slip_p95_settled"]
         return (m.get("slip") or {}).get("p95")
+    # T2 (locomotion) per-episode quantities, recorded by run_episode
+    if metric in ("vx_err_abs_mean", "vy_err_abs_mean", "yaw_err_abs_mean",
+                  "travelled_m", "commanded_m", "dist_err_m", "slip_travel",
+                  "slip_ratio", "loaded_step_frac"):
+        return summary.get(metric)
+    if metric == "dist_err_mean":
+        return summary.get("dist_err_m")
+    if metric == "slip_ratio_mean":
+        return summary.get("slip_ratio")
+    if metric == "travelled_m_mean":
+        return summary.get("travelled_m")
+    if metric == "commanded_m_mean":
+        return summary.get("commanded_m")
+    if metric == "slip_travel_mean":
+        return summary.get("slip_travel_m")
+    if metric == "loaded_step_frac_mean":
+        return summary.get("loaded_step_frac")
     if metric == "act_delta_mean":
         return (m.get("act_delta") or {}).get("mean")
     if metric == "sat_frac_mean":
@@ -396,6 +640,16 @@ def aggregate(episodes: list[dict], *, steps_total: int, wall_total: float,
         "shot_depth_max": max((e.get("shot_depth_max") or 0.0) for e in episodes),
         "shot_exit_rate": round(sum(1 for e in episodes if e.get("shot_exited")) / n, 6),
         "hand_err_mean": mean_metric("hand_err"),
+        # T2 (locomotion) -- settled-window tracking / slip / distance
+        "vx_err_abs_mean": mean_metric("vx_err_abs_mean"),
+        "vy_err_abs_mean": mean_metric("vy_err_abs_mean"),
+        "yaw_err_abs_mean": mean_metric("yaw_err_abs_mean"),
+        "slip_ratio_mean": mean_metric("slip_ratio_mean"),
+        "dist_err_mean": mean_metric("dist_err_mean"),
+        "travelled_m_mean": mean_metric("travelled_m_mean"),
+        "commanded_m_mean": mean_metric("commanded_m_mean"),
+        "slip_travel_mean": mean_metric("slip_travel_mean"),
+        "loaded_step_frac_mean": mean_metric("loaded_step_frac_mean"),
     }
     if extra:
         out.update(extra)
