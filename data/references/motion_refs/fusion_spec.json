@@ -1,0 +1,683 @@
+{
+ "version": "1.0",
+ "policy": {
+  "video": "timing, ordering, carriage, approximate trajectories, step cadence",
+  "grapplemap": "spatial relationships, technique structure, constraints",
+  "rule": "no frame-by-frame angle averaging; an uncertain video landmark never overrides a reliable geometric/contact constraint; attribute every feature"
+ },
+ "measured": {
+  "video_takes": {
+   "stance_hold": {
+    "name": "stance_hold",
+    "n": 221,
+    "dur": 4.4,
+    "pelvis_z_min": 0.62,
+    "pelvis_z_med": 0.669,
+    "pelvis_z_max": 0.75,
+    "pitch_med_deg": 59.0,
+    "pitch_max_deg": 72.8,
+    "head_z_min": 0.94,
+    "hand_fwd_max": 0.053,
+    "hand_z_med": 0.654,
+    "knee_min": 1.58,
+    "lead": "left",
+    "travel_m": 0.014,
+    "sole_min": 0.0371,
+    "contact_frac": 0.991,
+    "width_med": 0.469,
+    "width_max": 0.516,
+    "depth_med": 0.018,
+    "depth_max": 0.043
+   },
+   "stance_widen_step": {
+    "name": "stance_widen_step",
+    "n": 181,
+    "dur": 3.6,
+    "pelvis_z_min": 0.561,
+    "pelvis_z_med": 0.645,
+    "pelvis_z_max": 0.752,
+    "pitch_med_deg": 33.2,
+    "pitch_max_deg": 85.1,
+    "head_z_min": 0.94,
+    "hand_fwd_max": -0.085,
+    "hand_z_med": 0.582,
+    "knee_min": 1.58,
+    "lead": "right",
+    "travel_m": 0.07,
+    "sole_min": 0.025,
+    "contact_frac": 0.989,
+    "width_med": 0.466,
+    "width_max": 0.558,
+    "depth_med": 0.055,
+    "depth_max": 0.174
+   },
+   "stand_to_stance": {
+    "name": "stand_to_stance",
+    "n": 61,
+    "dur": 1.2,
+    "pelvis_z_min": 0.711,
+    "pelvis_z_med": 0.728,
+    "pelvis_z_max": 0.746,
+    "pitch_med_deg": 6.6,
+    "pitch_max_deg": 13.0,
+    "head_z_min": 0.94,
+    "hand_fwd_max": -0.121,
+    "hand_z_med": 0.778,
+    "knee_min": 1.58,
+    "lead": "right",
+    "travel_m": 0.066,
+    "sole_min": 0.0298,
+    "contact_frac": 0.967,
+    "width_med": 0.228,
+    "width_max": 0.461,
+    "depth_med": 0.054,
+    "depth_max": 0.191
+   },
+   "stance_to_stand": {
+    "name": "stance_to_stand",
+    "n": 74,
+    "dur": 1.46,
+    "pelvis_z_min": 0.641,
+    "pelvis_z_med": 0.687,
+    "pelvis_z_max": 0.751,
+    "pitch_med_deg": 57.8,
+    "pitch_max_deg": 62.8,
+    "head_z_min": 0.94,
+    "hand_fwd_max": 0.097,
+    "hand_z_med": 0.733,
+    "knee_min": 1.58,
+    "lead": "right",
+    "travel_m": 0.02,
+    "sole_min": 0.0403,
+    "contact_frac": 0.973,
+    "width_med": 0.466,
+    "width_max": 0.499,
+    "depth_med": 0.059,
+    "depth_max": 0.221
+   },
+   "shuffle_back": {
+    "name": "shuffle_back",
+    "n": 127,
+    "dur": 2.52,
+    "pelvis_z_min": 0.636,
+    "pelvis_z_med": 0.658,
+    "pelvis_z_max": 0.731,
+    "pitch_med_deg": 37.0,
+    "pitch_max_deg": 41.7,
+    "head_z_min": 0.94,
+    "hand_fwd_max": 0.033,
+    "hand_z_med": 0.567,
+    "knee_min": 1.58,
+    "lead": "left",
+    "travel_m": 0.009,
+    "sole_min": 0.0239,
+    "contact_frac": 0.957,
+    "width_med": 0.55,
+    "width_max": 0.585,
+    "depth_med": 0.016,
+    "depth_max": 0.038
+   },
+   "stalk_shuffle": {
+    "name": "stalk_shuffle",
+    "n": 1499,
+    "dur": 29.96,
+    "pelvis_z_min": 0.193,
+    "pelvis_z_med": 0.623,
+    "pelvis_z_max": 0.721,
+    "pitch_med_deg": 49.3,
+    "pitch_max_deg": 96.8,
+    "head_z_min": 0.94,
+    "hand_fwd_max": 0.38,
+    "hand_z_med": 0.565,
+    "knee_min": 1.58,
+    "lead": "left",
+    "travel_m": 1.273,
+    "sole_min": -0.0923,
+    "contact_frac": 0.582,
+    "width_med": 0.393,
+    "width_max": 0.928,
+    "depth_med": 0.304,
+    "depth_max": 0.674
+   },
+   "circle_step": {
+    "name": "circle_step",
+    "n": 869,
+    "dur": 17.36,
+    "pelvis_z_min": 0.566,
+    "pelvis_z_med": 0.691,
+    "pelvis_z_max": 0.744,
+    "pitch_med_deg": 45.7,
+    "pitch_max_deg": 74.8,
+    "head_z_min": 0.94,
+    "hand_fwd_max": 0.305,
+    "hand_z_med": 0.619,
+    "knee_min": 1.58,
+    "lead": "right",
+    "travel_m": 0.791,
+    "sole_min": -0.0195,
+    "contact_frac": 0.74,
+    "width_med": 0.528,
+    "width_max": 0.856,
+    "depth_med": 0.149,
+    "depth_max": 0.427
+   },
+   "level_change_full": {
+    "name": "level_change_full",
+    "n": 111,
+    "dur": 2.2,
+    "pelvis_z_min": 0.399,
+    "pelvis_z_med": 0.559,
+    "pelvis_z_max": 0.713,
+    "pitch_med_deg": 59.4,
+    "pitch_max_deg": 65.8,
+    "head_z_min": 0.94,
+    "hand_fwd_max": -0.131,
+    "hand_z_med": 0.532,
+    "knee_min": 1.58,
+    "lead": "left",
+    "travel_m": 0.168,
+    "sole_min": 0.0097,
+    "contact_frac": 0.86,
+    "width_med": 0.752,
+    "width_max": 0.793,
+    "depth_med": 0.217,
+    "depth_max": 0.33
+   },
+   "level_change_fast": {
+    "name": "level_change_fast",
+    "n": 71,
+    "dur": 1.4000000000000001,
+    "pelvis_z_min": 0.292,
+    "pelvis_z_med": 0.59,
+    "pelvis_z_max": 0.737,
+    "pitch_med_deg": 45.5,
+    "pitch_max_deg": 54.9,
+    "head_z_min": 0.94,
+    "hand_fwd_max": 0.23,
+    "hand_z_med": 0.484,
+    "knee_min": 1.58,
+    "lead": "right",
+    "travel_m": 0.044,
+    "sole_min": 0.0217,
+    "contact_frac": 0.711,
+    "width_med": 0.392,
+    "width_max": 0.645,
+    "depth_med": 0.39,
+    "depth_max": 0.513
+   },
+   "shot_entry_full": {
+    "name": "shot_entry_full",
+    "n": 638,
+    "dur": 12.74,
+    "pelvis_z_min": 0.045,
+    "pelvis_z_med": 0.255,
+    "pelvis_z_max": 0.572,
+    "pitch_med_deg": 35.1,
+    "pitch_max_deg": 67.7,
+    "head_z_min": 0.94,
+    "hand_fwd_max": 0.139,
+    "hand_z_med": 0.262,
+    "knee_min": 1.58,
+    "lead": "left",
+    "travel_m": 0.31,
+    "sole_min": -0.0236,
+    "contact_frac": 0.561,
+    "width_med": 0.593,
+    "width_max": 0.85,
+    "depth_med": 0.108,
+    "depth_max": 0.214
+   },
+   "shot_recover": {
+    "name": "shot_recover",
+    "n": 399,
+    "dur": 7.96,
+    "pelvis_z_min": 0.378,
+    "pelvis_z_med": 0.517,
+    "pelvis_z_max": 0.558,
+    "pitch_med_deg": 9.2,
+    "pitch_max_deg": 59.1,
+    "head_z_min": 0.94,
+    "hand_fwd_max": 0.443,
+    "hand_z_med": 0.585,
+    "knee_min": 1.58,
+    "lead": "right",
+    "travel_m": 0.779,
+    "sole_min": 0.011,
+    "contact_frac": 0.876,
+    "width_med": 0.601,
+    "width_max": 0.712,
+    "depth_med": 0.433,
+    "depth_max": 0.506
+   },
+   "knee_sprawl_entry": {
+    "name": "knee_sprawl_entry",
+    "n": 377,
+    "dur": 7.5200000000000005,
+    "pelvis_z_min": 0.072,
+    "pelvis_z_med": 0.273,
+    "pelvis_z_max": 0.659,
+    "pitch_med_deg": 90.2,
+    "pitch_max_deg": 96.2,
+    "head_z_min": 0.94,
+    "hand_fwd_max": 0.437,
+    "hand_z_med": 0.176,
+    "knee_min": 1.58,
+    "lead": "right",
+    "travel_m": 0.143,
+    "sole_min": -0.1075,
+    "contact_frac": 0.55,
+    "width_med": 0.435,
+    "width_max": 0.654,
+    "depth_med": 0.401,
+    "depth_max": 0.52
+   },
+   "knee_sprawl_hold": {
+    "name": "knee_sprawl_hold",
+    "n": 263,
+    "dur": 5.24,
+    "pelvis_z_min": 0.155,
+    "pelvis_z_med": 0.233,
+    "pelvis_z_max": 0.392,
+    "pitch_med_deg": 101.8,
+    "pitch_max_deg": 105.5,
+    "head_z_min": 0.94,
+    "hand_fwd_max": 0.326,
+    "hand_z_med": 0.031,
+    "knee_min": 1.58,
+    "lead": "right",
+    "travel_m": 0.141,
+    "sole_min": 0.0308,
+    "contact_frac": 0.814,
+    "width_med": 0.319,
+    "width_max": 0.484,
+    "depth_med": 0.315,
+    "depth_max": 0.483
+   },
+   "knee_sprawl_entry2": {
+    "name": "knee_sprawl_entry2",
+    "n": 373,
+    "dur": 7.44,
+    "pelvis_z_min": -0.28,
+    "pelvis_z_med": -0.137,
+    "pelvis_z_max": 0.699,
+    "pitch_med_deg": 48.7,
+    "pitch_max_deg": 123.4,
+    "head_z_min": 0.94,
+    "hand_fwd_max": 0.534,
+    "hand_z_med": -0.019,
+    "knee_min": 1.58,
+    "lead": "right",
+    "travel_m": 0.286,
+    "sole_min": -0.1798,
+    "contact_frac": 0.525,
+    "width_med": 0.437,
+    "width_max": 0.714,
+    "depth_med": 0.192,
+    "depth_max": 0.385
+   },
+   "knee_sprawl_recover": {
+    "name": "knee_sprawl_recover",
+    "n": 277,
+    "dur": 5.5200000000000005,
+    "pelvis_z_min": 0.104,
+    "pelvis_z_med": 0.379,
+    "pelvis_z_max": 0.583,
+    "pitch_med_deg": 78.7,
+    "pitch_max_deg": 121.8,
+    "head_z_min": 0.94,
+    "hand_fwd_max": 0.278,
+    "hand_z_med": 0.278,
+    "knee_min": 1.58,
+    "lead": "right",
+    "travel_m": 0.064,
+    "sole_min": 0.0499,
+    "contact_frac": 0.91,
+    "width_med": 0.287,
+    "width_max": 0.495,
+    "depth_med": 0.13,
+    "depth_max": 0.354
+   }
+  },
+  "grapplemap": {
+   "STANCE": {
+    "name": "grapplemap:STANCE",
+    "n": 118,
+    "dur": 2.34,
+    "pelvis_z_min": 0.806,
+    "pelvis_z_med": 0.807,
+    "pelvis_z_max": 0.807,
+    "pitch_med_deg": 9.2,
+    "head_z_min": 0.94,
+    "hand_fwd_max": 0.36,
+    "knee_min": 1.58,
+    "lead": "left",
+    "width_med": 0.303,
+    "width_max": 0.304,
+    "depth_med": 0.151,
+    "depth_max": 0.152
+   },
+   "DOUBLE_LEG": {
+    "name": "grapplemap:DOUBLE_LEG",
+    "n": 155,
+    "dur": 3.08,
+    "pelvis_z_min": 0.333,
+    "pelvis_z_med": 0.653,
+    "pelvis_z_max": 0.754,
+    "pitch_med_deg": 57.0,
+    "head_z_min": 0.94,
+    "hand_fwd_max": 0.539,
+    "knee_min": 1.58,
+    "lead": "left",
+    "width_med": 0.417,
+    "width_max": 0.619,
+    "depth_med": 0.209,
+    "depth_max": 0.593
+   }
+  },
+  "g1_stand": {
+   "pelvis_z": 0.79,
+   "width_m": 0.237
+  },
+  "holdability_bars": {
+   "stance_pelvis_min_holdable_m": 0.72,
+   "source": "reports/2026-10-08/solo_env.md measured table (no crouch below ~0.72 m is holdable by pure position servos)",
+   "shot_crouch_dynamic": "statically balanced but topples in 1.24 s under its own joint targets (reports/2026-10-08/cem_capture.md)"
+  }
+ },
+ "features": [
+  {
+   "feature": "stance_width",
+   "value": {
+    "video_stance_hold": 0.469,
+    "video_widen_step_max": 0.558,
+    "grapplemap_stance": 0.303,
+    "g1_stand_keyframe": 0.237,
+    "fused": 0.36
+   },
+   "unit": "m",
+   "sources": {
+    "video": "stance_widen_step FK",
+    "grapplemap": "STANCE.npz FK",
+    "repair": "operator lateral-stability rule (SOLO_DRILL \u00a72)"
+   },
+   "fused_from": "video_max_within_repair_band",
+   "conflict_rule": "uncertain monocular lateral width (<0.95 foot visibility) never shrinks below the operator repair band 0.30-0.36 m",
+   "confidence": "high",
+   "note": "the G1 stance keyframe is symmetric; lead leg is a tactical label"
+  },
+  {
+   "feature": "rear_foot_depth",
+   "value": {
+    "video_stance_hold": 0.018,
+    "grapplemap_stance": 0.151
+   },
+   "unit": "m",
+   "sources": {
+    "video": "stance_hold FK",
+    "grapplemap": "STANCE.npz FK"
+   },
+   "fused_from": "grapplemap",
+   "conflict_rule": "video depth is monocular-depth-derived (low confidence along the camera axis); GrappleMap depth is explicit 3D (high)",
+   "confidence": "medium",
+   "note": "rear foot behind the lead by >= shoulder width (rubric A2)"
+  },
+  {
+   "feature": "stance_crouch_height",
+   "value": {
+    "video": [
+     0.62,
+     0.75
+    ],
+    "holdable_bar_m": 0.72,
+    "fused": [
+     0.72,
+     0.76
+    ]
+   },
+   "unit": "m",
+   "sources": {
+    "video": "stance_hold pelvis band (G1 scale)",
+    "repair": "holdability bar"
+   },
+   "fused_from": "video_band_raised_to_bar",
+   "conflict_rule": "video carriage kept; absolute height clamped to what the certified stance closed loop can hold (never flatten the crouch to make balance easy -- clamp is the minimum that is holdable)",
+   "confidence": "high",
+   "note": "video stance crouches to 0.62 m at G1 scale: below the 0.72 m bar; the fused hold keeps the lean and pays with width"
+  },
+  {
+   "feature": "torso_lean",
+   "value": {
+    "video_med_deg": 59.0,
+    "video_max_deg": 72.8
+   },
+   "unit": "deg",
+   "sources": {
+    "video": "stance_hold FK tilt"
+   },
+   "fused_from": "video",
+   "conflict_rule": "keep the lean (operator: leaning, not bent over); never zero it",
+   "confidence": "high",
+   "note": ""
+  },
+  {
+   "feature": "head_carriage",
+   "value": {
+    "video_head_z_min": 0.94,
+    "video_pitch": {
+     "min": 42.3,
+     "max": 118.9
+    }
+   },
+   "unit": "m/deg",
+   "sources": {
+    "video": "head site FK + landmark pitch"
+   },
+   "fused_from": "video",
+   "conflict_rule": "head up, eyes forward (rubric A5)",
+   "confidence": "high",
+   "note": ""
+  },
+  {
+   "feature": "hand_carriage",
+   "value": {
+    "video_hand_fwd_max": 0.053,
+    "video_hand_z_med": 0.654,
+    "grapplemap_hand_fwd_max": 0.36
+   },
+   "unit": "m",
+   "sources": {
+    "video": "wrist site FK",
+    "grapplemap": "STANCE hand FK"
+   },
+   "fused_from": "video",
+   "conflict_rule": "hands forward and inside, elbows in (rubric A6); gesture only -- no grip claim",
+   "confidence": "medium",
+   "note": ""
+  },
+  {
+   "feature": "step_cadence",
+   "value": {
+    "stalk_dur_s": 29.96,
+    "stalk_travel_m": 1.273,
+    "lifts_measured": "clip_index.json events (feet.*)"
+   },
+   "unit": "s/m",
+   "sources": {
+    "video": "stalk_shuffle + clip-index foot events"
+   },
+   "fused_from": "video",
+   "conflict_rule": "quick short steps (rubric B4); cadence is a video-only feature",
+   "confidence": "high",
+   "note": ""
+  },
+  {
+   "feature": "shuffle_displacement",
+   "value": {
+    "back_travel_m": 0.009,
+    "stalk_travel_m": 1.273
+   },
+   "unit": "m",
+   "sources": {
+    "video": "shuffle_back/stalk FK travel"
+   },
+   "fused_from": "video",
+   "conflict_rule": "actual displacement must match the commanded direction (rubric B3); steps must lift-and-place, never slide (B1)",
+   "confidence": "high",
+   "note": ""
+  },
+  {
+   "feature": "circling",
+   "value": {
+    "travel_m": 0.791,
+    "dur_s": 17.36
+   },
+   "unit": "m/s",
+   "sources": {
+    "video": "circle_step FK travel"
+   },
+   "fused_from": "video",
+   "conflict_rule": "circling keeps the stance geometry while yawing",
+   "confidence": "medium",
+   "note": "monocular circling depth is approximate; direction confidence medium"
+  },
+  {
+   "feature": "level_change_depth",
+   "value": {
+    "video_pelvis_min": 0.399,
+    "video_pelvis_start": 0.713,
+    "knee_min": 1.58
+   },
+   "unit": "m",
+   "sources": {
+    "video": "level_change_full FK"
+   },
+   "fused_from": "video",
+   "conflict_rule": "drop produced by knees/hips, NOT waist folding (rubric C2); reversible (C5)",
+   "confidence": "high",
+   "note": ""
+  },
+  {
+   "feature": "shot_structure",
+   "value": {
+    "video_events": {
+     "feet": {
+      "left": {
+       "floor_m": -0.5,
+       "plants_s": [
+        429.13
+       ],
+       "lifts_s": [],
+       "max_height_m": 0.334,
+       "mean_speed_mps": 0.145,
+       "max_speed_mps": 0.523
+      },
+      "right": {
+       "floor_m": -0.5,
+       "plants_s": [
+        429.13
+       ],
+       "lifts_s": [],
+       "max_height_m": 0.333,
+       "mean_speed_mps": 0.145,
+       "max_speed_mps": 0.524
+      }
+     },
+     "pelvis_min": {
+      "t_s": 431.0,
+      "height_m": 0.315
+     },
+     "pelvis_max": {
+      "t_s": 423.47,
+      "height_m": 0.717
+     },
+     "knee_min": {
+      "t_s": 430.13,
+      "height_m": -0.022
+     },
+     "wrist_max_forward": {
+      "t_s": 428.2,
+      "ahead_m": 0.231
+     },
+     "torso_pitch_deg": {
+      "min": 8.2,
+      "max": 155.3
+     },
+     "pelvis_facing_displacement_m": -0.308
+    },
+    "grapplemap_DOUBLE_LEG": {
+     "pelvis_z_min": 0.333,
+     "pelvis_z_med": 0.653,
+     "knee_min": 1.58,
+     "width_max": 0.619,
+     "depth_max": 0.593,
+     "lead": "left"
+    },
+    "video_end": {
+     "pelvis_z_min": 0.045,
+     "knee_min": 1.58,
+     "lead": "left"
+    }
+   },
+   "unit": "m",
+   "sources": {
+    "video": "shot_entry_full + measured events",
+    "grapplemap": "DOUBLE_LEG.npz FK (penetration depth, knee-down geometry, width at entry)"
+   },
+   "fused_from": "video_timing+grapplemap_spatial",
+   "conflict_rule": "the shot's TIMING/event ORDER is video-only; its END-STATE SPATIAL relationship (penetration depth ~0.44x height, lead knee at the mat, widened base) is anchored on GrappleMap because the video's knee-depth landmark is the noisiest channel and the video crouch depth is KNOWN dynamically infeasible for the G1 (1.24 s topple)",
+   "confidence": "medium",
+   "note": "knee sprawl is a DEFENSE, not a shot: the knee_sprawl_* takes are indexed for context and excluded from the shot reference"
+  },
+  {
+   "feature": "recovery",
+   "value": {
+    "video": {
+     "dur": 7.96,
+     "pelvis_z_min": 0.378,
+     "pelvis_z_max": 0.558
+    }
+   },
+   "unit": "s/m",
+   "sources": {
+    "video": "shot_recover FK"
+   },
+   "fused_from": "video",
+   "conflict_rule": "return to a rubric-A stance without fall (E1-E4)",
+   "confidence": "high",
+   "note": ""
+  },
+  {
+   "feature": "rise_to_upright",
+   "value": {
+    "video": {
+     "dur": 1.46,
+     "pelvis_z_min": 0.641,
+     "pelvis_z_max": 0.751
+    }
+   },
+   "unit": "s/m",
+   "sources": {
+    "video": "stance_to_stand FK"
+   },
+   "fused_from": "video",
+   "conflict_rule": "separate STANCE->STAND reference (deliverable)",
+   "confidence": "high",
+   "note": ""
+  },
+  {
+   "feature": "g1_repair_axes",
+   "value": {
+    "sagittal": "move the rear foot further back (longer base)",
+    "frontal": "widen the stance; falling sideways = legs too close"
+   },
+   "unit": "rule",
+   "sources": {
+    "repair": "operator-sanctioned repairs (SOLO_DRILL \u00a72)"
+   },
+   "fused_from": "operator",
+   "conflict_rule": "apply before ANY torso flattening or crouch raising; log every trim with frame/axis/amount/margin",
+   "confidence": "high",
+   "note": ""
+  }
+ ]
+}

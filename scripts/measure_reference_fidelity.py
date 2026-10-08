@@ -252,18 +252,28 @@ def video_points(zup: np.ndarray):
 
 
 # --------------------------------------------------------- anchor analysis --
-def anchor_choices_left(track_yup: np.ndarray) -> np.ndarray:
+def anchor_choices_left(track_yup: np.ndarray, fps: float) -> np.ndarray:
     """Instrumented copy of retarget_video.reconstruct_translation's foot
-    choice: True when the LEFT ankle displacement is the smaller (the pipeline
-    then treats the left foot as planted)."""
-    la = track_yup[:, JI["LeftAnkle"]]
-    ra = track_yup[:, JI["RightAnkle"]]
-    out = np.zeros(len(la), dtype=bool)
-    for i in range(1, len(la)):
-        dl = float(np.linalg.norm(la[i, [0, 2]] - la[i - 1, [0, 2]]))
-        dr = float(np.linalg.norm(ra[i, [0, 2]] - ra[i - 1, [0, 2]]))
-        out[i] = dl <= dr
-    return out
+    choice (2026-10-08 revision): True when the LEFT foot is the hysteresis
+    anchor (clearly lower by ANCHOR_LOWER_MARGIN, switches only after
+    ANCHOR_DWELL_S).  Mirrors the pipeline function exactly."""
+    margin = rv.ANCHOR_LOWER_MARGIN
+    dwell = max(1, int(round(rv.ANCHOR_DWELL_S * fps)))
+    dy = track_yup[:, JI["LeftAnkle"]][:, 1] - track_yup[:, JI["RightAnkle"]][:, 1]
+    right = np.zeros(len(dy), dtype=bool)
+    cur = bool(dy[0] > margin)
+    run_side, run = int(cur), 0
+    for i in range(len(dy)):
+        low = 1 if dy[i] > margin else (0 if dy[i] < -margin else -1)
+        if low >= 0:
+            if low == run_side:
+                run += 1
+            else:
+                run_side, run = low, 1
+            if low != int(cur) and run >= dwell:
+                cur = bool(low)
+        right[i] = cur
+    return ~right
 
 
 def contact_runs(flags: np.ndarray, t: np.ndarray, min_s: float = 0.0):
@@ -447,9 +457,13 @@ def analyse_track(name: str, summary: dict, fk: G1FK, cache: dict,
                   "max": float(np.nanmax(np.abs(bw - a)))}
 
     # ---- contact / timing ----
-    anchor = anchor_choices_left(track)
-    rec_direct = rv.reconstruct_translation(target, 1.0 / float(
-        meta["source_fps_effective"]))
+    fps = float(meta["source_fps_effective"])
+    # the pipeline anchors on ground_per_frame's planted foot (2026-10-08);
+    # measure THAT anchor, and keep the legacy lower-foot rule as a secondary
+    _, anchor_pipe = rv.reconstruct_translation(track, fps,
+                                                contact=place["contact_kf"])
+    anchor = ~anchor_pipe                    # left-planted under the pipeline rule
+    rec_direct, _anchor_direct = rv.reconstruct_translation(target, fps)
     # (verification only; the pipeline scales the reconstruction differently)
     n_sole_h = n_sole["l"][..., 2].min(1), n_sole["r"][..., 2].min(1)
     lower_left = n_sole_h[0] <= n_sole_h[1]
@@ -460,7 +474,6 @@ def analyse_track(name: str, summary: dict, fk: G1FK, cache: dict,
         (~anchor) & (n_sole_h[1] > CONTACT_TOL) & (n_sole_h[0] <= CONTACT_TOL)
     phantom_s = float(phantom.sum() * np.median(np.diff(t_kf)))
     # implied slip over contact runs with a constant anchor choice
-    fps = float(meta["source_fps_effective"])
     slip_runs, slip_video, slip_g1 = [], {"l": [], "r": []}, {"l": [], "r": []}
     for side, idx in (("l", 0), ("r", 1)):
         fl = n_sole_h[idx] <= CONTACT_TOL
@@ -575,24 +588,25 @@ def selftest(fk: G1FK, stance_pelvis: float, summary: dict) -> None:
     # 2. anchor instrumentation reproduces the pipeline function
     cache: dict = {}
     track, native, target, place, t_kf = video_views("stance_hold", summary, cache)
-    anc = anchor_choices_left(track)
     fps = float(summary["stance_hold"]["source_fps_effective"])
-    rec = rv.reconstruct_translation(track, fps)
-    la, ra = track[:, JI["LeftAnkle"]], track[:, JI["RightAnkle"]]
+    anc = anchor_choices_left(track, fps)
+    rec, anchor_direct = rv.reconstruct_translation(track, fps)
+    checks.append(("instrumented anchor == reconstruct_translation mask",
+                   bool(np.array_equal(anc, ~anchor_direct)),
+                   f"n_left={int(anc.sum())} n_right={int(anchor_direct.sum())}"))
+    A = np.stack([track[:, JI["LeftAnkle"]], track[:, JI["RightAnkle"]]], axis=1)
     pos = np.zeros((len(track), 3))
     for i in range(1, len(track)):
-        d_l = np.linalg.norm(la[i, [0, 2]] - la[i - 1, [0, 2]])
-        d_r = np.linalg.norm(ra[i, [0, 2]] - ra[i - 1, [0, 2]])
-        step = -(la[i] - la[i - 1]) if d_l <= d_r else -(ra[i] - ra[i - 1])
-        pos[i] = pos[i - 1] + step
+        a = 1 if anchor_direct[i] else 0
+        pos[i] = pos[i - 1] - (A[i, a] - A[i - 1, a])
     from scipy.signal import savgol_filter
     w = max(5, int(round(0.4 * fps)) | 1)
     for j in (0, 2):
         pos[:, j] = savgol_filter(pos[:, j], w, 2)
-    checks.append(("instrumented anchor == reconstruct_translation",
+    checks.append(("re-derive pos from mask == reconstruct_translation",
                    bool(np.allclose(pos, rec, atol=1e-12)),
                    f"max|d|={np.max(np.abs(pos - rec)):.2e}"))
-    checks.append(("anchor choice consistency (re-derive pos from mask)",
+    checks.append(("anchor choice consistency (mask size)",
                    bool(abs(pos[-1, 0]) <= 1e9), f"n_left_frames={int(anc.sum())}"))
 
     # 3. native * scale == target (pelvis-relative geometry)
@@ -608,6 +622,9 @@ def selftest(fk: G1FK, stance_pelvis: float, summary: dict) -> None:
         t = d["t"].astype(float)
         st = float(meta["time_stretch_kinematic"])
         expect = st * (meta["source_frames"] - 1) / meta["source_fps_effective"]
+        trim = meta.get("reachability_trim")
+        if trim and trim.get("cut_at_s") is not None:
+            expect = min(expect, float(trim["cut_at_s"]))   # trimmed tail
         if abs(t[-1] - expect) > 0.021:
             bad.append((name, t[-1], expect))
     checks.append(("emitted duration == video duration * stretch", not bad,
@@ -619,11 +636,17 @@ def selftest(fk: G1FK, stance_pelvis: float, summary: dict) -> None:
 
 
 def main() -> None:
+    global REF_DIR
     ap = argparse.ArgumentParser()
     ap.add_argument("--json", default=None)
     ap.add_argument("--tracks", default=None, help="comma list (default: all)")
     ap.add_argument("--selftest", action="store_true")
+    ap.add_argument("--ref-dir", default=None,
+                    help="alternate reference dir (default: data/refs_video); "
+                         "must contain retarget_summary.json")
     args = ap.parse_args()
+    if args.ref_dir:
+        REF_DIR = Path(args.ref_dir)
 
     summary = json.loads((REF_DIR / "retarget_summary.json").read_text())
     names = sorted(summary)

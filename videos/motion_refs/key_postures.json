@@ -1,0 +1,33 @@
+{
+ "artifact": "videos/motion_refs/key_postures.mp4",
+ "media": {
+  "codec_name": "h264",
+  "width": 960,
+  "height": 720,
+  "pix_fmt": "yuv420p",
+  "r_frame_rate": "30/1",
+  "duration": "9.000000",
+  "nb_frames": "270"
+ },
+ "sheet": {
+  "path": "/home/ubuntu/grappling/videos/motion_refs/key_postures_sheet.png",
+  "frames": 3
+ },
+ "postures": [
+  "STAND",
+  "STANCE_HOLD",
+  "LEVEL_CHANGE",
+  "DOUBLE_LEG_PENETRATION",
+  "RECOVER_TO_STANCE"
+ ],
+ "provenance": {
+  "git_commit": "13c74a924a13959197a4503f22315d4d0bdc7093",
+  "seed": 0,
+  "control_rate_hz": 50,
+  "physics_timestep_s": 0.002,
+  "generated_by": "/home/ubuntu/grappling/scripts/render_motion_ref_videos.py",
+  "wall_s": 0.0,
+  "reproduce": "MUJOCO_GL=egl .venv/bin/python scripts/render_motion_ref_videos.py",
+  "config": "/home/ubuntu/grappling/data/references/motion_refs/v1/drill_continuous.npz"
+ }
+}

@@ -1,0 +1,1397 @@
+{
+ "version": "1.0",
+ "generated_by": "scripts/build_clip_index.py (measured from stored pose landmarks)",
+ "provenance_decision": {
+  "primary": "gBAhX5t-GW4 (13:44, chapter-mapped, full pose pipeline exists; all retargeted references derive from it)",
+  "secondary": "tyU-QaV8MnI (149 s, fetched 2026-10-08 through the documented cookie+yt-dlp-ejs path after the orchestrator brief named it; it corroborates stance/motion/level-change mechanics and shows sprawl+recover, but is 640x360 with the coach small in frame, so it is used for VERIFICATION of vocabulary, not for retargeting; no pose pipeline was run on it)",
+  "tyU_clips_examined": [
+   {
+    "t0_s": 9.5,
+    "t1_s": 24.0,
+    "label": "deep-stance hold + in-stance motion",
+    "evidence": "filmstrip frames at 10/15/20 s show the deep crouched guard"
+   },
+   {
+    "t0_s": 29.0,
+    "t1_s": 33.0,
+    "label": "athletic stance, wide base",
+    "evidence": "frame at 30 s"
+   },
+   {
+    "t0_s": 108.0,
+    "t1_s": 118.0,
+    "label": "stance motion, hands high carriage",
+    "evidence": "frames at 110/115 s"
+   },
+   {
+    "t0_s": 33.0,
+    "t1_s": 48.0,
+    "label": "sprawl / ground-and-recover drills (out of this milestone's scope; noted for later defense phases)",
+    "evidence": "frames at 35-45 s"
+   }
+  ]
+ },
+ "sources": [
+  {
+   "video_id": "gBAhX5t-GW4",
+   "url": "https://www.youtube.com/watch?v=gBAhX5t-GW4",
+   "title": "How to stance and motion drills for wrestling",
+   "channel": "Footwork Trainer (Isaac J. Knable)",
+   "duration_s": 823.5,
+   "file": "data/references/yt_gBAhX5t-GW4/ref.mp4",
+   "pose_npz_main": "data/references/yt_gBAhX5t-GW4/pose/landmarks.npz",
+   "pose_npz_pass2": "data/references/yt_gBAhX5t-GW4/pose_pass2/landmarks.npz",
+   "native_resolution": "640x360 (ref.mp4); 960x540 re-encode used for pose"
+  },
+  {
+   "video_id": "tyU-QaV8MnI",
+   "url": "https://www.youtube.com/watch?v=tyU-QaV8MnI",
+   "title": "Stance and Motion Drills For Wrestling",
+   "channel": "The School of Wrestling",
+   "duration_s": 149.0,
+   "file": "data/references/yt_tyU-QaV8MnI/ref.mp4",
+   "pose_npz_main": null,
+   "native_resolution": "640x360"
+  }
+ ],
+ "clips": [
+  {
+   "name": "stance_hold",
+   "role": "stance/guard hold",
+   "source": {
+    "video_id": "gBAhX5t-GW4",
+    "url": "https://www.youtube.com/watch?v=gBAhX5t-GW4",
+    "title": "How to stance and motion drills for wrestling",
+    "channel": "Footwork Trainer (Isaac J. Knable)"
+   },
+   "video_timestamps": {
+    "t0_s": 30.4,
+    "t1_s": 34.8,
+    "duration_s": 4.4
+   },
+   "chapter": "2",
+   "events_measured": {
+    "feet": {
+     "left": {
+      "floor_m": -0.547,
+      "plants_s": [
+       31.53
+      ],
+      "lifts_s": [
+       32.73
+      ],
+      "max_height_m": 0.14,
+      "mean_speed_mps": 0.107,
+      "max_speed_mps": 0.291
+     },
+     "right": {
+      "floor_m": -0.547,
+      "plants_s": [
+       31.53
+      ],
+      "lifts_s": [
+       32.73
+      ],
+      "max_height_m": 0.14,
+      "mean_speed_mps": 0.107,
+      "max_speed_mps": 0.292
+     }
+    },
+    "pelvis_min": {
+     "t_s": 34.07,
+     "height_m": 0.276
+    },
+    "pelvis_max": {
+     "t_s": 31.13,
+     "height_m": 0.771
+    },
+    "knee_min": {
+     "t_s": 31.67,
+     "height_m": -0.007
+    },
+    "wrist_max_forward": {
+     "t_s": 33.47,
+     "ahead_m": 0.409
+    },
+    "torso_pitch_deg": {
+     "min": 42.3,
+     "max": 118.9
+    },
+    "pelvis_facing_displacement_m": 0.178
+   },
+   "quality": {
+    "frames": 67,
+    "pose_fps": 15.0,
+    "gap_frames_in_window": 1,
+    "mean_visibility": 0.967,
+    "foot_visibility": 0.976,
+    "hand_visibility": 0.888,
+    "detection_rate": 1.0,
+    "resolution_note": "640x360 source: small landmarks (feet during fast steps) are the dominant noise source; foot-depth especially"
+   },
+   "camera_and_depth_caveats": [
+    "monocular 2D+approximate-3D (MediaPipe): depth/scale approximate",
+    "camera assumed static (wide gym shot); no pan/zoom compensation applied",
+    "landmark z (depth toward camera) noisier than x/y; step DIRECTIONS beyond ~30 deg from the frontal plane are low-confidence"
+   ]
+  },
+  {
+   "name": "stance_widen_step",
+   "role": "stance width adjustment step",
+   "source": {
+    "video_id": "gBAhX5t-GW4",
+    "url": "https://www.youtube.com/watch?v=gBAhX5t-GW4",
+    "title": "How to stance and motion drills for wrestling",
+    "channel": "Footwork Trainer (Isaac J. Knable)"
+   },
+   "video_timestamps": {
+    "t0_s": 27.6,
+    "t1_s": 30.4,
+    "duration_s": 2.8
+   },
+   "chapter": "2",
+   "events_measured": {
+    "feet": {
+     "left": {
+      "floor_m": -0.669,
+      "plants_s": [],
+      "lifts_s": [
+       28.67
+      ],
+      "max_height_m": 0.422,
+      "mean_speed_mps": 0.264,
+      "max_speed_mps": 0.638
+     },
+     "right": {
+      "floor_m": -0.669,
+      "plants_s": [],
+      "lifts_s": [
+       28.67
+      ],
+      "max_height_m": 0.421,
+      "mean_speed_mps": 0.264,
+      "max_speed_mps": 0.638
+     }
+    },
+    "pelvis_min": {
+     "t_s": 28.27,
+     "height_m": 0.513
+    },
+    "pelvis_max": {
+     "t_s": 29.4,
+     "height_m": 0.924
+    },
+    "knee_min": {
+     "t_s": 28.47,
+     "height_m": -0.003
+    },
+    "wrist_max_forward": {
+     "t_s": 29.6,
+     "ahead_m": 0.323
+    },
+    "torso_pitch_deg": {
+     "min": 98.5,
+     "max": 143.0
+    },
+    "pelvis_facing_displacement_m": -0.087
+   },
+   "quality": {
+    "frames": 43,
+    "pose_fps": 15.0,
+    "gap_frames_in_window": 1,
+    "mean_visibility": 0.97,
+    "foot_visibility": 0.964,
+    "hand_visibility": 0.909,
+    "detection_rate": 1.0,
+    "resolution_note": "640x360 source: small landmarks (feet during fast steps) are the dominant noise source; foot-depth especially"
+   },
+   "camera_and_depth_caveats": [
+    "monocular 2D+approximate-3D (MediaPipe): depth/scale approximate",
+    "camera assumed static (wide gym shot); no pan/zoom compensation applied",
+    "landmark z (depth toward camera) noisier than x/y; step DIRECTIONS beyond ~30 deg from the frontal plane are low-confidence"
+   ]
+  },
+  {
+   "name": "stalk_shuffle",
+   "role": "forward stance motion (stalk/approach)",
+   "source": {
+    "video_id": "gBAhX5t-GW4",
+    "url": "https://www.youtube.com/watch?v=gBAhX5t-GW4",
+    "title": "How to stance and motion drills for wrestling",
+    "channel": "Footwork Trainer (Isaac J. Knable)"
+   },
+   "video_timestamps": {
+    "t0_s": 122.0,
+    "t1_s": 131.6,
+    "duration_s": 9.6
+   },
+   "chapter": "3",
+   "events_measured": {
+    "feet": {
+     "left": {
+      "floor_m": -0.527,
+      "plants_s": [
+       127.4
+      ],
+      "lifts_s": [
+       127.6
+      ],
+      "max_height_m": 0.351,
+      "mean_speed_mps": 0.323,
+      "max_speed_mps": 1.698
+     },
+     "right": {
+      "floor_m": -0.527,
+      "plants_s": [
+       127.4
+      ],
+      "lifts_s": [
+       127.6
+      ],
+      "max_height_m": 0.351,
+      "mean_speed_mps": 0.323,
+      "max_speed_mps": 1.701
+     }
+    },
+    "pelvis_min": {
+     "t_s": 125.53,
+     "height_m": 0.549
+    },
+    "pelvis_max": {
+     "t_s": 123.33,
+     "height_m": 0.894
+    },
+    "knee_min": {
+     "t_s": 127.4,
+     "height_m": -0.009
+    },
+    "wrist_max_forward": {
+     "t_s": 123.2,
+     "ahead_m": 0.465
+    },
+    "torso_pitch_deg": {
+     "min": 82.3,
+     "max": 139.1
+    },
+    "pelvis_facing_displacement_m": -0.045
+   },
+   "quality": {
+    "frames": 145,
+    "pose_fps": 15.0,
+    "gap_frames_in_window": 1,
+    "mean_visibility": 0.962,
+    "foot_visibility": 0.932,
+    "hand_visibility": 0.927,
+    "detection_rate": 1.0,
+    "resolution_note": "640x360 source: small landmarks (feet during fast steps) are the dominant noise source; foot-depth especially"
+   },
+   "camera_and_depth_caveats": [
+    "monocular 2D+approximate-3D (MediaPipe): depth/scale approximate",
+    "camera assumed static (wide gym shot); no pan/zoom compensation applied",
+    "landmark z (depth toward camera) noisier than x/y; step DIRECTIONS beyond ~30 deg from the frontal plane are low-confidence"
+   ]
+  },
+  {
+   "name": "circle_step",
+   "role": "circling (lateral stance motion)",
+   "source": {
+    "video_id": "gBAhX5t-GW4",
+    "url": "https://www.youtube.com/watch?v=gBAhX5t-GW4",
+    "title": "How to stance and motion drills for wrestling",
+    "channel": "Footwork Trainer (Isaac J. Knable)"
+   },
+   "video_timestamps": {
+    "t0_s": 178.0,
+    "t1_s": 190.0,
+    "duration_s": 12.0
+   },
+   "chapter": "4",
+   "events_measured": {
+    "feet": {
+     "left": {
+      "floor_m": -0.527,
+      "plants_s": [
+       179.87
+      ],
+      "lifts_s": [
+       180.13
+      ],
+      "max_height_m": 0.358,
+      "mean_speed_mps": 0.313,
+      "max_speed_mps": 1.411
+     },
+     "right": {
+      "floor_m": -0.527,
+      "plants_s": [
+       179.87
+      ],
+      "lifts_s": [
+       180.13
+      ],
+      "max_height_m": 0.357,
+      "mean_speed_mps": 0.313,
+      "max_speed_mps": 1.41
+     }
+    },
+    "pelvis_min": {
+     "t_s": 190.0,
+     "height_m": 0.453
+    },
+    "pelvis_max": {
+     "t_s": 183.47,
+     "height_m": 0.826
+    },
+    "knee_min": {
+     "t_s": 179.93,
+     "height_m": -0.034
+    },
+    "wrist_max_forward": {
+     "t_s": 187.73,
+     "ahead_m": 0.535
+    },
+    "torso_pitch_deg": {
+     "min": 73.3,
+     "max": 153.9
+    },
+    "pelvis_facing_displacement_m": 0.148
+   },
+   "quality": {
+    "frames": 181,
+    "pose_fps": 15.0,
+    "gap_frames_in_window": 1,
+    "mean_visibility": 0.969,
+    "foot_visibility": 0.954,
+    "hand_visibility": 0.927,
+    "detection_rate": 1.0,
+    "resolution_note": "640x360 source: small landmarks (feet during fast steps) are the dominant noise source; foot-depth especially"
+   },
+   "camera_and_depth_caveats": [
+    "monocular 2D+approximate-3D (MediaPipe): depth/scale approximate",
+    "camera assumed static (wide gym shot); no pan/zoom compensation applied",
+    "landmark z (depth toward camera) noisier than x/y; step DIRECTIONS beyond ~30 deg from the frontal plane are low-confidence"
+   ]
+  },
+  {
+   "name": "level_change_fast",
+   "role": "level change (quick drop+rise)",
+   "source": {
+    "video_id": "gBAhX5t-GW4",
+    "url": "https://www.youtube.com/watch?v=gBAhX5t-GW4",
+    "title": "How to stance and motion drills for wrestling",
+    "channel": "Footwork Trainer (Isaac J. Knable)"
+   },
+   "video_timestamps": {
+    "t0_s": 256.93,
+    "t1_s": 258.0,
+    "duration_s": 1.07
+   },
+   "chapter": "5",
+   "events_measured": {
+    "feet": {
+     "left": {
+      "floor_m": -0.283,
+      "plants_s": [
+       258.0
+      ],
+      "lifts_s": [],
+      "max_height_m": 0.175,
+      "mean_speed_mps": 0.512,
+      "max_speed_mps": 1.233
+     },
+     "right": {
+      "floor_m": -0.283,
+      "plants_s": [
+       258.0
+      ],
+      "lifts_s": [],
+      "max_height_m": 0.175,
+      "mean_speed_mps": 0.513,
+      "max_speed_mps": 1.232
+     }
+    },
+    "pelvis_min": {
+     "t_s": 258.0,
+     "height_m": 0.16
+    },
+    "pelvis_max": {
+     "t_s": 257.73,
+     "height_m": 0.549
+    },
+    "knee_min": {
+     "t_s": 258.0,
+     "height_m": -0.051
+    },
+    "wrist_max_forward": {
+     "t_s": 258.0,
+     "ahead_m": 0.181
+    },
+    "torso_pitch_deg": {
+     "min": 40.2,
+     "max": 115.9
+    },
+    "pelvis_facing_displacement_m": -0.238
+   },
+   "quality": {
+    "frames": 17,
+    "pose_fps": 15.0,
+    "gap_frames_in_window": 1,
+    "mean_visibility": 0.911,
+    "foot_visibility": 0.934,
+    "hand_visibility": 0.751,
+    "detection_rate": 1.0,
+    "resolution_note": "640x360 source: small landmarks (feet during fast steps) are the dominant noise source; foot-depth especially"
+   },
+   "camera_and_depth_caveats": [
+    "monocular 2D+approximate-3D (MediaPipe): depth/scale approximate",
+    "camera assumed static (wide gym shot); no pan/zoom compensation applied",
+    "landmark z (depth toward camera) noisier than x/y; step DIRECTIONS beyond ~30 deg from the frontal plane are low-confidence"
+   ]
+  },
+  {
+   "name": "level_change_full",
+   "role": "level change (full drop+rise)",
+   "source": {
+    "video_id": "gBAhX5t-GW4",
+    "url": "https://www.youtube.com/watch?v=gBAhX5t-GW4",
+    "title": "How to stance and motion drills for wrestling",
+    "channel": "Footwork Trainer (Isaac J. Knable)"
+   },
+   "video_timestamps": {
+    "t0_s": 259.73,
+    "t1_s": 260.93,
+    "duration_s": 1.2
+   },
+   "chapter": "5",
+   "events_measured": {
+    "feet": {
+     "left": {
+      "floor_m": -0.515,
+      "plants_s": [
+       260.93
+      ],
+      "lifts_s": [],
+      "max_height_m": 0.374,
+      "mean_speed_mps": 0.267,
+      "max_speed_mps": 0.491
+     },
+     "right": {
+      "floor_m": -0.515,
+      "plants_s": [
+       260.93
+      ],
+      "lifts_s": [],
+      "max_height_m": 0.373,
+      "mean_speed_mps": 0.267,
+      "max_speed_mps": 0.492
+     }
+    },
+    "pelvis_min": {
+     "t_s": 260.27,
+     "height_m": 0.516
+    },
+    "pelvis_max": {
+     "t_s": 260.87,
+     "height_m": 0.679
+    },
+    "knee_min": {
+     "t_s": 260.93,
+     "height_m": -0.007
+    },
+    "wrist_max_forward": {
+     "t_s": 260.27,
+     "ahead_m": 0.303
+    },
+    "torso_pitch_deg": {
+     "min": 74.0,
+     "max": 149.0
+    },
+    "pelvis_facing_displacement_m": 0.135
+   },
+   "quality": {
+    "frames": 19,
+    "pose_fps": 15.0,
+    "gap_frames_in_window": 1,
+    "mean_visibility": 0.965,
+    "foot_visibility": 0.949,
+    "hand_visibility": 0.904,
+    "detection_rate": 1.0,
+    "resolution_note": "640x360 source: small landmarks (feet during fast steps) are the dominant noise source; foot-depth especially"
+   },
+   "camera_and_depth_caveats": [
+    "monocular 2D+approximate-3D (MediaPipe): depth/scale approximate",
+    "camera assumed static (wide gym shot); no pan/zoom compensation applied",
+    "landmark z (depth toward camera) noisier than x/y; step DIRECTIONS beyond ~30 deg from the frontal plane are low-confidence"
+   ]
+  },
+  {
+   "name": "shot_entry",
+   "role": "double-leg penetration step entry",
+   "source": {
+    "video_id": "gBAhX5t-GW4",
+    "url": "https://www.youtube.com/watch?v=gBAhX5t-GW4",
+    "title": "How to stance and motion drills for wrestling",
+    "channel": "Footwork Trainer (Isaac J. Knable)"
+   },
+   "video_timestamps": {
+    "t0_s": 422.8,
+    "t1_s": 431.0,
+    "duration_s": 8.2
+   },
+   "chapter": "7",
+   "events_measured": {
+    "feet": {
+     "left": {
+      "floor_m": -0.5,
+      "plants_s": [
+       429.13
+      ],
+      "lifts_s": [],
+      "max_height_m": 0.334,
+      "mean_speed_mps": 0.145,
+      "max_speed_mps": 0.523
+     },
+     "right": {
+      "floor_m": -0.5,
+      "plants_s": [
+       429.13
+      ],
+      "lifts_s": [],
+      "max_height_m": 0.333,
+      "mean_speed_mps": 0.145,
+      "max_speed_mps": 0.524
+     }
+    },
+    "pelvis_min": {
+     "t_s": 431.0,
+     "height_m": 0.315
+    },
+    "pelvis_max": {
+     "t_s": 423.47,
+     "height_m": 0.717
+    },
+    "knee_min": {
+     "t_s": 430.13,
+     "height_m": -0.022
+    },
+    "wrist_max_forward": {
+     "t_s": 428.2,
+     "ahead_m": 0.231
+    },
+    "torso_pitch_deg": {
+     "min": 8.2,
+     "max": 155.3
+    },
+    "pelvis_facing_displacement_m": -0.308
+   },
+   "quality": {
+    "frames": 124,
+    "pose_fps": 15.0,
+    "gap_frames_in_window": 1,
+    "mean_visibility": 0.935,
+    "foot_visibility": 0.933,
+    "hand_visibility": 0.83,
+    "detection_rate": 1.0,
+    "resolution_note": "640x360 source: small landmarks (feet during fast steps) are the dominant noise source; foot-depth especially"
+   },
+   "camera_and_depth_caveats": [
+    "monocular 2D+approximate-3D (MediaPipe): depth/scale approximate",
+    "camera assumed static (wide gym shot); no pan/zoom compensation applied",
+    "landmark z (depth toward camera) noisier than x/y; step DIRECTIONS beyond ~30 deg from the frontal plane are low-confidence"
+   ]
+  },
+  {
+   "name": "shot_recover",
+   "role": "recovery from shot to stance",
+   "source": {
+    "video_id": "gBAhX5t-GW4",
+    "url": "https://www.youtube.com/watch?v=gBAhX5t-GW4",
+    "title": "How to stance and motion drills for wrestling",
+    "channel": "Footwork Trainer (Isaac J. Knable)"
+   },
+   "video_timestamps": {
+    "t0_s": 432.53,
+    "t1_s": 437.0,
+    "duration_s": 4.47
+   },
+   "chapter": "7",
+   "events_measured": {
+    "feet": {
+     "left": {
+      "floor_m": -0.583,
+      "plants_s": [
+       435.4
+      ],
+      "lifts_s": [
+       436.33
+      ],
+      "max_height_m": 0.251,
+      "mean_speed_mps": 0.159,
+      "max_speed_mps": 0.519
+     },
+     "right": {
+      "floor_m": -0.583,
+      "plants_s": [
+       435.4
+      ],
+      "lifts_s": [
+       436.33
+      ],
+      "max_height_m": 0.25,
+      "mean_speed_mps": 0.159,
+      "max_speed_mps": 0.52
+     }
+    },
+    "pelvis_min": {
+     "t_s": 432.53,
+     "height_m": 0.372
+    },
+    "pelvis_max": {
+     "t_s": 437.0,
+     "height_m": 0.917
+    },
+    "knee_min": {
+     "t_s": 435.73,
+     "height_m": -0.027
+    },
+    "wrist_max_forward": {
+     "t_s": 432.6,
+     "ahead_m": 0.283
+    },
+    "torso_pitch_deg": {
+     "min": 88.0,
+     "max": 151.8
+    },
+    "pelvis_facing_displacement_m": 0.368
+   },
+   "quality": {
+    "frames": 68,
+    "pose_fps": 15.0,
+    "gap_frames_in_window": 1,
+    "mean_visibility": 0.935,
+    "foot_visibility": 0.879,
+    "hand_visibility": 0.868,
+    "detection_rate": 1.0,
+    "resolution_note": "640x360 source: small landmarks (feet during fast steps) are the dominant noise source; foot-depth especially"
+   },
+   "camera_and_depth_caveats": [
+    "monocular 2D+approximate-3D (MediaPipe): depth/scale approximate",
+    "camera assumed static (wide gym shot); no pan/zoom compensation applied",
+    "landmark z (depth toward camera) noisier than x/y; step DIRECTIONS beyond ~30 deg from the frontal plane are low-confidence"
+   ]
+  },
+  {
+   "name": "knee_sprawl_entry",
+   "role": "knee sprawl entry (DEFENSE - not a shot)",
+   "source": {
+    "video_id": "gBAhX5t-GW4",
+    "url": "https://www.youtube.com/watch?v=gBAhX5t-GW4",
+    "title": "How to stance and motion drills for wrestling",
+    "channel": "Footwork Trainer (Isaac J. Knable)"
+   },
+   "video_timestamps": {
+    "t0_s": 683.4,
+    "t1_s": 686.2,
+    "duration_s": 2.8
+   },
+   "chapter": "10",
+   "events_measured": {
+    "feet": {
+     "left": {
+      "floor_m": -0.286,
+      "plants_s": [],
+      "lifts_s": [
+       683.53
+      ],
+      "max_height_m": 0.365,
+      "mean_speed_mps": 0.116,
+      "max_speed_mps": 0.388
+     },
+     "right": {
+      "floor_m": -0.286,
+      "plants_s": [],
+      "lifts_s": [
+       683.53
+      ],
+      "max_height_m": 0.365,
+      "mean_speed_mps": 0.116,
+      "max_speed_mps": 0.389
+     }
+    },
+    "pelvis_min": {
+     "t_s": 683.8,
+     "height_m": 0.283
+    },
+    "pelvis_max": {
+     "t_s": 684.2,
+     "height_m": 0.75
+    },
+    "knee_min": {
+     "t_s": 683.4,
+     "height_m": -0.036
+    },
+    "wrist_max_forward": {
+     "t_s": 683.67,
+     "ahead_m": 0.482
+    },
+    "torso_pitch_deg": {
+     "min": 76.6,
+     "max": 98.4
+    },
+    "pelvis_facing_displacement_m": 0.018
+   },
+   "quality": {
+    "frames": 43,
+    "pose_fps": 15.0,
+    "gap_frames_in_window": 2,
+    "mean_visibility": 0.936,
+    "foot_visibility": 0.823,
+    "hand_visibility": 0.909,
+    "detection_rate": 1.0,
+    "resolution_note": "640x360 source: small landmarks (feet during fast steps) are the dominant noise source; foot-depth especially"
+   },
+   "camera_and_depth_caveats": [
+    "monocular 2D+approximate-3D (MediaPipe): depth/scale approximate",
+    "camera assumed static (wide gym shot); no pan/zoom compensation applied",
+    "landmark z (depth toward camera) noisier than x/y; step DIRECTIONS beyond ~30 deg from the frontal plane are low-confidence"
+   ]
+  },
+  {
+   "name": "knee_sprawl_hold",
+   "role": "knee sprawl hold (DEFENSE)",
+   "source": {
+    "video_id": "gBAhX5t-GW4",
+    "url": "https://www.youtube.com/watch?v=gBAhX5t-GW4",
+    "title": "How to stance and motion drills for wrestling",
+    "channel": "Footwork Trainer (Isaac J. Knable)"
+   },
+   "video_timestamps": {
+    "t0_s": 685.8,
+    "t1_s": 690.2,
+    "duration_s": 4.4
+   },
+   "chapter": "10",
+   "events_measured": {
+    "feet": {
+     "left": {
+      "floor_m": -0.259,
+      "plants_s": [
+       690.2
+      ],
+      "lifts_s": [],
+      "max_height_m": 0.166,
+      "mean_speed_mps": 0.109,
+      "max_speed_mps": 0.396
+     },
+     "right": {
+      "floor_m": -0.259,
+      "plants_s": [
+       690.2
+      ],
+      "lifts_s": [],
+      "max_height_m": 0.166,
+      "mean_speed_mps": 0.109,
+      "max_speed_mps": 0.397
+     }
+    },
+    "pelvis_min": {
+     "t_s": 690.2,
+     "height_m": 0.377
+    },
+    "pelvis_max": {
+     "t_s": 688.2,
+     "height_m": 0.621
+    },
+    "knee_min": {
+     "t_s": 690.2,
+     "height_m": -0.045
+    },
+    "wrist_max_forward": {
+     "t_s": 687.33,
+     "ahead_m": 0.293
+    },
+    "torso_pitch_deg": {
+     "min": 15.3,
+     "max": 91.5
+    },
+    "pelvis_facing_displacement_m": -0.021
+   },
+   "quality": {
+    "frames": 67,
+    "pose_fps": 15.0,
+    "gap_frames_in_window": 2,
+    "mean_visibility": 0.942,
+    "foot_visibility": 0.738,
+    "hand_visibility": 0.983,
+    "detection_rate": 1.0,
+    "resolution_note": "640x360 source: small landmarks (feet during fast steps) are the dominant noise source; foot-depth especially"
+   },
+   "camera_and_depth_caveats": [
+    "monocular 2D+approximate-3D (MediaPipe): depth/scale approximate",
+    "camera assumed static (wide gym shot); no pan/zoom compensation applied",
+    "landmark z (depth toward camera) noisier than x/y; step DIRECTIONS beyond ~30 deg from the frontal plane are low-confidence"
+   ]
+  },
+  {
+   "name": "knee_sprawl_recover",
+   "role": "knee sprawl recovery to stance",
+   "source": {
+    "video_id": "gBAhX5t-GW4",
+    "url": "https://www.youtube.com/watch?v=gBAhX5t-GW4",
+    "title": "How to stance and motion drills for wrestling",
+    "channel": "Footwork Trainer (Isaac J. Knable)"
+   },
+   "video_timestamps": {
+    "t0_s": 779.8,
+    "t1_s": 782.2,
+    "duration_s": 2.4
+   },
+   "chapter": "10",
+   "events_measured": {
+    "feet": {
+     "left": {
+      "floor_m": -0.569,
+      "plants_s": [
+       781.2
+      ],
+      "lifts_s": [
+       781.4
+      ],
+      "max_height_m": 0.748,
+      "mean_speed_mps": 1.105,
+      "max_speed_mps": 2.028
+     },
+     "right": {
+      "floor_m": -0.569,
+      "plants_s": [
+       781.2
+      ],
+      "lifts_s": [
+       781.4
+      ],
+      "max_height_m": 0.748,
+      "mean_speed_mps": 1.105,
+      "max_speed_mps": 2.029
+     }
+    },
+    "pelvis_min": {
+     "t_s": 781.0,
+     "height_m": 0.607
+    },
+    "pelvis_max": {
+     "t_s": 782.2,
+     "height_m": 1.187
+    },
+    "knee_min": {
+     "t_s": 781.2,
+     "height_m": -0.001
+    },
+    "wrist_max_forward": {
+     "t_s": 780.93,
+     "ahead_m": 0.624
+    },
+    "torso_pitch_deg": {
+     "min": 73.8,
+     "max": 126.3
+    },
+    "pelvis_facing_displacement_m": 0.005
+   },
+   "quality": {
+    "frames": 37,
+    "pose_fps": 15.0,
+    "gap_frames_in_window": 2,
+    "mean_visibility": 0.848,
+    "foot_visibility": 0.81,
+    "hand_visibility": 0.667,
+    "detection_rate": 1.0,
+    "resolution_note": "640x360 source: small landmarks (feet during fast steps) are the dominant noise source; foot-depth especially"
+   },
+   "camera_and_depth_caveats": [
+    "monocular 2D+approximate-3D (MediaPipe): depth/scale approximate",
+    "camera assumed static (wide gym shot); no pan/zoom compensation applied",
+    "landmark z (depth toward camera) noisier than x/y; step DIRECTIONS beyond ~30 deg from the frontal plane are low-confidence"
+   ]
+  }
+ ],
+ "auto_detected_windows": {
+  "stand_to_stance": [
+   [
+    27.4,
+    28.2,
+    0.105
+   ],
+   [
+    29.07,
+    29.87,
+    0.136
+   ],
+   [
+    31.47,
+    32.27,
+    0.124
+   ],
+   [
+    33.13,
+    33.93,
+    0.439
+   ],
+   [
+    34.73,
+    35.53,
+    0.151
+   ],
+   [
+    39.53,
+    40.33,
+    0.088
+   ],
+   [
+    41.13,
+    41.93,
+    0.146
+   ],
+   [
+    44.27,
+    45.07,
+    0.108
+   ],
+   [
+    46.67,
+    47.47,
+    0.116
+   ],
+   [
+    54.73,
+    55.53,
+    0.095
+   ],
+   [
+    59.53,
+    60.33,
+    0.124
+   ],
+   [
+    61.47,
+    62.27,
+    0.081
+   ],
+   [
+    68.6,
+    69.4,
+    0.111
+   ],
+   [
+    71.13,
+    71.93,
+    0.117
+   ],
+   [
+    72.73,
+    73.53,
+    0.167
+   ],
+   [
+    74.53,
+    75.33,
+    0.083
+   ],
+   [
+    80.47,
+    81.27,
+    0.089
+   ],
+   [
+    202.67,
+    203.47,
+    0.105
+   ],
+   [
+    204.87,
+    205.67,
+    0.081
+   ],
+   [
+    209.47,
+    210.27,
+    0.083
+   ],
+   [
+    216.6,
+    217.4,
+    0.11
+   ],
+   [
+    220.73,
+    221.53,
+    0.094
+   ],
+   [
+    222.47,
+    223.27,
+    0.102
+   ],
+   [
+    224.13,
+    224.93,
+    0.085
+   ],
+   [
+    229.8,
+    230.6,
+    0.088
+   ],
+   [
+    231.47,
+    232.27,
+    0.167
+   ],
+   [
+    233.13,
+    233.93,
+    0.081
+   ],
+   [
+    235.07,
+    235.87,
+    0.114
+   ],
+   [
+    236.87,
+    237.67,
+    0.152
+   ],
+   [
+    238.53,
+    239.33,
+    0.122
+   ],
+   [
+    241.6,
+    242.4,
+    0.091
+   ],
+   [
+    243.27,
+    244.07,
+    0.082
+   ],
+   [
+    245.0,
+    245.8,
+    0.091
+   ],
+   [
+    246.67,
+    247.47,
+    0.251
+   ],
+   [
+    248.33,
+    249.13,
+    0.183
+   ],
+   [
+    249.93,
+    250.73,
+    0.137
+   ],
+   [
+    251.53,
+    252.33,
+    0.093
+   ],
+   [
+    253.2,
+    254.0,
+    0.179
+   ],
+   [
+    255.33,
+    256.13,
+    0.083
+   ],
+   [
+    256.93,
+    257.73,
+    0.182
+   ],
+   [
+    259.47,
+    260.27,
+    0.081
+   ]
+  ],
+  "stance_to_stand": [
+   [
+    26.0,
+    26.8,
+    0.23
+   ],
+   [
+    27.87,
+    28.67,
+    0.084
+   ],
+   [
+    29.53,
+    30.33,
+    0.123
+   ],
+   [
+    32.53,
+    33.33,
+    0.088
+   ],
+   [
+    34.13,
+    34.93,
+    0.399
+   ],
+   [
+    36.33,
+    37.13,
+    0.104
+   ],
+   [
+    40.27,
+    41.07,
+    0.137
+   ],
+   [
+    41.93,
+    42.73,
+    0.165
+   ],
+   [
+    43.8,
+    44.6,
+    0.106
+   ],
+   [
+    45.73,
+    46.53,
+    0.091
+   ],
+   [
+    47.33,
+    48.13,
+    0.085
+   ],
+   [
+    49.47,
+    50.27,
+    0.08
+   ],
+   [
+    51.13,
+    51.93,
+    0.258
+   ],
+   [
+    54.13,
+    54.93,
+    0.089
+   ],
+   [
+    59.93,
+    60.73,
+    0.097
+   ],
+   [
+    61.53,
+    62.33,
+    0.111
+   ],
+   [
+    64.6,
+    65.4,
+    0.089
+   ],
+   [
+    69.33,
+    70.13,
+    0.086
+   ],
+   [
+    70.93,
+    71.73,
+    0.155
+   ],
+   [
+    73.87,
+    74.67,
+    0.084
+   ],
+   [
+    75.53,
+    76.33,
+    0.129
+   ],
+   [
+    202.0,
+    202.8,
+    0.315
+   ],
+   [
+    203.67,
+    204.47,
+    0.147
+   ],
+   [
+    205.87,
+    206.67,
+    0.094
+   ],
+   [
+    210.4,
+    211.2,
+    0.095
+   ],
+   [
+    214.0,
+    214.8,
+    0.085
+   ],
+   [
+    217.47,
+    218.27,
+    0.091
+   ],
+   [
+    221.2,
+    222.0,
+    0.137
+   ],
+   [
+    222.87,
+    223.67,
+    0.086
+   ],
+   [
+    227.67,
+    228.47,
+    0.088
+   ],
+   [
+    229.47,
+    230.27,
+    0.1
+   ],
+   [
+    231.4,
+    232.2,
+    0.09
+   ],
+   [
+    234.0,
+    234.8,
+    0.096
+   ],
+   [
+    235.67,
+    236.47,
+    0.299
+   ],
+   [
+    237.53,
+    238.33,
+    0.096
+   ],
+   [
+    239.13,
+    239.93,
+    0.157
+   ],
+   [
+    242.07,
+    242.87,
+    0.113
+   ],
+   [
+    243.73,
+    244.53,
+    0.081
+   ],
+   [
+    245.67,
+    246.47,
+    0.126
+   ],
+   [
+    247.33,
+    248.13,
+    0.26
+   ],
+   [
+    249.0,
+    249.8,
+    0.094
+   ],
+   [
+    250.67,
+    251.47,
+    0.18
+   ],
+   [
+    252.87,
+    253.67,
+    0.093
+   ],
+   [
+    254.53,
+    255.33,
+    0.212
+   ],
+   [
+    257.0,
+    257.8,
+    0.232
+   ],
+   [
+    258.87,
+    259.67,
+    0.082
+   ]
+  ],
+  "backward_shuffle": [
+   [
+    59.0,
+    61.0
+   ],
+   [
+    63.67,
+    66.33
+   ],
+   [
+    69.67,
+    71.0
+   ],
+   [
+    73.0,
+    76.33
+   ],
+   [
+    79.67,
+    81.0
+   ]
+  ],
+  "forward_check": [],
+  "static_stance_hold": {},
+  "curated_transitions": {
+   "stand_to_stance": {
+    "t0_s": 27.4,
+    "t1_s": 28.6,
+    "why": "first clean drop-to-stance after the walk-in; frames 27.3 (upright) -> 28.2 (crouched) verified"
+   },
+   "stance_to_stand": {
+    "t0_s": 33.9,
+    "t1_s": 35.4,
+    "why": "rise out of stance (detected rise 0.399 m at 34.13-34.93); padded one frame either side for the retarget filter; frame 34.5 verified upright"
+   },
+   "backward_shuffle": {
+    "t0_s": 63.67,
+    "t1_s": 66.33,
+    "why": "in-stance reposition motion with both feet planted wide; frames 64.5/65.5 verified"
+   }
+  }
+ }
+}

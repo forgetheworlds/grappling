@@ -2007,3 +2007,72 @@ scripts/calibrate_scorer.py, scripts/score_trace.py, tests/test_scorer.py.
   SELECTED T1 CANDIDATE: checkpoints/solo/t1_balance_v6d_401408.pt (the exact stem the monitor read
   used; the save landed at steps_done 401408), failing 4 of 6 T1 criteria, preserved and
   reproducible via `scripts/solo_env_smoke.py monitor --checkpoint <that path> --magnitudes 4 8 12`.
+
+## 2026-10-08 (MotionRef) — motion-reference dataset v1: grounding FIXED, drill composed, feasibility honest
+
+- PROVENANCE SETTLED: `tyU-QaV8MnI` ("Stance and Motion Drills For Wrestling",
+  The School of Wrestling, 149 s) was named by the orchestrator and existed
+  nowhere in the repo; fetched 2026-10-08 via the documented cookie+yt-dlp-ejs
+  path to `data/references/yt_tyU-QaV8MnI/ref.mp4` (640x360) and examined
+  (filmstrip): deep-stance holds/motion 9.5-24 s and 29-33 s, stance motion with
+  high hand carriage 108-118 s, sprawl/recover drills 33-48 s. Decision: it
+  CORROBORATES the stance/motion vocabulary but is verification-only
+  (resolution too low for retargeting); `gBAhX5t-GW4` remains the primary and
+  all v1 references derive from it. Clip index:
+  `data/references/motion_refs/clip_index.json` (11 curated clips, measured
+  events; key windows frame-verified — the source's `stance_hold` window
+  30.4-34.8 s actually oscillates stand<->stance; the longest true static hold
+  in the whole source is 0.93 s).
+- GROUNDING FIXED (the reference_fidelity §4 defect): `retarget_video.py` now
+  grounds per frame, contact-aware. Two measured detector lessons: (1) a
+  foot-speed gate cannot work on hip-centred landmarks (jitter = 0.15-0.45 m/s
+  fake speed; flicker 0.25 contact on a static take); (2) ANY take-level plane
+  confounds crouch with lift (a 0.3 m hip drop raises every foot landmark by
+  0.3 m; the take-plane criterion lost 92 % of a level-change take's contact).
+  FINAL: planted = sole within 5 cm of the frame's LOWEST sole + 0.13 s dwell;
+  per-frame offset clip [-0.02, +0.60] m; translation anchored on the planted
+  foot with switch dwell (v0's smaller-displacement rule agreed with the
+  video's lower foot in only 26-77 %); emitted qpos gets a residual per-frame
+  root-z shift (exact, joints untouched), rate-limited to 1.2 m/s.
+  RE-MEASURED (self-verify 8/8, `data/solo/metrics/reference_fidelity_v1.json`):
+  anchor=lower 0.57-1.00 (was 0.26-0.77), phantom plants <= 0.20 s (was 0.67),
+  planted-sole median ~0-2 cm (was +2.6..+5.3 cm hover / -6.7 cm penetration).
+- DATASET v1 (`data/references/motion_refs/v1/`, format in FORMAT.md,
+  loadable via `solo.bc.load_reference`, dirs registered in imitation.py):
+  15 grounded takes (12 original windows + stand_to_stance 27.4-28.6 s,
+  stance_to_stand 33.9-35.4 s, shuffle_back 63.67-66.33 s — auto-detected and
+  frame-verified), `contact` (T,2) arrays per take, meta with
+  grounding/lead_leg/validity; `drill_continuous.npz` 60.2 s / 23 phases
+  (STAND -> LOWER_TO_STANCE -> STANCE_HOLD(fused repair 0.345 m wide x 0.74 m
+  high) -> SHUFFLE_F -> SHUFFLE_B -> CIRCLE -> LEVEL_CHANGE ->
+  DOUBLE_LEG_ENTRY_CROUCH(known_infeasible, kept) -> DOUBLE_LEG_PENETRATION(
+  GrappleMap-fused: the video knee-down pelvis 0.22 m is G1-unreachable, solver
+  collapses to 0.05 m; GM DOUBLE_LEG = 0.333 m pelvis / 0.064 m knee /
+  0.593 m depth) -> RECOVER_TO_STANCE -> REPOSITION -> REPEAT_BLEND);
+  `stance_rise.npz`. Continuity measured: worst joint step 0.119 rad (= the
+  retimer's own 6 rad/s cap), worst root step 0.063 m/frame (= its 3 m/s cap),
+  REPEAT closure 0.0008 rad, root path 1.62 m; 11 synthetic connectors (cubic
+  Hermite, position+velocity matched, adaptive length — a fixed 0.4 s blend hit
+  13 rad/s across the crouch-to-standing gap) all labelled
+  `source: synthetic_connector`.
+- FEASIBILITY (three levels, `feasibility.json` + probe videos
+  `videos/motion_refs/dynamic_probe_*.mp4`): exactly ONE segment is
+  servo-traversable (level_change_fast, a 1.4 s transient completes upright);
+  15/17 tracks FAIL the raw position-servo probe — EXPECTED: the probe is the
+  CEM capture's control protocol (hold the reference's own joint targets),
+  whose certified baseline topples even a statically-balanced crouch in
+  1.24 s; position servos have no balance layer. Known limitation stated in
+  the report: video takes retain -1..-8 cm transient sole penetration in fast
+  crouch phases (rubric G2 bar 1 cm); test-pinned median <= 2 cm / worst
+  <= 8 cm. Solver-collapse tails (emitted pelvis < 0.30 m = physically
+  impossible for the G1) are TRIMMED and recorded in `meta.reachability_trim`
+  (shot_entry at 6.02 s, stalk at 26.78 s) — solver artifacts, not video poses.
+- 24 tests pin the contracts (`tests/test_motion_refs.py`): grounding on
+  synthetic tracks, take format + grounded soles, drill continuity/phases/
+  closure, known-infeasible LABELLED (shot crouch; no `expert_action` key
+  anywhere), clip-index measuredness, probe honesty, fusion attribution.
+- ARTIFACTS: `reports/2026-10-08/motion_reference.md` (full report),
+  `videos/motion_refs/` (6 videos + sheets + metrics JSON per
+  EVIDENCE_PROTOCOL), `fusion_spec.json` (14 features, per-feature source
+  attribution + confidence), VISUALS row 10c. Agent 2 entry point:
+  `.venv/bin/python scripts/query_motion_refs.py drill_continuous --phase`.

@@ -1,0 +1,291 @@
+{
+ "artifact": "videos/motion_refs/drill_phases.mp4",
+ "media": {
+  "codec_name": "h264",
+  "width": 960,
+  "height": 720,
+  "pix_fmt": "yuv420p",
+  "r_frame_rate": "30/1",
+  "duration": "50.200000",
+  "nb_frames": "1506"
+ },
+ "sheet": {
+  "path": "/home/ubuntu/grappling/videos/motion_refs/drill_phases_sheet.png",
+  "frames": 3
+ },
+ "what_to_look_for": "continuous C1 transitions (no teleport/joint snap); feet lift and place (contact flags); root travel accumulates; the DOUBLE_LEG_ENTRY crouch is the known-infeasible segment (kept, labelled)",
+ "kinematic": {
+  "duration_s": 60.22,
+  "n_frames_50hz": 3012,
+  "root_displacement_m": 0.001,
+  "max_joint_step_rad": 0.11922,
+  "contact_frac_L": 0.644,
+  "contact_frac_R": 0.737,
+  "phases": [
+   {
+    "id": 0,
+    "name": "STAND",
+    "t_start": 0.0,
+    "t_end": 1.0,
+    "source": "g1_native",
+    "lead_leg": "left",
+    "validity": "unverified",
+    "validity_reason": "",
+    "note": "G1 stand keyframe (src/solo/stance.py); certified anchor"
+   },
+   {
+    "id": 1,
+    "name": "CONNECT_STAND->LOWER_TO_STANCE",
+    "t_start": 1.0,
+    "t_end": 1.64,
+    "source": "synthetic_connector",
+    "lead_leg": null,
+    "validity": "unverified",
+    "validity_reason": "synthetic blend; diagnosed with the rest",
+    "note": "cubic Hermite 0.64 s (adaptive, pose gap 0.94 rad), C1 in position+velocity"
+   },
+   {
+    "id": 2,
+    "name": "LOWER_TO_STANCE",
+    "t_start": 1.64,
+    "t_end": 2.86,
+    "source": "observed",
+    "lead_leg": "right",
+    "validity": "unverified",
+    "validity_reason": "",
+    "note": "video drop into stance (27.40-28.60 s), grounded v1 retarget"
+   },
+   {
+    "id": 3,
+    "name": "CONNECT_LOWER_TO_STANCE->STANCE_HOLD",
+    "t_start": 2.86,
+    "t_end": 3.26,
+    "source": "synthetic_connector",
+    "lead_leg": null,
+    "validity": "unverified",
+    "validity_reason": "synthetic blend; diagnosed with the rest",
+    "note": "cubic Hermite 0.40 s (adaptive, pose gap 0.00 rad), C1 in position+velocity"
+   },
+   {
+    "id": 4,
+    "name": "STANCE_HOLD",
+    "t_start": 3.26,
+    "t_end": 5.26,
+    "source": "fused",
+    "lead_leg": "left",
+    "validity": "unverified",
+    "validity_reason": "",
+    "note": "posture = video carriage + operator two-axis repair (width 0.34 m -> measured 0.335 m, height 0.74 m); hold duration synthetic (source has no >=1 s static hold; longest planted low-motion stretch 0.93 s); the RAW video posture is refs/stance_hold.npz with its own measured verdict"
+   },
+   {
+    "id": 5,
+    "name": "CONNECT_STANCE_HOLD->SHUFFLE_F",
+    "t_start": 5.26,
+    "t_end": 6.26,
+    "source": "synthetic_connector",
+    "lead_leg": null,
+    "validity": "unverified",
+    "validity_reason": "synthetic blend; diagnosed with the rest",
+    "note": "cubic Hermite 1.00 s (adaptive, pose gap 1.49 rad), C1 in position+velocity"
+   },
+   {
+    "id": 6,
+    "name": "SHUFFLE_F",
+    "t_start": 6.26,
+    "t_end": 16.26,
+    "source": "observed",
+    "lead_leg": "left",
+    "validity": "unverified",
+    "validity_reason": "",
+    "note": "video stalking shuffle (122.0-131.6 s) [trimmed to first 10 s of the v1 take; full take in refs/]"
+   },
+   {
+    "id": 7,
+    "name": "CONNECT_SHUFFLE_F->SHUFFLE_B",
+    "t_start": 16.26,
+    "t_end": 17.24,
+    "source": "synthetic_connector",
+    "lead_leg": null,
+    "validity": "unverified",
+    "validity_reason": "synthetic blend; diagnosed with the rest",
+    "note": "cubic Hermite 0.98 s (adaptive, pose gap 1.47 rad), C1 in position+velocity"
+   },
+   {
+    "id": 8,
+    "name": "SHUFFLE_B",
+    "t_start": 17.24,
+    "t_end": 19.78,
+    "source": "observed",
+    "lead_leg": "left",
+    "validity": "unverified",
+    "validity_reason": "",
+    "note": "video in-stance reposition (63.67-66.33 s)"
+   },
+   {
+    "id": 9,
+    "name": "CONNECT_SHUFFLE_B->CIRCLE",
+    "t_start": 19.78,
+    "t_end": 21.08,
+    "source": "synthetic_connector",
+    "lead_leg": null,
+    "validity": "unverified",
+    "validity_reason": "synthetic blend; diagnosed with the rest",
+    "note": "cubic Hermite 1.30 s (adaptive, pose gap 1.94 rad), C1 in position+velocity"
+   },
+   {
+    "id": 10,
+    "name": "CIRCLE",
+    "t_start": 21.08,
+    "t_end": 31.08,
+    "source": "observed",
+    "lead_leg": "right",
+    "validity": "unverified",
+    "validity_reason": "",
+    "note": "video circling (178.0-190.0 s) [trimmed to first 10 s of the v1 take; full take in refs/] [mirrored: lead-leg compatibility]"
+   },
+   {
+    "id": 11,
+    "name": "CONNECT_CIRCLE->LEVEL_CHANGE",
+    "t_start": 31.08,
+    "t_end": 32.08,
+    "source": "synthetic_connector",
+    "lead_leg": null,
+    "validity": "unverified",
+    "validity_reason": "synthetic blend; diagnosed with the rest",
+    "note": "cubic Hermite 1.00 s (adaptive, pose gap 1.49 rad), C1 in position+velocity"
+   },
+   {
+    "id": 12,
+    "name": "LEVEL_CHANGE",
+    "t_start": 32.08,
+    "t_end": 34.3,
+    "source": "observed",
+    "lead_leg": "left",
+    "validity": "unverified",
+    "validity_reason": "",
+    "note": "video level change (259.7-261.2 s)"
+   },
+   {
+    "id": 13,
+    "name": "CONNECT_LEVEL_CHANGE->DOUBLE_LEG_ENTRY_CROUCH",
+    "t_start": 34.3,
+    "t_end": 35.82,
+    "source": "synthetic_connector",
+    "lead_leg": null,
+    "validity": "unverified",
+    "validity_reason": "synthetic blend; diagnosed with the rest",
+    "note": "cubic Hermite 1.52 s (adaptive, pose gap 2.26 rad), C1 in position+velocity"
+   },
+   {
+    "id": 14,
+    "name": "DOUBLE_LEG_ENTRY_CROUCH",
+    "t_start": 35.82,
+    "t_end": 40.54,
+    "source": "observed",
+    "lead_leg": "left",
+    "validity": "known_infeasible",
+    "validity_reason": "pre-step crouch (pelvis ~0.49 m, pitch 60-70 deg) topples in 1.24 s under its own joint targets (reports/2026-10-08/cem_capture.md)",
+    "note": "video penetration-step approach + pre-step crouch (422.8-431.0 s); the crouch is KNOWN dynamically infeasible -- kept, not hidden [video part ends at the crouch cut: first frame with pelvis < 0.35 m; the video's knee-down end-state (pelvis 0.22 m) is NOT G1-reachable through this pipeline -- solver collapse to 0.05 m -- so the penetration below is GrappleMap-anchored (fusion_spec.json shot_structure)]"
+   },
+   {
+    "id": 15,
+    "name": "CONNECT_DOUBLE_LEG_ENTRY_CROUCH->DOUBLE_LEG_PENETRATION",
+    "t_start": 40.54,
+    "t_end": 41.68,
+    "source": "synthetic_connector",
+    "lead_leg": null,
+    "validity": "unverified",
+    "validity_reason": "synthetic blend; diagnosed with the rest",
+    "note": "cubic Hermite 1.14 s (adaptive, pose gap 1.70 rad), C1 in position+velocity"
+   },
+   {
+    "id": 16,
+    "name": "DOUBLE_LEG_PENETRATION",
+    "t_start": 41.68,
+    "t_end": 44.78,
+    "source": "fused",
+    "lead_leg": "left",
+    "validity": "unverified",
+    "validity_reason": "",
+    "note": "penetration geometry from GrappleMap DOUBLE_LEG (G1 FK: pelvis to 0.333 m, lead knee to 0.064 m, depth 0.585 m); video supplies the timing of the approach only -- the knee-down spatial structure is GrappleMap-anchored [entered at GrappleMap frame 0 (pelvis 0.754 m); contact synthesised from FK sole heights]"
+   },
+   {
+    "id": 17,
+    "name": "CONNECT_DOUBLE_LEG_PENETRATION->RECOVER_TO_STANCE",
+    "t_start": 44.78,
+    "t_end": 46.24,
+    "source": "synthetic_connector",
+    "lead_leg": null,
+    "validity": "unverified",
+    "validity_reason": "synthetic blend; diagnosed with the rest",
+    "note": "cubic Hermite 1.46 s (adaptive, pose gap 2.17 rad), C1 in position+velocity"
+   },
+   {
+    "id": 18,
+    "name": "RECOVER_TO_STANCE",
+    "t_start": 46.24,
+    "t_end": 54.22,
+    "source": "observed",
+    "lead_leg": "right",
+    "validity": "unverified",
+    "validity_reason": "",
+    "note": "video recovery to stance (432.5-437.0 s)"
+   },
+   {
+    "id": 19,
+    "name": "CONNECT_RECOVER_TO_STANCE->REPOSITION",
+    "t_start": 54.22,
+    "t_end": 55.2,
+    "source": "synthetic_connector",
+    "lead_leg": null,
+    "validity": "unverified",
+    "validity_reason": "synthetic blend; diagnosed with the rest",
+    "note": "cubic Hermite 0.98 s (adaptive, pose gap 1.47 rad), C1 in position+velocity"
+   },
+   {
+    "id": 20,
+    "name": "REPOSITION",
+    "t_start": 55.2,
+    "t_end": 57.74,
+    "source": "observed",
+    "lead_leg": "left",
+    "validity": "unverified",
+    "validity_reason": "",
+    "note": "second reposition shuffle"
+   },
+   {
+    "id": 21,
+    "name": "CONNECT_REPOSITION->REPEAT_BLEND",
+    "t_start": 57.74,
+    "t_end": 58.74,
+    "source": "synthetic_connector",
+    "lead_leg": null,
+    "validity": "unverified",
+    "validity_reason": "synthetic blend; diagnosed with the rest",
+    "note": "cubic Hermite 1.00 s (adaptive, pose gap 1.49 rad), C1 in position+velocity"
+   },
+   {
+    "id": 22,
+    "name": "REPEAT_BLEND",
+    "t_start": 58.74,
+    "t_end": 60.24,
+    "source": "synthetic_connector",
+    "lead_leg": null,
+    "validity": "unverified",
+    "validity_reason": "synthetic blend; diagnosed with the rest",
+    "note": "1.5 s C1 blend from the reposition end posture to the STANCE_HOLD start posture -- closes the cycle so it can repeat without a teleport"
+   }
+  ]
+ },
+ "provenance": {
+  "git_commit": "13c74a924a13959197a4503f22315d4d0bdc7093",
+  "seed": 0,
+  "control_rate_hz": 50,
+  "physics_timestep_s": 0.002,
+  "generated_by": "/home/ubuntu/grappling/scripts/render_motion_ref_videos.py",
+  "wall_s": 988.3,
+  "reproduce": "MUJOCO_GL=egl .venv/bin/python scripts/render_motion_ref_videos.py",
+  "config": "/home/ubuntu/grappling/data/references/motion_refs/v1/drill_continuous.npz",
+  "config_hash": "76b6a389bcac0c1f"
+ }
+}

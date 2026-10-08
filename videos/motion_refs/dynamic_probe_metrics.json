@@ -1,0 +1,236 @@
+{
+ "version": "1.0",
+ "protocol": {
+  "control_hz": 50,
+  "physics_timestep_s": 0.002,
+  "ctrl_source": "qpos_a[i, 7:36] (reference's own joint targets)",
+  "fall_rule": "pelvis<0.35 m & tilt>60.0 deg sustained 0.25 s",
+  "seed": 0,
+  "claim": "dynamic INDICATOR only; a pass does not make the reference a demonstration"
+ },
+ "provenance": {
+  "git_commit": "13c74a924a13959197a4503f22315d4d0bdc7093",
+  "model": "src/solo/scene.load_solo_model (robots/g1/g1.xml solo scene)",
+  "seed": 0,
+  "control_rate_hz": 50,
+  "physics_timestep_s": 0.002,
+  "wall_s": {
+   "circle_step": 0.1,
+   "knee_sprawl_entry": 0.1,
+   "knee_sprawl_entry2": 0.1,
+   "knee_sprawl_hold": 0.1,
+   "knee_sprawl_recover": 0.0,
+   "level_change_fast": 0.1,
+   "level_change_full": 0.1,
+   "shot_entry_full": 0.1,
+   "shot_recover": 0.0,
+   "shuffle_back": 0.1,
+   "stalk_shuffle": 0.1,
+   "stance_hold": 0.1,
+   "stance_to_stand": 0.1,
+   "stance_widen_step": 0.1,
+   "stand_to_stance": 0.1,
+   "drill_continuous": 0.1,
+   "stance_rise": 0.1
+  },
+  "config_hash": {
+   "circle_step": "928f83ec47f2b679",
+   "knee_sprawl_entry": "a33b6179f88c8462",
+   "knee_sprawl_entry2": "a67c6167f4287a09",
+   "knee_sprawl_hold": "65c57d067673f3f2"
+  },
+  "reproduce": "MUJOCO_GL=egl .venv/bin/python scripts/probe_drill_dynamic.py",
+  "media": {
+   "dynamic_probe_drill_continuous.mp4": {
+    "codec_name": "h264",
+    "width": 960,
+    "height": 720,
+    "pix_fmt": "yuv420p",
+    "r_frame_rate": "30/1",
+    "duration": "2.666667",
+    "nb_frames": "80"
+   },
+   "dynamic_probe_shot_entry_full.mp4": {
+    "codec_name": "h264",
+    "width": 960,
+    "height": 720,
+    "pix_fmt": "yuv420p",
+    "r_frame_rate": "30/1",
+    "duration": "1.400000",
+    "nb_frames": "42"
+   }
+  }
+ },
+ "per_track": {
+  "circle_step": {
+   "ok": false,
+   "fell_at_s": 1.1800000000000008,
+   "completed_frac": 0.067,
+   "pelvis_z_min": 0.186,
+   "tilt_max_deg": 93.3,
+   "sat_frac": 0.068,
+   "wall_s": 0.1,
+   "reason": "toppled at t=1.18s (pelvis 0.19 m, tilt 93 deg)"
+  },
+  "knee_sprawl_entry": {
+   "ok": false,
+   "fell_at_s": 1.2200000000000009,
+   "completed_frac": 0.159,
+   "pelvis_z_min": 0.232,
+   "tilt_max_deg": 133.3,
+   "sat_frac": 0.125,
+   "wall_s": 0.1,
+   "reason": "toppled at t=1.22s (pelvis 0.23 m, tilt 133 deg)"
+  },
+  "knee_sprawl_entry2": {
+   "ok": false,
+   "fell_at_s": 1.6600000000000013,
+   "completed_frac": 0.22,
+   "pelvis_z_min": 0.272,
+   "tilt_max_deg": 140.5,
+   "sat_frac": 0.131,
+   "wall_s": 0.1,
+   "reason": "toppled at t=1.66s (pelvis 0.27 m, tilt 140 deg)"
+  },
+  "knee_sprawl_hold": {
+   "ok": false,
+   "fell_at_s": 2.139999999999986,
+   "completed_frac": 0.403,
+   "pelvis_z_min": 0.334,
+   "tilt_max_deg": 116.8,
+   "sat_frac": 0.407,
+   "wall_s": 0.1,
+   "reason": "toppled at t=2.14s (pelvis 0.33 m, tilt 117 deg)"
+  },
+  "knee_sprawl_recover": {
+   "ok": false,
+   "fell_at_s": 0.6200000000000004,
+   "completed_frac": 0.108,
+   "pelvis_z_min": 0.134,
+   "tilt_max_deg": 79.1,
+   "sat_frac": 0.112,
+   "wall_s": 0.0,
+   "reason": "toppled at t=0.62s (pelvis 0.13 m, tilt 79 deg)"
+  },
+  "level_change_fast": {
+   "ok": true,
+   "fell_at_s": null,
+   "completed_frac": 1.0,
+   "pelvis_z_min": 0.31,
+   "tilt_max_deg": 115.3,
+   "sat_frac": 1.0,
+   "wall_s": 0.1,
+   "reason": "completed upright"
+  },
+  "level_change_full": {
+   "ok": false,
+   "fell_at_s": 1.7600000000000013,
+   "completed_frac": 0.784,
+   "pelvis_z_min": 0.273,
+   "tilt_max_deg": 126.0,
+   "sat_frac": 0.577,
+   "wall_s": 0.1,
+   "reason": "toppled at t=1.76s (pelvis 0.27 m, tilt 126 deg)"
+  },
+  "shot_entry_full": {
+   "ok": false,
+   "fell_at_s": 1.1800000000000008,
+   "completed_frac": 0.193,
+   "pelvis_z_min": 0.151,
+   "tilt_max_deg": 95.6,
+   "sat_frac": 0.196,
+   "wall_s": 0.1,
+   "reason": "toppled at t=1.18s (pelvis 0.15 m, tilt 96 deg)"
+  },
+  "shot_recover": {
+   "ok": false,
+   "fell_at_s": 0.7000000000000005,
+   "completed_frac": 0.085,
+   "pelvis_z_min": 0.151,
+   "tilt_max_deg": 78.1,
+   "sat_frac": 0.008,
+   "wall_s": 0.0,
+   "reason": "toppled at t=0.70s (pelvis 0.15 m, tilt 78 deg)"
+  },
+  "shuffle_back": {
+   "ok": false,
+   "fell_at_s": 1.6600000000000013,
+   "completed_frac": 0.646,
+   "pelvis_z_min": 0.275,
+   "tilt_max_deg": 115.8,
+   "sat_frac": 0.654,
+   "wall_s": 0.1,
+   "reason": "toppled at t=1.66s (pelvis 0.27 m, tilt 116 deg)"
+  },
+  "stalk_shuffle": {
+   "ok": false,
+   "fell_at_s": 2.239999999999975,
+   "completed_frac": 0.083,
+   "pelvis_z_min": 0.069,
+   "tilt_max_deg": 95.6,
+   "sat_frac": 0.056,
+   "wall_s": 0.1,
+   "reason": "toppled at t=2.24s (pelvis 0.07 m, tilt 96 deg)"
+  },
+  "stance_hold": {
+   "ok": false,
+   "fell_at_s": 2.1799999999999815,
+   "completed_frac": 0.489,
+   "pelvis_z_min": 0.234,
+   "tilt_max_deg": 116.7,
+   "sat_frac": 0.416,
+   "wall_s": 0.1,
+   "reason": "toppled at t=2.18s (pelvis 0.23 m, tilt 117 deg)"
+  },
+  "stance_to_stand": {
+   "ok": false,
+   "fell_at_s": 1.280000000000001,
+   "completed_frac": 0.851,
+   "pelvis_z_min": 0.19,
+   "tilt_max_deg": 102.6,
+   "sat_frac": 0.77,
+   "wall_s": 0.1,
+   "reason": "toppled at t=1.28s (pelvis 0.19 m, tilt 103 deg)"
+  },
+  "stance_widen_step": {
+   "ok": false,
+   "fell_at_s": 1.0400000000000007,
+   "completed_frac": 0.282,
+   "pelvis_z_min": 0.174,
+   "tilt_max_deg": 80.9,
+   "sat_frac": 0.287,
+   "wall_s": 0.1,
+   "reason": "toppled at t=1.04s (pelvis 0.17 m, tilt 81 deg)"
+  },
+  "stand_to_stance": {
+   "ok": false,
+   "fell_at_s": 1.0000000000000007,
+   "completed_frac": 0.803,
+   "pelvis_z_min": 0.173,
+   "tilt_max_deg": 77.6,
+   "sat_frac": 0.82,
+   "wall_s": 0.1,
+   "reason": "toppled at t=1.00s (pelvis 0.17 m, tilt 78 deg)"
+  },
+  "drill_continuous": {
+   "ok": false,
+   "fell_at_s": 2.6999999999999242,
+   "completed_frac": 0.044,
+   "pelvis_z_min": 0.169,
+   "tilt_max_deg": 80.6,
+   "sat_frac": 0.039,
+   "wall_s": 0.1,
+   "reason": "toppled at t=2.70s (pelvis 0.17 m, tilt 81 deg)"
+  },
+  "stance_rise": {
+   "ok": false,
+   "fell_at_s": 1.280000000000001,
+   "completed_frac": 0.636,
+   "pelvis_z_min": 0.19,
+   "tilt_max_deg": 102.6,
+   "sat_frac": 0.576,
+   "wall_s": 0.1,
+   "reason": "toppled at t=1.28s (pelvis 0.19 m, tilt 103 deg)"
+  }
+ }
+}

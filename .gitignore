@@ -38,3 +38,8 @@ videos/refs_video/*overlay*.mp4
 data/references/**/*.npz
 data/references/**/derived/analysis/*.png
 data/locks/
+
+# v1 motion references are PRIMARY deliverables (small, curated, loaded by
+# src/solo/bc.load_reference): commit them (FORMAT.md documents the format)
+!data/references/motion_refs/**/*.npz
+!data/references/motion_refs/**/*.json

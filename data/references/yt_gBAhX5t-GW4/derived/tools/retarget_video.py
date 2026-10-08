@@ -54,6 +54,24 @@ MP = {"nose": 0, "l_ear": 7, "r_ear": 8, "l_sho": 11, "r_sho": 12,
 
 J_MID = ("Core", "Neck", "Head")
 
+# ---- grounding constants (2026-10-08 revision; all metres / seconds) --------
+# Measured defect: the old take-level floor left emitted G1 soles hovering up
+# to +0.111 m or penetrating -0.067 m (reports/2026-10-08/reference_fidelity.md
+# §4).  These bound the per-frame, contact-aware replacement below.
+GROUND_CONTACT_TOL = 0.05   # sole within this of the frame's lowest = planted
+GROUND_LIFT_TOL = 0.08      # sole above the frame's lowest = lifted
+GROUND_DWELL_S = 0.13       # continuous plant period required to (re)plant
+GROUND_FLOOR_PCT = 5.0      # floor-plane percentile of pooled sole heights
+#: target-level offset clip.  The offset must be able to express a REAL crouch:
+#: mediapipe landmarks are hip-centred, so a 0.30 m hip drop shows up as a
+#: +0.30 m apparent sole rise that grounding must undo (a +0.12 clip left the
+#: shot-entry crouch hovering; measured 2026-10-08).  0.60 m covers every
+#: take's deepest posture while still bounding landmark blowups.
+GROUND_OFFSET_MAX = 0.60
+GROUND_OFFSET_MIN = -0.02
+ANCHOR_LOWER_MARGIN = 0.02  # m: "clearly lower" hysteresis margin (anchor)
+ANCHOR_DWELL_S = 0.20       # s: sole-planted advantage must persist to switch
+
 
 def gm_track_from_window(world_hip: np.ndarray, vis: np.ndarray,
                          detected: np.ndarray, fps: float) -> tuple[np.ndarray, dict]:
@@ -188,31 +206,166 @@ def smooth_qpos(qpos: np.ndarray, t_kf: np.ndarray,
     return q
 
 
-def reconstruct_translation(track: np.ndarray, fps: float) -> np.ndarray:
-    """(F,3) horizontal world translation of the pelvis.
+def reconstruct_translation(track: np.ndarray, fps: float,
+                            contact: np.ndarray | None = None,
+                            ) -> tuple[np.ndarray, np.ndarray]:
+    """(F,3) horizontal world translation of the pelvis + per-frame anchor.
 
     MediaPipe world landmarks are hip-centred, so the person's global motion is
     absent from them. With a static camera we reconstruct it by anchoring the
-    planted foot: at each step the foot with the smaller horizontal relative
-    displacement is treated as planted, and the pelvis advances by the negative
-    of that foot's relative displacement. The integrated trajectory is
-    low-passed (0.4 s) to remove per-frame noise; the vertical component is
-    kept zero (the floor is handled separately).
+    planted foot: the pelvis advances by the negative of the planted foot's
+    relative displacement.
+
+    Anchor rule (2026-10-08 revision; the previous "smaller per-frame
+    displacement" rule agreed with the video's lower foot in only 26-77 % of
+    clear frames and produced up to 0.67 s of phantom plants -- measured in
+    reports/2026-10-08/reference_fidelity.md §3): with ``contact`` (F,2) from
+    ``ground_per_frame`` the anchor is THE planted foot -- exactly one planted
+    picks it; both or neither keep the previous anchor (a swinging or sliding
+    foot is never the anchor, and a flight phase cannot invent one).  With
+    ``contact=None`` the legacy lower-foot hysteresis (margin
+    ANCHOR_LOWER_MARGIN, dwell ANCHOR_DWELL_S) is used instead.
+
+    Returns (pos, anchor) with anchor (F,) bool, True = RIGHT foot planted.
     """
     from scipy.signal import savgol_filter
     f = track.shape[0]
-    la = track[:, JOINTS.index("LeftAnkle")]
-    ra = track[:, JOINTS.index("RightAnkle")]
+    A = np.stack([track[:, JOINTS.index("LeftAnkle")],
+                  track[:, JOINTS.index("RightAnkle")]], axis=1)  # (F,2,3)
+    if contact is None:
+        dy = A[:, 0, 1] - A[:, 1, 1]      # y-up: >0 => RIGHT clearly lower
+        dwell = max(1, int(round(ANCHOR_DWELL_S * fps)))
+        anchor = np.zeros(f, dtype=bool)
+        cur = bool(dy[0] > ANCHOR_LOWER_MARGIN)
+        run_side, run = int(cur), 0
+        for i in range(f):
+            low = 1 if dy[i] > ANCHOR_LOWER_MARGIN else \
+                (0 if dy[i] < -ANCHOR_LOWER_MARGIN else -1)
+            if low >= 0:
+                if low == run_side:
+                    run += 1
+                else:
+                    run_side, run = low, 1
+                if low != int(cur) and run >= dwell:
+                    cur = bool(low)
+            anchor[i] = cur
+    else:
+        contact = np.asarray(contact, dtype=bool)
+        assert contact.ndim == 2 and contact.shape[1] == 2 and len(contact) == f
+        anchor = np.zeros(f, dtype=bool)
+        cur = bool(contact[0, 1])
+        run_new, run_side = 0, -2
+        switch_dwell = max(1, int(round(ANCHOR_DWELL_S * fps)))
+        for i in range(f):
+            l, r = bool(contact[i, 0]), bool(contact[i, 1])
+            want = cur
+            if l and not r:
+                want = False
+            elif r and not l:
+                want = True
+            # both or neither planted: keep the current anchor.  A switch also
+            # needs the new foot to be the only-planted one for switch_dwell,
+            # so contact flicker cannot churn the anchor.
+            if want != cur:
+                if int(want) == run_side:
+                    run_new += 1
+                else:
+                    run_side, run_new = int(want), 1
+                if run_new >= switch_dwell:
+                    cur = want
+            else:
+                run_side, run_new = -2, 0
+            anchor[i] = cur
     pos = np.zeros((f, 3))
     for i in range(1, f):
-        dl = float(np.linalg.norm(la[i, [0, 2]] - la[i - 1, [0, 2]]))
-        dr = float(np.linalg.norm(ra[i, [0, 2]] - ra[i - 1, [0, 2]]))
-        step = -(la[i] - la[i - 1]) if dl <= dr else -(ra[i] - ra[i - 1])
-        pos[i] = pos[i - 1] + step
+        a = 1 if anchor[i] else 0
+        pos[i] = pos[i - 1] - (A[i, a] - A[i - 1, a])
     w = max(5, int(round(0.4 * fps)) | 1)
     for j in (0, 2):
         pos[:, j] = savgol_filter(pos[:, j], w, 2)
-    return pos
+    return pos, anchor
+
+
+#: sole height of a foot = min over its toe+heel landmarks
+_SOLE_JOINTS = (("LeftToe", "LeftHeel"), ("RightToe", "RightHeel"))
+
+
+def _sole_y(t2: np.ndarray) -> np.ndarray:
+    """(F,2) per-frame lowest sole height (y-up, metres) per foot."""
+    cols = [np.nanmin(np.stack([t2[:, JOINTS.index(a), 1],
+                                t2[:, JOINTS.index(b), 1]]), axis=0)
+            for a, b in _SOLE_JOINTS]
+    return np.stack(cols, axis=1)
+
+
+def ground_per_frame(t2: np.ndarray, fps: float,
+                     contact_tol: float = GROUND_CONTACT_TOL,
+                     lift_tol: float = GROUND_LIFT_TOL,
+                     dwell_s: float = GROUND_DWELL_S,
+                     ) -> tuple[np.ndarray, np.ndarray, dict]:
+    """Per-frame contact-aware floor for one take (Y-up, metres).
+
+    Replaces the take-level constant floor whose defect is measured in
+    reports/2026-10-08/reference_fidelity.md §4 (emitted soles hover up to
+    +0.111 m / penetrate -0.067 m, posture-dependently, because the G1's legs
+    are not the human's).
+
+    The floor plane is the 5th percentile of all sole heights (the mat, robust
+    to noise).  PLANT criterion -- per-frame RELATIVE sole height: mediapipe
+    world landmarks are HIP-CENTRED, so a landmark's height above any
+    take-level plane confounds "foot lifted" with "hips dropped" (a crouch
+    raises every foot landmark relative to the hip line by exactly the hip
+    drop; measured: the take-plane criterion lost 92 % of a level-change
+    take's contact frames).  A foot is therefore planted when its sole is
+    within ``contact_tol`` of the LOWEST sole in the SAME frame (the stance
+    foot), with ``dwell_s`` before (re)planting and lift once it exceeds
+    ``lift_tol`` above the frame's lowest sole.  A frame with no planted foot
+    then means "feet genuinely split in height" (a real step), which is what
+    the anchor rule wants.  ``offset`` (F,) shifts each frame so the lowest
+    planted sole sits on the mat plane -- in the WORLD frame this exactly
+    undoes the hip-centring artifact while keeping genuine step geometry;
+    frames with no planted foot interpolate (a flight phase keeps body height
+    continuous instead of inventing contact).  If NO frame has a planted foot
+    the offset degrades to the take-level constant (min sole - plane) and the
+    fallback is recorded in ``info``.
+
+    Returns (offset, contact, info); contact (F,2) bool = (left, right) planted.
+    """
+    sole = _sole_y(t2)                              # (F,2)
+    floor = float(np.nanpercentile(sole, GROUND_FLOOR_PCT))
+    low = sole - floor                              # height above the plane
+    rel = low - low.min(axis=1, keepdims=True)      # vs the frame's lowest sole
+    f = t2.shape[0]
+    dwell = max(1, int(round(dwell_s * fps)))
+    contact = np.zeros((f, 2), dtype=bool)
+    run = np.zeros(2, dtype=int)
+    for i in range(f):
+        for s in range(2):
+            if i and contact[i - 1, s]:
+                contact[i, s] = bool(rel[i, s] <= lift_tol)
+            elif rel[i, s] <= contact_tol:
+                run[s] += 1
+                contact[i, s] = run[s] >= dwell
+            else:
+                run[s] = 0
+    off = np.full(f, np.nan)
+    for i in range(f):
+        if contact[i].any():
+            off[i] = max(0.0, float(np.min(low[i][contact[i]])))
+    ok = np.flatnonzero(np.isfinite(off))
+    fallback = "per_frame_contact"
+    if len(ok) == 0:
+        off = np.full(f, max(0.0, float(np.nanmin(sole) - floor)))
+        fallback = "constant_floor_no_contact_detected"
+    else:
+        off = np.interp(np.arange(f), ok, off[ok])
+    off = np.clip(off, GROUND_OFFSET_MIN, GROUND_OFFSET_MAX)
+    info = {"method": fallback,
+            "floor_plane_m": round(floor, 4),
+            "contact_frac": round(float(contact.mean()), 3),
+            "offset_med_m": round(float(np.median(off)), 4),
+            "offset_max_m": round(float(off.max()), 4)}
+    return off, contact, info
 
 
 def place_solo(track: np.ndarray, fps: float) -> tuple[np.ndarray, dict]:
@@ -246,16 +399,16 @@ def place_solo(track: np.ndarray, fps: float) -> tuple[np.ndarray, dict]:
     core_mean = np.nanmean(t2[:, JOINTS.index("Core")], axis=0)
     t2 = (t2 - core_mean) * scale + core_mean
 
-    # reconstruct the global translation (hip-centred world landmarks lack it)
-    trans = reconstruct_translation(t2, fps) * scale
-    t2 = t2 + trans[:, None, :]
-
-    # floor: min over foot joints across the whole take -> 0
-    foot_idx = [JOINTS.index(n) for n in
-                ("LeftToe", "RightToe", "LeftHeel", "RightHeel",
-                 "LeftAnkle", "RightAnkle")]
-    floor = float(np.nanmin(t2[:, foot_idx, 1]))
-    t2[..., 1] -= floor
+    # per-frame contact-aware grounding (REPLACES the take-level constant
+    # floor; see ground_per_frame + reference_fidelity.md §4).  Contact is
+    # detected first (horizontal translation cannot change it), then the
+    # global translation is reconstructed with the planted foot as anchor.
+    off, contact, ginfo = ground_per_frame(t2, fps)
+    trans, anchor = reconstruct_translation(t2, fps, contact=contact)
+    t2 = t2 + (trans * scale)[:, None, :]
+    # ground = the floor PLANE (mediapipe tracks are hip-centred, so the plane
+    # sits ~0.65 m below the pelvis) + the per-frame contact offset on top
+    t2[..., 1] -= (ginfo["floor_plane_m"] + off)[:, None]
     # start with the pelvis at the origin (travel is preserved from there)
     core0 = t2[0, JOINTS.index("Core")]
     t2[..., 0] -= core0[0]
@@ -266,8 +419,79 @@ def place_solo(track: np.ndarray, fps: float) -> tuple[np.ndarray, dict]:
     travel = float(np.linalg.norm(
         zup[-1, JOINTS.index("Core")][[0, 1]] - zup[0, JOINTS.index("Core")][[0, 1]]))
     info = {"scale": float(scale), "facing_deg_in_mp_frame": facing_deg,
-            "floor_offset_m": float(floor), "net_travel_m": round(travel, 3)}
+            "floor_offset_m": ginfo["offset_med_m"],
+            "grounding": ginfo,
+            "anchor_right_frac": round(float(anchor.mean()), 3),
+            "net_travel_m": round(travel, 3),
+            "contact_kf": contact, "offset_kf": off}
     return zup, info
+
+
+def ground_qpos_soles(qa: np.ndarray, t_grid: np.ndarray, t_kf: np.ndarray,
+                      contact_kf: np.ndarray, model=None) -> tuple[np.ndarray, dict]:
+    """Residual per-frame z grounding of the EMITTED qpos (50 Hz grid).
+
+    The target-level grounding (``place_solo.ground_per_frame``) is matched by
+    the joint solver only approximately -- the G1's legs are not the human's --
+    so the emitted soles can still hover a few cm above or below the mat.  A
+    root z-translation moves the whole robot rigidly (every joint angle is
+    untouched), so shifting ``qpos[:, 2]`` by minus the lowest PLANTED sole z
+    puts that sole exactly on the mat plane.  Frames with no planted foot
+    interpolate between their neighbours (flight phases keep body height
+    continuous); the correction is clipped to [-0.10, +0.15] m.
+
+    Returns (qa_corrected, info).
+    """
+    import mujoco
+
+    if model is None:
+        from retarget.landmarks import load_g1_spec
+        model = load_g1_spec().compile()
+    data = mujoco.MjData(model)
+    sole_sites = [mujoco.mj_name2id(model, mujoco.mjtObj.mjOBJ_SITE, n)
+                  for n in ("left_toe", "left_heel", "right_toe", "right_heel")]
+    T = len(t_grid)
+    c50 = np.stack([np.interp(t_grid, t_kf, contact_kf[:, s].astype(np.float64))
+                    for s in range(2)], axis=1) >= 0.5          # (T,2)
+    sole = np.zeros((T, 2))
+    for i in range(T):
+        data.qpos[:] = qa[i]
+        mujoco.mj_forward(model, data)
+        z = data.site_xpos[sole_sites][:, 2]
+        sole[i] = (min(z[0], z[1]), min(z[2], z[3]))            # (L, R) lowest sole
+    shift = np.full(T, np.nan)
+    for i in range(T):
+        if c50[i].any():
+            shift[i] = float(np.min(sole[i][c50[i]]))
+    ok = np.flatnonzero(np.isfinite(shift))
+    shift = np.interp(np.arange(T), ok, shift[ok])
+    shift = np.clip(shift, -0.18, 0.15)
+    # rate-limit: contact-state changes otherwise step the root by up to
+    # 4 m/s (measured on the stalking take), an untrackable target; a median-5
+    # filter plus a 1.2 m/s per-step clamp bounds the correction to real body
+    # speeds (a level change drops at ~1 m/s; 0.4 m/s lagged fast drops and
+    # left soles up to 5 cm under the mat -- measured, feasibility run 1)
+    from scipy.signal import medfilt
+    shift = medfilt(shift, 5)
+    step = 1.2 * (t_grid[1] - t_grid[0]) if T > 1 else 1.0
+    for i in range(1, T):
+        shift[i] = np.clip(shift[i], shift[i - 1] - step, shift[i - 1] + step)
+    for i in range(T - 2, -1, -1):
+        shift[i] = np.clip(shift[i], shift[i + 1] - step, shift[i + 1] + step)
+    qa = qa.copy()
+    qa[:, 2] -= shift
+    resid = np.where(c50, sole - shift[:, None], np.nan)
+    # the lowest planted sole is 0 by construction; report the OTHER planted
+    # foot's hover (both-planted frames) -- the honest residual metric
+    other = np.where(c50.sum(1) == 2, np.nanmax(resid, axis=1), np.nan)
+    info = {"method": "per_frame_contact_qpos",
+            "shift_med_m": round(float(np.median(shift)), 4),
+            "shift_max_m": round(float(shift.max()), 4),
+            "shift_min_m": round(float(shift.min()), 4),
+            "shift_step_max_m": round(float(np.abs(np.diff(shift)).max()), 4),
+            "other_planted_sole_max_m": round(float(np.nanmedian(other)), 5),
+            "contact_frac_50hz": round(float(c50.mean()), 3)}
+    return qa, info
 
 
 def retarget(name: str, npz_path: Path, t0: float, t1: float, out_dir: Path,
@@ -296,6 +520,10 @@ def retarget(name: str, npz_path: Path, t0: float, t1: float, out_dir: Path,
     solved = solve_keyframes(targets, targets, preset, t_kf=t_kf)
     qa_s = smooth_qpos(solved["qpos_a"], t_kf)
     t_grid, qa, qb, stretch = resample_50hz(t_kf, qa_s, qa_s)
+    # residual per-frame grounding of the EMITTED trajectory (the solver only
+    # approximately matches the grounded targets; see ground_qpos_soles).
+    # Contact flags come from place_solo's per-frame detector (keyframe grid).
+    qa, qg = ground_qpos_soles(qa, t_grid, t_kf, place["contact_kf"])
     rms = landmark_rms_final(qa, qb, targets, targets, t_kf * stretch, t_grid,
                              preset)
 
@@ -308,6 +536,8 @@ def retarget(name: str, npz_path: Path, t0: float, t1: float, out_dir: Path,
         "scale_g1_over_human": place["scale"],
         "facing_deg_in_mp_frame": place["facing_deg_in_mp_frame"],
         "floor_offset_m": place["floor_offset_m"],
+        "grounding": {**place["grounding"], "qpos": qg},
+        "anchor_right_frac": place["anchor_right_frac"],
         "net_travel_m": place["net_travel_m"],
         "preset": preset,
         "opposite_slot": "targets duplicated in the two-robot solver; qpos_b kept as zeros",
@@ -325,12 +555,20 @@ def retarget(name: str, npz_path: Path, t0: float, t1: float, out_dir: Path,
         "source": "operator reference video data/references/yt_gBAhX5t-GW4/ref720h264.mp4",
     }
     out = out_dir / f"{name}.npz"
+    # contact (T,2) uint8 at 50 Hz: per-frame planted flags (left, right) from
+    # the per-frame, contact-aware grounding (v2 format; see FORMAT.md)
+    c50 = np.stack([np.interp(t_grid, t_kf, place["contact_kf"][:, s].astype(np.float64))
+                    for s in range(2)], axis=1)
     np.savez_compressed(out, qpos_a=qa, qpos_b=np.zeros_like(qb), t=t_grid,
                         technique=name, edges=np.array([], dtype=np.int64),
-                        landmark_rms=rms["weighted"], meta=json.dumps(meta))
+                        landmark_rms=rms["weighted"],
+                        contact=(c50 >= 0.5).astype(np.uint8),
+                        meta=json.dumps(meta))
     print(f"{name:28s} frames={len(idx):4d} -> {len(t_grid):5d} 50Hz steps  "
           f"dur={t_grid[-1]:6.2f}s stretch={stretch:.3f}  "
-          f"rms_w={rms['weighted']:.3f} rms_max={rms['max']:.3f}  gaps={gap['gap_frames']}")
+          f"rms_w={rms['weighted']:.3f} rms_max={rms['max']:.3f}  "
+          f"contact={float(c50.mean()):.2f} shift={qg['shift_med_m']:+.3f}m "
+          f"gaps={gap['gap_frames']}")
     return meta
 
 
