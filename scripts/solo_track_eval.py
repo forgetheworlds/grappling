@@ -31,6 +31,7 @@ import time
 from pathlib import Path
 
 import numpy as np
+import torch
 
 REPO = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(REPO / "src"))
@@ -64,10 +65,6 @@ def parse_args(argv=None):
     ap.add_argument("--stages", default=",".join(STAGE_ORDER),
                     help="whose stage segment lists define the evaluated skills")
     ap.add_argument("--holdout-only", action="store_true")
-    ap.add_argument("--final-drill", action="store_true",
-                    help="one continuous no-reset rollout of drill_continuous")
-    ap.add_argument("--loops", type=int, default=1,
-                    help="final-drill: how many REPEAT cycles (uses the loop seam)")
     ap.add_argument("--residual-scale", type=float, default=0.5)
     ap.add_argument("--max-episode-steps", type=int, default=3200)
     return ap.parse_args(argv)
@@ -92,8 +89,6 @@ def load_policy(ckpt_path: str, residual_scale: float):
 
 @torch.no_grad()
 def run_episode(net, ep: TrackingEnv, seed: int, max_steps: int, record=False):
-    import torch
-
     obs = ep.reset(seed=int(seed))
     R, steps = 0.0, 0
     site, joint, root_xy, root_z, yaw = [], [], [], [], []

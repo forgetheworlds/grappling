@@ -89,6 +89,9 @@ DRILL_LABELS: dict[str, str] = {
     "RECOVER_TO_STANCE": "RECOVER",
     "REPOSITION": "APPROACH",
     "REPEAT_BLEND": "STANCE",
+    # stance_rise.npz (composed 2-phase file)
+    "STANCE": "STANCE",
+    "RISE_TO_STAND": "LEVEL_CHANGE",
 }
 
 #: takes NEVER trained on (zero-shot generalisation probes for the report)
@@ -262,6 +265,10 @@ class TrackWeights:
     w_site: float = 1.0                  # the PRIMARY tracking term (landmarks)
     w_yaw: float = 0.2
     sigma_yaw: float = 0.25              # rad
+    w_root_vel: float = 0.2              # root velocity tracking (timing signal)
+    sigma_root_vel: float = 0.15         # m/s
+    w_joint_vel: float = 0.1             # joint velocity tracking
+    sigma_joint_vel: float = 1.5         # rad/s (the imitation kernel)
     # wrestling appearance (soft prior, never the top objective)
     w_joint: float = 0.2
     # validity penalties (all in [0,1] x weight)
@@ -286,7 +293,9 @@ class TrackWeights:
         return {"im": self.im.as_dict(),
                 **{k: getattr(self, k) for k in (
                     "w_root", "sigma_root_xy", "sigma_root_z", "sigma_root_z_deep",
-                    "deep_z_below", "w_site", "w_yaw", "sigma_yaw", "w_joint",
+                    "deep_z_below", "w_site", "w_yaw", "sigma_yaw",
+                    "w_root_vel", "sigma_root_vel", "w_joint_vel",
+                    "sigma_joint_vel", "w_joint",
                     "pen_action", "action_norm", "pen_torque", "pen_limit",
                     "pen_slide", "alive_gate", "completion_bonus",
                     "terminal_penalty", "term_joint_rad", "term_root_xy_m",
@@ -300,13 +309,15 @@ def track_reward_terms(*, joint_err: float, site_err: float, root_xy_err: float,
                        root_z_err: float, yaw_err: float, ref_pelvis_z: float,
                        torso_up_z: float, action_delta_mean: float,
                        sat_frac: float, limit_prox: float, slide_frac: float,
+                       root_vel_err: float = 0.0, joint_vel_err: float = 0.0,
                        w: TrackWeights = DEFAULT_WEIGHTS) -> dict[str, float]:
     """All tracking reward terms on CONSTRUCTED quantities (unit-testable).
 
     ``site_err`` is the class-weighted landmark RMS (m); ``joint_err`` the mean
     absolute joint error (rad); ``root_*_err`` the anchored root errors (m);
     ``yaw_err`` the wrapped yaw error (rad); ``slide_frac`` the loaded-foot
-    slide proxy in [0, 1] (velocity fraction of the 2 m/s normaliser).
+    slide proxy in [0, 1] (velocity fraction of the 2 m/s normaliser);
+    ``root_vel_err`` / ``joint_vel_err`` the velocity-tracking RMS (m/s, rad/s).
     """
     sigma_z = w.sigma_root_z_deep if ref_pelvis_z < w.deep_z_below else w.sigma_root_z
     root = math.exp(-((root_xy_err / w.sigma_root_xy) ** 2
@@ -314,16 +325,22 @@ def track_reward_terms(*, joint_err: float, site_err: float, root_xy_err: float,
     yaw = math.exp(-(yaw_err / w.sigma_yaw) ** 2)
     joint = math.exp(-(joint_err / w.im.joint_pose_scale_rad) ** 2)
     site = math.exp(-(site_err / w.im.site_scale_m) ** 2)
+    root_vel = math.exp(-(root_vel_err / w.sigma_root_vel) ** 2)
+    joint_vel = math.exp(-(joint_vel_err / w.sigma_joint_vel) ** 2)
     gate = float(np.clip(torso_up_z, 0.0, 1.0)) if w.alive_gate else 1.0
-    pos = (w.w_root * root + w.w_site * site + w.w_yaw * yaw + w.w_joint * joint) * gate
+    pos = (w.w_root * root + w.w_site * site + w.w_yaw * yaw + w.w_joint * joint
+           + w.w_root_vel * root_vel + w.w_joint_vel * joint_vel) * gate
     pen = (w.pen_action * float(np.clip(action_delta_mean / w.action_norm, 0, 1))
            + w.pen_torque * float(np.clip(sat_frac, 0, 1))
            + w.pen_limit * float(np.clip(limit_prox, 0, 1))
            + w.pen_slide * float(np.clip(slide_frac, 0, 1)))
     return {
         "root": root, "site": site, "yaw": yaw, "joint": joint,
+        "root_vel": root_vel, "joint_vel": joint_vel,
         "w_root": w.w_root * root * gate, "w_site": w.w_site * site * gate,
         "w_yaw": w.w_yaw * yaw * gate, "w_joint": w.w_joint * joint * gate,
+        "w_root_vel": w.w_root_vel * root_vel * gate,
+        "w_joint_vel": w.w_joint_vel * joint_vel * gate,
         "pen_action": w.pen_action * float(np.clip(action_delta_mean / w.action_norm, 0, 1)),
         "pen_torque": w.pen_torque * float(np.clip(sat_frac, 0, 1)),
         "pen_limit": w.pen_limit * float(np.clip(limit_prox, 0, 1)),
@@ -365,6 +382,10 @@ class TrackTargets:
     root_z: np.ndarray         # (T,)
     yaw: np.ndarray            # (T,) world root yaw
     linvel_world: np.ndarray   # (T, 3) world root linear velocity
+    #: per-frame conditioning (drill: from the labelled phases; takes: constant)
+    skill_ids: np.ndarray | None = None   # (T,) Skill ids per frame
+    connect_flags: np.ndarray | None = None  # (T,) bool synthetic-connector
+    leads: np.ndarray | None = None       # (T,) +1 right / -1 left per frame
     meta: dict = field(default_factory=dict)
 
     @classmethod
@@ -385,10 +406,39 @@ class TrackTargets:
             R = _quat_to_R(qpos[i, 3:7])
             yaw[i] = math.atan2(R[1, 0], R[0, 0])
             lin[i] = R @ tg.base_linvel_local[i]
+        meta = tr.meta or {}
+        skill_ids = connect_flags = leads = None
+        if "phase_id" in z and meta.get("phases"):
+            # per-frame conditioning from the drill's own labelled phases
+            pid = np.asarray(z["phase_id"], dtype=int)
+            skill_ids = np.zeros(len(qpos), dtype=int)
+            connect_flags = np.zeros(len(qpos), dtype=bool)
+            leads = np.ones(len(qpos), dtype=int)
+            for p in meta["phases"]:
+                frames = pid == int(p["id"])
+                if not frames.any():
+                    continue
+                lab, connect = phase_label(p["name"])
+                lead = _lead_int(p.get("lead_leg"))
+                if lab == "CIRCLE":
+                    lab = "CIRCLE_R" if lead > 0 else "CIRCLE_L"
+                skill_ids[frames] = _skill_id(lab, lead)
+                connect_flags[frames] = connect
+                leads[frames] = lead
+        else:
+            lead = _lead_int(meta.get("lead_leg", 1))
+            lab = TAKE_LABELS.get(tr.name)
+            if lab:
+                if lab == "CIRCLE":
+                    lab = "CIRCLE_R" if lead > 0 else "CIRCLE_L"
+                skill_ids = np.full(len(qpos), _skill_id(lab, lead), dtype=int)
+                connect_flags = np.zeros(len(qpos), dtype=bool)
+                leads = np.full(len(qpos), lead, dtype=int)
         return cls(name=tr.name, source=tr.source, targets=tg, qpos=qpos,
                    contact=contact, root_xy=qpos[:, :2].copy(),
                    root_z=qpos[:, 2].copy(), yaw=yaw, linvel_world=lin,
-                   meta=tr.meta)
+                   skill_ids=skill_ids, connect_flags=connect_flags,
+                   leads=leads, meta=meta)
 
     def __len__(self) -> int:
         return len(self.qpos)
@@ -557,8 +607,16 @@ class TrackingEnv:
             q0[0] += float(self.rng.uniform(-self.xy_noise, self.xy_noise))
             q0[1] += float(self.rng.uniform(-self.xy_noise, self.xy_noise))
         if yaw_delta != 0.0:
-            yaw0 = _yaw_of(q0[3:7]) + yaw_delta
-            q0[3:7] = np.array([math.cos(yaw0 / 2), 0.0, 0.0, math.sin(yaw0 / 2)])
+            # compose the jitter about Z ON TOP of the reference orientation:
+            # replacing the quat would wipe the reference's pelvis pitch/roll
+            # (a deep stance leans; a pure-yaw quat is a different pose)
+            w0, x0, y0, z0 = q0[3:7]
+            hd, zd = math.cos(yaw_delta / 2), math.sin(yaw_delta / 2)
+            q0[3:7] = np.array([
+                hd * w0 - zd * z0,
+                hd * x0 - zd * y0,
+                hd * y0 + zd * x0,
+                hd * z0 + zd * w0])
         self.env.reset(pose=q0, jitter=False,
                        command=CommandSchedule.steady(Command(
                            skill_id=_skill_id(self.seg.label, self.seg.lead),
@@ -611,15 +669,32 @@ class TrackingEnv:
         tgta = self._target_root(kfa)
         root_ahead_local = R.T @ (tgta - pelvis)
         joints_rel = np.asarray(self.tt.qpos[kf, 7:36], np.float64) - self.q_stand[7:36]
+        if self.tt.skill_ids is not None:
+            skill_id = int(self.tt.skill_ids[kf])
+            lead = int(self.tt.leads[kf]) if self.tt.leads is not None else self.seg.lead
+            connect = bool(self.tt.connect_flags[kf]) \
+                if self.tt.connect_flags is not None else self.seg.connect
+        else:
+            skill_id = _skill_id(self.seg.label, self.seg.lead)
+            lead, connect = self.seg.lead, self.seg.connect
         block = ref_block(root_local=root_local, root_vel_local=root_vel_local,
                           joints_rel=joints_rel, contacts=self.tt.contact[kf],
                           phase=self.k / max(self.N - 1, 1),
-                          skill_id=_skill_id(self.seg.label, self.seg.lead),
-                          lead=self.seg.lead, connect=self.seg.connect,
+                          skill_id=skill_id, lead=lead, connect=connect,
                           root_ahead_local=root_ahead_local)
         priv = ref_priv_block(joint_err=joint_err, site_err=site_err, root_xy_err=xy_err)
+        # velocity tracking errors (timing signal): root velocity in the
+        # heading frame vs the reference's, and joint-velocity RMS
+        v_w = np.asarray(self.env.data.qvel[0:3], np.float64)
+        v_local = np.array([yawc * v_w[0] + syc * v_w[1],
+                            -syc * v_w[0] + yawc * v_w[1], v_w[2]])
+        root_vel_err = float(np.linalg.norm(v_local - root_vel_local))
+        jv_robot = np.asarray(self.env.data.qvel[6:35], np.float64)
+        joint_vel_err = float(np.sqrt(np.mean(
+            (jv_robot - self.tt.targets.joint_vel[kf]) ** 2)))
         errs = {"joint_err": joint_err, "site_err": site_err, "root_xy_err": xy_err,
                 "root_z_err": z_err_signed, "yaw_err": yaw_err,
+                "root_vel_err": root_vel_err, "joint_vel_err": joint_vel_err,
                 "pelvis_drop": max(0.0, z_err_signed), "ref_pelvis_z":
                     float(self.tt.root_z[kf]), "frame": kf}
         return block, priv, errs
@@ -662,7 +737,8 @@ class TrackingEnv:
             torso_up_z=up_z, action_delta_mean=action_delta,
             sat_frac=float(info.get("metrics", {}).get("sat_frac", 0.0)),
             limit_prox=float(info.get("metrics", {}).get("limit_prox", 0.0)),
-            slide_frac=slide_frac, w=self.w)
+            slide_frac=slide_frac, root_vel_err=errs["root_vel_err"],
+            joint_vel_err=errs["joint_vel_err"], w=self.w)
         reward = float(terms["total"])
         cause = info.get("termination")
         truncated = bool(truncated)
@@ -842,7 +918,7 @@ if __name__ == "__main__":  # self-check
                             root_z_err=0.30, yaw_err=0.0, ref_pelvis_z=0.74,
                             torso_up_z=1.0, action_delta_mean=0.0, sat_frac=0.0,
                             limit_prox=0.0, slide_frac=0.0, w=w)
-    assert t2["total"] < 0.20 * t["total"], (t["total"], t2["total"])
+    assert t2["total"] < 0.5 * t["total"], (t["total"], t2["total"])
     assert track_deviation(joint_err=0.0, root_xy_err=0.0, pelvis_drop_m=0.30,
                            site_err=0.0, w=w) == "pelvis_drop"
     # deep-phase scaling: the same 0.10 m height error in a penetration pose

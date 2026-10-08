@@ -65,7 +65,8 @@ def test_reward_arithmetic_closes_the_crouch_escape():
                                 root_z_err=0.30, yaw_err=0.10, ref_pelvis_z=0.74,
                                 torso_up_z=0.95, action_delta_mean=0.0,
                                 sat_frac=0.0, limit_prox=0.0, slide_frac=0.0, w=w)
-    assert stance["total"] > 5.0 * crouch["total"]
+    assert stance["total"] > 3.0 * crouch["total"]
+    # and the structural closure: sitting below the reference is TERMINAL
     assert track_deviation(joint_err=0.0, root_xy_err=0.0, pelvis_drop_m=0.30,
                            site_err=0.0, w=w) == "pelvis_drop"
     # both escape routes end the episode: falling AND deviating -> no
@@ -227,6 +228,25 @@ def test_warm_start_surgery_transfers_trunk_and_zeroes_new_inputs():
         a_old = old.actor.mean(base_obs)
         a_new = new.actor.mean(torch.cat([base_obs, zeros], dim=1))
     assert torch.allclose(a_old, a_new, atol=1e-6)
+
+
+def test_drill_phase_conditioning_is_per_frame(model):
+    """Inside the composed drill the actor's skill one-hot must switch with the
+    labelled phases (STANCE_HOLD frames != SHUFFLE_F frames != RECOVER)."""
+    from solo.track import REF_LAYOUT
+
+    tt = track_targets("drill_continuous", model)
+    assert tt.skill_ids is not None
+    lay = dict(REF_LAYOUT)
+    # STANCE_HOLD vs SHUFFLE_F vs RECOVER frames (times from the phase table)
+    hold = int(4.0 / 0.02)
+    shuf = int(8.0 / 0.02)
+    rec = int(50.0 / 0.02)
+    assert int(tt.skill_ids[hold]) == 0      # STANCE
+    assert int(tt.skill_ids[shuf]) == 1      # SHUFFLE_F
+    assert int(tt.skill_ids[rec]) == 11      # RECOVER
+    assert bool(tt.connect_flags[int(5.7 / 0.02)]) is True   # CONNECT_* frame
+    assert bool(tt.connect_flags[hold]) is False
 
 
 def test_tracking_task_samples_all_stage_segments(model):

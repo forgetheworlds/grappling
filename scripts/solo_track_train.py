@@ -73,7 +73,9 @@ def parse_args(argv=None):
                     help="deviation pays a per-step penalty (episode continues) "
                          "for the first N updates, then the hard gate applies; "
                          "falls/dorsal are ALWAYS terminal")
-    ap.add_argument("--soft-penalty", type=float, default=2.0)
+    ap.add_argument("--soft-penalty", type=float, default=0.5)
+    ap.add_argument("--completion-bonus", type=float, default=5.0)
+    ap.add_argument("--terminal-penalty", type=float, default=20.0)
     ap.add_argument("--pushes", default=None,
                     help="comma impulse magnitudes (N*s) for per-episode random "
                          "pushes (S7 scaled disturbances), e.g. '4,8,12'")
@@ -95,6 +97,7 @@ def collect(net: ActorCritic, task: TrackingTask, args, seed: int) -> tuple:
         seg = task.segment
         a_obs, c_obs, act, logp, val, rew, don = [], [], [], [], [], [], []
         success, cause, steps = False, None, 0
+        dev_steps = 0
         for _ in range(args.max_episode_steps):
             ao = np.asarray(obs["actor"], np.float32)
             co = np.asarray(obs["critic"], np.float32)
@@ -110,6 +113,8 @@ def collect(net: ActorCritic, task: TrackingTask, args, seed: int) -> tuple:
             val.append(value)
             rew.append(float(r))
             steps += 1
+            if "pen_deviation_soft" in info["track"]["terms"]:
+                dev_steps += 1
             if term or trunc:
                 tk = info["track"]
                 success, cause = bool(tk["success"]), tk["cause"]
@@ -121,6 +126,7 @@ def collect(net: ActorCritic, task: TrackingTask, args, seed: int) -> tuple:
             cause = cause or "max_steps"
         ep_stats.append({"segment": seg.name, "label": seg.label, "steps": steps,
                          "success": success, "cause": cause,
+                         "dev_frac": round(dev_steps / max(steps, 1), 3),
                          "return": float(np.sum(rew))})
         chunks.append((a_obs, c_obs, act, logp, val, rew, don))
 
@@ -195,8 +201,18 @@ def quick_eval(net: ActorCritic, task: TrackingTask, seeds=EVAL_SEEDS) -> dict:
 
 def main(argv=None) -> int:
     args = parse_args(argv)
+    import dataclasses
+
+    from solo.track import DEFAULT_WEIGHTS, TrackWeights
+
     torch.set_num_threads(1)
     torch.manual_seed(int(args.seed))
+    weights = DEFAULT_WEIGHTS
+    if (args.completion_bonus != DEFAULT_WEIGHTS.completion_bonus
+            or args.terminal_penalty != DEFAULT_WEIGHTS.terminal_penalty):
+        weights = dataclasses.replace(DEFAULT_WEIGHTS,
+                                      completion_bonus=float(args.completion_bonus),
+                                      terminal_penalty=float(args.terminal_penalty))
     out = Path(args.out or f"checkpoints/solo/track_{args.stage}.pt")
     out.parent.mkdir(parents=True, exist_ok=True)
     log_path = out.with_suffix(".jsonl")
@@ -236,6 +252,7 @@ def main(argv=None) -> int:
         ])
 
     task = TrackingTask(stage=args.stage, model=model, seed=int(args.seed),
+                        weights=weights,
                         residual_scale=float(args.residual_scale),
                         deviation_mode="soft" if args.soft_updates > 0 else "hard",
                         soft_penalty=args.soft_penalty,
@@ -261,12 +278,14 @@ def main(argv=None) -> int:
         steps_done += batch.num_steps()
         sr = float(np.mean([e["success"] for e in ep_stats]))
         mean_len = float(np.mean([e["steps"] for e in ep_stats]))
+        dev_frac = float(np.mean([e.get("dev_frac", 0.0) for e in ep_stats]))
         causes: dict[str, int] = {}
         for e in ep_stats:
             key = (e["cause"] or "success").split(":")[0]
             causes[key] = causes.get(key, 0) + 1
         row = {"update": it, "steps": steps_done, "success_rate": round(sr, 3),
-               "mean_len": round(mean_len, 1), "causes": causes,
+               "mean_len": round(mean_len, 1), "dev_frac": round(dev_frac, 3),
+               "causes": causes,
                "return_mean": round(float(np.mean(batch.rewards)) * batch.num_steps(), 1),
                "policy_loss": round(stats["policy_loss"], 4),
                "value_loss": round(stats["value_loss"], 1),
