@@ -373,7 +373,7 @@ def cmd_monitor(args) -> int:
     shutil.copy2(src, tmp)                      # never read the live file
     ckpt = load_checkpoint(str(tmp))
     steps = int((ckpt.get("state") or {}).get("steps_done", -1))
-    tc = (ckpt.get("cfg") or {}).get("train", {})
+    tc = (ckpt.get("config") or {}).get("train", {})
     hidden = tuple(tc.get("hidden", (256, 256)))
     from solo.train import resolve_action_mode
 
