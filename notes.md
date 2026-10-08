@@ -2116,6 +2116,14 @@ scripts/calibrate_scorer.py, scripts/score_trace.py, tests/test_scorer.py.
   the measured crouch 0.54/step (4.2x dominance) on constructed states. Deep phases
   (ref pelvis < 0.55 m) use a widened height kernel (0.12 m) so the G1-unreachable
   0.22 m entry crouch is graded, not punished into a fall. Pinned in tests.
+- FACT (v6 gated-clock interim, update ~44): the clock mechanism works (episodes exceed
+  reference duration; `clock_budget` terminations as designed) but the LOWER segment
+  still fails at the same frame — with the clock HELD, the reference's next POSE
+  transition itself destabilizes the robot past the site-deviation bar. Conclusion: the
+  v1 lower/rise references are not quasi-statically executable by the G1 under position
+  servos regardless of frame timing. Named next levers (untried): offline dynamic
+  re-timing/re-shaping of the reference path; root-path (not path+time) reward;
+  dynamics-in-the-loop CEM solutions as reference targets.
 - FACT (baselines first): open-loop replay completes **1/22** dynamic-segment rollouts;
   T1-v6d via first-layer surgery also 1/22; replay terminates at site RMS 0.068-0.106 m;
   applied ctrl == clip(base + 0.5*tanh(z)) asserted during rollouts; 79 steps/s measured
@@ -2132,13 +2140,12 @@ scripts/calibrate_scorer.py, scripts/score_trace.py, tests/test_scorer.py.
   drifts 0.156 m fore-aft in 0.36 s and the torso diverges (~0.25 m) — the v1 references
   are dynamically infeasible in TIMING even where poses are reachable (consistent with
   E12: 6.9% statically holdable). A frame-locked tracker cannot both match and balance.
-- FIX IMPLEMENTED, RESULT UNVERIFIED: the GATED reference clock — the reference advances
-  only while tracking holds the band (joint <= 0.30 rad AND anchored root xy <= 0.12 m);
-  anti-freeze bound 2x duration with no completion credit; unit-tested. v6 run
-  (`checkpoints/solo/track_s1_v6_gated.pt`, `reports/2026-10-08/track/train_s1_v6_gated.log`)
-  launched at the session boundary. Next levers if it plateaus: offline dynamic re-timing
-  of the reference clock; root-path (not root-timing) reward; the operator's sanctioned
-  geometry trims baked into the reference.
+- FIX IMPLEMENTED, INTERIM RESULT VERIFIED: the GATED reference clock — the reference
+  advances only while tracking holds the band (joint <= 0.30 rad AND anchored root xy
+  <= 0.12 m); anti-freeze bound 2x duration with no completion credit; unit-tested.
+  v6 run (`checkpoints/solo/track_s1_v6_gated.pt`,
+  `reports/2026-10-08/track/train_s1_v6_gated.log`) reached update ~44 (mechanism
+  verified; see the v6 interim FACT above) before the session boundary cut it.
 - ARTIFACTS: `reports/2026-10-08/motion_learning.md` (full report; final continuous drill
   video correctly WITHHELD — criteria not met), `scripts/{solo_track_train,solo_track_eval,
   solo_track_render,track_baselines}.py`, `data/solo/metrics/track_baselines.json`,

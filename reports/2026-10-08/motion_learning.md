@@ -129,18 +129,23 @@ holdable): no frame-locked tracker can both match it and balance. This is a prop
 the v1 references (video retargets), not of the observation design (conditioning is
 proven) and not of reward visibility (the drift is punished as it starts).
 
-**Fix implemented, result UNVERIFIED**: the gated reference clock — reference progress is
-EARNED by staying inside the tracking band (the TWIST/BeyondMimic adaptive-pacing idea,
-and the same principle that made the repo's quasi-static controller work: state-gated
-progression). It converts "track an impossible moving target" into "hold, recover, and
-advance when ready" while keeping every anti-gaming property (freezing earns nothing and
-is bounded; falls/deviations terminate). v6 (warm-started from v5) launched at the session
-boundary — `checkpoints/solo/track_s1_v6_gated.pt` +
-`reports/2026-10-08/track/train_s1_v6_gated.log`; if it plateaus too, the next levers in
-order: (a) root-trajectory RE-TIMING offline (fit a dynamically feasible clock to the
-reference path once, then fixed-clock training), (b) reward the root PATH not the root
-TIMING (path-progress potential), (c) widen the sanctioned repair axes (the operator's
-stance-geometry trims) into the reference itself.
+**Fix implemented, interim result verified (no breakthrough yet)**: the gated reference
+clock — reference progress is EARNED by staying inside the tracking band (the
+TWIST/BeyondMimic adaptive-pacing idea, and the same principle that made the repo's
+quasi-static controller work: state-gated progression). It converts "track an impossible
+moving target" into "hold, recover, and advance when ready" while keeping every
+anti-gaming property (freezing earns nothing and is bounded; falls/deviations terminate).
+v6 (warm-started from v5) ran through update ~44 before the session boundary: the clock
+mechanism works (episodes now run longer than the reference duration; `clock_budget`
+terminations appear as designed) but the LOWER segment **still fails at the same frame**
+— with the clock held, the reference's next **pose transition** itself destabilizes the
+robot past the site-deviation bar. Conclusion of the diagnosis chain: the v1 lower/rise
+references are not quasi-statically executable by the G1 under position servos, frame
+offset or not. Next levers in order (named, untried): (a) offline dynamic RE-TIMING +
+RE-SHAPING of the reference trajectory (fit a dynamically consistent path once —
+effectively baking the operator's sanctioned geometry repairs into the reference), (b)
+reward the root PATH (potential on path progress) instead of path+t timing, (c) learn
+these segments from the repo's dynamics-in-the-loop CEM solutions as reference targets.
 
 Also tried and rejected (kept in the ledger): T1-v6d surgery warm start alone (its
 corrections are learned around a stand base; no transfer to a moving base), hard
@@ -164,9 +169,12 @@ segments fail the hard gate), so per the brief the acceptance artifact is NOT pr
 ## 6. UNVERIFIED / still failing (explicit)
 
 1. **Dynamic skills end-to-end at the hard gate** (lower, rise, shuffles, circle,
-   entry/recovery, connected drill): FAILING at session end; mechanism isolated; fix
-   implemented but its training result UNVERIFIED (v6 launched at the boundary).
-2. **Gated-clock training outcome**: UNVERIFIED (v6 run started in the final minutes).
+   entry/recovery, connected drill): FAILING at session end; mechanism isolated to
+   reference dynamic infeasibility; the gated-clock fix works mechanically but v6's
+   interim (update ~44) shows the pose transitions themselves remain infeasible — the
+   next levers (§4) are named, untried.
+2. **Gated-clock full training outcome**: UNVERIFIED beyond update ~44 (mechanism
+   verified working; run cut by the session boundary; checkpoint + log preserved).
 3. **Final continuous no-reset drill video**: NOT PRODUCED (correctly withheld).
 4. **Zero-shot held-out takes**: not evaluated against a passing checkpoint (moot until
    their trained siblings pass).
