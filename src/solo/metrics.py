@@ -23,7 +23,7 @@ field                definition
 ``knee_contact``     knee mat contact (0/1; diagnostics, never terminal)
 ``hand_contact``     hand/wrist mat contact (0/1)
 ``torso_contact``    torso/pelvis mat contact (0/1)
-``dorsal_contact``   dorsal torso/pelvis contact (backdet feature, 0/1)
+``dorsal_contact``   dorsal torso/pelvis contact (solo.detector feature, 0/1)
 ``act_delta``        mean |ctrl_t - ctrl_{t-1}| over 29 actuators (rad)
 ``sat_frac``         fraction of actuators at >= 95% of the joint force limit
 ``limit_prox``       max over joints of clip(1 - margin/0.1, 0, 1)

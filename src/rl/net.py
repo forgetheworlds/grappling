@@ -28,7 +28,7 @@ import torch
 import torch.nn as nn
 from torch.distributions import Normal
 
-from wrestling.env import ACT_SLICE, N_JOINTS
+from .constants import ACT_SLICE, N_JOINTS
 
 _ATANH_EPS = 1e-6
 
@@ -260,9 +260,9 @@ if __name__ == "__main__":  # self-check
     assert ent.shape == (4,)
     v = net.value(torch.zeros(4, 92 + 162))
     assert v.shape == (4,)
-    from wrestling.env import load_wrestling_model
+    from solo.scene import load_solo_model
 
-    model = load_wrestling_model()
+    model = load_solo_model()
     mp = action_mapper_for(model, "a", cfg)
     ctrl = mp.to_ctrl(np.array([1.0] * 29), None)
     assert np.all(ctrl <= mp.hi) and np.all(ctrl >= mp.lo)

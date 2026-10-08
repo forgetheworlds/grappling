@@ -150,7 +150,7 @@ def test_scene_dependency_names(model):
         assert body in deps["bodies"]
     assert deps["geoms"][FLOOR_GEOM] >= 0
     # the prefixed names the shared helpers rely on resolve on the *solo* model
-    from wrestling.backdet import body_maps
+    from solo.detector import body_maps
 
     maps = body_maps(model, "a")
     assert maps.torso_bid == deps["bodies"][TORSO_BODY]
@@ -498,11 +498,28 @@ def test_no_false_positives_stance_and_stepping(model):
 
 
 # ---------------------------------------------------------------- rewards
+#: the stand footprint's sole-sphere points (m), used by the literature terms:
+#: a hand state needs a real support polygon to score the CoM/support and GRF terms
+_LIT_SOLE = np.array([
+    [[-0.05, 0.1435, 0.0031], [-0.05, 0.0935, 0.0031],
+     [0.12, 0.1485, 0.0031], [0.12, 0.0885, 0.0031]],
+    [[-0.05, -0.0935, 0.0031], [-0.05, -0.1435, 0.0031],
+     [0.12, -0.0885, 0.0031], [0.12, -0.1485, 0.0031]],
+])
+#: its hull area centroid (m) -- the CoM target of the literature CoM term
+_LIT_SUPPORT_CENTRE = np.array([0.0354852, 0.0])
+
+
 def _upright(**kw) -> RewardInputs:
     base = dict(cmd=Command(vx=0.3, vy=0.0), vel_local=np.array([0.3, 0.0]),
                 yaw_rate=0.0, torso_up_z=1.0, pelvis_z=0.79, pelvis_z_prev=0.79,
                 foot_contact=(True, True), shot_phase=0.5, shot_depth=0.5,
-                shot_depth_prev=0.5, hand_distance=0.05)
+                shot_depth_prev=0.5, hand_distance=0.05,
+                # literature (source A/B) inputs: the CoM over the support centre,
+                # both feet loaded, no torque, arms on the keyframe
+                com_xy=_LIT_SUPPORT_CENTRE.copy(), com_vel_xy=np.zeros(2),
+                com_z=0.6919, sole_points=_LIT_SOLE, foot_load=(163.0, 163.0),
+                torque=np.zeros(N_JOINTS), arm_dev=0.0)
     base.update(kw)
     return RewardInputs(**base)
 
@@ -518,11 +535,15 @@ def test_every_reward_term_hand_tested():
     bad = _upright(
         cmd=Command(vx=0.3), vel_local=np.array([-0.4, 0.3]), yaw_rate=1.5,
         torso_up_z=0.1, pelvis_z=0.25, pelvis_z_prev=0.25, foot_slip=(2.0, 2.0),
-        foot_air_time=(0.0, 0.0), foot_landed=(False, False),
+        foot_air_time=(0.0, 0.0), foot_landed=(True, True),
         hand_distance=0.9, action=np.full(29, 0.5), prev_action=np.full(29, -0.5),
         stance_width_meas=0.42, sat_frac=1.0, limit_prox=1.0,
         shot_leg_ahead=False, shot_knee_control=False, shot_exited=False,
-        shot_time=9.0, recovered=False)
+        shot_time=9.0, recovered=False,
+        # literature inputs, degenerate: the CoM is off the support, the feet are
+        # unloaded (slamming, no airtime), the arms are flailing, torque is high
+        com_xy=np.array([0.5, 0.5]), com_vel_xy=np.array([0.6, -0.4]), com_z=0.4,
+        foot_load=(0.0, 0.0), torque=np.full(N_JOINTS, 200.0), arm_dev=1.5)
     delta = {
         "track_ang": dict(yaw_rate=0.0),
         "stance_height": dict(pelvis_z=0.79),
@@ -543,6 +564,20 @@ def test_every_reward_term_hand_tested():
         "action_rate": dict(action=np.zeros(29), prev_action=np.zeros(29)),
         "torque_sat": dict(sat_frac=0.0),
         "joint_limit": dict(limit_prox=0.0),
+        # literature terms: the term-specific pair sharpens the ranking (the
+        # generic ``good`` already carries valid lit inputs, see ``_upright``)
+        "upright": dict(torso_up_z=1.0),
+        "vel_stand": dict(vel_local=np.zeros(2), cmd=Command(vx=0.0, vy=0.0)),
+        "orientation": dict(torso_up_z=1.0),
+        "base_height": dict(pelvis_z=0.79),
+        "com_support": dict(com_xy=_LIT_SUPPORT_CENTRE.copy()),
+        "capture_point": dict(com_xy=_LIT_SUPPORT_CENTRE.copy(),
+                              com_vel_xy=np.zeros(2)),
+        "grf_even": dict(foot_load=(163.0, 163.0)),
+        "airtime": dict(foot_landed=(True, False), foot_air_time=(0.4, 0.0)),
+        "arm_posture": dict(arm_dev=0.0),
+        "action_diff": dict(action=np.zeros(29), prev_action=np.zeros(29)),
+        "torque": dict(torque=np.zeros(29)),
     }
     for name, fn in TERM_FUNCS.items():
         good_v = fn(good)

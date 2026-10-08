@@ -4,7 +4,7 @@ Why a composed scene rather than ``robots/g1/scene.xml`` directly
 -----------------------------------------------------------------
 The vendored single-robot scene names the robot's bodies/joints/actuators
 *without* a robot prefix (``pelvis``, ``torso_link``, ...), while every shared,
-name-based helper in this repo (``wrestling.backdet.body_maps``,
+name-based helper in this repo (``solo.detector.body_maps``,
 ``src/teacher``'s ``a_``-prefixed robot context, the scorer) resolves
 ``a_<name>``.  Rather than editing the vendored model (out of bounds) or
 parameterising other agents' modules, this module composes the same robot with
@@ -24,7 +24,7 @@ Model facts (measured on this host, 2026-10-08)
 Names this module guarantees (asserted by :func:`resolved_dependencies` and
 ``tests/test_solo.py``): the robot prefix ``a_`` on every body/joint/actuator/
 site/sensor/keyframe of g1.xml; ``floor`` (unprefixed, shared convention with
-``wrestling.backdet.FLOOR_GEOM``); the 19 retargeting landmark sites
+``solo.detector.FLOOR_GEOM``); the 19 retargeting landmark sites
 (``a_core``, ``a_left_knee``, ... from ``src/retarget/landmarks.py``); the
 mocap body ``virtual_opponent`` with the four spatial markers
 ``a_marker_pelvis``, ``a_marker_leg_l``, ``a_marker_leg_r``,
@@ -49,9 +49,9 @@ _SRC = Path(__file__).resolve().parents[1]
 if str(_SRC) not in sys.path:  # support both `import solo.*` and `python -m src.solo.*`
     sys.path.insert(0, str(_SRC))
 
-#: robot name prefix (shared convention with the two-robot scene)
+#: robot name prefix (shared convention with the retarget scene)
 PREFIX = "a_"
-#: floor geom name (``wrestling.backdet.FLOOR_GEOM``; unprefixed by convention)
+#: floor geom name (``solo.detector.FLOOR_GEOM``; unprefixed by convention)
 FLOOR_GEOM = "floor"
 
 #: control rate / physics rate (verified: model timestep = 0.002 s)

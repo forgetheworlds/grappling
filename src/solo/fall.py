@@ -3,12 +3,12 @@
 Two independent rules (S1 contract, ``docs/SOLO_DRILL.md`` §4):
 
 1. :class:`DorsalDetector` -- the **failed attempt** rule.  It reuses the
-   measured dorsal semantics of ``wrestling.backdet`` (dorsal torso/pelvis mat
-   contact + torso tilt >= 45 deg + pelvis z <= 0.35 m, sustained 0.30 s) on the
-   single ``a_``-prefixed robot.  The two-robot detector class hardcodes
-   ``ROBOTS = ("a", "b")`` in ``reset``/``status``, so this module drives its
-   *functional* API (``back_features`` + ``update_features({"a": f}, t)``) with a
-   one-robot dict instead of editing another agent's file.
+   measured dorsal semantics of :mod:`solo.detector` (extracted verbatim from
+   ``wrestling.backdet``; dorsal torso/pelvis mat contact + torso tilt >= 45 deg
+   + pelvis z <= 0.35 m, sustained 0.30 s) on the single ``a_``-prefixed robot.
+   The detector class carries ``ROBOTS = ("a", "b")`` in ``reset``/``status``,
+   so this module drives its *functional* API (``back_features`` +
+   ``update_features({"a": f}, t)``) with a one-robot dict.
 2. :class:`FallDetector` -- the **balance/locomotion** fall rule: pelvis height
    + torso tilt + persistence, with contact awareness so knees/hands/self-chosen
    low postures are never terminal by themselves.
@@ -52,8 +52,7 @@ from dataclasses import dataclass
 import mujoco
 import numpy as np
 
-from wrestling.backdet import (BackDetConfig, BackToMatDetector,  # noqa: E402
-                               back_features)
+from .detector import BackDetConfig, BackToMatDetector, back_features  # noqa: E402
 
 from .scene import (FLOOR_GEOM, HAND_BODIES, KNEE_BODIES, PELVIS_BODY,  # noqa: E402
                     TORSO_BODY)
@@ -286,7 +285,7 @@ class FallDetector:
 
 
 class DorsalDetector:
-    """Single-robot dorsal (back-to-mat) rule reusing ``wrestling.backdet``.
+    """Single-robot dorsal (back-to-mat) rule reusing :mod:`solo.detector`.
 
     ``update`` latches at most one trigger per robot (per reset), timestamped at
     the first control-rate sample where the persistence requirement is met.
