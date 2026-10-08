@@ -314,6 +314,10 @@ touched `checkpoints/`, `data/locks/sim.lock`, or the process (no signals, no wr
 
 ## 10. Process notes (honesty)
 
+- **Commits:** `46fb84f` (the trim), `3769395` (report + notes.md ledger entry + MISSION.md header) are on
+  `origin/main` (a peer pushed them). `4875e73` (bench_pose restore + report/ledger updates) and `1595a19`
+  (report tweak) are **local-only**; run `git push` to restore the “all committed and pushed” invariant.
+
 - A git race occurred while restoring `BASELINE_PD_*`: the concurrent T2-gate commit (`14c3e98`) landed
   between staging and `git commit --amend`, so my restore was folded into that peer commit, which was
   rewritten to `377009c`. Content is identical plus the two restored files; `origin/main` is in sync with
