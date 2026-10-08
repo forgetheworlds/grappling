@@ -1942,3 +1942,14 @@ scripts/calibrate_scorer.py, scripts/score_trace.py, tests/test_scorer.py.
   * So the critic-lr lever (with the normalisation) changed the training trajectory qualitatively
     even though the EV instrument cannot score it.  The 200k/400k behavioural reads (fall <= 0.15
     AND upright >= 0.85) are the pre-registered deciders; v6d continues.
+- v6d 200k BEHAVIOURAL READ (the pre-registered gate FAILED, but the profile is the best of the four):
+  fall 0.167 (gate <= 0.15, over by 0.017), fall_heldout 0.250, upright 0.708 (gate >= 0.84 FAIL),
+  recovery 0.208, **max_recoverable_impulse_heldout 12.0** (the best of ANY run at any step; v6b/v6c
+  read 4.0/0.0 here), t_stab 0.636 (bar <= 1.0 PASS), com_max 0.152 (bar <= 0.20 PASS).
+  Cross-run at the same step: v6b 0.292/0.813/0.333/4.0; v6c 0.208/0.722/0.0/0.0; v6d 0.167/0.708/
+  0.208/12.0 -- v6d trades uprightness for the best falls and the best push tolerance.
+  INTERPRETATION: the no-push condition at 100k was upright 0.974 / pelvis 0.773, so the policy
+  STANDS when undisturbed and CROUCHES UNDER PUSHES (a defensive crouch absorbs the push -- which
+  is exactly why its falls are lowest).  The gate's mean_upright >= 0.84 is measured over the whole
+  battery, so it demands standing upright WHILE recovering; that is the T1 bar and v6d does not meet
+  it at 200k (13% of the run).  Next pre-registered read: 400k.
