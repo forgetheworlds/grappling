@@ -38,16 +38,26 @@ Without cookies: every player client (`tv`, `tv_simply`, `mweb`, `web_embedded`,
 
 ## 3. How it is used
 
-1. Frames sampled per chapter (`data/references/yt_gBAhX5t-GW4/frames/`) are described by a vision
-   pass, producing `docs/references/yt_gBAhX5t-GW4_index.md`: per chapter — stance width/depth,
-   hips/head posture, level-change depth, lead-foot placement, knee behaviour, trail-leg drive,
-   arm/hand positions, recovery.
-2. Those descriptions become geometric comparison targets for T3/T5/T6 (stance, level change,
-   penetration step, knee sprawl) and calibrate the operator's two-axis stance rule
-   (rear leg back; widen for lateral stability).
-3. It informs *geometry and visual comparison only* — dynamics and contact still come from MuJoCo.
-4. Evidence stays in-repo as the index + a few key stills; the raw video is never committed
-   (gitignored: copyright + size).
+**Operator correction (2026-10-08): motion capture, not description.** The video is processed into
+*poses*, and the deliverable is full **transitions** (start posture → intermediate → end posture)
+usable by training — the same shape of object as our GrappleMap references, but sourced from real
+footage:
+
+1. CPU pose estimation over the whole video (2D landmarks + approximate 3D), stored per-frame with
+   timestamps and confidences (`data/references/yt_gBAhX5t-GW4/pose/`).
+2. Phase boundaries detected from the landmark signals themselves (pelvis/knee height minima, foot
+   displacement, velocity spikes) → an explicit transition list per chapter.
+3. Each transition retargeted to the G1 with the existing retargeting machinery →
+   `data/refs_video/<transition>.npz` in our reference format, relationship-preserving, with the
+   operator's two-axis stance rule as tie-breaker where a posture is unholdable.
+4. Visual verification per transition: detected-skeleton overlay on the source frames plus the G1
+   executing the retargeted motion (`videos/refs_video/`), with honest reliability notes (2D is
+   reliable; monocular depth/scale/camera motion are approximate).
+5. A compact numeric stance spec is a byproduct, not the goal.
+
+It informs *geometry and visual comparison only* — dynamics and contact still come from MuJoCo.
+The raw video and source-frame overlays are never committed (copyright + size: see .gitignore);
+in-repo evidence is the transition index, the G1-side videos and a few stills.
 
 ## 4. Substitutes already in use
 

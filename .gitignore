@@ -30,3 +30,6 @@ data/references/**/*.webm
 data/references/**/*.mkv
 data/references/**/*.info.json
 data/references/cookies*.txt
+
+# Videos that embed third-party source footage (derived overlays stay local; G1-side clips commit)
+videos/refs_video/*overlay*.mp4
