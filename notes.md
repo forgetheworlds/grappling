@@ -198,6 +198,36 @@ Entries appended as experiments run (Phase 2 onward).
   (v3, launched), (3) TERMINATION-PENALTY MAGNITUDE if v3 still collapses — reducing the −100 is the
   named next lever rather than "adding reward signal", which is already dense.
 
+### E36 (2026-10-08) — OPERATOR ORDERING: the FIRST behaviour is STANCE MAINTENANCE, then stable movement in stance; fan-out stopped
+- Operator directive: too many things running at once — centralise, let the in-flight work finish, and
+  establish what the FIRST behaviour to achieve actually is: "stable movement in stance or being able to
+  maintain its stance". Priority order restated: (1) good reference data that drives the behaviour we
+  want, (2) proper critics and reward, (3) proper time to achieve the behaviour, (4) every behaviour must
+  return to a good stance, because stability matters.
+- RESOLUTION, and it is supported by our own measurements rather than taste: the first behaviour is
+  STANCE MAINTENANCE — hold the MEASURED stance (both feet planted and flat, CoM inside the support hull
+  with a positive margin, pelvis height/tilt/base speed within the measured stance envelope, no fall, and
+  the episode ENDS in that stance). The reason is that the measured gap in every run so far is HOLDING the
+  stance, not moving: v5 degraded from a verified standing initialisation (startup 2.6 mrad) to upright
+  0.583, while the scripted stance holder scores 0.913239 upright with 0.0417 in-band fall and 0.0625
+  held-out fall on the same subset. Movement IN stance is the second behaviour, and the return-to-stance
+  requirement is part of every behaviour's definition rather than an add-on.
+- T1 is therefore scoped as "learned stance maintenance" with the scripted holder as the numeric FLOOR.
+  Passing it means the learned policy has matched hand-engineered stance control; it does not yet show
+  that learning added value (that is T5-T7), and the todo says so explicitly so the claim is not overread.
+- CONSOLIDATION GOVERNANCE: no new workstreams are spawned; in-flight agents finish and I commit each
+  landing; then exactly ONE run (v6a, `--reward-set lit`) is launched and read against exactly ONE gate
+  (stance maintenance). That launch is HELD on two outstanding proofs, without which a result would be
+  unattributable: the merged-reward keyframe-optimality verdict (is the keyframe near-maximal under the
+  lit terms?) and the reference-fidelity verdict (do the 12 tracks drive the behaviour we want?).
+- Todo list collapsed from 10 items across 2 phases to 7 across 3: A = the first behaviour (stance
+  maintenance, then movement in stance), B = later behaviours (level change, shot, robustness, continuous
+  drill — each inheriting return-to-stance), C = governance rules.
+- ALSO LANDED: the lit reward set is committed (56e05ae) — src/solo/lit.py (ceiling reproducing the gate
+  calibration to 3 decimals), src/solo/mirror.py, 11 reward terms behind `--reward-set lit`, the joint
+  mask, the push distribution, `--frame-stack`, 33 new tests passing, and v5's reward verified unchanged
+  (smoke reward_sum_5s 248.3) since everything is default-OFF.
+
 ### E35 (2026-10-08) — SIXTH CANDIDATE CAUSE: partial observability (our actor is memoryless; the expert is not)
 - THE OBSERVATION: our actor observation is MEMORYLESS — frame_stack = 1, with the previous action as
   the only history — while the standing-and-walking controller we are learning from (arXiv:2404.19173)
