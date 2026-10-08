@@ -1001,7 +1001,17 @@ def cmd_keyframe(args) -> int:
                           action_mode=args.action_mode,
                           residual_scale=args.residual_scale, jitter=False)
     env.set_push_schedule(None)
-    base = np.asarray(stand_frame(env.model)[1], np.float64)
+    # The baseline ACTION of the stand keyframe: in residual mode it is the zero
+    # action (ctrl = base + scale*tanh(u)); ``stand_frame(model)[1]`` is the ctrl
+    # vector, whose arm/waist entries are NOT zero (0.2/1.28), so using it as the
+    # residual action silently perturbs the arms and depresses the baseline --
+    # that artifact produced the "keyframe is beaten by +1.09%" reading in the
+    # first pass.  In absolute mode the action IS the ctrl, so the ctrl vector is
+    # the right baseline there.
+    if str(args.action_mode) == "residual":
+        base = np.zeros(29, np.float64)
+    else:
+        base = np.asarray(stand_frame(env.model)[1], np.float64)
     conditions = keyframe_conditions(
         base, offsets=(0.02, 0.05, 0.10),
         n_random=int(args.n_random), seed=int(args.seed))
