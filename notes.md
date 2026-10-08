@@ -198,6 +198,43 @@ Entries appended as experiments run (Phase 2 onward).
   (v3, launched), (3) TERMINATION-PENALTY MAGNITUDE if v3 still collapses — reducing the −100 is the
   named next lever rather than "adding reward signal", which is already dense.
 
+### E34 (2026-10-08) — TEACHER IS A WEAK *AND NON-MARKOVIAN* EXPERT; 0/5 data sources fit the S5/S6 plan -> the demonstration strategy must change
+- VERDICT (TeacherDataAudit, report reports/2026-10-08/teacher_data_audit.md; 8/8 self-checks pass,
+  16 tests pass): the teacher is a WEAK EXPERT. Cloning its actions reproduces "not falling", not a drill.
+- NUMBERS: DOUBLE_LEG (S5's primary target) stays up on only 0.448-0.690 of 3 seeds, with landmark error
+  1.64-2.60 m; the posture governor is active on 92.9-99.2% of executor ticks; the balance offsets
+  OPPOSE the residual tracking error on 77-100% of ticks (the stabiliser is fighting the reference, not
+  tracking it). STANCE "holds" only via a 0.30 rad (17.2 deg) waist trim. SNAPDOWN stays up (1.000) but
+  sits 0.29-0.31 m off-reference with a scorer of 0.808 < the 0.85 gate.
+- THE DEEPER PROBLEM, and it is not a quality issue: the teacher's behaviour depends on HIDDEN STATE
+  (integrators, alpha = 1.0, rate-limiter memory) that is NOT in the actor observation contract. So its
+  actions are not a function of the observable state, which makes cloning it impossible IN PRINCIPLE, not
+  merely inaccurate in practice. This is the same silent-interface class as the action_mode bug, one
+  level up: the expert itself is non-Markovian w.r.t. the learner's inputs.
+- DATA FITNESS: 0 of 5 sources are fully fit for the S5/S6 objective. All 5 are fit only for narrower
+  uses — GrappleMap as a SKELETON, refs_video as a stance SPEC/style, MediaPipe for coarse STYLE stats,
+  drill traces for EVALUATION — and 3 are unfit for what they are currently wired to: the references as
+  DYNAMIC targets, refs_video as EXECUTABLE demos, and the teacher logs as BC DATASETS (they carry no
+  action channel at all). The most expensive single finding: the S5/S6 plan rests on three measurably
+  unfit layers, and the fix is a dynamics-in-the-loop RE-ACQUISITION, not better cloning.
+- BINDING STABILITY CONSTRAINT (names the mechanism of the 12.1 s/step ceiling): CoM/support geometry
+  with no step recovery — NOT saturation, rate limits or integrator windup (saturation 0.000 at both 20 N
+  and 50 N; alpha 0.00 -> 1.00 only once the margin goes negative). 20 N recovered with margin +0.0295 m;
+  35/50 N fall with margin -0.6204/-0.6304 m and max target steps 0.042/0.054 rad vs the 0.25 rad/tick
+  cap. Cadence is 12.145 s/step = 8.4x the 1.44 s primitive budget, dominated by 3.5-6.2 s weight-transfer
+  phases for only 0.118-0.189 m of CoM travel. So the scripted route is slow because it transfers weight
+  quasi-statically, which is a DESIGN property, not a tuning failure.
+- STRATEGY CHANGE (consequence, dispatched): S5's premise ("teacher-stabilized demonstration") is BROKEN.
+  The executable-demo source becomes dynamics-in-the-loop: RL tracking of the site/landmark objective over
+  the video-derived references (ImitationBC), or a sampling-based optimizer running in the simulator (the
+  Direct Dynamic Retargeting approach, E31). The teacher is demoted to an initialisation/fallback, and
+  ImitationBC is explicitly told NOT to clone it. S5Prep keeps its executability checker — that checker is
+  now the acceptance test for whichever source produces the demo.
+- ALSO: two classes of ONLY-COPY asset were untracked and are now committed (4934402) — the MediaPipe pose
+  track (the input to the entire video path, with the source video gitignored and YouTube re-fetch blocked
+  from this host) and the monitor summaries that E33's numbers come from. Ledger numbers must never
+  outlive their source files.
+
 ### E33 (2026-10-08) — v5 VERDICT: NEGATIVE (stopped) — reward misalignment, the fourth distinct cause; and the T1 gate is now calibrated + attainable
 - v5 RESULT (stopped at 28m8s, step ~301k): the policy DEGRADED away from its own validated warm start.
   @100k fall 0.458/0.542 held, upright 0.652, com_max 0.161; @301k fall 0.708/0.667 held, upright 0.583,
