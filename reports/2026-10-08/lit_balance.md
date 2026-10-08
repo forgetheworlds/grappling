@@ -582,3 +582,29 @@ Each has its own stage so the attribution is a measurement, not an argument.
 (4/8/12 N·s) is inside the *policy's* reachable envelope at all given a memoryless 115-dim
 observation — the ceiling says 4-12 N·s is resistible *with full state feedback*, and the
 hand-built balancer that does it reads hidden state our actor does not have.
+
+---
+
+## Addendum (orchestrator, 2026-10-08): §9's explanation (2) is RESOLVED
+
+The alignment question §9/(2) raised — "the lit terms target the hull centroid while the gate's
+`com_offset` is measured against the foot-site mean, 3.5 cm apart" — was measured and fixed. The
+certified stance's CoM sits **3.22 cm heel-ward of the footprint centroid** (centre 0.0354828,
+CoM 0.0032830; measured with the term's own helpers on the stand keyframe), so the raw source-B
+target pulled the policy forward: moving the CoM to the centroid raised the lit total by
+**+2.34 %** at the keyframe.
+
+**Decision (operator, 2026-10-08): re-target the terms, not the stance** (re-balancing the stance
+is infeasible: a 0.05 rad hip/ankle lean moves the CoM only ~6 mm).
+
+* `com_support` and `capture_point` now target `support_centre + STANCE_COM_OFFSET_XY`
+  (`src/solo/reward.py`), rotated into the world by the robot's heading
+  (`RewardInputs.heading_rad`, wired from the env's pelvis yaw).
+* **This is a documented deviation from source B's "centre of the support polygon"**: the target
+  is the *certified stance's* CoM, because the T1 gate's reference is `stand_hold` on this stance
+  and the reward must not pull away from it. `vel_stand` needed no change (it targets the
+  commanded velocity, which is zero at the keyframe).
+* Effect: `com_support` at the keyframe 0.716 → **1.000**; the 8 s lit total 733.6 → **764.0**;
+  the keyframe check (after also fixing its baseline-action bug) gives
+  **`balance_lit` 0/246 perturbations beating the keyframe, max Δ +0.0000 %** at both 100 and 400
+  steps (`shipped_balance` +0.4155 %, `v5_training` +0.0063 % — all under the 1 % acceptance).

@@ -59,12 +59,15 @@ Readings:
   the G1 leans the same way — the reference postures are the *operator's* wide, low, leaning stance,
   not our upright keyframe.
 * **Stance width survives** at ~80–100 % of the video value after scaling (e.g. 0.567 → 0.460).
-* **Pelvis height is compressed** by 0.06–0.38 m, and most of the compression happens *before* the
-  solver: the **target** is already 0.11–0.41 m lower than the video (pelvV → pelvT). The LSQ scale
-  is applied about the hips, so everything below the hips loses depth.
-* **`knee_min` does not survive for the knee-sprawl family**: video 0.394/0.398/0.299 → G1
-  0.019/0.200/0.019 (the entry/recover clips drive the knee 0.28–0.35 m lower than the video ever
-  does), while `knee_sprawl_hold` agrees (0.072 → −0.008, i.e. the knee reaches the mat plane).
+* **The video→target pelvis drop is the LSQ body scale, i.e. correct morphology, not a defect**
+  (stance_hold: 0.822 × 0.805 = 0.662 ≈ the target's 0.660). The defect is the **target→G1**
+  step: the emitted pelvis sits 5.1–6.9 cm above the placed target (stance_hold +5.3 cm,
+  circle_step +6.9 cm, knee_sprawl_recover +5.1 cm), i.e. the vertical placement offset of §4 —
+  which is also what puts the feet 2.6–11 cm off the floor.
+* **`knee_min` does not survive for the knee-sprawl family**, and that is *not* the scale: video
+  0.394/0.398/0.299 → G1 0.019/0.200/0.019, far beyond 0.78–0.88× (the entry/recover clips drive
+  the knee 0.20–0.38 m lower than the video ever does), while `knee_sprawl_hold` agrees
+  (0.072 → −0.008, i.e. the knee reaches the mat plane).
 
 ## 3. Contact / timing
 
@@ -186,6 +189,12 @@ stance on them measures the offset, not the skill.
 per-frame foot contact, not one take-level constant) and a re-check of the LSQ-scale-about-the-hips
 compression for the crouch phases.
 
+**Second candidate, if grounding is repaired and the behaviour still mis-drives:** the **time
+dilation** (§3: stretch 1.00–2.31×, only three tracks at video speed) plus the contact-timing
+disagreement (the planted-foot anchor matches the video in only 26–77 % of clear frames) — an
+imitator would learn the *slowed* motion on the wrong foot schedule. The two are separable
+experiments: fix grounding first, then re-measure the tempo.
+
 ## 9. UNMEASURED / UNVERIFIED
 
 * **Implied foot slip is unmeasured**: `slip_implied_med/max` are `nan` for all 12 tracks — no
@@ -197,4 +206,11 @@ compression for the crouch phases.
 * The "video" view shares the take-level flooring convention, so video-vs-G1 vertical comparisons are
   relative to the same (per-take) plane; absolute heights above the real mat are not established for
   the video side.
+* **The terminal predicate's thresholds encode OUR upright stance, not a general "good posture"**:
+  `TILT_MAX_DEG = 20` is an upright-stance bar (the video tracks legitimately end pitched 35–94°),
+  "feet flat" is an absolute `z ≤ 0.035 m` test rather than a planarity-plus-own-floor test, and the
+  hull is built from the *z-filtered* subset of sole points (so a foot with its heel up contributes
+  only its low corners).  The verdicts above are therefore *definition* verdicts (does the track end
+  in OUR stance), which is what the operator's "every behaviour returns to a good stance" requires;
+  a general posture-quality instrument would need those three changes first.
 * Whether the *repaired* grounding restores the knee-sprawl family is untested.
