@@ -375,25 +375,37 @@ def cmd_monitor(args) -> int:
     steps = int((ckpt.get("state") or {}).get("steps_done", -1))
     tc = (ckpt.get("cfg") or {}).get("train", {})
     hidden = tuple(tc.get("hidden", (256, 256)))
+    from solo.train import resolve_action_mode
+
+    try:
+        mode, residual_scale = resolve_action_mode(
+            ckpt, None if args.action_mode == "auto" else args.action_mode)
+    except ValueError as exc:
+        raise SystemExit(f"[monitor] {exc}")
     net = ActorCritic(ACTOR_DIM, CRITIC_DIM, act_dim=N_JOINTS,
-                      cfg=NetConfig(hidden=hidden))
+                      cfg=NetConfig(hidden=hidden, action_mode=mode,
+                                    residual_scale=residual_scale))
     apply_checkpoint(ckpt, policy=net)
     net.eval()
+    print(f"[monitor] checkpoint steps={steps} action_mode={mode} "
+          f"residual_scale={residual_scale} (from checkpoint config)")
 
     pushes = battery_pushes(magnitudes=tuple(args.magnitudes), directions=args.directions,
                             heights=(0.79, 0.95, 1.10), seed=0)
-    rep = evaluate(lambda env, seed: PolicyController(net, name=f"t1_v2_{steps}",
+    rep = evaluate(lambda env, seed: PolicyController(net, name=f"t1_monitor_{steps}",
                                                       stochastic=False),
                    task="balance", seed0=0, push_plan=pushes,
                    gate=GATES["balance"], out_dir=METRICS_DIR, verbose=False,
-                   max_episode_s=4.0, name=f"t1_v2_monitor_{steps}")
+                   max_episode_s=4.0, name=f"t1_monitor_{steps}",
+                   env_kwargs={"action_mode": mode, "residual_scale": residual_scale})
     take_clips(rep)
     agg = rep["aggregate"]
     base = {}
     bpath = METRICS_DIR / "t1_gate_baselines.json"
     if bpath.exists():
         base = json.loads(bpath.read_text()).get("controllers", {})
-    row = {"steps": steps, "verdict": rep["verdict"],
+    row = {"steps": steps, "action_mode": mode,
+           "residual_scale": residual_scale, "verdict": rep["verdict"],
            "reasons": rep["reasons"], "aggregate": agg,
            "baselines": {k: {m: v.get(m) for m in
                              ("fall_rate", "fall_rate_heldout",
@@ -491,6 +503,10 @@ def main() -> int:
                     default=(4.0, 8.0, 12.0, 16.0, 20.0, 25.0))
     ap.add_argument("--directions", type=int, default=8)
     ap.add_argument("--checkpoint", default="checkpoints/solo/t1_balance_v2.pt")
+    ap.add_argument("--action-mode", choices=("auto", "absolute", "residual"),
+                    default="auto",
+                    help="monitor: auto = read it from the checkpoint config "
+                         "(refuses to guess if the checkpoint predates the field)")
     ap.add_argument("--lock-wait", type=float, default=900.0)
     ap.add_argument("--no-lock", action="store_true",
                     help="skip the advisory sim lock (only for short runs)")

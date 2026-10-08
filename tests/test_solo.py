@@ -51,6 +51,7 @@ from solo.pushes import PushSchedule, PushSpec, apply_push, clear_applied  # noq
 from solo.reward import (PENALTY_TERMS, TASK_TERMS, TERM_FUNCS, RewardInputs,  # noqa: E402
                          TaskReward, discounted_return)
 from solo.scene import (FLOOR_GEOM, HAND_BODIES, KNEE_BODIES, MARKER_NAMES,  # noqa: E402
+                        N_JOINTS,
                         PELVIS_BODY, STEP_DT, SUBSTEPS, TORSO_BODY, body_id,
                         ctrl_range, load_solo_model, model_facts,
                         resolved_dependencies, site_id, stand_frame)
@@ -859,3 +860,136 @@ def test_push_curriculum_ramp_and_held_out_boundary():
     env.reset(seed=3)
     assert env.push_schedule is not None and len(env.push_schedule.pushes) >= 1
     assert all(p.impulse <= TRAIN_MAX_IMPULSE for p in env.push_schedule.pushes)
+
+def test_residual_action_mapping_no_double_map(model):
+    """CONFIRMED BUG FIX: residual mode must not double-map the action.
+
+    Bug arithmetic (v4): trainer passed ``ctrl_from_unit(u) = mid + half*u`` into
+    ``step``, and residual mode then applied ``base + 0.5*tanh(mid + half*u)``.
+    At ``u = 0`` that is ``base + 0.5*tanh(mid)``; e.g. the knee joint
+    (ctrlrange [-0.087, 2.880], mid = 1.397) got ``+0.5*tanh(1.397) = +0.442``
+    rad of unwanted offset, so an untrained policy did NOT start as stand hold.
+    """
+    import torch
+
+    from solo.baselines import PolicyController, StandHoldController
+
+    # 1. residual mode: unit = 0 through the REAL step path writes exactly base
+    env = SoloEnv(seed=0, action_mode="residual", residual_scale=0.5)
+    env.horizon = 1e9
+    env.reset(seed=0)
+    base = env._base_action.copy()
+    env.step(env.ctrl_from_policy(np.zeros(N_JOINTS)))
+    assert np.array_equal(np.asarray(env.data.ctrl, np.float64), base), \
+        "residual unit=0 must write exactly the base action"
+    bug_offset = float(0.5 * np.tanh(0.5 * (env.lo + env.hi))[3])
+    assert abs(bug_offset) > 0.4  # the offset the bug produced on the knee joint
+
+    # 2. absolute mode: unit = 0 through step writes exactly the ctrlrange mid
+    env_a = SoloEnv(seed=0, action_mode="absolute")
+    env_a.horizon = 1e9
+    env_a.reset(seed=0)
+    env_a.step(env_a.ctrl_from_policy(np.zeros(N_JOINTS)))
+    mid = 0.5 * (env_a.lo + env_a.hi)
+    assert np.allclose(np.asarray(env_a.data.ctrl, np.float64), mid, atol=1e-12)
+
+    # 3. round trip: a random unit action in residual mode applies base+scale*tanh(u)
+    rng = np.random.default_rng(3)
+    u = rng.uniform(-1.0, 1.0, N_JOINTS)
+    env2 = SoloEnv(seed=1, action_mode="residual", residual_scale=0.5)
+    env2.horizon = 1e9
+    env2.reset(seed=1)
+    env2.step(env2.ctrl_from_policy(u))
+    expect = np.clip(env2._base_action + 0.5 * np.tanh(u), env2.lo, env2.hi)
+    assert np.allclose(np.asarray(env2.data.ctrl, np.float64), expect, atol=1e-12)
+
+    # 4. the EVALUATION path shares the same mapping (no double-map there either)
+    class _ZeroActor:
+        @staticmethod
+        def deterministic_unit(obs):
+            return torch.zeros(1, N_JOINTS)
+
+    class _ZeroPolicy:
+        actor = _ZeroActor()
+
+    ctrl_ctl = PolicyController(_ZeroPolicy(), name="zero_policy")
+    env3 = SoloEnv(seed=2, action_mode="residual", residual_scale=0.5)
+    env3.horizon = 1e9
+    env3.reset(seed=2)
+    env3.step(ctrl_ctl(env3, env3.data))
+    assert np.array_equal(np.asarray(env3.data.ctrl, np.float64), env3._base_action)
+    env3a = SoloEnv(seed=2, action_mode="absolute")
+    env3a.horizon = 1e9
+    env3a.reset(seed=2)
+    env3a.step(ctrl_ctl(env3a, env3a.data))
+    assert np.allclose(np.asarray(env3a.data.ctrl, np.float64),
+                       0.5 * (env3a.lo + env3a.hi), atol=1e-12)
+
+    # 5. scripted controllers keep their absolute semantics in either mode
+    hold = StandHoldController(model)
+    env4 = SoloEnv(seed=3, action_mode="residual", residual_scale=0.5)
+    env4.horizon = 1e9
+    env4.reset(seed=3)
+    env4.step(hold(env4, env4.data))
+    assert np.allclose(np.asarray(env4.data.ctrl, np.float64), hold.target, atol=1e-9)
+
+
+def test_trainer_startup_check_reports_base_initialisation(model):
+    """The trainer's startup check must measure a ~0 offset in residual mode."""
+    import tempfile
+
+    from solo.train import SoloTrainer, TrainConfig
+
+    with tempfile.TemporaryDirectory() as td:
+        cfg = TrainConfig(task="balance", steps=128, rollout_steps=64,
+                          action_mode="residual", out=str(Path(td) / "x.pt"),
+                          log_every=0, save_every=0)
+        tr = SoloTrainer(cfg, model=model)
+        assert tr.startup_ctrl_diff < 0.05, tr.startup_ctrl_diff  # untrained ~= stand
+
+def test_monitor_resolves_action_mode_from_checkpoint(model):
+    """Evaluation must use the mode the policy was TRAINED under (Main's rule)."""
+    import tempfile
+
+    from solo.train import SoloTrainer, TrainConfig, resolve_action_mode
+
+    with tempfile.TemporaryDirectory() as td:
+        path = Path(td) / "res.pt"
+        tr = SoloTrainer(TrainConfig(task="balance", steps=64, rollout_steps=64,
+                                     action_mode="residual", residual_scale=0.5,
+                                     out=str(path), log_every=0, save_every=0))
+        # untrained residual policy starts as the stand controller
+        assert tr.startup_ctrl_diff < 0.05, tr.startup_ctrl_diff
+        written = tr.save()
+        from rl.checkpoint import load_checkpoint
+
+        ckpt = load_checkpoint(written)
+        mode, scale = resolve_action_mode(ckpt, None)
+        assert mode == "residual" and scale == pytest.approx(0.5)
+        # no CLI value and no field -> refuse (never guess the mapping)
+        with pytest.raises(ValueError):
+            resolve_action_mode({"config": {}}, None)
+        assert resolve_action_mode(ckpt, "absolute")[0] == "absolute"
+        # same policy + seed through the resolved mode == explicit residual run,
+        # and differs from the absolute path (wrong mapping is a different env)
+        from solo.eval import evaluate
+        from solo.baselines import PolicyController
+
+        def run(mode_used: str):
+            from rl.net import ActorCritic, NetConfig
+            net = ActorCritic(ACTOR_DIM, CRITIC_DIM, act_dim=N_JOINTS,
+                              cfg=NetConfig(hidden=(256, 256), action_mode=mode_used,
+                                            residual_scale=0.5))
+            from rl.checkpoint import apply_checkpoint
+            apply_checkpoint(ckpt, policy=net)
+            rep = evaluate(lambda env, seed: PolicyController(net), task="balance",
+                           episodes=1, seed0=0, verbose=False, max_episode_s=0.4,
+                           env_kwargs={"action_mode": mode_used, "residual_scale": 0.5},
+                           name=f"mode_{mode_used}")
+            return rep["aggregate"]["mean_pelvis_z"], rep["aggregate"]["mean_upright"]
+
+        res = run(mode)
+        res_explicit = run("residual")
+        abs_run = run("absolute")
+        assert res == res_explicit, (res, res_explicit)
+        assert res != abs_run, (res, abs_run)

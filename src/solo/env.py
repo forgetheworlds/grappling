@@ -346,6 +346,36 @@ class SoloEnv:
         half = 0.5 * (self.hi - self.lo)
         return np.clip(mid + half * u, self.lo, self.hi)
 
+    def ctrl_from_policy(self, unit: np.ndarray) -> np.ndarray:
+        """Unit action in [-1, 1] -> the ACTION to hand to :meth:`step`.
+
+        Mode-aware (the only supported conversion for policies):
+
+        * ``absolute``: ``mid + half * unit`` (clipped to ``ctrlrange``)
+        * ``residual``: the unit itself -- ``step`` applies
+          ``clip(base + residual_scale * tanh(unit))``, so ``unit = 0`` gives
+          exactly ``base`` (the stand keyframe ctrl by default).  The residual
+          ``z`` is therefore the policy's *already-tanh'd* unit, keeping the
+          residual range at ``+/- residual_scale * tanh(1)``.
+        """
+        u = np.clip(np.asarray(unit, dtype=np.float64).reshape(N_JOINTS), -1.0, 1.0)
+        if self.action_mode == "absolute":
+            return self.ctrl_from_unit(u)
+        return u
+
+    def action_from_ctrl(self, ctrl: np.ndarray) -> np.ndarray:
+        """Absolute ctrl targets -> the ACTION to hand to :meth:`step`.
+
+        Inverse of :meth:`ctrl_from_policy`; scripted controllers that emit
+        absolute joint targets use this so they behave identically in both
+        action modes (residual mode inverts ``base + scale*tanh(z)``).
+        """
+        c = np.clip(np.asarray(ctrl, dtype=np.float64).reshape(N_JOINTS), self.lo, self.hi)
+        if self.action_mode == "absolute":
+            return c
+        z = (c - self._base_action) / self.residual_scale
+        return np.arctanh(np.clip(z, -1.0 + 1e-6, 1.0 - 1e-6))
+
     def set_push_schedule(self, schedule: PushSchedule | None) -> None:
         """Install the push schedule used from the *next* reset onwards."""
         self._push_default = schedule

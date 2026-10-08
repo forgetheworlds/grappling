@@ -66,6 +66,7 @@ class TrainConfig:
     entropy_coef: float = 0.01
     hidden: tuple[int, ...] = (256, 256)
     action_mode: str = "absolute"
+    residual_scale: float = 0.5
     out: str = ""
     save_every: int = 50_000
     log_every: int = 2048
@@ -107,7 +108,9 @@ class SoloTrainer:
 
         weights = (RewardWeights(alive=float(cfg.alive_weight))
                    if abs(float(cfg.alive_weight) - 1.0) > 1e-9 else None)
-        self.env = SoloEnv(self.model, task=cfg.task, seed=cfg.seed, weights=weights)
+        self.env = SoloEnv(self.model, task=cfg.task, seed=cfg.seed, weights=weights,
+                           action_mode=cfg.action_mode,
+                           residual_scale=cfg.residual_scale)
         self.net = ActorCritic(ACTOR_DIM, CRITIC_DIM, act_dim=N_JOINTS,
                                cfg=cfg.ppo_config().net_config())
         self.optimizer = torch.optim.Adam(self.net.parameters(), lr=cfg.lr)
@@ -130,7 +133,28 @@ class SoloTrainer:
                                            seed=int(cfg.push_seed))
         self._apply_push_curriculum()
         obs = self.env.reset(seed=self.episode_seed)
+        self.startup_ctrl_diff = self._startup_check(obs)
         self._obs = obs
+
+    def _startup_check(self, obs: dict) -> float:
+        """Prove the untrained policy starts as the stand controller.
+
+        With initial weights the policy's deterministic unit action is ~0; in
+        residual mode ``ctrl_from_policy(0) = 0`` and ``step`` writes exactly
+        ``base`` -- so the ctrl after the FIRST environment step must be within
+        a small tolerance of ``env._base_action`` (the ``a_stand`` keyframe
+        targets).  Returns the measured max |difference| (rad) and prints it.
+        """
+        with torch.no_grad():
+            unit = self.net.actor.deterministic_unit(
+                torch.from_numpy(obs["actor"]).unsqueeze(0)).numpy()[0]
+        self.env.step(self.env.ctrl_from_policy(unit))
+        diff = float(np.abs(np.asarray(self.env.data.ctrl, np.float64)
+                            - self.env._base_action).max())
+        print(f"[solo.train] startup check: mode={self.cfg.action_mode} "
+              f"max|ctrl - base_action| = {diff:.6f} rad")
+        self.env.reset(seed=self.episode_seed)
+        return diff
 
     def _apply_push_curriculum(self) -> None:
         """Install the progress-ramped training push schedule (before reset)."""
@@ -161,7 +185,7 @@ class SoloTrainer:
                 unit = sample["unit"].numpy()[0]
                 lp = float(sample["logp"][0])
                 value = float(self.net.value(c_obs)[0])
-            ctrl = self.env.ctrl_from_unit(unit)
+            ctrl = self.env.ctrl_from_policy(unit)
             next_obs, reward, terminated, truncated, info = self.env.step(ctrl)
             actor[t, 0] = obs["actor"]
             critic[t, 0] = obs["critic"]
@@ -274,6 +298,28 @@ def train(cfg: TrainConfig, *, model=None, on_sigint_save: bool = True) -> dict:
     if on_sigint_save and cfg.out:
         trainer.save()
     return stats
+
+
+def resolve_action_mode(ckpt: dict, cli_mode: str | None = None
+                        ) -> tuple[str, float]:
+    """Resolve (action_mode, residual_scale) for evaluating a checkpoint.
+
+    The mode is read from the checkpoint's own config (``config.train``); the CLI
+    value only overrides it explicitly.  Raises when the checkpoint predates the
+    field and no CLI value was given -- evaluating a policy through the wrong
+    action mapping is not a measurement.
+    """
+    train_cfg = ((ckpt.get("config") or {}).get("train") or {})
+    env_cfg = ((ckpt.get("config") or {}).get("env") or {})
+    ckpt_mode = train_cfg.get("action_mode", env_cfg.get("action_mode"))
+    scale = train_cfg.get("residual_scale", env_cfg.get("residual_scale", 0.5))
+    if cli_mode in (None, "auto"):
+        if ckpt_mode is None:
+            raise ValueError(
+                "checkpoint does not record action_mode and no --action-mode was "
+                "given: refusing to evaluate through a guessed mapping")
+        return str(ckpt_mode), float(scale)
+    return str(cli_mode), float(scale)
 
 
 def use_lock_for(lock: str, steps: int, rate: float = 200.0,

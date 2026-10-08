@@ -618,7 +618,11 @@ def cmd_deliver(a) -> int:
                       f"steps {len(step_done)}, falls {blob['metrics']['falls']}")
     summary_from_trace = motion.motion_span(npz and video_mod.load_trace(npz))
     t_first = float(step_done[0]["t"]) - 1.2 if step_done else 4.0
-    r = video_mod.render_trace(video_mod.load_trace(npz), VIDEO / "final_L2_motion.mp4",
+    # SAFE WRITE (orchestrator protocol): render to a *.partial.mp4, verify it,
+    # and only then rename over the final name -- a killed render must never
+    # leave a partial file occupying the artifact name
+    out_name = "final_L2_motion.partial.mp4" if a.safe else "final_L2_motion.mp4"
+    r = video_mod.render_trace(video_mod.load_trace(npz), VIDEO / out_name,
                                meta=meta, t0=0.0, t1=a.seconds,
                                sheet_times=tuple(np.linspace(3.0, a.seconds - 3.0, 3)),
                                caption=("rung L2: stance + repeated steps (stalk / "
@@ -626,6 +630,20 @@ def cmd_deliver(a) -> int:
                                         "gate-checked on the measured CoM margin"))
     ver = verify_clip(Path(r["mp4"]), expect_s=a.seconds, expect_frames=r["frames"])
     print("[deliver] main clip", ver, flush=True)
+    if a.safe:
+        if not ver["ok"]:
+            print("[deliver] SAFE WRITE ABORTED: verification failed", json.dumps(ver))
+            return 1
+        final = VIDEO / "final_L2_motion.mp4"
+        Path(r["mp4"]).replace(final)
+        r["mp4"] = str(final)
+        if r.get("sheet"):
+            Path(r["sheet"]).replace(VIDEO / "final_L2_motion_sheet.png")
+            r["sheet"] = str(VIDEO / "final_L2_motion_sheet.png")
+        print(f"[deliver] SAFE WRITE OK: verified then renamed -> {final} "
+              f"({ver.get('nb_frames')} frames, {ver.get('duration')} s, "
+              f"{ver.get('width')}x{ver.get('height')}, {ver.get('codec_name')}/"
+              f"{ver.get('pix_fmt')})", flush=True)
     # 0.25x slow motion of the first complete step cycle
     r2 = video_mod.render_trace(video_mod.load_trace(npz),
                                 VIDEO / "L2_motion_slowmo_step_quarter.mp4",
@@ -885,6 +903,8 @@ def main(argv=None) -> int:
     dv.add_argument("--npz", default="")
     dv.add_argument("--stance-w", type=float, default=0.0)
     dv.add_argument("--stance-d", type=float, default=0.0)
+    dv.add_argument("--safe", action="store_true",
+                    help="render to *.partial.mp4, verify, then atomically rename")
     dv.set_defaults(func=cmd_deliver)
 
     a = ap.parse_args(argv)

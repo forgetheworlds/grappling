@@ -50,7 +50,7 @@ class StandHoldController:
         self.target = ctrl.copy()
 
     def __call__(self, env, data) -> np.ndarray:
-        return self.target.copy()
+        return env.action_from_ctrl(self.target)
 
 
 class ZeroActionController:
@@ -59,7 +59,7 @@ class ZeroActionController:
     name = "zero_action"
 
     def __call__(self, env, data) -> np.ndarray:
-        return env.ctrl_from_unit(np.zeros(N_JOINTS))
+        return env.ctrl_from_policy(np.zeros(N_JOINTS))
 
 
 class FallForwardController:
@@ -86,7 +86,7 @@ class FallForwardController:
         self.target = np.clip(self.target, lo, hi)
 
     def __call__(self, env, data) -> np.ndarray:
-        return self.target.copy()
+        return env.action_from_ctrl(self.target)
 
 
 class SquatController:
@@ -114,7 +114,7 @@ class SquatController:
             c[off + 3] += a        # knee
             c[off + 0] += 0.5 * a  # hip_pitch
             c[off + 4] -= 0.5 * a  # ankle_pitch
-        return np.clip(c, env.lo, env.hi)
+        return env.action_from_ctrl(np.clip(c, env.lo, env.hi))
 
 
 class RandomInitPolicyController:
@@ -149,7 +149,7 @@ class RandomInitPolicyController:
                 unit = self.actor.sample(t)["unit"].numpy()[0]
             else:
                 unit = self.actor.deterministic_unit(t).numpy()[0]
-        return env.ctrl_from_unit(unit)
+        return env.ctrl_from_policy(unit)
 
 
 class PolicyController:
@@ -173,7 +173,7 @@ class PolicyController:
                 unit = self.policy.actor.sample(t)["unit"].cpu().numpy()[0]
             else:
                 unit = self.policy.actor.deterministic_unit(t).cpu().numpy()[0]
-        return env.ctrl_from_unit(unit)
+        return env.ctrl_from_policy(unit)
 
 
 #: forward-command schedule for the T2 probes (steady 0.3 m/s shuffle)
