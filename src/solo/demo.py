@@ -509,7 +509,20 @@ class _Ids:
         return np.array([float(data.cfrc_ext[self.foot_body[s]][5]) for s in SIDES])
 
     def pitch_deg(self, data) -> float:
-        q = data.qpos[self.base_qadr:self.base_qadr + 7]
+        """Signed sagittal lean of the torso, in degrees (forward = +).
+
+        The heading comes from the free joint's QUATERNION, which starts three
+        entries after the joint's qpos address: reading ``base_qadr ..
+        base_qadr+7`` fed the formula (px, py, pz, qw) as if it were (w, x, y,
+        z), so the yaw -- and with it the sign of this whole metric -- varied
+        with WHERE THE ROBOT STOOD.  Measured on the operator's shot-entry
+        reference: a 122.6 deg pitch jump in one 20 ms tick with every joint
+        moving <6 deg, which made the executability checker's ``torso_pitch``
+        criterion (max deviation <= 15 deg) unsatisfiable.  The regression test
+        (tests/solo/test_demo_exec.py) pins the property that was violated:
+        translating the root must not change the pitch.
+        """
+        q = data.qpos[self.base_qadr + 3:self.base_qadr + 7]     # (w, x, y, z)
         yaw = float(np.arctan2(2.0 * (q[0] * q[3] + q[1] * q[2]),
                                1.0 - 2.0 * (q[2] ** 2 + q[3] ** 2)))
         up = data.xmat[self.torso].reshape(3, 3) @ np.array([0.0, 0.0, 1.0])

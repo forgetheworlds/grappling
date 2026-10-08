@@ -176,6 +176,51 @@ def test_terminal_stance_is_required():
     assert "terminal_stance" in _failed(rep)
 
 
+def test_pitch_metric_is_translation_and_yaw_invariant():
+    """``pitch_deg``'s heading must come from the free joint's QUATERNION.
+
+    The defect this pins: the metric read ``qpos[base_qadr : base_qadr+7]``,
+    which for a free joint is (px, py, pz, qw, qx, qy, qz) -- so the yaw formula
+    consumed the POSITION and qw as if they were (w, x, y, z).  The heading, and
+    with it the sign of the sagittal lean, therefore depended on where the robot
+    stood: on the operator's shot-entry reference the pitch jumped 122.6 deg in
+    a single 20 ms tick while every joint moved <6 deg, which made the
+    executability checker's ``torso_pitch`` criterion (max deviation <= 15 deg)
+    unsatisfiable.  Translating and yawing the root must not change the value.
+    """
+    import mujoco
+
+    from solo.demo import _Ids
+    from solo.scene import load_solo_model
+    from solo.stance import stance_qpos
+
+    m = load_solo_model()
+    d = mujoco.MjData(m)
+    ids = _Ids(m)
+    d.qpos[:] = stance_qpos(model=m)
+    mujoco.mj_forward(m, d)
+    base = ids.pitch_deg(d)
+
+    def with_base(dx=0.0, dy=0.0, yaw_deg=0.0):
+        d.qpos[:] = stance_qpos(model=m)
+        d.qpos[0] += dx
+        d.qpos[1] += dy
+        half = np.radians(yaw_deg) / 2.0
+        cy, sy = np.cos(half), np.sin(half)
+        d.qpos[3:7] = [cy, 0.0, 0.0, sy]          # pure world-yaw quaternion
+        mujoco.mj_forward(m, d)
+        return ids.pitch_deg(d)
+
+    assert abs(with_base(1.0, -0.5) - base) < 1e-9, "pitch depends on position"
+    assert abs(with_base(0.0, 0.0, 90.0) - base) < 1e-9, "pitch depends on yaw"
+    assert abs(with_base(1.5, 2.0, 180.0) - base) < 1e-9
+    # a real lean still moves the metric (the metric is not simply constant)
+    d.qpos[:] = stance_qpos(model=m)
+    d.qpos[7 + 14] += 0.35                        # waist pitch (12=yaw, 13=roll)
+    mujoco.mj_forward(m, d)
+    assert abs(ids.pitch_deg(d) - base) > 1.0
+
+
 def test_captured_demo_exports_as_a_loadable_reference(tmp_path):
     """The captured demo must BE the refinement's reference, not need a conversion.
 
