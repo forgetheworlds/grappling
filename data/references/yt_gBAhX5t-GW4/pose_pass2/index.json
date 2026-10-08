@@ -1,0 +1,126 @@
+{
+  "source": "/home/ubuntu/grappling/data/references/yt_gBAhX5t-GW4/ref720h264.mp4",
+  "source_size": [
+    1280,
+    720
+  ],
+  "source_fps": 30.0,
+  "source_duration_s": 823.5,
+  "estimator": "mediapipe 1.1.0 tasks PoseLandmarker (full)",
+  "running_mode": "VIDEO",
+  "effective_fps": 15.0,
+  "stride_source_frames": 2.0,
+  "n_frames": 5959,
+  "segments": [
+    {
+      "i": 0,
+      "t0": 0.0,
+      "t1": 26.0
+    },
+    {
+      "i": 1,
+      "t0": 83.0,
+      "t1": 133.0
+    },
+    {
+      "i": 2,
+      "t0": 133.0,
+      "t1": 202.0
+    },
+    {
+      "i": 3,
+      "t0": 261.0,
+      "t1": 400.0
+    },
+    {
+      "i": 4,
+      "t0": 549.0,
+      "t1": 599.0
+    },
+    {
+      "i": 5,
+      "t0": 599.0,
+      "t1": 662.0
+    }
+  ],
+  "n_detected": 5939,
+  "n_missing": 20,
+  "mean_conf": 0.9405937264468697,
+  "wall_s": 427.2,
+  "measured_fps": 13.95,
+  "landmark_index": "mediapipe pose 33-keypoint order (see mediapipe docs)",
+  "arrays": [
+    "t",
+    "img_lm",
+    "world_lm",
+    "visibility",
+    "presence",
+    "detected",
+    "conf",
+    "chapter"
+  ],
+  "chapters": [
+    {
+      "id": 1,
+      "name": "intro",
+      "t0": 0.0,
+      "t1": 26.0
+    },
+    {
+      "id": 2,
+      "name": "stance",
+      "t0": 26.0,
+      "t1": 83.0
+    },
+    {
+      "id": 3,
+      "name": "stalking",
+      "t0": 83.0,
+      "t1": 133.0
+    },
+    {
+      "id": 4,
+      "name": "circling",
+      "t0": 133.0,
+      "t1": 202.0
+    },
+    {
+      "id": 5,
+      "name": "level_change",
+      "t0": 202.0,
+      "t1": 261.0
+    },
+    {
+      "id": 6,
+      "name": "fake",
+      "t0": 261.0,
+      "t1": 400.0
+    },
+    {
+      "id": 7,
+      "name": "shots",
+      "t0": 400.0,
+      "t1": 549.0
+    },
+    {
+      "id": 8,
+      "name": "downblock",
+      "t0": 549.0,
+      "t1": 599.0
+    },
+    {
+      "id": 9,
+      "name": "pepsi",
+      "t0": 599.0,
+      "t1": 662.0
+    },
+    {
+      "id": 10,
+      "name": "knee_sprawl",
+      "t0": 662.0,
+      "t1": 823.5
+    }
+  ],
+  "missing_policy": "stored as NaN, flagged detected=False; never interpolated",
+  "dedupe_note": "segment-boundary duplicate timestamps removed post-hoc (kept first)"
+}

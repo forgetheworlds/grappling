@@ -1,0 +1,5251 @@
+{
+  "aggregate": {
+    "act_delta_mean": 0.079946,
+    "com_offset_max": 0.1612,
+    "dorsal_rate": 0.0,
+    "fall_rate": 0.458333,
+    "fall_rate_heldout": 0.541667,
+    "hand_err_mean": 1.388134,
+    "limit_prox_max": 1.0,
+    "max_recoverable_impulse": 0.0,
+    "max_recoverable_impulse_heldout": 0.0,
+    "mean_pelvis_z": 0.539528,
+    "mean_tilt_deg": 36.624534,
+    "mean_upright": 0.652264,
+    "min_upright": -0.161811,
+    "n_episodes": 48,
+    "n_steps": 7711,
+    "recovery_success_rate": 0.0,
+    "recovery_time_mean": null,
+    "reward_mean": 0.117974,
+    "reward_sum_mean": 33.011609,
+    "sat_frac_mean": 0.123475,
+    "shot_depth_max": 0.0554,
+    "shot_exit_rate": 0.0,
+    "slip_mean": 0.259341,
+    "slip_p95": 0.724823,
+    "stance_err_mean": -0.250472,
+    "steps_after_push_mean": 16.729,
+    "steps_per_s": 297.69,
+    "steps_total_mean": 18.354,
+    "termination_rate": 0.458333,
+    "time_to_stability_mean": null,
+    "time_to_stability_rate": 0.0,
+    "vel_err_mean": 0.353441,
+    "vel_err_p95": 1.090317,
+    "yaw_err_mean": 0.987927,
+    "yaw_err_p95": 2.513856
+  },
+  "certified": false,
+  "config": {
+    "action_mode": "residual",
+    "dorsal": {
+      "confirm_s": 0.3,
+      "dorsal_x_max": 0.0,
+      "pelvis_z_threshold": 0.35,
+      "tilt_threshold_deg": 45.0
+    },
+    "fall": {
+      "confirm_s": 0.25,
+      "limb_support_exempt": true,
+      "pelvis_z_ground": 0.35,
+      "pelvis_z_hard": 0.22,
+      "tilt_ground_deg": 60.0
+    },
+    "horizon": 4.0,
+    "jitter": true,
+    "marker_plan": {
+      "distance": 1.05,
+      "entry_depth": 0.5,
+      "entry_distance": 0.55,
+      "follow": true,
+      "height": 0.79
+    },
+    "model": {
+      "control_dt": 0.02,
+      "floor_friction": [
+        1.0,
+        0.005,
+        0.0001
+      ],
+      "keyframes": [
+        "a_stand"
+      ],
+      "nbody": 32,
+      "ngeom": 77,
+      "nkey": 1,
+      "nmocap": 1,
+      "nq": 36,
+      "nsite": 28,
+      "nu": 29,
+      "nv": 35,
+      "substeps": 10,
+      "timestep": 0.002,
+      "total_mass": 33.341
+    },
+    "ranges": {
+      "stance_height": [
+        0.7,
+        0.8
+      ],
+      "stance_width": [
+        0.23,
+        0.42
+      ],
+      "vx": [
+        -0.25,
+        0.5
+      ],
+      "vy": [
+        -0.2,
+        0.2
+      ],
+      "wz": [
+        -0.5,
+        0.5
+      ]
+    },
+    "reset_jitter": {
+      "joint_noise": 0.03,
+      "tilt_deg": 2.0,
+      "xy_noise": 0.02,
+      "yaw_deg": 10.0
+    },
+    "residual_scale": 0.5,
+    "reward": {
+      "gamma": 0.995,
+      "task": "balance",
+      "termination_penalty": 100.0,
+      "terms": [
+        "alive",
+        "flat_orientation",
+        "action_rate",
+        "torque_sat",
+        "joint_limit"
+      ],
+      "weights": {
+        "action_rate": 0.05,
+        "alive": 1.0,
+        "feet_air_time": 0.5,
+        "feet_slide": 0.1,
+        "flat_orientation": 0.3,
+        "joint_limit": 0.05,
+        "low_posture": 0.3,
+        "reach": 0.5,
+        "recover_done": 1.0,
+        "recover_gain": 1.0,
+        "shot_exit": 0.5,
+        "shot_knee": 0.1,
+        "shot_leg_seq": 0.3,
+        "shot_progress": 1.0,
+        "shot_timeout": 0.3,
+        "stance_height": 0.5,
+        "stance_width": 0.25,
+        "termination": 100.0,
+        "torque_sat": 0.05,
+        "track_ang": 1.0,
+        "track_lin": 1.0
+      }
+    },
+    "seed": 47,
+    "spec": {
+      "command_hold_s": 1.5,
+      "command_sampler": null,
+      "command_schedule": [],
+      "horizon": 8.0,
+      "marker_plan": null,
+      "name": "balance",
+      "push": null,
+      "push_curriculum": {
+        "gap": 1.5,
+        "height": 0.95,
+        "magnitudes": [
+          2.0,
+          4.0,
+          6.0,
+          8.0,
+          10.0,
+          12.0
+        ],
+        "max_directions": 8,
+        "max_impulse": 12.0,
+        "seed": 0,
+        "start_steps": 20000,
+        "t_first": 1.0,
+        "warmup_steps": 400000
+      },
+      "shot_budget_s": 2.5,
+      "start": "stand",
+      "terminate_on_dorsal": true,
+      "terminate_on_fall": true
+    },
+    "task": "balance"
+  },
+  "controller": "t1_monitor_100352",
+  "episodes": [
+    {
+      "com_offset_max_m": 0.136,
+      "controller": "",
+      "duration_s": 2.4,
+      "episode": 0,
+      "final_pelvis_z": 0.0947,
+      "final_upright": -0.0437,
+      "hand_err": 1.315025,
+      "heldout": false,
+      "impulse": 4.0,
+      "meta": {},
+      "metric_means": {
+        "act_delta": 0.083962,
+        "com_offset": 0.053555,
+        "contact_l": 0.633333,
+        "contact_r": 0.6,
+        "dorsal_contact": 0.0,
+        "hand_contact": 0.016667,
+        "hand_err": 1.315025,
+        "knee_contact": 0.0,
+        "limit_prox": 0.47047,
+        "pelvis_z": 0.692152,
+        "reward": -0.086517,
+        "sat_frac": 0.127299,
+        "slip": 0.358922,
+        "speed": 0.400885,
+        "stance_err": -0.097848,
+        "steps_taken": 2.383333,
+        "t": 1.21,
+        "tilt_deg": 21.327772,
+        "torso_contact": 0.058333,
+        "upright": 0.827182,
+        "vel_err": 0.400885,
+        "yaw_err": 1.288199
+      },
+      "n_steps": 120,
+      "pushes": [
+        {
+          "direction_deg": 0.0,
+          "duration": 0.02,
+          "heading_relative": false,
+          "height": 0.79,
+          "impulse": 4.0,
+          "label": "battery_m4.0_d0_h0.79",
+          "t": 1.22
+        }
+      ],
+      "recovered": false,
+      "recovery_time_s": null,
+      "reward_sum": -10.382064,
+      "seed": 0,
+      "shot_depth_max": 0.0458,
+      "shot_exited": false,
+      "stable": false,
+      "steps": 120,
+      "steps_after_push": 7,
+      "steps_per_s": 298.4,
+      "steps_total": 9,
+      "task": "balance",
+      "termination": "fall",
+      "terms": {
+        "action_rate": {
+          "max": 0.0,
+          "mean": -0.167923,
+          "min": -0.206134,
+          "n": 120,
+          "p95": -0.139852
+        },
+        "alive": {
+          "max": 0.999983,
+          "mean": 0.811023,
+          "min": 0.0,
+          "n": 120,
+          "p95": 0.999947
+        },
+        "flat_orientation": {
+          "max": -8e-06,
+          "mean": -0.086409,
+          "min": -0.539647,
+          "n": 120,
+          "p95": -2.7e-05
+        },
+        "joint_limit": {
+          "max": -0.0,
+          "mean": -0.47047,
+          "min": -1.0,
+          "n": 120,
+          "p95": -0.105634
+        },
+        "termination": {
+          "max": -100.0,
+          "mean": -100.0,
+          "min": -100.0,
+          "n": 1,
+          "p95": -100.0
+        },
+        "torque_sat": {
+          "max": -0.0,
+          "mean": -0.127299,
+          "min": -0.344828,
+          "n": 120,
+          "p95": -0.068966
+        }
+      },
+      "time_to_stability_s": null,
+      "truncated": false,
+      "wall_s": 0.4021
+    },
+    {
+      "com_offset_max_m": 0.1554,
+      "controller": "",
+      "duration_s": 4.0,
+      "episode": 1,
+      "final_pelvis_z": 0.0607,
+      "final_upright": 0.0674,
+      "hand_err": 1.434291,
+      "heldout": false,
+      "impulse": 4.0,
+      "meta": {},
+      "metric_means": {
+        "act_delta": 0.080549,
+        "com_offset": 0.055956,
+        "contact_l": 0.49,
+        "contact_r": 0.515,
+        "dorsal_contact": 0.315,
+        "hand_contact": 0.165,
+        "hand_err": 1.434291,
+        "knee_contact": 0.0,
+        "limit_prox": 0.476595,
+        "pelvis_z": 0.426699,
+        "reward": 0.372181,
+        "sat_frac": 0.126552,
+        "slip": 0.232065,
+        "speed": 0.211094,
+        "stance_err": -0.363301,
+        "steps_taken": 8.475,
+        "t": 2.01,
+        "tilt_deg": 47.466953,
+        "torso_contact": 0.315,
+        "upright": 0.520121,
+        "vel_err": 0.211094,
+        "yaw_err": 0.703181
+      },
+      "n_steps": 200,
+      "pushes": [
+        {
+          "direction_deg": 45.0,
+          "duration": 0.02,
+          "heading_relative": false,
+          "height": 0.95,
+          "impulse": 4.0,
+          "label": "battery_m4.0_d1_h0.95",
+          "t": 1.16
+        }
+      ],
+      "recovered": false,
+      "recovery_time_s": null,
+      "reward_sum": 74.436215,
+      "seed": 1,
+      "shot_depth_max": 0.0115,
+      "shot_exited": false,
+      "stable": false,
+      "steps": 200,
+      "steps_after_push": 26,
+      "steps_per_s": 297.62,
+      "steps_total": 26,
+      "task": "balance",
+      "termination": null,
+      "terms": {
+        "action_rate": {
+          "max": 0.0,
+          "mean": -0.161098,
+          "min": -0.211102,
+          "n": 200,
+          "p95": -0.126676
+        },
+        "alive": {
+          "max": 0.99999,
+          "mean": 0.482375,
+          "min": 0.001346,
+          "n": 200,
+          "p95": 0.999754
+        },
+        "flat_orientation": {
+          "max": -5e-06,
+          "mean": -0.239939,
+          "min": -0.490833,
+          "n": 200,
+          "p95": -0.000123
+        },
+        "joint_limit": {
+          "max": -0.0,
+          "mean": -0.476595,
+          "min": -1.0,
+          "n": 200,
+          "p95": -0.04609
+        },
+        "torque_sat": {
+          "max": -0.0,
+          "mean": -0.126552,
+          "min": -0.241379,
+          "n": 200,
+          "p95": -0.068966
+        }
+      },
+      "time_to_stability_s": null,
+      "truncated": true,
+      "wall_s": 0.672
+    },
+    {
+      "com_offset_max_m": 0.1438,
+      "controller": "",
+      "duration_s": 4.0,
+      "episode": 2,
+      "final_pelvis_z": 0.0578,
+      "final_upright": 0.074,
+      "hand_err": 1.4436,
+      "heldout": false,
+      "impulse": 4.0,
+      "meta": {},
+      "metric_means": {
+        "act_delta": 0.08032,
+        "com_offset": 0.059267,
+        "contact_l": 0.425,
+        "contact_r": 0.51,
+        "dorsal_contact": 0.29,
+        "hand_contact": 0.16,
+        "hand_err": 1.4436,
+        "knee_contact": 0.005,
+        "limit_prox": 0.446494,
+        "pelvis_z": 0.416686,
+        "reward": 0.35837,
+        "sat_frac": 0.118621,
+        "slip": 0.188729,
+        "speed": 0.231204,
+        "stance_err": -0.373314,
+        "steps_taken": 11.53,
+        "t": 2.01,
+        "tilt_deg": 48.506592,
+        "torso_contact": 0.29,
+        "upright": 0.507808,
+        "vel_err": 0.231204,
+        "yaw_err": 1.036268
+      },
+      "n_steps": 200,
+      "pushes": [
+        {
+          "direction_deg": 90.0,
+          "duration": 0.02,
+          "heading_relative": false,
+          "height": 1.1,
+          "impulse": 4.0,
+          "label": "battery_m4.0_d2_h1.10",
+          "t": 1.12
+        }
+      ],
+      "recovered": false,
+      "recovery_time_s": null,
+      "reward_sum": 71.673926,
+      "seed": 2,
+      "shot_depth_max": 0.0118,
+      "shot_exited": false,
+      "stable": false,
+      "steps": 200,
+      "steps_after_push": 26,
+      "steps_per_s": 228.78,
+      "steps_total": 30,
+      "task": "balance",
+      "termination": null,
+      "terms": {
+        "action_rate": {
+          "max": 0.0,
+          "mean": -0.160641,
+          "min": -0.204972,
+          "n": 200,
+          "p95": -0.123662
+        },
+        "alive": {
+          "max": 0.999974,
+          "mean": 0.468486,
+          "min": 0.0,
+          "n": 200,
+          "p95": 0.999713
+        },
+        "flat_orientation": {
+          "max": -1.3e-05,
+          "mean": -0.246096,
+          "min": -0.506028,
+          "n": 200,
+          "p95": -0.000144
+        },
+        "joint_limit": {
+          "max": -0.0,
+          "mean": -0.446494,
+          "min": -1.0,
+          "n": 200,
+          "p95": -0.058991
+        },
+        "torque_sat": {
+          "max": -0.0,
+          "mean": -0.118621,
+          "min": -0.241379,
+          "n": 200,
+          "p95": -0.034483
+        }
+      },
+      "time_to_stability_s": null,
+      "truncated": true,
+      "wall_s": 0.8742
+    },
+    {
+      "com_offset_max_m": 0.1437,
+      "controller": "",
+      "duration_s": 4.0,
+      "episode": 3,
+      "final_pelvis_z": 0.0607,
+      "final_upright": 0.0652,
+      "hand_err": 1.465063,
+      "heldout": false,
+      "impulse": 4.0,
+      "meta": {},
+      "metric_means": {
+        "act_delta": 0.082585,
+        "com_offset": 0.051399,
+        "contact_l": 0.405,
+        "contact_r": 0.42,
+        "dorsal_contact": 0.36,
+        "hand_contact": 0.185,
+        "hand_err": 1.465063,
+        "knee_contact": 0.005,
+        "limit_prox": 0.47664,
+        "pelvis_z": 0.365172,
+        "reward": 0.277038,
+        "sat_frac": 0.122759,
+        "slip": 0.177652,
+        "speed": 0.219865,
+        "stance_err": -0.424828,
+        "steps_taken": 14.325,
+        "t": 2.01,
+        "tilt_deg": 54.502108,
+        "torso_contact": 0.36,
+        "upright": 0.440494,
+        "vel_err": 0.219865,
+        "yaw_err": 1.043796
+      },
+      "n_steps": 200,
+      "pushes": [
+        {
+          "direction_deg": 135.0,
+          "duration": 0.02,
+          "heading_relative": false,
+          "height": 0.79,
+          "impulse": 4.0,
+          "label": "battery_m4.0_d3_h0.79",
+          "t": 1.06
+        }
+      ],
+      "recovered": false,
+      "recovery_time_s": null,
+      "reward_sum": 55.407592,
+      "seed": 3,
+      "shot_depth_max": 0.0153,
+      "shot_exited": false,
+      "stable": false,
+      "steps": 200,
+      "steps_after_push": 33,
+      "steps_per_s": 234.6,
+      "steps_total": 36,
+      "task": "balance",
+      "termination": null,
+      "terms": {
+        "action_rate": {
+          "max": 0.0,
+          "mean": -0.165171,
+          "min": -0.2153,
+          "n": 200,
+          "p95": -0.132517
+        },
+        "alive": {
+          "max": 0.999987,
+          "mean": 0.399192,
+          "min": 0.0,
+          "n": 200,
+          "p95": 0.999613
+        },
+        "flat_orientation": {
+          "max": -6e-06,
+          "mean": -0.279753,
+          "min": -0.502526,
+          "n": 200,
+          "p95": -0.000194
+        },
+        "joint_limit": {
+          "max": -0.0,
+          "mean": -0.47664,
+          "min": -0.968738,
+          "n": 200,
+          "p95": -0.018384
+        },
+        "torque_sat": {
+          "max": -0.0,
+          "mean": -0.122759,
+          "min": -0.241379,
+          "n": 200,
+          "p95": -0.068966
+        }
+      },
+      "time_to_stability_s": null,
+      "truncated": true,
+      "wall_s": 0.8525
+    },
+    {
+      "com_offset_max_m": 0.1536,
+      "controller": "",
+      "duration_s": 4.0,
+      "episode": 4,
+      "final_pelvis_z": 0.0631,
+      "final_upright": 0.0397,
+      "hand_err": 1.412518,
+      "heldout": false,
+      "impulse": 4.0,
+      "meta": {},
+      "metric_means": {
+        "act_delta": 0.080603,
+        "com_offset": 0.049693,
+        "contact_l": 0.525,
+        "contact_r": 0.55,
+        "dorsal_contact": 0.28,
+        "hand_contact": 0.12,
+        "hand_err": 1.412518,
+        "knee_contact": 0.0,
+        "limit_prox": 0.436194,
+        "pelvis_z": 0.468188,
+        "reward": 0.439459,
+        "sat_frac": 0.122931,
+        "slip": 0.224384,
+        "speed": 0.25959,
+        "stance_err": -0.321812,
+        "steps_taken": 5.445,
+        "t": 2.01,
+        "tilt_deg": 42.622488,
+        "torso_contact": 0.28,
+        "upright": 0.574653,
+        "vel_err": 0.25959,
+        "yaw_err": 0.828152
+      },
+      "n_steps": 200,
+      "pushes": [
+        {
+          "direction_deg": 180.0,
+          "duration": 0.02,
+          "heading_relative": false,
+          "height": 0.95,
+          "impulse": 4.0,
+          "label": "battery_m4.0_d4_h0.95",
+          "t": 1.08
+        }
+      ],
+      "recovered": false,
+      "recovery_time_s": null,
+      "reward_sum": 87.891765,
+      "seed": 4,
+      "shot_depth_max": 0.0153,
+      "shot_exited": false,
+      "stable": false,
+      "steps": 200,
+      "steps_after_push": 22,
+      "steps_per_s": 326.97,
+      "steps_total": 22,
+      "task": "balance",
+      "termination": null,
+      "terms": {
+        "action_rate": {
+          "max": 0.0,
+          "mean": -0.161207,
+          "min": -0.207763,
+          "n": 200,
+          "p95": -0.122228
+        },
+        "alive": {
+          "max": 0.999967,
+          "mean": 0.539277,
+          "min": 0.000758,
+          "n": 200,
+          "p95": 0.999827
+        },
+        "flat_orientation": {
+          "max": -1.7e-05,
+          "mean": -0.212674,
+          "min": -0.493431,
+          "n": 200,
+          "p95": -8.6e-05
+        },
+        "joint_limit": {
+          "max": -0.0,
+          "mean": -0.436194,
+          "min": -1.0,
+          "n": 200,
+          "p95": 0.0
+        },
+        "torque_sat": {
+          "max": -0.0,
+          "mean": -0.122931,
+          "min": -0.241379,
+          "n": 200,
+          "p95": -0.034483
+        }
+      },
+      "time_to_stability_s": null,
+      "truncated": true,
+      "wall_s": 0.6117
+    },
+    {
+      "com_offset_max_m": 0.1492,
+      "controller": "",
+      "duration_s": 4.0,
+      "episode": 5,
+      "final_pelvis_z": 0.0622,
+      "final_upright": 0.038,
+      "hand_err": 1.364087,
+      "heldout": false,
+      "impulse": 4.0,
+      "meta": {},
+      "metric_means": {
+        "act_delta": 0.080405,
+        "com_offset": 0.051935,
+        "contact_l": 0.56,
+        "contact_r": 0.6,
+        "dorsal_contact": 0.12,
+        "hand_contact": 0.075,
+        "hand_err": 1.364087,
+        "knee_contact": 0.0,
+        "limit_prox": 0.479548,
+        "pelvis_z": 0.609137,
+        "reward": 0.65384,
+        "sat_frac": 0.124483,
+        "slip": 0.272529,
+        "speed": 0.315513,
+        "stance_err": -0.180863,
+        "steps_taken": 6.715,
+        "t": 2.01,
+        "tilt_deg": 27.376962,
+        "torso_contact": 0.12,
+        "upright": 0.755808,
+        "vel_err": 0.315513,
+        "yaw_err": 0.76391
+      },
+      "n_steps": 200,
+      "pushes": [
+        {
+          "direction_deg": 225.0,
+          "duration": 0.02,
+          "heading_relative": false,
+          "height": 1.1,
+          "impulse": 4.0,
+          "label": "battery_m4.0_d5_h1.10",
+          "t": 1.0
+        }
+      ],
+      "recovered": false,
+      "recovery_time_s": null,
+      "reward_sum": 130.76808,
+      "seed": 5,
+      "shot_depth_max": 0.0165,
+      "shot_exited": false,
+      "stable": false,
+      "steps": 200,
+      "steps_after_push": 24,
+      "steps_per_s": 278.36,
+      "steps_total": 25,
+      "task": "balance",
+      "termination": null,
+      "terms": {
+        "action_rate": {
+          "max": 0.0,
+          "mean": -0.160809,
+          "min": -0.212177,
+          "n": 200,
+          "p95": -0.120863
+        },
+        "alive": {
+          "max": 0.999998,
+          "mean": 0.728711,
+          "min": 0.000747,
+          "n": 200,
+          "p95": 0.999757
+        },
+        "flat_orientation": {
+          "max": -1e-06,
+          "mean": -0.122096,
+          "min": -0.494733,
+          "n": 200,
+          "p95": -0.000121
+        },
+        "joint_limit": {
+          "max": -0.0,
+          "mean": -0.479548,
+          "min": -1.0,
+          "n": 200,
+          "p95": -0.019384
+        },
+        "torque_sat": {
+          "max": -0.0,
+          "mean": -0.124483,
+          "min": -0.275862,
+          "n": 200,
+          "p95": -0.034483
+        }
+      },
+      "time_to_stability_s": null,
+      "truncated": true,
+      "wall_s": 0.7185
+    },
+    {
+      "com_offset_max_m": 0.1302,
+      "controller": "",
+      "duration_s": 2.3,
+      "episode": 6,
+      "final_pelvis_z": 0.0625,
+      "final_upright": 0.0363,
+      "hand_err": 1.37027,
+      "heldout": false,
+      "impulse": 4.0,
+      "meta": {},
+      "metric_means": {
+        "act_delta": 0.081458,
+        "com_offset": 0.05076,
+        "contact_l": 0.591304,
+        "contact_r": 0.513043,
+        "dorsal_contact": 0.13913,
+        "hand_contact": 0.069565,
+        "hand_err": 1.37027,
+        "knee_contact": 0.017391,
+        "limit_prox": 0.408997,
+        "pelvis_z": 0.593459,
+        "reward": -0.251157,
+        "sat_frac": 0.122639,
+        "slip": 0.251037,
+        "speed": 0.372592,
+        "stance_err": -0.196541,
+        "steps_taken": 4.452174,
+        "t": 1.16,
+        "tilt_deg": 30.65245,
+        "torso_contact": 0.13913,
+        "upright": 0.733554,
+        "vel_err": 0.372592,
+        "yaw_err": 1.156725
+      },
+      "n_steps": 115,
+      "pushes": [
+        {
+          "direction_deg": 270.0,
+          "duration": 0.02,
+          "heading_relative": false,
+          "height": 0.79,
+          "impulse": 4.0,
+          "label": "battery_m4.0_d6_h0.79",
+          "t": 1.0
+        }
+      ],
+      "recovered": false,
+      "recovery_time_s": null,
+      "reward_sum": -28.883079,
+      "seed": 6,
+      "shot_depth_max": 0.0142,
+      "shot_exited": false,
+      "stable": false,
+      "steps": 115,
+      "steps_after_push": 13,
+      "steps_per_s": 373.87,
+      "steps_total": 16,
+      "task": "balance",
+      "termination": "fall",
+      "terms": {
+        "action_rate": {
+          "max": 0.0,
+          "mean": -0.162917,
+          "min": -0.198677,
+          "n": 115,
+          "p95": -0.132872
+        },
+        "alive": {
+          "max": 0.999982,
+          "mean": 0.693102,
+          "min": 0.000718,
+          "n": 115,
+          "p95": 0.999359
+        },
+        "flat_orientation": {
+          "max": -9e-06,
+          "mean": -0.133223,
+          "min": -0.495368,
+          "n": 115,
+          "p95": -0.00032
+        },
+        "joint_limit": {
+          "max": -0.0,
+          "mean": -0.408997,
+          "min": -0.982919,
+          "n": 115,
+          "p95": 0.0
+        },
+        "termination": {
+          "max": -100.0,
+          "mean": -100.0,
+          "min": -100.0,
+          "n": 1,
+          "p95": -100.0
+        },
+        "torque_sat": {
+          "max": -0.0,
+          "mean": -0.122639,
+          "min": -0.241379,
+          "n": 115,
+          "p95": -0.034483
+        }
+      },
+      "time_to_stability_s": null,
+      "truncated": false,
+      "wall_s": 0.3076
+    },
+    {
+      "com_offset_max_m": 0.1287,
+      "controller": "",
+      "duration_s": 2.6,
+      "episode": 7,
+      "final_pelvis_z": 0.1156,
+      "final_upright": -0.0859,
+      "hand_err": 1.317423,
+      "heldout": false,
+      "impulse": 4.0,
+      "meta": {},
+      "metric_means": {
+        "act_delta": 0.083737,
+        "com_offset": 0.049065,
+        "contact_l": 0.684615,
+        "contact_r": 0.684615,
+        "dorsal_contact": 0.0,
+        "hand_contact": 0.015385,
+        "hand_err": 1.317423,
+        "knee_contact": 0.0,
+        "limit_prox": 0.554795,
+        "pelvis_z": 0.699506,
+        "reward": -0.012265,
+        "sat_frac": 0.119098,
+        "slip": 0.370464,
+        "speed": 0.380172,
+        "stance_err": -0.090494,
+        "steps_taken": 1.169231,
+        "t": 1.31,
+        "tilt_deg": 21.384451,
+        "torso_contact": 0.053846,
+        "upright": 0.838312,
+        "vel_err": 0.380172,
+        "yaw_err": 0.959827
+      },
+      "n_steps": 130,
+      "pushes": [
+        {
+          "direction_deg": 315.0,
+          "duration": 0.02,
+          "heading_relative": false,
+          "height": 0.95,
+          "impulse": 4.0,
+          "label": "battery_m4.0_d7_h0.95",
+          "t": 1.0
+        }
+      ],
+      "recovered": false,
+      "recovery_time_s": null,
+      "reward_sum": -1.594423,
+      "seed": 7,
+      "shot_depth_max": 0.0435,
+      "shot_exited": false,
+      "stable": false,
+      "steps": 130,
+      "steps_after_push": 7,
+      "steps_per_s": 367.46,
+      "steps_total": 7,
+      "task": "balance",
+      "termination": "fall",
+      "terms": {
+        "action_rate": {
+          "max": 0.0,
+          "mean": -0.167475,
+          "min": -0.230131,
+          "n": 130,
+          "p95": -0.137961
+        },
+        "alive": {
+          "max": 0.999976,
+          "mean": 0.823287,
+          "min": 0.0,
+          "n": 130,
+          "p95": 0.999803
+        },
+        "flat_orientation": {
+          "max": -1.2e-05,
+          "mean": -0.080844,
+          "min": -0.54295,
+          "n": 130,
+          "p95": -9.8e-05
+        },
+        "joint_limit": {
+          "max": -0.0,
+          "mean": -0.554795,
+          "min": -1.0,
+          "n": 130,
+          "p95": -0.163804
+        },
+        "termination": {
+          "max": -100.0,
+          "mean": -100.0,
+          "min": -100.0,
+          "n": 1,
+          "p95": -100.0
+        },
+        "torque_sat": {
+          "max": -0.0,
+          "mean": -0.119098,
+          "min": -0.241379,
+          "n": 130,
+          "p95": -0.034483
+        }
+      },
+      "time_to_stability_s": null,
+      "truncated": false,
+      "wall_s": 0.3538
+    },
+    {
+      "com_offset_max_m": 0.1337,
+      "controller": "",
+      "duration_s": 2.54,
+      "episode": 8,
+      "final_pelvis_z": 0.0881,
+      "final_upright": -0.0196,
+      "hand_err": 1.320896,
+      "heldout": false,
+      "impulse": 8.0,
+      "meta": {},
+      "metric_means": {
+        "act_delta": 0.084047,
+        "com_offset": 0.045607,
+        "contact_l": 0.732283,
+        "contact_r": 0.677165,
+        "dorsal_contact": 0.0,
+        "hand_contact": 0.023622,
+        "hand_err": 1.320896,
+        "knee_contact": 0.0,
+        "limit_prox": 0.552515,
+        "pelvis_z": 0.694351,
+        "reward": -0.038245,
+        "sat_frac": 0.120554,
+        "slip": 0.351195,
+        "speed": 0.344902,
+        "stance_err": -0.095649,
+        "steps_taken": 2.102362,
+        "t": 1.28,
+        "tilt_deg": 22.378473,
+        "torso_contact": 0.047244,
+        "upright": 0.832451,
+        "vel_err": 0.344902,
+        "yaw_err": 1.077475
+      },
+      "n_steps": 127,
+      "pushes": [
+        {
+          "direction_deg": 0.0,
+          "duration": 0.02,
+          "heading_relative": false,
+          "height": 0.95,
+          "impulse": 8.0,
+          "label": "battery_m8.0_d0_h0.95",
+          "t": 1.04
+        }
+      ],
+      "recovered": false,
+      "recovery_time_s": null,
+      "reward_sum": -4.857066,
+      "seed": 8,
+      "shot_depth_max": 0.0408,
+      "shot_exited": false,
+      "stable": false,
+      "steps": 127,
+      "steps_after_push": 8,
+      "steps_per_s": 339.2,
+      "steps_total": 9,
+      "task": "balance",
+      "termination": "fall",
+      "terms": {
+        "action_rate": {
+          "max": 0.0,
+          "mean": -0.168094,
+          "min": -0.226332,
+          "n": 127,
+          "p95": -0.132834
+        },
+        "alive": {
+          "max": 0.999973,
+          "mean": 0.816347,
+          "min": 0.0,
+          "n": 127,
+          "p95": 0.999615
+        },
+        "flat_orientation": {
+          "max": -1.3e-05,
+          "mean": -0.083774,
+          "min": -0.531991,
+          "n": 127,
+          "p95": -0.000192
+        },
+        "joint_limit": {
+          "max": -0.0,
+          "mean": -0.552515,
+          "min": -1.0,
+          "n": 127,
+          "p95": -0.17756
+        },
+        "termination": {
+          "max": -100.0,
+          "mean": -100.0,
+          "min": -100.0,
+          "n": 1,
+          "p95": -100.0
+        },
+        "torque_sat": {
+          "max": -0.0,
+          "mean": -0.120554,
+          "min": -0.275862,
+          "n": 127,
+          "p95": -0.034483
+        }
+      },
+      "time_to_stability_s": null,
+      "truncated": false,
+      "wall_s": 0.3744
+    },
+    {
+      "com_offset_max_m": 0.1441,
+      "controller": "",
+      "duration_s": 4.0,
+      "episode": 9,
+      "final_pelvis_z": 0.063,
+      "final_upright": 0.0455,
+      "hand_err": 1.369675,
+      "heldout": false,
+      "impulse": 8.0,
+      "meta": {},
+      "metric_means": {
+        "act_delta": 0.078569,
+        "com_offset": 0.049742,
+        "contact_l": 0.62,
+        "contact_r": 0.645,
+        "dorsal_contact": 0.16,
+        "hand_contact": 0.075,
+        "hand_err": 1.369675,
+        "knee_contact": 0.0,
+        "limit_prox": 0.449864,
+        "pelvis_z": 0.583811,
+        "reward": 0.618132,
+        "sat_frac": 0.118448,
+        "slip": 0.264895,
+        "speed": 0.267874,
+        "stance_err": -0.206189,
+        "steps_taken": 3.505,
+        "t": 2.01,
+        "tilt_deg": 29.589474,
+        "torso_contact": 0.16,
+        "upright": 0.723996,
+        "vel_err": 0.267874,
+        "yaw_err": 0.637656
+      },
+      "n_steps": 200,
+      "pushes": [
+        {
+          "direction_deg": 45.0,
+          "duration": 0.02,
+          "heading_relative": false,
+          "height": 1.1,
+          "impulse": 8.0,
+          "label": "battery_m8.0_d1_h1.10",
+          "t": 1.2
+        }
+      ],
+      "recovered": false,
+      "recovery_time_s": null,
+      "reward_sum": 123.626369,
+      "seed": 9,
+      "shot_depth_max": 0.0104,
+      "shot_exited": false,
+      "stable": false,
+      "steps": 200,
+      "steps_after_push": 16,
+      "steps_per_s": 375.41,
+      "steps_total": 16,
+      "task": "balance",
+      "termination": null,
+      "terms": {
+        "action_rate": {
+          "max": 0.0,
+          "mean": -0.157137,
+          "min": -0.220679,
+          "n": 200,
+          "p95": -0.11241
+        },
+        "alive": {
+          "max": 0.999998,
+          "mean": 0.695805,
+          "min": 0.001719,
+          "n": 200,
+          "p95": 0.999782
+        },
+        "flat_orientation": {
+          "max": -1e-06,
+          "mean": -0.138002,
+          "min": -0.488159,
+          "n": 200,
+          "p95": -0.000101
+        },
+        "joint_limit": {
+          "max": -0.0,
+          "mean": -0.449864,
+          "min": -1.0,
+          "n": 200,
+          "p95": -0.047873
+        },
+        "torque_sat": {
+          "max": -0.0,
+          "mean": -0.118448,
+          "min": -0.241379,
+          "n": 200,
+          "p95": -0.034483
+        }
+      },
+      "time_to_stability_s": null,
+      "truncated": true,
+      "wall_s": 0.5327
+    },
+    {
+      "com_offset_max_m": 0.1337,
+      "controller": "",
+      "duration_s": 2.86,
+      "episode": 10,
+      "final_pelvis_z": 0.0623,
+      "final_upright": 0.0471,
+      "hand_err": 1.418548,
+      "heldout": false,
+      "impulse": 8.0,
+      "meta": {},
+      "metric_means": {
+        "act_delta": 0.074072,
+        "com_offset": 0.044231,
+        "contact_l": 0.41958,
+        "contact_r": 0.482517,
+        "dorsal_contact": 0.216783,
+        "hand_contact": 0.132867,
+        "hand_err": 1.418548,
+        "knee_contact": 0.006993,
+        "limit_prox": 0.436984,
+        "pelvis_z": 0.479028,
+        "reward": -0.24887,
+        "sat_frac": 0.122257,
+        "slip": 0.18984,
+        "speed": 0.277951,
+        "stance_err": -0.310972,
+        "steps_taken": 9.356643,
+        "t": 1.44,
+        "tilt_deg": 41.960237,
+        "torso_contact": 0.216783,
+        "upright": 0.587036,
+        "vel_err": 0.277951,
+        "yaw_err": 0.965199
+      },
+      "n_steps": 143,
+      "pushes": [
+        {
+          "direction_deg": 90.0,
+          "duration": 0.02,
+          "heading_relative": false,
+          "height": 0.79,
+          "impulse": 8.0,
+          "label": "battery_m8.0_d2_h0.79",
+          "t": 1.16
+        }
+      ],
+      "recovered": false,
+      "recovery_time_s": null,
+      "reward_sum": -35.588429,
+      "seed": 10,
+      "shot_depth_max": 0.0151,
+      "shot_exited": false,
+      "stable": false,
+      "steps": 143,
+      "steps_after_push": 19,
+      "steps_per_s": 363.2,
+      "steps_total": 24,
+      "task": "balance",
+      "termination": "fall",
+      "terms": {
+        "action_rate": {
+          "max": 0.0,
+          "mean": -0.148143,
+          "min": -0.195132,
+          "n": 143,
+          "p95": -0.095387
+        },
+        "alive": {
+          "max": 0.999993,
+          "mean": 0.547744,
+          "min": 0.00049,
+          "n": 143,
+          "p95": 0.999882
+        },
+        "flat_orientation": {
+          "max": -3e-06,
+          "mean": -0.206482,
+          "min": -0.494962,
+          "n": 143,
+          "p95": -6e-05
+        },
+        "joint_limit": {
+          "max": -0.0,
+          "mean": -0.436984,
+          "min": -0.996606,
+          "n": 143,
+          "p95": -0.022205
+        },
+        "termination": {
+          "max": -100.0,
+          "mean": -100.0,
+          "min": -100.0,
+          "n": 1,
+          "p95": -100.0
+        },
+        "torque_sat": {
+          "max": -0.0,
+          "mean": -0.122257,
+          "min": -0.241379,
+          "n": 143,
+          "p95": -0.068966
+        }
+      },
+      "time_to_stability_s": null,
+      "truncated": false,
+      "wall_s": 0.3937
+    },
+    {
+      "com_offset_max_m": 0.1434,
+      "controller": "",
+      "duration_s": 4.0,
+      "episode": 11,
+      "final_pelvis_z": 0.0585,
+      "final_upright": 0.0666,
+      "hand_err": 1.444675,
+      "heldout": false,
+      "impulse": 8.0,
+      "meta": {},
+      "metric_means": {
+        "act_delta": 0.083299,
+        "com_offset": 0.058273,
+        "contact_l": 0.46,
+        "contact_r": 0.525,
+        "dorsal_contact": 0.335,
+        "hand_contact": 0.14,
+        "hand_err": 1.444675,
+        "knee_contact": 0.0,
+        "limit_prox": 0.442818,
+        "pelvis_z": 0.388844,
+        "reward": 0.315233,
+        "sat_frac": 0.121724,
+        "slip": 0.205931,
+        "speed": 0.258056,
+        "stance_err": -0.401156,
+        "steps_taken": 10.51,
+        "t": 2.01,
+        "tilt_deg": 51.53526,
+        "torso_contact": 0.335,
+        "upright": 0.471237,
+        "vel_err": 0.258056,
+        "yaw_err": 0.957562
+      },
+      "n_steps": 200,
+      "pushes": [
+        {
+          "direction_deg": 135.0,
+          "duration": 0.02,
+          "heading_relative": false,
+          "height": 0.95,
+          "impulse": 8.0,
+          "label": "battery_m8.0_d3_h0.95",
+          "t": 1.22
+        }
+      ],
+      "recovered": false,
+      "recovery_time_s": null,
+      "reward_sum": 63.046605,
+      "seed": 11,
+      "shot_depth_max": 0.016,
+      "shot_exited": false,
+      "stable": false,
+      "steps": 200,
+      "steps_after_push": 26,
+      "steps_per_s": 355.93,
+      "steps_total": 29,
+      "task": "balance",
+      "termination": null,
+      "terms": {
+        "action_rate": {
+          "max": 0.0,
+          "mean": -0.166599,
+          "min": -0.209131,
+          "n": 200,
+          "p95": -0.139759
+        },
+        "alive": {
+          "max": 0.999984,
+          "mean": 0.431105,
+          "min": 0.0,
+          "n": 200,
+          "p95": 0.999743
+        },
+        "flat_orientation": {
+          "max": -8e-06,
+          "mean": -0.264382,
+          "min": -0.500171,
+          "n": 200,
+          "p95": -0.000128
+        },
+        "joint_limit": {
+          "max": -0.0,
+          "mean": -0.442818,
+          "min": -0.957754,
+          "n": 200,
+          "p95": -0.034125
+        },
+        "torque_sat": {
+          "max": -0.0,
+          "mean": -0.121724,
+          "min": -0.241379,
+          "n": 200,
+          "p95": -0.068966
+        }
+      },
+      "time_to_stability_s": null,
+      "truncated": true,
+      "wall_s": 0.5619
+    },
+    {
+      "com_offset_max_m": 0.1417,
+      "controller": "",
+      "duration_s": 4.0,
+      "episode": 12,
+      "final_pelvis_z": 0.0652,
+      "final_upright": 0.0277,
+      "hand_err": 1.38538,
+      "heldout": false,
+      "impulse": 8.0,
+      "meta": {},
+      "metric_means": {
+        "act_delta": 0.082744,
+        "com_offset": 0.0377,
+        "contact_l": 0.575,
+        "contact_r": 0.535,
+        "dorsal_contact": 0.17,
+        "hand_contact": 0.075,
+        "hand_err": 1.38538,
+        "knee_contact": 0.0,
+        "limit_prox": 0.436235,
+        "pelvis_z": 0.557573,
+        "reward": 0.57797,
+        "sat_frac": 0.12069,
+        "slip": 0.240694,
+        "speed": 0.286778,
+        "stance_err": -0.232427,
+        "steps_taken": 8.41,
+        "t": 2.01,
+        "tilt_deg": 32.38135,
+        "torso_contact": 0.17,
+        "upright": 0.690806,
+        "vel_err": 0.286778,
+        "yaw_err": 0.900911
+      },
+      "n_steps": 200,
+      "pushes": [
+        {
+          "direction_deg": 180.0,
+          "duration": 0.02,
+          "heading_relative": false,
+          "height": 1.1,
+          "impulse": 8.0,
+          "label": "battery_m8.0_d4_h1.10",
+          "t": 1.12
+        }
+      ],
+      "recovered": false,
+      "recovery_time_s": null,
+      "reward_sum": 115.593974,
+      "seed": 12,
+      "shot_depth_max": 0.0178,
+      "shot_exited": false,
+      "stable": false,
+      "steps": 200,
+      "steps_after_push": 23,
+      "steps_per_s": 313.29,
+      "steps_total": 25,
+      "task": "balance",
+      "termination": null,
+      "terms": {
+        "action_rate": {
+          "max": 0.0,
+          "mean": -0.165489,
+          "min": -0.210003,
+          "n": 200,
+          "p95": -0.139122
+        },
+        "alive": {
+          "max": 0.999993,
+          "mean": 0.66047,
+          "min": 0.001601,
+          "n": 200,
+          "p95": 0.999796
+        },
+        "flat_orientation": {
+          "max": -3e-06,
+          "mean": -0.154597,
+          "min": -0.491908,
+          "n": 200,
+          "p95": -0.000102
+        },
+        "joint_limit": {
+          "max": -0.0,
+          "mean": -0.436235,
+          "min": -1.0,
+          "n": 200,
+          "p95": -0.080048
+        },
+        "torque_sat": {
+          "max": -0.0,
+          "mean": -0.12069,
+          "min": -0.241379,
+          "n": 200,
+          "p95": -0.034483
+        }
+      },
+      "time_to_stability_s": null,
+      "truncated": true,
+      "wall_s": 0.6384
+    },
+    {
+      "com_offset_max_m": 0.1467,
+      "controller": "",
+      "duration_s": 4.0,
+      "episode": 13,
+      "final_pelvis_z": 0.7915,
+      "final_upright": 0.9888,
+      "hand_err": 1.290302,
+      "heldout": false,
+      "impulse": 8.0,
+      "meta": {},
+      "metric_means": {
+        "act_delta": 0.080962,
+        "com_offset": 0.04688,
+        "contact_l": 0.825,
+        "contact_r": 0.79,
+        "dorsal_contact": 0.0,
+        "hand_contact": 0.0,
+        "hand_err": 1.290302,
+        "knee_contact": 0.0,
+        "limit_prox": 0.494954,
+        "pelvis_z": 0.792584,
+        "reward": 0.957734,
+        "sat_frac": 0.122759,
+        "slip": 0.362317,
+        "speed": 0.195637,
+        "stance_err": 0.002584,
+        "steps_taken": 1.1,
+        "t": 2.01,
+        "tilt_deg": 3.644225,
+        "torso_contact": 0.0,
+        "upright": 0.997178,
+        "vel_err": 0.195637,
+        "yaw_err": 0.838016
+      },
+      "n_steps": 200,
+      "pushes": [
+        {
+          "direction_deg": 225.0,
+          "duration": 0.02,
+          "heading_relative": false,
+          "height": 0.79,
+          "impulse": 8.0,
+          "label": "battery_m8.0_d5_h0.79",
+          "t": 1.14
+        }
+      ],
+      "recovered": false,
+      "recovery_time_s": null,
+      "reward_sum": 191.546722,
+      "seed": 13,
+      "shot_depth_max": 0.0194,
+      "shot_exited": false,
+      "stable": false,
+      "steps": 200,
+      "steps_after_push": 2,
+      "steps_per_s": 373.49,
+      "steps_total": 2,
+      "task": "balance",
+      "termination": null,
+      "terms": {
+        "action_rate": {
+          "max": 0.0,
+          "mean": -0.161924,
+          "min": -0.207755,
+          "n": 200,
+          "p95": -0.118126
+        },
+        "alive": {
+          "max": 0.99999,
+          "mean": 0.997139,
+          "min": 0.98359,
+          "n": 200,
+          "p95": 0.99988
+        },
+        "flat_orientation": {
+          "max": -5e-06,
+          "mean": -0.001411,
+          "min": -0.007222,
+          "n": 200,
+          "p95": -6e-05
+        },
+        "joint_limit": {
+          "max": -0.0,
+          "mean": -0.494954,
+          "min": -1.0,
+          "n": 200,
+          "p95": -0.12575
+        },
+        "torque_sat": {
+          "max": -0.0,
+          "mean": -0.122759,
+          "min": -0.275862,
+          "n": 200,
+          "p95": -0.068966
+        }
+      },
+      "time_to_stability_s": null,
+      "truncated": true,
+      "wall_s": 0.5355
+    },
+    {
+      "com_offset_max_m": 0.1421,
+      "controller": "",
+      "duration_s": 4.0,
+      "episode": 14,
+      "final_pelvis_z": 0.064,
+      "final_upright": 0.0269,
+      "hand_err": 1.476515,
+      "heldout": false,
+      "impulse": 8.0,
+      "meta": {},
+      "metric_means": {
+        "act_delta": 0.078698,
+        "com_offset": 0.059012,
+        "contact_l": 0.425,
+        "contact_r": 0.485,
+        "dorsal_contact": 0.41,
+        "hand_contact": 0.175,
+        "hand_err": 1.476515,
+        "knee_contact": 0.0,
+        "limit_prox": 0.474553,
+        "pelvis_z": 0.328891,
+        "reward": 0.22043,
+        "sat_frac": 0.121379,
+        "slip": 0.166413,
+        "speed": 0.201966,
+        "stance_err": -0.461109,
+        "steps_taken": 12.135,
+        "t": 2.01,
+        "tilt_deg": 58.635234,
+        "torso_contact": 0.41,
+        "upright": 0.395221,
+        "vel_err": 0.201966,
+        "yaw_err": 0.888355
+      },
+      "n_steps": 200,
+      "pushes": [
+        {
+          "direction_deg": 270.0,
+          "duration": 0.02,
+          "heading_relative": false,
+          "height": 0.95,
+          "impulse": 8.0,
+          "label": "battery_m8.0_d6_h0.95",
+          "t": 1.24
+        }
+      ],
+      "recovered": false,
+      "recovery_time_s": null,
+      "reward_sum": 44.086027,
+      "seed": 14,
+      "shot_depth_max": 0.0108,
+      "shot_exited": false,
+      "stable": false,
+      "steps": 200,
+      "steps_after_push": 28,
+      "steps_per_s": 365.99,
+      "steps_total": 30,
+      "task": "balance",
+      "termination": null,
+      "terms": {
+        "action_rate": {
+          "max": 0.0,
+          "mean": -0.157395,
+          "min": -0.19934,
+          "n": 200,
+          "p95": -0.11143
+        },
+        "alive": {
+          "max": 0.999941,
+          "mean": 0.348813,
+          "min": 0.001743,
+          "n": 200,
+          "p95": 0.999526
+        },
+        "flat_orientation": {
+          "max": -2.9e-05,
+          "mean": -0.302389,
+          "min": -0.489865,
+          "n": 200,
+          "p95": -0.000236
+        },
+        "joint_limit": {
+          "max": -0.0,
+          "mean": -0.474553,
+          "min": -1.0,
+          "n": 200,
+          "p95": -0.048675
+        },
+        "torque_sat": {
+          "max": -0.0,
+          "mean": -0.121379,
+          "min": -0.241379,
+          "n": 200,
+          "p95": -0.068966
+        }
+      },
+      "time_to_stability_s": null,
+      "truncated": true,
+      "wall_s": 0.5465
+    },
+    {
+      "com_offset_max_m": 0.1414,
+      "controller": "",
+      "duration_s": 2.36,
+      "episode": 15,
+      "final_pelvis_z": 0.0865,
+      "final_upright": -0.0252,
+      "hand_err": 1.319832,
+      "heldout": false,
+      "impulse": 8.0,
+      "meta": {},
+      "metric_means": {
+        "act_delta": 0.078809,
+        "com_offset": 0.040795,
+        "contact_l": 0.694915,
+        "contact_r": 0.694915,
+        "dorsal_contact": 0.0,
+        "hand_contact": 0.016949,
+        "hand_err": 1.319832,
+        "knee_contact": 0.0,
+        "limit_prox": 0.450872,
+        "pelvis_z": 0.691178,
+        "reward": -0.098723,
+        "sat_frac": 0.115722,
+        "slip": 0.304198,
+        "speed": 0.39133,
+        "stance_err": -0.098822,
+        "steps_taken": 1.533898,
+        "t": 1.19,
+        "tilt_deg": 21.721771,
+        "torso_contact": 0.059322,
+        "upright": 0.827112,
+        "vel_err": 0.39133,
+        "yaw_err": 1.02602
+      },
+      "n_steps": 118,
+      "pushes": [
+        {
+          "direction_deg": 315.0,
+          "duration": 0.02,
+          "heading_relative": false,
+          "height": 1.1,
+          "impulse": 8.0,
+          "label": "battery_m8.0_d7_h1.10",
+          "t": 1.18
+        }
+      ],
+      "recovered": false,
+      "recovery_time_s": null,
+      "reward_sum": -11.649267,
+      "seed": 15,
+      "shot_depth_max": 0.0429,
+      "shot_exited": false,
+      "stable": false,
+      "steps": 118,
+      "steps_after_push": 5,
+      "steps_per_s": 369.26,
+      "steps_total": 6,
+      "task": "balance",
+      "termination": "fall",
+      "terms": {
+        "action_rate": {
+          "max": 0.0,
+          "mean": -0.157619,
+          "min": -0.206631,
+          "n": 118,
+          "p95": -0.113018
+        },
+        "alive": {
+          "max": 0.999978,
+          "mean": 0.810879,
+          "min": 0.0,
+          "n": 118,
+          "p95": 0.999891
+        },
+        "flat_orientation": {
+          "max": -1.1e-05,
+          "mean": -0.086444,
+          "min": -0.529054,
+          "n": 118,
+          "p95": -5.5e-05
+        },
+        "joint_limit": {
+          "max": -0.0,
+          "mean": -0.450872,
+          "min": -1.0,
+          "n": 118,
+          "p95": 0.0
+        },
+        "termination": {
+          "max": -100.0,
+          "mean": -100.0,
+          "min": -100.0,
+          "n": 1,
+          "p95": -100.0
+        },
+        "torque_sat": {
+          "max": -0.0,
+          "mean": -0.115722,
+          "min": -0.241379,
+          "n": 118,
+          "p95": -0.034483
+        }
+      },
+      "time_to_stability_s": null,
+      "truncated": false,
+      "wall_s": 0.3196
+    },
+    {
+      "com_offset_max_m": 0.1469,
+      "controller": "",
+      "duration_s": 4.0,
+      "episode": 16,
+      "final_pelvis_z": 0.0598,
+      "final_upright": 0.0562,
+      "hand_err": 1.477882,
+      "heldout": false,
+      "impulse": 12.0,
+      "meta": {},
+      "metric_means": {
+        "act_delta": 0.077096,
+        "com_offset": 0.052442,
+        "contact_l": 0.41,
+        "contact_r": 0.435,
+        "dorsal_contact": 0.36,
+        "hand_contact": 0.18,
+        "hand_err": 1.477882,
+        "knee_contact": 0.005,
+        "limit_prox": 0.467833,
+        "pelvis_z": 0.330959,
+        "reward": 0.218855,
+        "sat_frac": 0.12569,
+        "slip": 0.166227,
+        "speed": 0.251906,
+        "stance_err": -0.459041,
+        "steps_taken": 12.585,
+        "t": 2.01,
+        "tilt_deg": 59.091038,
+        "torso_contact": 0.36,
+        "upright": 0.393075,
+        "vel_err": 0.251906,
+        "yaw_err": 0.850953
+      },
+      "n_steps": 200,
+      "pushes": [
+        {
+          "direction_deg": 0.0,
+          "duration": 0.02,
+          "heading_relative": false,
+          "height": 1.1,
+          "impulse": 12.0,
+          "label": "battery_m12.0_d0_h1.10",
+          "t": 1.16
+        }
+      ],
+      "recovered": false,
+      "recovery_time_s": null,
+      "reward_sum": 43.77105,
+      "seed": 16,
+      "shot_depth_max": 0.0139,
+      "shot_exited": false,
+      "stable": false,
+      "steps": 200,
+      "steps_after_push": 37,
+      "steps_per_s": 388.21,
+      "steps_total": 37,
+      "task": "balance",
+      "termination": null,
+      "terms": {
+        "action_rate": {
+          "max": 0.0,
+          "mean": -0.154191,
+          "min": -0.206078,
+          "n": 200,
+          "p95": -0.103309
+        },
+        "alive": {
+          "max": 0.999982,
+          "mean": 0.34728,
+          "min": 0.0,
+          "n": 200,
+          "p95": 0.99941
+        },
+        "flat_orientation": {
+          "max": -9e-06,
+          "mean": -0.303462,
+          "min": -0.503828,
+          "n": 200,
+          "p95": -0.000295
+        },
+        "joint_limit": {
+          "max": -0.0,
+          "mean": -0.467833,
+          "min": -0.966225,
+          "n": 200,
+          "p95": -0.08404
+        },
+        "torque_sat": {
+          "max": -0.0,
+          "mean": -0.12569,
+          "min": -0.275862,
+          "n": 200,
+          "p95": -0.034483
+        }
+      },
+      "time_to_stability_s": null,
+      "truncated": true,
+      "wall_s": 0.5152
+    },
+    {
+      "com_offset_max_m": 0.1453,
+      "controller": "",
+      "duration_s": 4.0,
+      "episode": 17,
+      "final_pelvis_z": 0.0666,
+      "final_upright": 0.0161,
+      "hand_err": 1.407386,
+      "heldout": false,
+      "impulse": 12.0,
+      "meta": {},
+      "metric_means": {
+        "act_delta": 0.077232,
+        "com_offset": 0.059511,
+        "contact_l": 0.58,
+        "contact_r": 0.415,
+        "dorsal_contact": 0.24,
+        "hand_contact": 0.14,
+        "hand_err": 1.407386,
+        "knee_contact": 0.01,
+        "limit_prox": 0.530321,
+        "pelvis_z": 0.466071,
+        "reward": 0.412267,
+        "sat_frac": 0.133621,
+        "slip": 0.24929,
+        "speed": 0.385545,
+        "stance_err": -0.323929,
+        "steps_taken": 8.765,
+        "t": 2.01,
+        "tilt_deg": 46.069061,
+        "torso_contact": 0.24,
+        "upright": 0.553884,
+        "vel_err": 0.385545,
+        "yaw_err": 0.986106
+      },
+      "n_steps": 200,
+      "pushes": [
+        {
+          "direction_deg": 45.0,
+          "duration": 0.02,
+          "heading_relative": false,
+          "height": 0.79,
+          "impulse": 12.0,
+          "label": "battery_m12.0_d1_h0.79",
+          "t": 1.14
+        }
+      ],
+      "recovered": false,
+      "recovery_time_s": null,
+      "reward_sum": 82.453365,
+      "seed": 17,
+      "shot_depth_max": 0.0321,
+      "shot_exited": false,
+      "stable": false,
+      "steps": 200,
+      "steps_after_push": 26,
+      "steps_per_s": 320.67,
+      "steps_total": 27,
+      "task": "balance",
+      "termination": null,
+      "terms": {
+        "action_rate": {
+          "max": 0.0,
+          "mean": -0.154463,
+          "min": -0.210864,
+          "n": 200,
+          "p95": -0.094361
+        },
+        "alive": {
+          "max": 0.999966,
+          "mean": 0.520104,
+          "min": 0.0,
+          "n": 200,
+          "p95": 0.999415
+        },
+        "flat_orientation": {
+          "max": -1.7e-05,
+          "mean": -0.223058,
+          "min": -0.532372,
+          "n": 200,
+          "p95": -0.000293
+        },
+        "joint_limit": {
+          "max": -0.0,
+          "mean": -0.530321,
+          "min": -1.0,
+          "n": 200,
+          "p95": -0.116756
+        },
+        "torque_sat": {
+          "max": -0.0,
+          "mean": -0.133621,
+          "min": -0.344828,
+          "n": 200,
+          "p95": -0.067242
+        }
+      },
+      "time_to_stability_s": null,
+      "truncated": true,
+      "wall_s": 0.6237
+    },
+    {
+      "com_offset_max_m": 0.1395,
+      "controller": "",
+      "duration_s": 2.16,
+      "episode": 18,
+      "final_pelvis_z": 0.0679,
+      "final_upright": 0.0854,
+      "hand_err": 1.32973,
+      "heldout": false,
+      "impulse": 12.0,
+      "meta": {},
+      "metric_means": {
+        "act_delta": 0.078275,
+        "com_offset": 0.048817,
+        "contact_l": 0.583333,
+        "contact_r": 0.574074,
+        "dorsal_contact": 0.027778,
+        "hand_contact": 0.018519,
+        "hand_err": 1.32973,
+        "knee_contact": 0.009259,
+        "limit_prox": 0.426777,
+        "pelvis_z": 0.677426,
+        "reward": -0.176629,
+        "sat_frac": 0.12963,
+        "slip": 0.312327,
+        "speed": 0.436654,
+        "stance_err": -0.112574,
+        "steps_taken": 3.194444,
+        "t": 1.09,
+        "tilt_deg": 20.116968,
+        "torso_contact": 0.027778,
+        "upright": 0.842923,
+        "vel_err": 0.436654,
+        "yaw_err": 1.05468
+      },
+      "n_steps": 108,
+      "pushes": [
+        {
+          "direction_deg": 90.0,
+          "duration": 0.02,
+          "heading_relative": false,
+          "height": 0.95,
+          "impulse": 12.0,
+          "label": "battery_m12.0_d2_h0.95",
+          "t": 1.14
+        }
+      ],
+      "recovered": false,
+      "recovery_time_s": null,
+      "reward_sum": -19.075972,
+      "seed": 18,
+      "shot_depth_max": 0.0123,
+      "shot_exited": false,
+      "stable": false,
+      "steps": 108,
+      "steps_after_push": 11,
+      "steps_per_s": 335.37,
+      "steps_total": 12,
+      "task": "balance",
+      "termination": "fall",
+      "terms": {
+        "action_rate": {
+          "max": 0.0,
+          "mean": -0.156549,
+          "min": -0.202149,
+          "n": 108,
+          "p95": -0.117195
+        },
+        "alive": {
+          "max": 0.999967,
+          "mean": 0.808506,
+          "min": 0.0,
+          "n": 108,
+          "p95": 0.999894
+        },
+        "flat_orientation": {
+          "max": -1.6e-05,
+          "mean": -0.078539,
+          "min": -0.500247,
+          "n": 108,
+          "p95": -5.3e-05
+        },
+        "joint_limit": {
+          "max": -0.0,
+          "mean": -0.426777,
+          "min": -1.0,
+          "n": 108,
+          "p95": -0.0019
+        },
+        "termination": {
+          "max": -100.0,
+          "mean": -100.0,
+          "min": -100.0,
+          "n": 1,
+          "p95": -100.0
+        },
+        "torque_sat": {
+          "max": -0.0,
+          "mean": -0.12963,
+          "min": -0.241379,
+          "n": 108,
+          "p95": -0.034483
+        }
+      },
+      "time_to_stability_s": null,
+      "truncated": false,
+      "wall_s": 0.322
+    },
+    {
+      "com_offset_max_m": 0.1366,
+      "controller": "",
+      "duration_s": 3.24,
+      "episode": 19,
+      "final_pelvis_z": 0.0599,
+      "final_upright": 0.0554,
+      "hand_err": 1.440045,
+      "heldout": false,
+      "impulse": 12.0,
+      "meta": {},
+      "metric_means": {
+        "act_delta": 0.081636,
+        "com_offset": 0.055915,
+        "contact_l": 0.487654,
+        "contact_r": 0.469136,
+        "dorsal_contact": 0.265432,
+        "hand_contact": 0.166667,
+        "hand_err": 1.440045,
+        "knee_contact": 0.0,
+        "limit_prox": 0.430694,
+        "pelvis_z": 0.430223,
+        "reward": -0.240624,
+        "sat_frac": 0.118561,
+        "slip": 0.197084,
+        "speed": 0.28462,
+        "stance_err": -0.359777,
+        "steps_taken": 9.648148,
+        "t": 1.63,
+        "tilt_deg": 47.346616,
+        "torso_contact": 0.265432,
+        "upright": 0.523524,
+        "vel_err": 0.28462,
+        "yaw_err": 1.027733
+      },
+      "n_steps": 162,
+      "pushes": [
+        {
+          "direction_deg": 135.0,
+          "duration": 0.02,
+          "heading_relative": false,
+          "height": 1.1,
+          "impulse": 12.0,
+          "label": "battery_m12.0_d3_h1.10",
+          "t": 1.24
+        }
+      ],
+      "recovered": false,
+      "recovery_time_s": null,
+      "reward_sum": -38.98115,
+      "seed": 19,
+      "shot_depth_max": 0.0123,
+      "shot_exited": false,
+      "stable": false,
+      "steps": 162,
+      "steps_after_push": 19,
+      "steps_per_s": 321.36,
+      "steps_total": 24,
+      "task": "balance",
+      "termination": "fall",
+      "terms": {
+        "action_rate": {
+          "max": 0.0,
+          "mean": -0.163271,
+          "min": -0.199585,
+          "n": 162,
+          "p95": -0.139959
+        },
+        "alive": {
+          "max": 0.999948,
+          "mean": 0.483757,
+          "min": 0.000587,
+          "n": 162,
+          "p95": 0.999498
+        },
+        "flat_orientation": {
+          "max": -2.6e-05,
+          "mean": -0.238238,
+          "min": -0.496625,
+          "n": 162,
+          "p95": -0.00025
+        },
+        "joint_limit": {
+          "max": -0.0,
+          "mean": -0.430694,
+          "min": -0.975943,
+          "n": 162,
+          "p95": -0.006156
+        },
+        "termination": {
+          "max": -100.0,
+          "mean": -100.0,
+          "min": -100.0,
+          "n": 1,
+          "p95": -100.0
+        },
+        "torque_sat": {
+          "max": -0.0,
+          "mean": -0.118561,
+          "min": -0.241379,
+          "n": 162,
+          "p95": -0.034483
+        }
+      },
+      "time_to_stability_s": null,
+      "truncated": false,
+      "wall_s": 0.5041
+    },
+    {
+      "com_offset_max_m": 0.1612,
+      "controller": "",
+      "duration_s": 4.0,
+      "episode": 20,
+      "final_pelvis_z": 0.0584,
+      "final_upright": 0.074,
+      "hand_err": 1.440576,
+      "heldout": false,
+      "impulse": 12.0,
+      "meta": {},
+      "metric_means": {
+        "act_delta": 0.081423,
+        "com_offset": 0.057901,
+        "contact_l": 0.42,
+        "contact_r": 0.56,
+        "dorsal_contact": 0.315,
+        "hand_contact": 0.17,
+        "hand_err": 1.440576,
+        "knee_contact": 0.005,
+        "limit_prox": 0.436115,
+        "pelvis_z": 0.411491,
+        "reward": 0.350007,
+        "sat_frac": 0.119828,
+        "slip": 0.213461,
+        "speed": 0.228775,
+        "stance_err": -0.378509,
+        "steps_taken": 11.945,
+        "t": 2.01,
+        "tilt_deg": 49.097948,
+        "torso_contact": 0.315,
+        "upright": 0.498824,
+        "vel_err": 0.228775,
+        "yaw_err": 0.708306
+      },
+      "n_steps": 200,
+      "pushes": [
+        {
+          "direction_deg": 180.0,
+          "duration": 0.02,
+          "heading_relative": false,
+          "height": 0.79,
+          "impulse": 12.0,
+          "label": "battery_m12.0_d4_h0.79",
+          "t": 1.06
+        }
+      ],
+      "recovered": false,
+      "recovery_time_s": null,
+      "reward_sum": 70.001344,
+      "seed": 20,
+      "shot_depth_max": 0.017,
+      "shot_exited": false,
+      "stable": false,
+      "steps": 200,
+      "steps_after_push": 27,
+      "steps_per_s": 301.19,
+      "steps_total": 29,
+      "task": "balance",
+      "termination": null,
+      "terms": {
+        "action_rate": {
+          "max": 0.0,
+          "mean": -0.162846,
+          "min": -0.202909,
+          "n": 200,
+          "p95": -0.136262
+        },
+        "alive": {
+          "max": 0.999976,
+          "mean": 0.461122,
+          "min": 5.5e-05,
+          "n": 200,
+          "p95": 0.999854
+        },
+        "flat_orientation": {
+          "max": -1.2e-05,
+          "mean": -0.250588,
+          "min": -0.499508,
+          "n": 200,
+          "p95": -7.3e-05
+        },
+        "joint_limit": {
+          "max": -0.0,
+          "mean": -0.436115,
+          "min": -0.975977,
+          "n": 200,
+          "p95": -0.014276
+        },
+        "torque_sat": {
+          "max": -0.0,
+          "mean": -0.119828,
+          "min": -0.241379,
+          "n": 200,
+          "p95": -0.067242
+        }
+      },
+      "time_to_stability_s": null,
+      "truncated": true,
+      "wall_s": 0.664
+    },
+    {
+      "com_offset_max_m": 0.1481,
+      "controller": "",
+      "duration_s": 4.0,
+      "episode": 21,
+      "final_pelvis_z": 0.0656,
+      "final_upright": 0.0335,
+      "hand_err": 1.385104,
+      "heldout": false,
+      "impulse": 12.0,
+      "meta": {},
+      "metric_means": {
+        "act_delta": 0.080577,
+        "com_offset": 0.054568,
+        "contact_l": 0.55,
+        "contact_r": 0.615,
+        "dorsal_contact": 0.175,
+        "hand_contact": 0.095,
+        "hand_err": 1.385104,
+        "knee_contact": 0.005,
+        "limit_prox": 0.425869,
+        "pelvis_z": 0.560018,
+        "reward": 0.58076,
+        "sat_frac": 0.122931,
+        "slip": 0.260086,
+        "speed": 0.282901,
+        "stance_err": -0.229982,
+        "steps_taken": 5.985,
+        "t": 2.01,
+        "tilt_deg": 32.331902,
+        "torso_contact": 0.175,
+        "upright": 0.691781,
+        "vel_err": 0.282901,
+        "yaw_err": 0.9582
+      },
+      "n_steps": 200,
+      "pushes": [
+        {
+          "direction_deg": 225.0,
+          "duration": 0.02,
+          "heading_relative": false,
+          "height": 0.95,
+          "impulse": 12.0,
+          "label": "battery_m12.0_d5_h0.95",
+          "t": 1.2
+        }
+      ],
+      "recovered": false,
+      "recovery_time_s": null,
+      "reward_sum": 116.151908,
+      "seed": 21,
+      "shot_depth_max": 0.0197,
+      "shot_exited": false,
+      "stable": false,
+      "steps": 200,
+      "steps_after_push": 19,
+      "steps_per_s": 329.93,
+      "steps_total": 20,
+      "task": "balance",
+      "termination": null,
+      "terms": {
+        "action_rate": {
+          "max": 0.0,
+          "mean": -0.161155,
+          "min": -0.198672,
+          "n": 200,
+          "p95": -0.126795
+        },
+        "alive": {
+          "max": 0.999963,
+          "mean": 0.66249,
+          "min": 0.0,
+          "n": 200,
+          "p95": 0.999894
+        },
+        "flat_orientation": {
+          "max": -1.8e-05,
+          "mean": -0.154109,
+          "min": -0.501757,
+          "n": 200,
+          "p95": -5.3e-05
+        },
+        "joint_limit": {
+          "max": -0.0,
+          "mean": -0.425869,
+          "min": -0.986752,
+          "n": 200,
+          "p95": -0.002995
+        },
+        "torque_sat": {
+          "max": -0.0,
+          "mean": -0.122931,
+          "min": -0.310345,
+          "n": 200,
+          "p95": -0.068966
+        }
+      },
+      "time_to_stability_s": null,
+      "truncated": true,
+      "wall_s": 0.6062
+    },
+    {
+      "com_offset_max_m": 0.1521,
+      "controller": "",
+      "duration_s": 4.0,
+      "episode": 22,
+      "final_pelvis_z": 0.2354,
+      "final_upright": 0.1312,
+      "hand_err": 1.294264,
+      "heldout": false,
+      "impulse": 12.0,
+      "meta": {},
+      "metric_means": {
+        "act_delta": 0.085335,
+        "com_offset": 0.051501,
+        "contact_l": 0.755,
+        "contact_r": 0.705,
+        "dorsal_contact": 0.0,
+        "hand_contact": 0.0,
+        "hand_err": 1.294264,
+        "knee_contact": 0.0,
+        "limit_prox": 0.581852,
+        "pelvis_z": 0.769196,
+        "reward": 0.880492,
+        "sat_frac": 0.125517,
+        "slip": 0.429204,
+        "speed": 0.29661,
+        "stance_err": -0.020804,
+        "steps_taken": 1.96,
+        "t": 2.01,
+        "tilt_deg": 12.363766,
+        "torso_contact": 0.0,
+        "upright": 0.945774,
+        "vel_err": 0.29661,
+        "yaw_err": 1.018908
+      },
+      "n_steps": 200,
+      "pushes": [
+        {
+          "direction_deg": 270.0,
+          "duration": 0.02,
+          "heading_relative": false,
+          "height": 1.1,
+          "impulse": 12.0,
+          "label": "battery_m12.0_d6_h1.10",
+          "t": 1.16
+        }
+      ],
+      "recovered": false,
+      "recovery_time_s": null,
+      "reward_sum": 176.098384,
+      "seed": 22,
+      "shot_depth_max": 0.0363,
+      "shot_exited": false,
+      "stable": false,
+      "steps": 200,
+      "steps_after_push": 5,
+      "steps_per_s": 256.34,
+      "steps_total": 5,
+      "task": "balance",
+      "termination": null,
+      "terms": {
+        "action_rate": {
+          "max": 0.0,
+          "mean": -0.170671,
+          "min": -0.214975,
+          "n": 200,
+          "p95": -0.139009
+        },
+        "alive": {
+          "max": 0.999977,
+          "mean": 0.932528,
+          "min": 0.040043,
+          "n": 200,
+          "p95": 0.999751
+        },
+        "flat_orientation": {
+          "max": -1.2e-05,
+          "mean": -0.027113,
+          "min": -0.434397,
+          "n": 200,
+          "p95": -0.000125
+        },
+        "joint_limit": {
+          "max": -0.0,
+          "mean": -0.581852,
+          "min": -1.0,
+          "n": 200,
+          "p95": -0.22323
+        },
+        "torque_sat": {
+          "max": -0.0,
+          "mean": -0.125517,
+          "min": -0.275862,
+          "n": 200,
+          "p95": -0.034483
+        }
+      },
+      "time_to_stability_s": null,
+      "truncated": true,
+      "wall_s": 0.7802
+    },
+    {
+      "com_offset_max_m": 0.1343,
+      "controller": "",
+      "duration_s": 1.98,
+      "episode": 23,
+      "final_pelvis_z": 0.0908,
+      "final_upright": -0.0364,
+      "hand_err": 1.330127,
+      "heldout": false,
+      "impulse": 12.0,
+      "meta": {},
+      "metric_means": {
+        "act_delta": 0.080286,
+        "com_offset": 0.053013,
+        "contact_l": 0.69697,
+        "contact_r": 0.575758,
+        "dorsal_contact": 0.0,
+        "hand_contact": 0.020202,
+        "hand_err": 1.330127,
+        "knee_contact": 0.0,
+        "limit_prox": 0.496281,
+        "pelvis_z": 0.665963,
+        "reward": -0.320837,
+        "sat_frac": 0.132706,
+        "slip": 0.372001,
+        "speed": 0.388999,
+        "stance_err": -0.124037,
+        "steps_taken": 0.787879,
+        "t": 1.0,
+        "tilt_deg": 26.850528,
+        "torso_contact": 0.080808,
+        "upright": 0.781987,
+        "vel_err": 0.388999,
+        "yaw_err": 1.057695
+      },
+      "n_steps": 99,
+      "pushes": [
+        {
+          "direction_deg": 315.0,
+          "duration": 0.02,
+          "heading_relative": false,
+          "height": 0.79,
+          "impulse": 12.0,
+          "label": "battery_m12.0_d7_h0.79",
+          "t": 1.0
+        }
+      ],
+      "recovered": false,
+      "recovery_time_s": null,
+      "reward_sum": -31.762866,
+      "seed": 23,
+      "shot_depth_max": 0.0444,
+      "shot_exited": false,
+      "stable": false,
+      "steps": 99,
+      "steps_after_push": 7,
+      "steps_per_s": 265.83,
+      "steps_total": 7,
+      "task": "balance",
+      "termination": "fall",
+      "terms": {
+        "action_rate": {
+          "max": 0.0,
+          "mean": -0.160573,
+          "min": -0.203746,
+          "n": 99,
+          "p95": -0.124556
+        },
+        "alive": {
+          "max": 0.999993,
+          "mean": 0.761444,
+          "min": 0.0,
+          "n": 99,
+          "p95": 0.999875
+        },
+        "flat_orientation": {
+          "max": -4e-06,
+          "mean": -0.109006,
+          "min": -0.535044,
+          "n": 99,
+          "p95": -6.2e-05
+        },
+        "joint_limit": {
+          "max": -0.0,
+          "mean": -0.496281,
+          "min": -1.0,
+          "n": 99,
+          "p95": -0.015986
+        },
+        "termination": {
+          "max": -100.0,
+          "mean": -100.0,
+          "min": -100.0,
+          "n": 1,
+          "p95": -100.0
+        },
+        "torque_sat": {
+          "max": -0.0,
+          "mean": -0.132706,
+          "min": -0.241379,
+          "n": 99,
+          "p95": -0.068966
+        }
+      },
+      "time_to_stability_s": null,
+      "truncated": false,
+      "wall_s": 0.3724
+    },
+    {
+      "com_offset_max_m": 0.1301,
+      "controller": "",
+      "duration_s": 2.24,
+      "episode": 24,
+      "final_pelvis_z": 0.0984,
+      "final_upright": -0.0456,
+      "hand_err": 1.324884,
+      "heldout": true,
+      "impulse": 16.0,
+      "meta": {},
+      "metric_means": {
+        "act_delta": 0.080482,
+        "com_offset": 0.040289,
+        "contact_l": 0.633929,
+        "contact_r": 0.607143,
+        "dorsal_contact": 0.0,
+        "hand_contact": 0.026786,
+        "hand_err": 1.324884,
+        "knee_contact": 0.0,
+        "limit_prox": 0.48531,
+        "pelvis_z": 0.683547,
+        "reward": -0.160395,
+        "sat_frac": 0.124692,
+        "slip": 0.322378,
+        "speed": 0.420769,
+        "stance_err": -0.106453,
+        "steps_taken": 1.758929,
+        "t": 1.13,
+        "tilt_deg": 22.676466,
+        "torso_contact": 0.053571,
+        "upright": 0.814651,
+        "vel_err": 0.420769,
+        "yaw_err": 1.183451
+      },
+      "n_steps": 112,
+      "pushes": [
+        {
+          "direction_deg": 0.0,
+          "duration": 0.02,
+          "heading_relative": false,
+          "height": 0.79,
+          "impulse": 16.0,
+          "label": "battery_m16.0_d0_h0.79_heldout",
+          "t": 1.1
+        }
+      ],
+      "recovered": false,
+      "recovery_time_s": null,
+      "reward_sum": -17.964255,
+      "seed": 24,
+      "shot_depth_max": 0.046,
+      "shot_exited": false,
+      "stable": false,
+      "steps": 112,
+      "steps_after_push": 6,
+      "steps_per_s": 308.77,
+      "steps_total": 8,
+      "task": "balance",
+      "termination": "fall",
+      "terms": {
+        "action_rate": {
+          "max": 0.0,
+          "mean": -0.160964,
+          "min": -0.200305,
+          "n": 112,
+          "p95": -0.122483
+        },
+        "alive": {
+          "max": 0.999989,
+          "mean": 0.798813,
+          "min": 0.0,
+          "n": 112,
+          "p95": 0.999881
+        },
+        "flat_orientation": {
+          "max": -6e-06,
+          "mean": -0.092675,
+          "min": -0.536013,
+          "n": 112,
+          "p95": -6e-05
+        },
+        "joint_limit": {
+          "max": -0.0,
+          "mean": -0.48531,
+          "min": -1.0,
+          "n": 112,
+          "p95": -0.065873
+        },
+        "termination": {
+          "max": -100.0,
+          "mean": -100.0,
+          "min": -100.0,
+          "n": 1,
+          "p95": -100.0
+        },
+        "torque_sat": {
+          "max": -0.0,
+          "mean": -0.124692,
+          "min": -0.241379,
+          "n": 112,
+          "p95": -0.034483
+        }
+      },
+      "time_to_stability_s": null,
+      "truncated": false,
+      "wall_s": 0.3627
+    },
+    {
+      "com_offset_max_m": 0.1452,
+      "controller": "",
+      "duration_s": 4.0,
+      "episode": 25,
+      "final_pelvis_z": 0.0616,
+      "final_upright": 0.0591,
+      "hand_err": 1.455089,
+      "heldout": true,
+      "impulse": 16.0,
+      "meta": {},
+      "metric_means": {
+        "act_delta": 0.082438,
+        "com_offset": 0.061853,
+        "contact_l": 0.45,
+        "contact_r": 0.46,
+        "dorsal_contact": 0.32,
+        "hand_contact": 0.16,
+        "hand_err": 1.455089,
+        "knee_contact": 0.0,
+        "limit_prox": 0.452413,
+        "pelvis_z": 0.379268,
+        "reward": 0.299222,
+        "sat_frac": 0.114655,
+        "slip": 0.183805,
+        "speed": 0.270459,
+        "stance_err": -0.410732,
+        "steps_taken": 10.565,
+        "t": 2.01,
+        "tilt_deg": 53.067376,
+        "torso_contact": 0.32,
+        "upright": 0.458312,
+        "vel_err": 0.270459,
+        "yaw_err": 0.811875
+      },
+      "n_steps": 200,
+      "pushes": [
+        {
+          "direction_deg": 45.0,
+          "duration": 0.02,
+          "heading_relative": false,
+          "height": 0.95,
+          "impulse": 16.0,
+          "label": "battery_m16.0_d1_h0.95_heldout",
+          "t": 1.22
+        }
+      ],
+      "recovered": false,
+      "recovery_time_s": null,
+      "reward_sum": 59.844345,
+      "seed": 25,
+      "shot_depth_max": 0.0171,
+      "shot_exited": false,
+      "stable": false,
+      "steps": 200,
+      "steps_after_push": 29,
+      "steps_per_s": 289.41,
+      "steps_total": 30,
+      "task": "balance",
+      "termination": null,
+      "terms": {
+        "action_rate": {
+          "max": 0.0,
+          "mean": -0.164876,
+          "min": -0.207381,
+          "n": 200,
+          "p95": -0.134652
+        },
+        "alive": {
+          "max": 0.99997,
+          "mean": 0.417072,
+          "min": 0.0,
+          "n": 200,
+          "p95": 0.999766
+        },
+        "flat_orientation": {
+          "max": -1.5e-05,
+          "mean": -0.270844,
+          "min": -0.501685,
+          "n": 200,
+          "p95": -0.000117
+        },
+        "joint_limit": {
+          "max": -0.0,
+          "mean": -0.452413,
+          "min": -0.899017,
+          "n": 200,
+          "p95": -0.089004
+        },
+        "torque_sat": {
+          "max": -0.0,
+          "mean": -0.114655,
+          "min": -0.275862,
+          "n": 200,
+          "p95": -0.034483
+        }
+      },
+      "time_to_stability_s": null,
+      "truncated": true,
+      "wall_s": 0.6911
+    },
+    {
+      "com_offset_max_m": 0.1481,
+      "controller": "",
+      "duration_s": 2.3,
+      "episode": 26,
+      "final_pelvis_z": 0.0655,
+      "final_upright": 0.0521,
+      "hand_err": 1.325903,
+      "heldout": true,
+      "impulse": 16.0,
+      "meta": {},
+      "metric_means": {
+        "act_delta": 0.081503,
+        "com_offset": 0.054894,
+        "contact_l": 0.704348,
+        "contact_r": 0.573913,
+        "dorsal_contact": 0.034783,
+        "hand_contact": 0.026087,
+        "hand_err": 1.325903,
+        "knee_contact": 0.008696,
+        "limit_prox": 0.421411,
+        "pelvis_z": 0.684559,
+        "reward": -0.104967,
+        "sat_frac": 0.115442,
+        "slip": 0.283999,
+        "speed": 0.469913,
+        "stance_err": -0.105441,
+        "steps_taken": 1.391304,
+        "t": 1.16,
+        "tilt_deg": 19.355017,
+        "torso_contact": 0.034783,
+        "upright": 0.853797,
+        "vel_err": 0.469913,
+        "yaw_err": 0.774544
+      },
+      "n_steps": 115,
+      "pushes": [
+        {
+          "direction_deg": 90.0,
+          "duration": 0.02,
+          "heading_relative": false,
+          "height": 1.1,
+          "impulse": 16.0,
+          "label": "battery_m16.0_d2_h1.10_heldout",
+          "t": 1.14
+        }
+      ],
+      "recovered": false,
+      "recovery_time_s": null,
+      "reward_sum": -12.071167,
+      "seed": 26,
+      "shot_depth_max": 0.0141,
+      "shot_exited": false,
+      "stable": false,
+      "steps": 115,
+      "steps_after_push": 7,
+      "steps_per_s": 296.44,
+      "steps_total": 7,
+      "task": "balance",
+      "termination": "fall",
+      "terms": {
+        "action_rate": {
+          "max": 0.0,
+          "mean": -0.163007,
+          "min": -0.204772,
+          "n": 115,
+          "p95": -0.122974
+        },
+        "alive": {
+          "max": 0.999931,
+          "mean": 0.821522,
+          "min": 0.001716,
+          "n": 115,
+          "p95": 0.999598
+        },
+        "flat_orientation": {
+          "max": -3.4e-05,
+          "mean": -0.073101,
+          "min": -0.48993,
+          "n": 115,
+          "p95": -0.000201
+        },
+        "joint_limit": {
+          "max": -0.0,
+          "mean": -0.421411,
+          "min": -1.0,
+          "n": 115,
+          "p95": -0.0342
+        },
+        "termination": {
+          "max": -100.0,
+          "mean": -100.0,
+          "min": -100.0,
+          "n": 1,
+          "p95": -100.0
+        },
+        "torque_sat": {
+          "max": -0.0,
+          "mean": -0.115442,
+          "min": -0.241379,
+          "n": 115,
+          "p95": -0.034483
+        }
+      },
+      "time_to_stability_s": null,
+      "truncated": false,
+      "wall_s": 0.3879
+    },
+    {
+      "com_offset_max_m": 0.1338,
+      "controller": "",
+      "duration_s": 4.0,
+      "episode": 27,
+      "final_pelvis_z": 0.0615,
+      "final_upright": 0.0336,
+      "hand_err": 1.443108,
+      "heldout": true,
+      "impulse": 16.0,
+      "meta": {},
+      "metric_means": {
+        "act_delta": 0.079047,
+        "com_offset": 0.052877,
+        "contact_l": 0.515,
+        "contact_r": 0.495,
+        "dorsal_contact": 0.315,
+        "hand_contact": 0.135,
+        "hand_err": 1.443108,
+        "knee_contact": 0.005,
+        "limit_prox": 0.455581,
+        "pelvis_z": 0.403773,
+        "reward": 0.338034,
+        "sat_frac": 0.126724,
+        "slip": 0.196059,
+        "speed": 0.292927,
+        "stance_err": -0.386227,
+        "steps_taken": 11.11,
+        "t": 2.01,
+        "tilt_deg": 50.076817,
+        "torso_contact": 0.315,
+        "upright": 0.491052,
+        "vel_err": 0.292927,
+        "yaw_err": 0.879827
+      },
+      "n_steps": 200,
+      "pushes": [
+        {
+          "direction_deg": 135.0,
+          "duration": 0.02,
+          "heading_relative": false,
+          "height": 0.79,
+          "impulse": 16.0,
+          "label": "battery_m16.0_d3_h0.79_heldout",
+          "t": 1.0
+        }
+      ],
+      "recovered": false,
+      "recovery_time_s": null,
+      "reward_sum": 67.606806,
+      "seed": 27,
+      "shot_depth_max": 0.0133,
+      "shot_exited": false,
+      "stable": false,
+      "steps": 200,
+      "steps_after_push": 27,
+      "steps_per_s": 302.39,
+      "steps_total": 30,
+      "task": "balance",
+      "termination": null,
+      "terms": {
+        "action_rate": {
+          "max": 0.0,
+          "mean": -0.158093,
+          "min": -0.238087,
+          "n": 200,
+          "p95": -0.116131
+        },
+        "alive": {
+          "max": 0.999992,
+          "mean": 0.451396,
+          "min": 0.000844,
+          "n": 200,
+          "p95": 0.999557
+        },
+        "flat_orientation": {
+          "max": -4e-06,
+          "mean": -0.254474,
+          "min": -0.495214,
+          "n": 200,
+          "p95": -0.000221
+        },
+        "joint_limit": {
+          "max": -0.0,
+          "mean": -0.455581,
+          "min": -1.0,
+          "n": 200,
+          "p95": -0.06144
+        },
+        "torque_sat": {
+          "max": -0.0,
+          "mean": -0.126724,
+          "min": -0.241379,
+          "n": 200,
+          "p95": -0.034483
+        }
+      },
+      "time_to_stability_s": null,
+      "truncated": true,
+      "wall_s": 0.6614
+    },
+    {
+      "com_offset_max_m": 0.1359,
+      "controller": "",
+      "duration_s": 4.0,
+      "episode": 28,
+      "final_pelvis_z": 0.0603,
+      "final_upright": 0.0504,
+      "hand_err": 1.471732,
+      "heldout": true,
+      "impulse": 16.0,
+      "meta": {},
+      "metric_means": {
+        "act_delta": 0.083303,
+        "com_offset": 0.060481,
+        "contact_l": 0.44,
+        "contact_r": 0.44,
+        "dorsal_contact": 0.395,
+        "hand_contact": 0.185,
+        "hand_err": 1.471732,
+        "knee_contact": 0.0,
+        "limit_prox": 0.4697,
+        "pelvis_z": 0.311748,
+        "reward": 0.196643,
+        "sat_frac": 0.119828,
+        "slip": 0.173254,
+        "speed": 0.23537,
+        "stance_err": -0.478252,
+        "steps_taken": 13.515,
+        "t": 2.01,
+        "tilt_deg": 60.385002,
+        "torso_contact": 0.395,
+        "upright": 0.372217,
+        "vel_err": 0.23537,
+        "yaw_err": 1.043427
+      },
+      "n_steps": 200,
+      "pushes": [
+        {
+          "direction_deg": 180.0,
+          "duration": 0.02,
+          "heading_relative": false,
+          "height": 0.95,
+          "impulse": 16.0,
+          "label": "battery_m16.0_d4_h0.95_heldout",
+          "t": 1.18
+        }
+      ],
+      "recovered": false,
+      "recovery_time_s": null,
+      "reward_sum": 39.328523,
+      "seed": 28,
+      "shot_depth_max": 0.0119,
+      "shot_exited": false,
+      "stable": false,
+      "steps": 200,
+      "steps_after_push": 32,
+      "steps_per_s": 238.43,
+      "steps_total": 34,
+      "task": "balance",
+      "termination": null,
+      "terms": {
+        "action_rate": {
+          "max": 0.0,
+          "mean": -0.166605,
+          "min": -0.204365,
+          "n": 200,
+          "p95": -0.135354
+        },
+        "alive": {
+          "max": 0.999959,
+          "mean": 0.328617,
+          "min": 0.0,
+          "n": 200,
+          "p95": 0.999421
+        },
+        "flat_orientation": {
+          "max": -2.1e-05,
+          "mean": -0.313891,
+          "min": -0.504115,
+          "n": 200,
+          "p95": -0.00029
+        },
+        "joint_limit": {
+          "max": -0.0,
+          "mean": -0.4697,
+          "min": -1.0,
+          "n": 200,
+          "p95": -0.167271
+        },
+        "torque_sat": {
+          "max": -0.0,
+          "mean": -0.119828,
+          "min": -0.310345,
+          "n": 200,
+          "p95": -0.034483
+        }
+      },
+      "time_to_stability_s": null,
+      "truncated": true,
+      "wall_s": 0.8388
+    },
+    {
+      "com_offset_max_m": 0.159,
+      "controller": "",
+      "duration_s": 1.7,
+      "episode": 29,
+      "final_pelvis_z": 0.1496,
+      "final_upright": -0.0623,
+      "hand_err": 1.372182,
+      "heldout": true,
+      "impulse": 16.0,
+      "meta": {},
+      "metric_means": {
+        "act_delta": 0.068911,
+        "com_offset": 0.048196,
+        "contact_l": 0.4,
+        "contact_r": 0.564706,
+        "dorsal_contact": 0.0,
+        "hand_contact": 0.011765,
+        "hand_err": 1.372182,
+        "knee_contact": 0.0,
+        "limit_prox": 0.425735,
+        "pelvis_z": 0.626778,
+        "reward": -0.557313,
+        "sat_frac": 0.133063,
+        "slip": 0.231333,
+        "speed": 0.540675,
+        "stance_err": -0.163222,
+        "steps_taken": 1.976471,
+        "t": 0.86,
+        "tilt_deg": 31.535928,
+        "torso_contact": 0.0,
+        "upright": 0.727458,
+        "vel_err": 0.540675,
+        "yaw_err": 1.17705
+      },
+      "n_steps": 85,
+      "pushes": [
+        {
+          "direction_deg": 225.0,
+          "duration": 0.02,
+          "heading_relative": false,
+          "height": 1.1,
+          "impulse": 16.0,
+          "label": "battery_m16.0_d5_h1.10_heldout",
+          "t": 1.18
+        }
+      ],
+      "recovered": false,
+      "recovery_time_s": null,
+      "reward_sum": -47.371643,
+      "seed": 29,
+      "shot_depth_max": 0.0397,
+      "shot_exited": false,
+      "stable": false,
+      "steps": 85,
+      "steps_after_push": 3,
+      "steps_per_s": 341.3,
+      "steps_total": 6,
+      "task": "balance",
+      "termination": "fall",
+      "terms": {
+        "action_rate": {
+          "max": 0.0,
+          "mean": -0.137823,
+          "min": -0.192014,
+          "n": 85,
+          "p95": -0.07662
+        },
+        "alive": {
+          "max": 0.999961,
+          "mean": 0.694869,
+          "min": 0.0,
+          "n": 85,
+          "p95": 0.999506
+        },
+        "flat_orientation": {
+          "max": -2e-05,
+          "mean": -0.136271,
+          "min": -0.531134,
+          "n": 85,
+          "p95": -0.000247
+        },
+        "joint_limit": {
+          "max": -0.0,
+          "mean": -0.425735,
+          "min": -0.956346,
+          "n": 85,
+          "p95": -0.002521
+        },
+        "termination": {
+          "max": -100.0,
+          "mean": -100.0,
+          "min": -100.0,
+          "n": 1,
+          "p95": -100.0
+        },
+        "torque_sat": {
+          "max": -0.034483,
+          "mean": -0.133063,
+          "min": -0.241379,
+          "n": 85,
+          "p95": -0.04138
+        }
+      },
+      "time_to_stability_s": null,
+      "truncated": false,
+      "wall_s": 0.249
+    },
+    {
+      "com_offset_max_m": 0.1346,
+      "controller": "",
+      "duration_s": 2.6,
+      "episode": 30,
+      "final_pelvis_z": 0.0878,
+      "final_upright": -0.0267,
+      "hand_err": 1.317577,
+      "heldout": true,
+      "impulse": 16.0,
+      "meta": {},
+      "metric_means": {
+        "act_delta": 0.080394,
+        "com_offset": 0.047157,
+        "contact_l": 0.630769,
+        "contact_r": 0.676923,
+        "dorsal_contact": 0.0,
+        "hand_contact": 0.015385,
+        "hand_err": 1.317577,
+        "knee_contact": 0.0,
+        "limit_prox": 0.523151,
+        "pelvis_z": 0.695953,
+        "reward": -0.018714,
+        "sat_frac": 0.129443,
+        "slip": 0.347039,
+        "speed": 0.384115,
+        "stance_err": -0.094047,
+        "steps_taken": 1.984615,
+        "t": 1.31,
+        "tilt_deg": 21.730046,
+        "torso_contact": 0.046154,
+        "upright": 0.83308,
+        "vel_err": 0.384115,
+        "yaw_err": 1.136949
+      },
+      "n_steps": 130,
+      "pushes": [
+        {
+          "direction_deg": 270.0,
+          "duration": 0.02,
+          "heading_relative": false,
+          "height": 0.79,
+          "impulse": 16.0,
+          "label": "battery_m16.0_d6_h0.79_heldout",
+          "t": 1.22
+        }
+      ],
+      "recovered": false,
+      "recovery_time_s": null,
+      "reward_sum": -2.43288,
+      "seed": 30,
+      "shot_depth_max": 0.0477,
+      "shot_exited": false,
+      "stable": false,
+      "steps": 130,
+      "steps_after_push": 7,
+      "steps_per_s": 233.91,
+      "steps_total": 9,
+      "task": "balance",
+      "termination": "fall",
+      "terms": {
+        "action_rate": {
+          "max": 0.0,
+          "mean": -0.160788,
+          "min": -0.210763,
+          "n": 130,
+          "p95": -0.112553
+        },
+        "alive": {
+          "max": 0.999993,
+          "mean": 0.816223,
+          "min": 0.0,
+          "n": 130,
+          "p95": 0.999909
+        },
+        "flat_orientation": {
+          "max": -3e-06,
+          "mean": -0.08346,
+          "min": -0.538362,
+          "n": 130,
+          "p95": -4.6e-05
+        },
+        "joint_limit": {
+          "max": -0.0,
+          "mean": -0.523151,
+          "min": -1.0,
+          "n": 130,
+          "p95": -0.029183
+        },
+        "termination": {
+          "max": -100.0,
+          "mean": -100.0,
+          "min": -100.0,
+          "n": 1,
+          "p95": -100.0
+        },
+        "torque_sat": {
+          "max": -0.0,
+          "mean": -0.129443,
+          "min": -0.275862,
+          "n": 130,
+          "p95": -0.068966
+        }
+      },
+      "time_to_stability_s": null,
+      "truncated": false,
+      "wall_s": 0.5558
+    },
+    {
+      "com_offset_max_m": 0.1357,
+      "controller": "",
+      "duration_s": 2.02,
+      "episode": 31,
+      "final_pelvis_z": 0.0938,
+      "final_upright": -0.0405,
+      "hand_err": 1.33319,
+      "heldout": true,
+      "impulse": 16.0,
+      "meta": {},
+      "metric_means": {
+        "act_delta": 0.079192,
+        "com_offset": 0.052666,
+        "contact_l": 0.693069,
+        "contact_r": 0.594059,
+        "dorsal_contact": 0.0,
+        "hand_contact": 0.019802,
+        "hand_err": 1.33319,
+        "knee_contact": 0.0,
+        "limit_prox": 0.458815,
+        "pelvis_z": 0.673773,
+        "reward": -0.278137,
+        "sat_frac": 0.129054,
+        "slip": 0.314598,
+        "speed": 0.499849,
+        "stance_err": -0.116227,
+        "steps_taken": 1.049505,
+        "t": 1.02,
+        "tilt_deg": 23.932525,
+        "torso_contact": 0.079208,
+        "upright": 0.798255,
+        "vel_err": 0.499849,
+        "yaw_err": 1.103359
+      },
+      "n_steps": 101,
+      "pushes": [
+        {
+          "direction_deg": 315.0,
+          "duration": 0.02,
+          "heading_relative": false,
+          "height": 0.95,
+          "impulse": 16.0,
+          "label": "battery_m16.0_d7_h0.95_heldout",
+          "t": 1.04
+        }
+      ],
+      "recovered": false,
+      "recovery_time_s": null,
+      "reward_sum": -28.091826,
+      "seed": 31,
+      "shot_depth_max": 0.0546,
+      "shot_exited": false,
+      "stable": false,
+      "steps": 101,
+      "steps_after_push": 8,
+      "steps_per_s": 281.61,
+      "steps_total": 8,
+      "task": "balance",
+      "termination": "fall",
+      "terms": {
+        "action_rate": {
+          "max": 0.0,
+          "mean": -0.158385,
+          "min": -0.205055,
+          "n": 101,
+          "p95": -0.118845
+        },
+        "alive": {
+          "max": 0.999987,
+          "mean": 0.779536,
+          "min": 0.0,
+          "n": 101,
+          "p95": 0.999944
+        },
+        "flat_orientation": {
+          "max": -6e-06,
+          "mean": -0.100872,
+          "min": -0.534397,
+          "n": 101,
+          "p95": -2.8e-05
+        },
+        "joint_limit": {
+          "max": -0.0,
+          "mean": -0.458815,
+          "min": -1.0,
+          "n": 101,
+          "p95": -0.062508
+        },
+        "termination": {
+          "max": -100.0,
+          "mean": -100.0,
+          "min": -100.0,
+          "n": 1,
+          "p95": -100.0
+        },
+        "torque_sat": {
+          "max": -0.0,
+          "mean": -0.129054,
+          "min": -0.241379,
+          "n": 101,
+          "p95": -0.034483
+        }
+      },
+      "time_to_stability_s": null,
+      "truncated": false,
+      "wall_s": 0.3587
+    },
+    {
+      "com_offset_max_m": 0.1471,
+      "controller": "",
+      "duration_s": 3.08,
+      "episode": 32,
+      "final_pelvis_z": 0.0951,
+      "final_upright": -0.034,
+      "hand_err": 1.317119,
+      "heldout": true,
+      "impulse": 20.0,
+      "meta": {},
+      "metric_means": {
+        "act_delta": 0.075442,
+        "com_offset": 0.048927,
+        "contact_l": 0.681818,
+        "contact_r": 0.506494,
+        "dorsal_contact": 0.0,
+        "hand_contact": 0.019481,
+        "hand_err": 1.317119,
+        "knee_contact": 0.0,
+        "limit_prox": 0.480207,
+        "pelvis_z": 0.712334,
+        "reward": 0.136817,
+        "sat_frac": 0.12987,
+        "slip": 0.310942,
+        "speed": 0.390975,
+        "stance_err": -0.077666,
+        "steps_taken": 4.564935,
+        "t": 1.55,
+        "tilt_deg": 18.955157,
+        "torso_contact": 0.045455,
+        "upright": 0.857474,
+        "vel_err": 0.390975,
+        "yaw_err": 0.621863
+      },
+      "n_steps": 154,
+      "pushes": [
+        {
+          "direction_deg": 0.0,
+          "duration": 0.02,
+          "heading_relative": false,
+          "height": 0.95,
+          "impulse": 20.0,
+          "label": "battery_m20.0_d0_h0.95_heldout",
+          "t": 1.02
+        }
+      ],
+      "recovered": false,
+      "recovery_time_s": null,
+      "reward_sum": 21.069861,
+      "seed": 32,
+      "shot_depth_max": 0.0438,
+      "shot_exited": false,
+      "stable": false,
+      "steps": 154,
+      "steps_after_push": 7,
+      "steps_per_s": 272.5,
+      "steps_total": 10,
+      "task": "balance",
+      "termination": "fall",
+      "terms": {
+        "action_rate": {
+          "max": 0.0,
+          "mean": -0.150885,
+          "min": -0.209491,
+          "n": 154,
+          "p95": -0.10423
+        },
+        "alive": {
+          "max": 0.999959,
+          "mean": 0.845595,
+          "min": 0.0,
+          "n": 154,
+          "p95": 0.999772
+        },
+        "flat_orientation": {
+          "max": -2.1e-05,
+          "mean": -0.071263,
+          "min": -0.531373,
+          "n": 154,
+          "p95": -0.000114
+        },
+        "joint_limit": {
+          "max": -0.0,
+          "mean": -0.480207,
+          "min": -1.0,
+          "n": 154,
+          "p95": -0.009263
+        },
+        "termination": {
+          "max": -100.0,
+          "mean": -100.0,
+          "min": -100.0,
+          "n": 1,
+          "p95": -100.0
+        },
+        "torque_sat": {
+          "max": -0.0,
+          "mean": -0.12987,
+          "min": -0.275862,
+          "n": 154,
+          "p95": -0.056897
+        }
+      },
+      "time_to_stability_s": null,
+      "truncated": false,
+      "wall_s": 0.5651
+    },
+    {
+      "com_offset_max_m": 0.1416,
+      "controller": "",
+      "duration_s": 4.0,
+      "episode": 33,
+      "final_pelvis_z": 0.0615,
+      "final_upright": 0.0493,
+      "hand_err": 1.44075,
+      "heldout": true,
+      "impulse": 20.0,
+      "meta": {},
+      "metric_means": {
+        "act_delta": 0.077983,
+        "com_offset": 0.04832,
+        "contact_l": 0.535,
+        "contact_r": 0.415,
+        "dorsal_contact": 0.27,
+        "hand_contact": 0.15,
+        "hand_err": 1.44075,
+        "knee_contact": 0.005,
+        "limit_prox": 0.45658,
+        "pelvis_z": 0.414462,
+        "reward": 0.332612,
+        "sat_frac": 0.113966,
+        "slip": 0.19935,
+        "speed": 0.407872,
+        "stance_err": -0.375538,
+        "steps_taken": 4.94,
+        "t": 2.01,
+        "tilt_deg": 51.046675,
+        "torso_contact": 0.27,
+        "upright": 0.475996,
+        "vel_err": 0.407872,
+        "yaw_err": 1.024541
+      },
+      "n_steps": 200,
+      "pushes": [
+        {
+          "direction_deg": 45.0,
+          "duration": 0.02,
+          "heading_relative": false,
+          "height": 1.1,
+          "impulse": 20.0,
+          "label": "battery_m20.0_d1_h1.10_heldout",
+          "t": 1.22
+        }
+      ],
+      "recovered": false,
+      "recovery_time_s": null,
+      "reward_sum": 66.52249,
+      "seed": 33,
+      "shot_depth_max": 0.0283,
+      "shot_exited": false,
+      "stable": false,
+      "steps": 200,
+      "steps_after_push": 21,
+      "steps_per_s": 174.94,
+      "steps_total": 21,
+      "task": "balance",
+      "termination": null,
+      "terms": {
+        "action_rate": {
+          "max": 0.0,
+          "mean": -0.155967,
+          "min": -0.204518,
+          "n": 200,
+          "p95": -0.101412
+        },
+        "alive": {
+          "max": 0.999976,
+          "mean": 0.447539,
+          "min": 0.0,
+          "n": 200,
+          "p95": 0.99986
+        },
+        "flat_orientation": {
+          "max": -1.2e-05,
+          "mean": -0.262002,
+          "min": -0.580906,
+          "n": 200,
+          "p95": -7e-05
+        },
+        "joint_limit": {
+          "max": -0.0,
+          "mean": -0.45658,
+          "min": -1.0,
+          "n": 200,
+          "p95": 0.0
+        },
+        "torque_sat": {
+          "max": -0.0,
+          "mean": -0.113966,
+          "min": -0.344828,
+          "n": 200,
+          "p95": -0.034483
+        }
+      },
+      "time_to_stability_s": null,
+      "truncated": true,
+      "wall_s": 1.1432
+    },
+    {
+      "com_offset_max_m": 0.1403,
+      "controller": "",
+      "duration_s": 4.0,
+      "episode": 34,
+      "final_pelvis_z": 0.0584,
+      "final_upright": 0.068,
+      "hand_err": 1.451009,
+      "heldout": true,
+      "impulse": 20.0,
+      "meta": {},
+      "metric_means": {
+        "act_delta": 0.080695,
+        "com_offset": 0.064953,
+        "contact_l": 0.49,
+        "contact_r": 0.46,
+        "dorsal_contact": 0.33,
+        "hand_contact": 0.15,
+        "hand_err": 1.451009,
+        "knee_contact": 0.01,
+        "limit_prox": 0.461624,
+        "pelvis_z": 0.371492,
+        "reward": 0.286669,
+        "sat_frac": 0.119828,
+        "slip": 0.198342,
+        "speed": 0.301423,
+        "stance_err": -0.418508,
+        "steps_taken": 8.645,
+        "t": 2.01,
+        "tilt_deg": 54.156195,
+        "torso_contact": 0.33,
+        "upright": 0.447737,
+        "vel_err": 0.301423,
+        "yaw_err": 0.96515
+      },
+      "n_steps": 200,
+      "pushes": [
+        {
+          "direction_deg": 90.0,
+          "duration": 0.02,
+          "heading_relative": false,
+          "height": 0.79,
+          "impulse": 20.0,
+          "label": "battery_m20.0_d2_h0.79_heldout",
+          "t": 1.0
+        }
+      ],
+      "recovered": false,
+      "recovery_time_s": null,
+      "reward_sum": 57.333783,
+      "seed": 34,
+      "shot_depth_max": 0.016,
+      "shot_exited": false,
+      "stable": false,
+      "steps": 200,
+      "steps_after_push": 25,
+      "steps_per_s": 222.67,
+      "steps_total": 26,
+      "task": "balance",
+      "termination": null,
+      "terms": {
+        "action_rate": {
+          "max": 0.0,
+          "mean": -0.161391,
+          "min": -0.202378,
+          "n": 200,
+          "p95": -0.127366
+        },
+        "alive": {
+          "max": 0.999874,
+          "mean": 0.406651,
+          "min": 0.00017,
+          "n": 200,
+          "p95": 0.999601
+        },
+        "flat_orientation": {
+          "max": -6.3e-05,
+          "mean": -0.276132,
+          "min": -0.499117,
+          "n": 200,
+          "p95": -0.0002
+        },
+        "joint_limit": {
+          "max": -0.0,
+          "mean": -0.461624,
+          "min": -1.0,
+          "n": 200,
+          "p95": 0.0
+        },
+        "torque_sat": {
+          "max": -0.0,
+          "mean": -0.119828,
+          "min": -0.241379,
+          "n": 200,
+          "p95": -0.068966
+        }
+      },
+      "time_to_stability_s": null,
+      "truncated": true,
+      "wall_s": 0.8982
+    },
+    {
+      "com_offset_max_m": 0.1343,
+      "controller": "",
+      "duration_s": 4.0,
+      "episode": 35,
+      "final_pelvis_z": 0.0581,
+      "final_upright": 0.0728,
+      "hand_err": 1.447664,
+      "heldout": true,
+      "impulse": 20.0,
+      "meta": {},
+      "metric_means": {
+        "act_delta": 0.081633,
+        "com_offset": 0.060101,
+        "contact_l": 0.515,
+        "contact_r": 0.535,
+        "dorsal_contact": 0.29,
+        "hand_contact": 0.17,
+        "hand_err": 1.447664,
+        "knee_contact": 0.005,
+        "limit_prox": 0.478102,
+        "pelvis_z": 0.394853,
+        "reward": 0.324686,
+        "sat_frac": 0.121724,
+        "slip": 0.202106,
+        "speed": 0.314641,
+        "stance_err": -0.395147,
+        "steps_taken": 8.83,
+        "t": 2.01,
+        "tilt_deg": 51.008441,
+        "torso_contact": 0.29,
+        "upright": 0.480299,
+        "vel_err": 0.314641,
+        "yaw_err": 0.967071
+      },
+      "n_steps": 200,
+      "pushes": [
+        {
+          "direction_deg": 135.0,
+          "duration": 0.02,
+          "heading_relative": false,
+          "height": 0.95,
+          "impulse": 20.0,
+          "label": "battery_m20.0_d3_h0.95_heldout",
+          "t": 1.14
+        }
+      ],
+      "recovered": false,
+      "recovery_time_s": null,
+      "reward_sum": 64.937187,
+      "seed": 35,
+      "shot_depth_max": 0.014,
+      "shot_exited": false,
+      "stable": false,
+      "steps": 200,
+      "steps_after_push": 23,
+      "steps_per_s": 231.25,
+      "steps_total": 24,
+      "task": "balance",
+      "termination": null,
+      "terms": {
+        "action_rate": {
+          "max": 0.0,
+          "mean": -0.163266,
+          "min": -0.20717,
+          "n": 200,
+          "p95": -0.126976
+        },
+        "alive": {
+          "max": 0.999691,
+          "mean": 0.440796,
+          "min": 0.001286,
+          "n": 200,
+          "p95": 0.999134
+        },
+        "flat_orientation": {
+          "max": -0.000154,
+          "mean": -0.259851,
+          "min": -0.492297,
+          "n": 200,
+          "p95": -0.000432
+        },
+        "joint_limit": {
+          "max": -0.0,
+          "mean": -0.478102,
+          "min": -0.968477,
+          "n": 200,
+          "p95": -0.06749
+        },
+        "torque_sat": {
+          "max": -0.0,
+          "mean": -0.121724,
+          "min": -0.241379,
+          "n": 200,
+          "p95": -0.068966
+        }
+      },
+      "time_to_stability_s": null,
+      "truncated": true,
+      "wall_s": 0.8649
+    },
+    {
+      "com_offset_max_m": 0.1401,
+      "controller": "",
+      "duration_s": 1.84,
+      "episode": 36,
+      "final_pelvis_z": 0.061,
+      "final_upright": 0.0577,
+      "hand_err": 1.333495,
+      "heldout": true,
+      "impulse": 20.0,
+      "meta": {},
+      "metric_means": {
+        "act_delta": 0.078963,
+        "com_offset": 0.049335,
+        "contact_l": 0.554348,
+        "contact_r": 0.641304,
+        "dorsal_contact": 0.032609,
+        "hand_contact": 0.032609,
+        "hand_err": 1.333495,
+        "knee_contact": 0.01087,
+        "limit_prox": 0.553729,
+        "pelvis_z": 0.660843,
+        "reward": -0.372759,
+        "sat_frac": 0.131934,
+        "slip": 0.335253,
+        "speed": 0.533455,
+        "stance_err": -0.129157,
+        "steps_taken": 2.228261,
+        "t": 0.93,
+        "tilt_deg": 23.206332,
+        "torso_contact": 0.032609,
+        "upright": 0.819919,
+        "vel_err": 0.533455,
+        "yaw_err": 1.387933
+      },
+      "n_steps": 92,
+      "pushes": [
+        {
+          "direction_deg": 180.0,
+          "duration": 0.02,
+          "heading_relative": false,
+          "height": 1.1,
+          "impulse": 20.0,
+          "label": "battery_m20.0_d4_h1.10_heldout",
+          "t": 1.02
+        }
+      ],
+      "recovered": false,
+      "recovery_time_s": null,
+      "reward_sum": -34.293812,
+      "seed": 36,
+      "shot_depth_max": 0.0141,
+      "shot_exited": false,
+      "stable": false,
+      "steps": 92,
+      "steps_after_push": 8,
+      "steps_per_s": 353.65,
+      "steps_total": 9,
+      "task": "balance",
+      "termination": "fall",
+      "terms": {
+        "action_rate": {
+          "max": 0.0,
+          "mean": -0.157925,
+          "min": -0.194124,
+          "n": 92,
+          "p95": -0.121323
+        },
+        "alive": {
+          "max": 0.999992,
+          "mean": 0.783389,
+          "min": 0.001429,
+          "n": 92,
+          "p95": 0.999592
+        },
+        "flat_orientation": {
+          "max": -4e-06,
+          "mean": -0.09004,
+          "min": -0.48962,
+          "n": 92,
+          "p95": -0.000204
+        },
+        "joint_limit": {
+          "max": -0.0,
+          "mean": -0.553729,
+          "min": -1.0,
+          "n": 92,
+          "p95": -0.067985
+        },
+        "termination": {
+          "max": -100.0,
+          "mean": -100.0,
+          "min": -100.0,
+          "n": 1,
+          "p95": -100.0
+        },
+        "torque_sat": {
+          "max": -0.0,
+          "mean": -0.131934,
+          "min": -0.241379,
+          "n": 92,
+          "p95": -0.068966
+        }
+      },
+      "time_to_stability_s": null,
+      "truncated": false,
+      "wall_s": 0.2601
+    },
+    {
+      "com_offset_max_m": 0.1419,
+      "controller": "",
+      "duration_s": 4.0,
+      "episode": 37,
+      "final_pelvis_z": 0.059,
+      "final_upright": 0.0617,
+      "hand_err": 1.481784,
+      "heldout": true,
+      "impulse": 20.0,
+      "meta": {},
+      "metric_means": {
+        "act_delta": 0.082496,
+        "com_offset": 0.059231,
+        "contact_l": 0.39,
+        "contact_r": 0.38,
+        "dorsal_contact": 0.425,
+        "hand_contact": 0.195,
+        "hand_err": 1.481784,
+        "knee_contact": 0.005,
+        "limit_prox": 0.484066,
+        "pelvis_z": 0.291642,
+        "reward": 0.162821,
+        "sat_frac": 0.115517,
+        "slip": 0.166135,
+        "speed": 0.252467,
+        "stance_err": -0.498358,
+        "steps_taken": 16.84,
+        "t": 2.01,
+        "tilt_deg": 62.849921,
+        "torso_contact": 0.425,
+        "upright": 0.346853,
+        "vel_err": 0.252467,
+        "yaw_err": 0.971692
+      },
+      "n_steps": 200,
+      "pushes": [
+        {
+          "direction_deg": 225.0,
+          "duration": 0.02,
+          "heading_relative": false,
+          "height": 0.79,
+          "impulse": 20.0,
+          "label": "battery_m20.0_d5_h0.79_heldout",
+          "t": 1.06
+        }
+      ],
+      "recovered": false,
+      "recovery_time_s": null,
+      "reward_sum": 32.564243,
+      "seed": 37,
+      "shot_depth_max": 0.0132,
+      "shot_exited": false,
+      "stable": false,
+      "steps": 200,
+      "steps_after_push": 32,
+      "steps_per_s": 243.08,
+      "steps_total": 39,
+      "task": "balance",
+      "termination": null,
+      "terms": {
+        "action_rate": {
+          "max": 0.0,
+          "mean": -0.164991,
+          "min": -0.209055,
+          "n": 200,
+          "p95": -0.131127
+        },
+        "alive": {
+          "max": 0.999911,
+          "mean": 0.299022,
+          "min": 0.002088,
+          "n": 200,
+          "p95": 0.999272
+        },
+        "flat_orientation": {
+          "max": -4.5e-05,
+          "mean": -0.326573,
+          "min": -0.48707,
+          "n": 200,
+          "p95": -0.000363
+        },
+        "joint_limit": {
+          "max": -0.0,
+          "mean": -0.484066,
+          "min": -1.0,
+          "n": 200,
+          "p95": -0.073712
+        },
+        "torque_sat": {
+          "max": -0.0,
+          "mean": -0.115517,
+          "min": -0.241379,
+          "n": 200,
+          "p95": -0.034483
+        }
+      },
+      "time_to_stability_s": null,
+      "truncated": true,
+      "wall_s": 0.8228
+    },
+    {
+      "com_offset_max_m": 0.1443,
+      "controller": "",
+      "duration_s": 2.24,
+      "episode": 38,
+      "final_pelvis_z": 0.0884,
+      "final_upright": -0.0224,
+      "hand_err": 1.325865,
+      "heldout": true,
+      "impulse": 20.0,
+      "meta": {},
+      "metric_means": {
+        "act_delta": 0.080612,
+        "com_offset": 0.058376,
+        "contact_l": 0.508929,
+        "contact_r": 0.678571,
+        "dorsal_contact": 0.0,
+        "hand_contact": 0.026786,
+        "hand_err": 1.325865,
+        "knee_contact": 0.0,
+        "limit_prox": 0.520238,
+        "pelvis_z": 0.684288,
+        "reward": -0.165659,
+        "sat_frac": 0.132389,
+        "slip": 0.339588,
+        "speed": 0.482531,
+        "stance_err": -0.105712,
+        "steps_taken": 1.839286,
+        "t": 1.13,
+        "tilt_deg": 23.30367,
+        "torso_contact": 0.053571,
+        "upright": 0.813932,
+        "vel_err": 0.482531,
+        "yaw_err": 1.078067
+      },
+      "n_steps": 112,
+      "pushes": [
+        {
+          "direction_deg": 270.0,
+          "duration": 0.02,
+          "heading_relative": false,
+          "height": 0.95,
+          "impulse": 20.0,
+          "label": "battery_m20.0_d6_h0.95_heldout",
+          "t": 1.12
+        }
+      ],
+      "recovered": false,
+      "recovery_time_s": null,
+      "reward_sum": -18.553781,
+      "seed": 38,
+      "shot_depth_max": 0.0522,
+      "shot_exited": false,
+      "stable": false,
+      "steps": 112,
+      "steps_after_push": 7,
+      "steps_per_s": 256.95,
+      "steps_total": 9,
+      "task": "balance",
+      "termination": "fall",
+      "terms": {
+        "action_rate": {
+          "max": 0.0,
+          "mean": -0.161223,
+          "min": -0.198219,
+          "n": 112,
+          "p95": -0.123071
+        },
+        "alive": {
+          "max": 0.999909,
+          "mean": 0.795801,
+          "min": 0.0,
+          "n": 112,
+          "p95": 0.999724
+        },
+        "flat_orientation": {
+          "max": -4.5e-05,
+          "mean": -0.093034,
+          "min": -0.536751,
+          "n": 112,
+          "p95": -0.000139
+        },
+        "joint_limit": {
+          "max": -0.0,
+          "mean": -0.520238,
+          "min": -1.0,
+          "n": 112,
+          "p95": 0.0
+        },
+        "termination": {
+          "max": -100.0,
+          "mean": -100.0,
+          "min": -100.0,
+          "n": 1,
+          "p95": -100.0
+        },
+        "torque_sat": {
+          "max": -0.0,
+          "mean": -0.132389,
+          "min": -0.275862,
+          "n": 112,
+          "p95": -0.068966
+        }
+      },
+      "time_to_stability_s": null,
+      "truncated": false,
+      "wall_s": 0.4359
+    },
+    {
+      "com_offset_max_m": 0.1329,
+      "controller": "",
+      "duration_s": 2.0,
+      "episode": 39,
+      "final_pelvis_z": 0.1174,
+      "final_upright": -0.0828,
+      "hand_err": 1.340897,
+      "heldout": true,
+      "impulse": 20.0,
+      "meta": {},
+      "metric_means": {
+        "act_delta": 0.078101,
+        "com_offset": 0.049044,
+        "contact_l": 0.49,
+        "contact_r": 0.64,
+        "dorsal_contact": 0.0,
+        "hand_contact": 0.03,
+        "hand_err": 1.340897,
+        "knee_contact": 0.0,
+        "limit_prox": 0.556081,
+        "pelvis_z": 0.670494,
+        "reward": -0.303437,
+        "sat_frac": 0.123448,
+        "slip": 0.29768,
+        "speed": 0.553318,
+        "stance_err": -0.119506,
+        "steps_taken": 1.08,
+        "t": 1.01,
+        "tilt_deg": 25.781963,
+        "torso_contact": 0.05,
+        "upright": 0.785951,
+        "vel_err": 0.553318,
+        "yaw_err": 1.076921
+      },
+      "n_steps": 100,
+      "pushes": [
+        {
+          "direction_deg": 315.0,
+          "duration": 0.02,
+          "heading_relative": false,
+          "height": 1.1,
+          "impulse": 20.0,
+          "label": "battery_m20.0_d7_h1.10_heldout",
+          "t": 1.1
+        }
+      ],
+      "recovered": false,
+      "recovery_time_s": null,
+      "reward_sum": -30.343742,
+      "seed": 39,
+      "shot_depth_max": 0.0466,
+      "shot_exited": false,
+      "stable": false,
+      "steps": 100,
+      "steps_after_push": 3,
+      "steps_per_s": 281.2,
+      "steps_total": 4,
+      "task": "balance",
+      "termination": "fall",
+      "terms": {
+        "action_rate": {
+          "max": 0.0,
+          "mean": -0.156203,
+          "min": -0.207868,
+          "n": 100,
+          "p95": -0.120187
+        },
+        "alive": {
+          "max": 0.999796,
+          "mean": 0.770456,
+          "min": 0.0,
+          "n": 100,
+          "p95": 0.999708
+        },
+        "flat_orientation": {
+          "max": -0.000102,
+          "mean": -0.107024,
+          "min": -0.546712,
+          "n": 100,
+          "p95": -0.000146
+        },
+        "joint_limit": {
+          "max": -0.0,
+          "mean": -0.556081,
+          "min": -1.0,
+          "n": 100,
+          "p95": -0.154583
+        },
+        "termination": {
+          "max": -100.0,
+          "mean": -100.0,
+          "min": -100.0,
+          "n": 1,
+          "p95": -100.0
+        },
+        "torque_sat": {
+          "max": -0.0,
+          "mean": -0.123448,
+          "min": -0.241379,
+          "n": 100,
+          "p95": -0.068966
+        }
+      },
+      "time_to_stability_s": null,
+      "truncated": false,
+      "wall_s": 0.3556
+    },
+    {
+      "com_offset_max_m": 0.1357,
+      "controller": "",
+      "duration_s": 2.1,
+      "episode": 40,
+      "final_pelvis_z": 0.0948,
+      "final_upright": -0.0454,
+      "hand_err": 1.333303,
+      "heldout": true,
+      "impulse": 25.0,
+      "meta": {},
+      "metric_means": {
+        "act_delta": 0.075068,
+        "com_offset": 0.045724,
+        "contact_l": 0.590476,
+        "contact_r": 0.495238,
+        "dorsal_contact": 0.0,
+        "hand_contact": 0.019048,
+        "hand_err": 1.333303,
+        "knee_contact": 0.0,
+        "limit_prox": 0.479655,
+        "pelvis_z": 0.677671,
+        "reward": -0.227738,
+        "sat_frac": 0.134647,
+        "slip": 0.270562,
+        "speed": 0.507316,
+        "stance_err": -0.112329,
+        "steps_taken": 3.819048,
+        "t": 1.06,
+        "tilt_deg": 23.429429,
+        "torso_contact": 0.07619,
+        "upright": 0.80737,
+        "vel_err": 0.507316,
+        "yaw_err": 1.305242
+      },
+      "n_steps": 105,
+      "pushes": [
+        {
+          "direction_deg": 0.0,
+          "duration": 0.02,
+          "heading_relative": false,
+          "height": 1.1,
+          "impulse": 25.0,
+          "label": "battery_m25.0_d0_h1.10_heldout",
+          "t": 1.1
+        }
+      ],
+      "recovered": false,
+      "recovery_time_s": null,
+      "reward_sum": -23.912538,
+      "seed": 40,
+      "shot_depth_max": 0.0554,
+      "shot_exited": false,
+      "stable": false,
+      "steps": 105,
+      "steps_after_push": 7,
+      "steps_per_s": 245.9,
+      "steps_total": 12,
+      "task": "balance",
+      "termination": "fall",
+      "terms": {
+        "action_rate": {
+          "max": 0.0,
+          "mean": -0.150136,
+          "min": -0.195591,
+          "n": 105,
+          "p95": -0.107404
+        },
+        "alive": {
+          "max": 0.999981,
+          "mean": 0.791759,
+          "min": 0.0,
+          "n": 105,
+          "p95": 0.999858
+        },
+        "flat_orientation": {
+          "max": -9e-06,
+          "mean": -0.096315,
+          "min": -0.536022,
+          "n": 105,
+          "p95": -7.1e-05
+        },
+        "joint_limit": {
+          "max": -0.0,
+          "mean": -0.479655,
+          "min": -1.0,
+          "n": 105,
+          "p95": -0.014489
+        },
+        "termination": {
+          "max": -100.0,
+          "mean": -100.0,
+          "min": -100.0,
+          "n": 1,
+          "p95": -100.0
+        },
+        "torque_sat": {
+          "max": -0.0,
+          "mean": -0.134647,
+          "min": -0.275862,
+          "n": 105,
+          "p95": -0.068966
+        }
+      },
+      "time_to_stability_s": null,
+      "truncated": false,
+      "wall_s": 0.427
+    },
+    {
+      "com_offset_max_m": 0.1382,
+      "controller": "",
+      "duration_s": 4.0,
+      "episode": 41,
+      "final_pelvis_z": 0.06,
+      "final_upright": 0.0556,
+      "hand_err": 1.433871,
+      "heldout": true,
+      "impulse": 25.0,
+      "meta": {},
+      "metric_means": {
+        "act_delta": 0.073995,
+        "com_offset": 0.049985,
+        "contact_l": 0.585,
+        "contact_r": 0.44,
+        "dorsal_contact": 0.3,
+        "hand_contact": 0.155,
+        "hand_err": 1.433871,
+        "knee_contact": 0.02,
+        "limit_prox": 0.440144,
+        "pelvis_z": 0.418986,
+        "reward": 0.350405,
+        "sat_frac": 0.124138,
+        "slip": 0.236151,
+        "speed": 0.42936,
+        "stance_err": -0.371014,
+        "steps_taken": 5.71,
+        "t": 2.01,
+        "tilt_deg": 49.783487,
+        "torso_contact": 0.3,
+        "upright": 0.500312,
+        "vel_err": 0.42936,
+        "yaw_err": 0.862957
+      },
+      "n_steps": 200,
+      "pushes": [
+        {
+          "direction_deg": 45.0,
+          "duration": 0.02,
+          "heading_relative": false,
+          "height": 0.79,
+          "impulse": 25.0,
+          "label": "battery_m25.0_d1_h0.79_heldout",
+          "t": 1.0
+        }
+      ],
+      "recovered": false,
+      "recovery_time_s": null,
+      "reward_sum": 70.080922,
+      "seed": 41,
+      "shot_depth_max": 0.0204,
+      "shot_exited": false,
+      "stable": false,
+      "steps": 200,
+      "steps_after_push": 20,
+      "steps_per_s": 375.68,
+      "steps_total": 20,
+      "task": "balance",
+      "termination": null,
+      "terms": {
+        "action_rate": {
+          "max": 0.0,
+          "mean": -0.14799,
+          "min": -0.198423,
+          "n": 200,
+          "p95": -0.089122
+        },
+        "alive": {
+          "max": 0.99998,
+          "mean": 0.460971,
+          "min": 0.0,
+          "n": 200,
+          "p95": 0.999812
+        },
+        "flat_orientation": {
+          "max": -1e-05,
+          "mean": -0.249844,
+          "min": -0.516921,
+          "n": 200,
+          "p95": -9.3e-05
+        },
+        "joint_limit": {
+          "max": -0.0,
+          "mean": -0.440144,
+          "min": -1.0,
+          "n": 200,
+          "p95": 0.0
+        },
+        "torque_sat": {
+          "max": -0.0,
+          "mean": -0.124138,
+          "min": -0.310345,
+          "n": 200,
+          "p95": -0.034483
+        }
+      },
+      "time_to_stability_s": null,
+      "truncated": true,
+      "wall_s": 0.5324
+    },
+    {
+      "com_offset_max_m": 0.1346,
+      "controller": "",
+      "duration_s": 4.0,
+      "episode": 42,
+      "final_pelvis_z": 0.0614,
+      "final_upright": 0.0512,
+      "hand_err": 1.4513,
+      "heldout": true,
+      "impulse": 25.0,
+      "meta": {},
+      "metric_means": {
+        "act_delta": 0.079715,
+        "com_offset": 0.059499,
+        "contact_l": 0.55,
+        "contact_r": 0.41,
+        "dorsal_contact": 0.34,
+        "hand_contact": 0.165,
+        "hand_err": 1.4513,
+        "knee_contact": 0.015,
+        "limit_prox": 0.476302,
+        "pelvis_z": 0.375453,
+        "reward": 0.286733,
+        "sat_frac": 0.118793,
+        "slip": 0.197801,
+        "speed": 0.355171,
+        "stance_err": -0.414547,
+        "steps_taken": 6.385,
+        "t": 2.01,
+        "tilt_deg": 54.160153,
+        "torso_contact": 0.34,
+        "upright": 0.446588,
+        "vel_err": 0.355171,
+        "yaw_err": 0.94526
+      },
+      "n_steps": 200,
+      "pushes": [
+        {
+          "direction_deg": 90.0,
+          "duration": 0.02,
+          "heading_relative": false,
+          "height": 0.95,
+          "impulse": 25.0,
+          "label": "battery_m25.0_d2_h0.95_heldout",
+          "t": 1.0
+        }
+      ],
+      "recovered": false,
+      "recovery_time_s": null,
+      "reward_sum": 57.346561,
+      "seed": 42,
+      "shot_depth_max": 0.0129,
+      "shot_exited": false,
+      "stable": false,
+      "steps": 200,
+      "steps_after_push": 21,
+      "steps_per_s": 375.1,
+      "steps_total": 22,
+      "task": "balance",
+      "termination": null,
+      "terms": {
+        "action_rate": {
+          "max": 0.0,
+          "mean": -0.15943,
+          "min": -0.198764,
+          "n": 200,
+          "p95": -0.110989
+        },
+        "alive": {
+          "max": 0.999991,
+          "mean": 0.407471,
+          "min": 0.0,
+          "n": 200,
+          "p95": 0.999626
+        },
+        "flat_orientation": {
+          "max": -4e-06,
+          "mean": -0.276706,
+          "min": -0.502559,
+          "n": 200,
+          "p95": -0.000187
+        },
+        "joint_limit": {
+          "max": -0.0,
+          "mean": -0.476302,
+          "min": -1.0,
+          "n": 200,
+          "p95": -0.092158
+        },
+        "torque_sat": {
+          "max": -0.0,
+          "mean": -0.118793,
+          "min": -0.310345,
+          "n": 200,
+          "p95": -0.034483
+        }
+      },
+      "time_to_stability_s": null,
+      "truncated": true,
+      "wall_s": 0.5332
+    },
+    {
+      "com_offset_max_m": 0.1277,
+      "controller": "",
+      "duration_s": 1.8,
+      "episode": 43,
+      "final_pelvis_z": 0.0741,
+      "final_upright": 0.0549,
+      "hand_err": 1.340226,
+      "heldout": true,
+      "impulse": 25.0,
+      "meta": {},
+      "metric_means": {
+        "act_delta": 0.079929,
+        "com_offset": 0.059399,
+        "contact_l": 0.511111,
+        "contact_r": 0.477778,
+        "dorsal_contact": 0.033333,
+        "hand_contact": 0.022222,
+        "hand_err": 1.340226,
+        "knee_contact": 0.011111,
+        "limit_prox": 0.437773,
+        "pelvis_z": 0.65946,
+        "reward": -0.397749,
+        "sat_frac": 0.12682,
+        "slip": 0.343788,
+        "speed": 0.593457,
+        "stance_err": -0.13054,
+        "steps_taken": 4.122222,
+        "t": 0.91,
+        "tilt_deg": 23.345599,
+        "torso_contact": 0.033333,
+        "upright": 0.814245,
+        "vel_err": 0.593457,
+        "yaw_err": 1.103744
+      },
+      "n_steps": 90,
+      "pushes": [
+        {
+          "direction_deg": 135.0,
+          "duration": 0.02,
+          "heading_relative": false,
+          "height": 1.1,
+          "impulse": 25.0,
+          "label": "battery_m25.0_d3_h1.10_heldout",
+          "t": 1.02
+        }
+      ],
+      "recovered": false,
+      "recovery_time_s": null,
+      "reward_sum": -35.797452,
+      "seed": 43,
+      "shot_depth_max": 0.0121,
+      "shot_exited": false,
+      "stable": false,
+      "steps": 90,
+      "steps_after_push": 6,
+      "steps_per_s": 277.23,
+      "steps_total": 11,
+      "task": "balance",
+      "termination": "fall",
+      "terms": {
+        "action_rate": {
+          "max": 0.0,
+          "mean": -0.159858,
+          "min": -0.210773,
+          "n": 90,
+          "p95": -0.118025
+        },
+        "alive": {
+          "max": 0.999998,
+          "mean": 0.777448,
+          "min": 0.0,
+          "n": 90,
+          "p95": 0.9999
+        },
+        "flat_orientation": {
+          "max": -1e-06,
+          "mean": -0.092878,
+          "min": -0.505208,
+          "n": 90,
+          "p95": -5e-05
+        },
+        "joint_limit": {
+          "max": -0.0,
+          "mean": -0.437773,
+          "min": -1.0,
+          "n": 90,
+          "p95": -0.0
+        },
+        "termination": {
+          "max": -100.0,
+          "mean": -100.0,
+          "min": -100.0,
+          "n": 1,
+          "p95": -100.0
+        },
+        "torque_sat": {
+          "max": -0.0,
+          "mean": -0.12682,
+          "min": -0.241379,
+          "n": 90,
+          "p95": -0.068966
+        }
+      },
+      "time_to_stability_s": null,
+      "truncated": false,
+      "wall_s": 0.3246
+    },
+    {
+      "com_offset_max_m": 0.1429,
+      "controller": "",
+      "duration_s": 4.0,
+      "episode": 44,
+      "final_pelvis_z": 0.0634,
+      "final_upright": 0.0347,
+      "hand_err": 1.461886,
+      "heldout": true,
+      "impulse": 25.0,
+      "meta": {},
+      "metric_means": {
+        "act_delta": 0.077992,
+        "com_offset": 0.056009,
+        "contact_l": 0.5,
+        "contact_r": 0.475,
+        "dorsal_contact": 0.39,
+        "hand_contact": 0.185,
+        "hand_err": 1.461886,
+        "knee_contact": 0.0,
+        "limit_prox": 0.530519,
+        "pelvis_z": 0.345733,
+        "reward": 0.246408,
+        "sat_frac": 0.126379,
+        "slip": 0.213138,
+        "speed": 0.283699,
+        "stance_err": -0.444267,
+        "steps_taken": 12.675,
+        "t": 2.01,
+        "tilt_deg": 56.777016,
+        "torso_contact": 0.39,
+        "upright": 0.417575,
+        "vel_err": 0.283699,
+        "yaw_err": 0.961134
+      },
+      "n_steps": 200,
+      "pushes": [
+        {
+          "direction_deg": 180.0,
+          "duration": 0.02,
+          "heading_relative": false,
+          "height": 0.79,
+          "impulse": 25.0,
+          "label": "battery_m25.0_d4_h0.79_heldout",
+          "t": 1.0
+        }
+      ],
+      "recovered": false,
+      "recovery_time_s": null,
+      "reward_sum": 49.28155,
+      "seed": 44,
+      "shot_depth_max": 0.0093,
+      "shot_exited": false,
+      "stable": false,
+      "steps": 200,
+      "steps_after_push": 31,
+      "steps_per_s": 363.53,
+      "steps_total": 31,
+      "task": "balance",
+      "termination": null,
+      "terms": {
+        "action_rate": {
+          "max": 0.0,
+          "mean": -0.155984,
+          "min": -0.201576,
+          "n": 200,
+          "p95": -0.107268
+        },
+        "alive": {
+          "max": 0.999647,
+          "mean": 0.374416,
+          "min": 0.000452,
+          "n": 200,
+          "p95": 0.998663
+        },
+        "flat_orientation": {
+          "max": -0.000176,
+          "mean": -0.291212,
+          "min": -0.496046,
+          "n": 200,
+          "p95": -0.000669
+        },
+        "joint_limit": {
+          "max": -0.0,
+          "mean": -0.530519,
+          "min": -1.0,
+          "n": 200,
+          "p95": -0.140135
+        },
+        "torque_sat": {
+          "max": -0.0,
+          "mean": -0.126379,
+          "min": -0.275862,
+          "n": 200,
+          "p95": -0.067242
+        }
+      },
+      "time_to_stability_s": null,
+      "truncated": true,
+      "wall_s": 0.5502
+    },
+    {
+      "com_offset_max_m": 0.1397,
+      "controller": "",
+      "duration_s": 4.0,
+      "episode": 45,
+      "final_pelvis_z": 0.0622,
+      "final_upright": 0.0525,
+      "hand_err": 1.451459,
+      "heldout": true,
+      "impulse": 25.0,
+      "meta": {},
+      "metric_means": {
+        "act_delta": 0.081368,
+        "com_offset": 0.058529,
+        "contact_l": 0.475,
+        "contact_r": 0.505,
+        "dorsal_contact": 0.325,
+        "hand_contact": 0.195,
+        "hand_err": 1.451459,
+        "knee_contact": 0.005,
+        "limit_prox": 0.517466,
+        "pelvis_z": 0.36756,
+        "reward": 0.281558,
+        "sat_frac": 0.117931,
+        "slip": 0.201515,
+        "speed": 0.337452,
+        "stance_err": -0.42244,
+        "steps_taken": 10.51,
+        "t": 2.01,
+        "tilt_deg": 54.100824,
+        "torso_contact": 0.325,
+        "upright": 0.446504,
+        "vel_err": 0.337452,
+        "yaw_err": 1.002571
+      },
+      "n_steps": 200,
+      "pushes": [
+        {
+          "direction_deg": 225.0,
+          "duration": 0.02,
+          "heading_relative": false,
+          "height": 0.95,
+          "impulse": 25.0,
+          "label": "battery_m25.0_d5_h0.95_heldout",
+          "t": 1.16
+        }
+      ],
+      "recovered": false,
+      "recovery_time_s": null,
+      "reward_sum": 56.311642,
+      "seed": 45,
+      "shot_depth_max": 0.0083,
+      "shot_exited": false,
+      "stable": false,
+      "steps": 200,
+      "steps_after_push": 29,
+      "steps_per_s": 366.56,
+      "steps_total": 29,
+      "task": "balance",
+      "termination": null,
+      "terms": {
+        "action_rate": {
+          "max": 0.0,
+          "mean": -0.162736,
+          "min": -0.203033,
+          "n": 200,
+          "p95": -0.131111
+        },
+        "alive": {
+          "max": 0.999895,
+          "mean": 0.404489,
+          "min": 0.001177,
+          "n": 200,
+          "p95": 0.999194
+        },
+        "flat_orientation": {
+          "max": -5.3e-05,
+          "mean": -0.276748,
+          "min": -0.487996,
+          "n": 200,
+          "p95": -0.000403
+        },
+        "joint_limit": {
+          "max": -0.0,
+          "mean": -0.517466,
+          "min": -1.0,
+          "n": 200,
+          "p95": -0.185071
+        },
+        "torque_sat": {
+          "max": -0.0,
+          "mean": -0.117931,
+          "min": -0.241379,
+          "n": 200,
+          "p95": -0.034483
+        }
+      },
+      "time_to_stability_s": null,
+      "truncated": true,
+      "wall_s": 0.5456
+    },
+    {
+      "com_offset_max_m": 0.1437,
+      "controller": "",
+      "duration_s": 2.12,
+      "episode": 46,
+      "final_pelvis_z": 0.1212,
+      "final_upright": -0.0951,
+      "hand_err": 1.380046,
+      "heldout": true,
+      "impulse": 25.0,
+      "meta": {},
+      "metric_means": {
+        "act_delta": 0.08161,
+        "com_offset": 0.053517,
+        "contact_l": 0.443396,
+        "contact_r": 0.716981,
+        "dorsal_contact": 0.0,
+        "hand_contact": 0.018868,
+        "hand_err": 1.380046,
+        "knee_contact": 0.0,
+        "limit_prox": 0.457054,
+        "pelvis_z": 0.657626,
+        "reward": -0.273845,
+        "sat_frac": 0.118413,
+        "slip": 0.276786,
+        "speed": 0.591153,
+        "stance_err": -0.132374,
+        "steps_taken": 0.320755,
+        "t": 1.07,
+        "tilt_deg": 27.374101,
+        "torso_contact": 0.009434,
+        "upright": 0.755236,
+        "vel_err": 0.591153,
+        "yaw_err": 1.042297
+      },
+      "n_steps": 106,
+      "pushes": [
+        {
+          "direction_deg": 270.0,
+          "duration": 0.02,
+          "heading_relative": false,
+          "height": 1.1,
+          "impulse": 25.0,
+          "label": "battery_m25.0_d6_h1.10_heldout",
+          "t": 1.12
+        }
+      ],
+      "recovered": false,
+      "recovery_time_s": null,
+      "reward_sum": -29.027571,
+      "seed": 46,
+      "shot_depth_max": 0.0342,
+      "shot_exited": false,
+      "stable": false,
+      "steps": 106,
+      "steps_after_push": 3,
+      "steps_per_s": 419.1,
+      "steps_total": 3,
+      "task": "balance",
+      "termination": "fall",
+      "terms": {
+        "action_rate": {
+          "max": 0.0,
+          "mean": -0.16322,
+          "min": -0.195542,
+          "n": 106,
+          "p95": -0.135848
+        },
+        "alive": {
+          "max": 0.999975,
+          "mean": 0.7432,
+          "min": 0.0,
+          "n": 106,
+          "p95": 0.999874
+        },
+        "flat_orientation": {
+          "max": -2e-06,
+          "mean": -0.122382,
+          "min": -0.547565,
+          "n": 106,
+          "p95": -5.2e-05
+        },
+        "joint_limit": {
+          "max": -0.0,
+          "mean": -0.457054,
+          "min": -1.0,
+          "n": 106,
+          "p95": -0.042778
+        },
+        "termination": {
+          "max": -100.0,
+          "mean": -100.0,
+          "min": -100.0,
+          "n": 1,
+          "p95": -100.0
+        },
+        "torque_sat": {
+          "max": -0.0,
+          "mean": -0.118413,
+          "min": -0.241379,
+          "n": 106,
+          "p95": -0.043104
+        }
+      },
+      "time_to_stability_s": null,
+      "truncated": false,
+      "wall_s": 0.2529
+    },
+    {
+      "com_offset_max_m": 0.1253,
+      "controller": "",
+      "duration_s": 1.74,
+      "episode": 47,
+      "final_pelvis_z": 0.0627,
+      "final_upright": 0.0528,
+      "hand_err": 1.342878,
+      "heldout": true,
+      "impulse": 25.0,
+      "meta": {},
+      "metric_means": {
+        "act_delta": 0.079864,
+        "com_offset": 0.03971,
+        "contact_l": 0.574713,
+        "contact_r": 0.586207,
+        "dorsal_contact": 0.034483,
+        "hand_contact": 0.022989,
+        "hand_err": 1.342878,
+        "knee_contact": 0.0,
+        "limit_prox": 0.417103,
+        "pelvis_z": 0.636423,
+        "reward": -0.478035,
+        "sat_frac": 0.121681,
+        "slip": 0.245827,
+        "speed": 0.345388,
+        "stance_err": -0.153577,
+        "steps_taken": 0.83908,
+        "t": 0.88,
+        "tilt_deg": 26.985846,
+        "torso_contact": 0.034483,
+        "upright": 0.789113,
+        "vel_err": 0.345388,
+        "yaw_err": 1.259727
+      },
+      "n_steps": 87,
+      "pushes": [
+        {
+          "direction_deg": 315.0,
+          "duration": 0.02,
+          "heading_relative": false,
+          "height": 0.79,
+          "impulse": 25.0,
+          "label": "battery_m25.0_d7_h0.79_heldout",
+          "t": 1.16
+        }
+      ],
+      "recovered": false,
+      "recovery_time_s": null,
+      "reward_sum": -41.589036,
+      "seed": 47,
+      "shot_depth_max": 0.0124,
+      "shot_exited": false,
+      "stable": false,
+      "steps": 87,
+      "steps_after_push": 5,
+      "steps_per_s": 429.15,
+      "steps_total": 6,
+      "task": "balance",
+      "termination": "fall",
+      "terms": {
+        "action_rate": {
+          "max": 0.0,
+          "mean": -0.159728,
+          "min": -0.191947,
+          "n": 87,
+          "p95": -0.136219
+        },
+        "alive": {
+          "max": 0.999983,
+          "mean": 0.737949,
+          "min": 0.001337,
+          "n": 87,
+          "p95": 0.999433
+        },
+        "flat_orientation": {
+          "max": -8e-06,
+          "mean": -0.105444,
+          "min": -0.488835,
+          "n": 87,
+          "p95": -0.000266
+        },
+        "joint_limit": {
+          "max": -0.0,
+          "mean": -0.417103,
+          "min": -0.955361,
+          "n": 87,
+          "p95": -0.074366
+        },
+        "termination": {
+          "max": -100.0,
+          "mean": -100.0,
+          "min": -100.0,
+          "n": 1,
+          "p95": -100.0
+        },
+        "torque_sat": {
+          "max": -0.0,
+          "mean": -0.121681,
+          "min": -0.241379,
+          "n": 87,
+          "p95": -0.068966
+        }
+      },
+      "time_to_stability_s": null,
+      "truncated": false,
+      "wall_s": 0.2027
+    }
+  ],
+  "gate": {
+    "criteria": [
+      {
+        "metric": "fall_rate",
+        "note": "falls across the full battery",
+        "op": "<=",
+        "threshold": 0.05
+      },
+      {
+        "metric": "max_recoverable_impulse_heldout",
+        "note": "N*s; recovered = stable to stance (not merely non-terminated); provenance: StandHold measured 0.0 held-out, and 16 N*s is beyond the analytic non-stepping ceiling (~13 N*s)",
+        "op": ">=",
+        "threshold": 16.0
+      },
+      {
+        "metric": "mean_upright",
+        "note": "provenance: StandHold measured 0.923",
+        "op": ">=",
+        "threshold": 0.95
+      },
+      {
+        "metric": "time_to_stability_mean",
+        "note": "s; upright+stance+speed<0.15 m/s held 0.2 s; provenance: baseline table",
+        "op": "<=",
+        "threshold": 1.0
+      },
+      {
+        "metric": "com_offset_max",
+        "note": "m; CoM-to-support-centre proxy (NOT a hull margin); provenance: baseline table",
+        "op": "<=",
+        "threshold": 0.2
+      },
+      {
+        "metric": "recovery_success_rate",
+        "note": "stabilised to stance after each push",
+        "op": ">=",
+        "threshold": 0.9
+      },
+      {
+        "metric": "fall_rate_heldout",
+        "note": "held-out magnitudes only",
+        "op": "<=",
+        "threshold": 0.1
+      }
+    ],
+    "name": "T1_balance",
+    "note": "provisional; thresholds set from the measured baseline table (reports/2026-10-08/solo_env.md section 5)",
+    "provisional": true
+  },
+  "n_episodes": 48,
+  "reasons": [
+    "FAIL fall_rate <= 0.05 (falls across the full battery) (measured 0.458333)",
+    "FAIL max_recoverable_impulse_heldout >= 16 (N*s; recovered = stable to stance (not merely non-terminated); provenance: StandHold measured 0.0 held-out, and 16 N*s is beyond the analytic non-stepping ceiling (~13 N*s)) (measured 0.0)",
+    "FAIL mean_upright >= 0.95 (provenance: StandHold measured 0.923) (measured 0.652264)",
+    "FAIL time_to_stability_mean <= 1 (s; upright+stance+speed<0.15 m/s held 0.2 s; provenance: baseline table) (measured None)",
+    "PASS com_offset_max <= 0.2 (m; CoM-to-support-centre proxy (NOT a hull margin); provenance: baseline table) (measured 0.1612)",
+    "FAIL recovery_success_rate >= 0.9 (stabilised to stance after each push) (measured 0.0)",
+    "FAIL fall_rate_heldout <= 0.1 (held-out magnitudes only) (measured 0.541667)"
+  ],
+  "seed0": 0,
+  "task": "balance",
+  "verdict": "not_certified"
+}
