@@ -184,6 +184,35 @@ Entries appended as experiments run (Phase 2 onward).
   needed a reset or a fall. All motion-producing agents (teacher, drill, mocap reference) are bound
   to the rubric.
 
+### E23 (2026-10-08) — T1 mid-run read: policy DEGENERATE (below baselines) — run stopped, two causes named
+- VERDICT (T1Midrun, independent, reports/2026-10-08/t1_midrun_read.md): the 1.4M-step checkpoint
+  fails ALL SEVEN T1 criteria and sits BELOW the baselines. Protocol: full 48-push battery, 48
+  episodes (seeds 0-47), 18515 steps, 126 s wall under the sim lock; the trainer was untouched;
+  determinism = tanh(actor.mean(obs)) with net.eval().
+- GATE TABLE (policy | zero_action | StandHold | random_init): fall_rate 0.125 | 0.354 | 0.292 | 0.812;
+  fall_rate_heldout 0.125 | 0.875 | 0.958 | 0.875; mean_upright 0.006 | 0.192 | 0.849 | 0.176;
+  max_rec_impulse_heldout 0.0 | 0.0 | 16.0 | 0.0; time_to_stability none | none | 0.133 | none;
+  com_offset_max 0.822 | 0.562 | 0.135 | 0.677; recovery_success 0.0 | 0.0 | 0.25 | 0.0;
+  steps_after_push 22.9 | 0.38 | 1.31 | 2.88. The learned policy is better than random-init on falls
+  but far worse than a stiff scripted stand on uprightness — it dodges the -100 termination by
+  collapsing into a non-terminating limb-supported pose rather than standing.
+- DIAGNOSIS (mechanistic, with numbers): entropy_coef=0.01 across 29 joints leaves a non-vanishing
+  outward log-std gradient (0.29) with nothing opposing it, because the balance reward is nearly
+  constant (+1/step alive; per-step penalties ~0.45; NO push/recovery shaping), so advantages are
+  uninformative; advantage normalisation rescales the noise to unit variance; entropy climbs
+  monotonically 12 -> 26.4 (still +1.03 per 100 iterations) while mean_return_50 stays flat at ~-77
+  for 330+ iterations. SECOND, STRUCTURAL: TASKS['balance'] has push=None, so the gate's held-out push
+  criteria (>12 N*s) are unattainable by construction — even StandHold tops out at recovery 0.25.
+- DECISION: stopped the run (a degenerate policy on its own training distribution; more steps would
+  produce another bad checkpoint — measured, not assumed). Dispatched to SoloEnv: (1) expose
+  `--entropy-coef` on the CLI (mirroring --gamma) so tuning needs no code edit; (2) add a ramped
+  push curriculum to the balance task staying <= TRAIN_MAX_IMPULSE (12 N*s) so the held-out magnitudes
+  stay held out, with the gate battery untouched; (3) run v2 as a named background service with
+  entropy_coef 0.001 and monitor the same gate at ~400k/800k/1.2M, stopping if entropy is still rising
+  or mean_upright is still ~0 at 800k, and naming the NEXT SINGLE change rather than stacking changes.
+- METHOD WIN: the mid-run read (a free-standing probe agent) converted "wait an hour and hope" into a
+  measured decision plus a mechanism. Worth reusing for every long run.
+
 ### E22 (2026-10-08) — PROCESS FAILURE (orchestrator): a mid-write clip was committed; restored
 - WHAT HAPPENED: the corrected-HUD re-render ran as a background job INSIDE the drill agent's process;
   when that agent finished, the job died mid-write, leaving videos/solo_drill/final_L2_motion.mp4 at

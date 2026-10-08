@@ -1,0 +1,80 @@
+{
+  "ckpt": {
+    "steps_done": 1452032,
+    "iteration": 709
+  },
+  "no_push_det": [
+    {
+      "seed": 0,
+      "steps": 100,
+      "mean_upright": 0.1305,
+      "min_upright": -0.9875,
+      "mean_pelvis_z": 0.4948,
+      "final_pelvis_z": 0.3395,
+      "reward_sum": -4.225
+    },
+    {
+      "seed": 1,
+      "steps": 100,
+      "mean_upright": -0.1717,
+      "min_upright": -0.964,
+      "mean_pelvis_z": 0.5474,
+      "final_pelvis_z": 0.5137,
+      "reward_sum": -15.442
+    },
+    {
+      "seed": 2,
+      "steps": 100,
+      "mean_upright": 0.1568,
+      "min_upright": -0.7779,
+      "mean_pelvis_z": 0.4506,
+      "final_pelvis_z": 0.4941,
+      "reward_sum": -4.181
+    }
+  ],
+  "no_push_zero": [
+    {
+      "seed": 0,
+      "steps": 69,
+      "mean_upright": 0.0615,
+      "min_upright": -0.457,
+      "mean_pelvis_z": 0.437,
+      "final_pelvis_z": 0.269,
+      "reward_sum": -99.131
+    },
+    {
+      "seed": 1,
+      "steps": 100,
+      "mean_upright": 0.573,
+      "min_upright": 0.0834,
+      "mean_pelvis_z": 0.3054,
+      "final_pelvis_z": 0.1572,
+      "reward_sum": 17.295
+    },
+    {
+      "seed": 2,
+      "steps": 46,
+      "mean_upright": -0.0933,
+      "min_upright": -0.7299,
+      "mean_pelvis_z": 0.4352,
+      "final_pelvis_z": 0.2634,
+      "reward_sum": -99.739
+    }
+  ],
+  "reduced_battery_det": {
+    "fall_rate": 0.0,
+    "mean_upright": -0.017801,
+    "max_recoverable_impulse": 0.0,
+    "recovery_success_rate": 0.0,
+    "com_offset_max": 0.7871,
+    "steps_after_push_mean": 25.0
+  },
+  "reduced_battery_stoch": {
+    "fall_rate": 0.0,
+    "mean_upright": -0.043377,
+    "max_recoverable_impulse": 0.0,
+    "recovery_success_rate": 0.0,
+    "com_offset_max": 0.7892,
+    "steps_after_push_mean": 27.125
+  }
+}
