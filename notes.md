@@ -2095,4 +2095,54 @@ scripts/calibrate_scorer.py, scripts/score_trace.py, tests/test_scorer.py.
   `videos/motion_refs/` (6 videos + sheets + metrics JSON per
   EVIDENCE_PROTOCOL), `fusion_spec.json` (14 features, per-feature source
   attribution + confidence), VISUALS row 10c. Agent 2 entry point:
-  `.venv/bin/python scripts/query_motion_refs.py drill_continuous --phase`.
+  `.venv/bin/python scripts/query_motion_refs.py drill_continuous --phase.`
+
+## 2026-10-08 (MotionLearn, Agent 2) — physics-based motion learning: env built, conditioning proven, anti-gaming closed, dynamic-segment failure isolated
+
+- FACT (env): `src/solo/track.py` — reference-conditioned tracking env, 14 tests
+  (`tests/test_track.py`) + module self-check. Actor obs = documented 115-dim base
+  UNCHANGED + appended 55-dim reference block (local root target, ref root velocity, ref
+  joint targets, ref foot contacts, phase progress, per-frame skill one-hot from the
+  drill's own phase_id labels, lead leg, connector flag, 0.2 s future root); critic adds
+  the 3 tracking errors (actor 170 / critic 216). Residual base action = the reference's
+  next-frame joint targets (z=0 is exact open-loop replay). NO scripted teacher anywhere
+  at inference; the reference is a commanded movement target only.
+- FACT (dead channel FIXED, measured): nearest-centroid classification of 23 drill phases
+  from the motion-only block features = **0.854 vs 0.083 chance**
+  (`data/solo/metrics/track_baselines.json:reference_signal_check`).
+- FACT (anti-gaming closed two ways): (1) `pelvis_drop > 0.20 m` below a standing
+  reference is a TERMINAL deviation — sitting ends the episode exactly like falling, so
+  the measured "never fall by never standing" optimum is gone; (2) tracking 2.30/step vs
+  the measured crouch 0.54/step (4.2x dominance) on constructed states. Deep phases
+  (ref pelvis < 0.55 m) use a widened height kernel (0.12 m) so the G1-unreachable
+  0.22 m entry crouch is graded, not punished into a fall. Pinned in tests.
+- FACT (baselines first): open-loop replay completes **1/22** dynamic-segment rollouts;
+  T1-v6d via first-layer surgery also 1/22; replay terminates at site RMS 0.068-0.106 m;
+  applied ctrl == clip(base + 0.5*tanh(z)) asserted during rollouts; 79 steps/s measured
+  (dual-controller), ~200-270 single.
+- FACT (curriculum): 7 stages / 37 segments from the v1 references with per-stage
+  conditions (IC noise, xy/yaw jitter composed about Z, mid-segment starts, S7 random
+  pushes); `stalk_shuffle` + `knee_sprawl_entry2` never trained (zero-shot probes).
+- MEASURED (training, honest; 6 arms ~700k steps): soft-gated phase learns (completions
+  0.42->0.83, deviating fraction 0.58->0.44, falls 10->3 per 24) and STANCE windows pass
+  the hard gate in physics (site RMS 0.027-0.052 m, contacts 1/1, upright 0.997; video:
+  `videos/solo_drill/track/s1_it50_stance.mp4`), but the dynamic LOWER segment dies at
+  0.36 s at the hard gate in every arm (eval success plateaus 0.50).
+- DIAGNOSIS (frame-exact probe): feet planted, joint err 0.035-0.048 rad, while the ROOT
+  drifts 0.156 m fore-aft in 0.36 s and the torso diverges (~0.25 m) — the v1 references
+  are dynamically infeasible in TIMING even where poses are reachable (consistent with
+  E12: 6.9% statically holdable). A frame-locked tracker cannot both match and balance.
+- FIX IMPLEMENTED, RESULT UNVERIFIED: the GATED reference clock — the reference advances
+  only while tracking holds the band (joint <= 0.30 rad AND anchored root xy <= 0.12 m);
+  anti-freeze bound 2x duration with no completion credit; unit-tested. v6 run
+  (`checkpoints/solo/track_s1_v6_gated.pt`, `reports/2026-10-08/track/train_s1_v6_gated.log`)
+  launched at the session boundary. Next levers if it plateaus: offline dynamic re-timing
+  of the reference clock; root-path (not root-timing) reward; the operator's sanctioned
+  geometry trims baked into the reference.
+- ARTIFACTS: `reports/2026-10-08/motion_learning.md` (full report; final continuous drill
+  video correctly WITHHELD — criteria not met), `scripts/{solo_track_train,solo_track_eval,
+  solo_track_render,track_baselines}.py`, `data/solo/metrics/track_baselines.json`,
+  `data/solo/metrics/track_eval_s1v2_{it50_probe,it150}.json`, checkpoints
+  `checkpoints/solo/track_s1*.pt` (+jsonl logs), videos+sheets+JSONs under
+  `videos/solo_drill/track/` (passing clip, kept failure, side-by-side comparisons).
+  Reproduce commands in the report §7.
