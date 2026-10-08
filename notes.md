@@ -174,6 +174,16 @@ Entries appended as experiments run (Phase 2 onward).
   design concern: phases.py infers PRONE from pelvis height/velocity alone, switching the
   stabilizer off for any low pelvis regardless of cause — mitigation/justification requested.
 
+- QUALITY IS THE ACCEPTANCE AXIS (operator, 2026-10-08): "quality is the main outcome", and the
+  timeline is relaxed (">12 h available"). Consequence: the fallback ladder is insurance, not the
+  plan; the primary path is the highest-quality motion achievable (teacher/learned execution), and
+  breadth never outranks quality. docs/QUALITY_RUBRIC.md is the ship gate: per element 0-3
+  (stance / footwork / level change / penetration step / recovery / continuity / plausibility /
+  visual match), no element below 2, frame + numeric evidence required for any score >= 2, 0.25x
+  slow-motion review of the four critical moments, failures kept, nothing labelled "the drill" if it
+  needed a reset or a fall. All motion-producing agents (teacher, drill, mocap reference) are bound
+  to the rubric.
+
 ### E7 (2026-10-08 night) — outcome-first critical path to the drill video
 - OUTCOME: one clean continuous MP4 of one G1 performing a stance-and-motion drill. Decomposed:
   (a) hold a wrestling stance with feedback [today: NOT demonstrated], (b) state-responsive footwork,
