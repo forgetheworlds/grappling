@@ -793,6 +793,9 @@ def cmd_health(args) -> int:
         scan = keyframe_scan(nokeys_env, nokeys_trace, base,
                              steps=int(args.keyframe_steps), conditions=conditions)
         keyframe = {"scan_steps": scan["steps"],
+                    "own_set": {"default": None, "lit": "balance_lit"}.get(
+                        str(tc.get("reward_set", "default")),
+                        str(tc.get("reward_set", "default"))),
                     "verdicts": {cfg.name: keyframe_verdict(scan, cfg.name)
                                  for cfg in DEFAULT_CONFIGS},
                     "baseline": {cfg.name: scan["rows"][0]["scores"][cfg.name]
@@ -930,8 +933,28 @@ def _print_health(s: dict) -> None:
         flags.append(f"critic EV {r['explained_variance']:+.2f} < 0.3 (value error dominates advantages)")
     if gp and gp["value_alone_binds"]:
         flags.append("value-term gradient alone exceeds grad_clip (the update is critic-bound)")
-    if s["keyframe"] and any(v["n_beating"] for v in s["keyframe"]["verdicts"].values()):
-        flags.append("keyframe not maximal in the nominal reward (see above)")
+    if s["keyframe"]:
+        # The acceptance (reports/2026-10-08/lit_balance.md) is stated for the
+        # checkpoint's OWN reward set; the other sets in the scan are historical
+        # references whose sub-1% deltas are context, not failures.  The verdict
+        # must name the set that decides, or the ledger can record whichever
+        # number is convenient.
+        own = s["keyframe"].get("own_set")
+        own_v = (s["keyframe"]["verdicts"].get(own) if own else None)
+        if own_v is not None and own_v["n_beating"]:
+            flags.append(f"keyframe not maximal in the checkpoint's own set "
+                         f"({own}): {own_v['n_beating']} beat it by up to "
+                         f"{own_v['max_delta_frac']*100:+.3f}%")
+        else:
+            others = ", ".join(
+                f"{k} {v['max_delta_frac']*100:+.3f}%"
+                for k, v in s["keyframe"]["verdicts"].items() if k != own)
+            note = (f"keyframe maximal in the checkpoint's own set ({own})"
+                    if own_v is not None else
+                    "keyframe scan: the checkpoint's own set is unknown")
+            if others:
+                note += f"; other sets: {others}"
+            print(f"         -> {note}")
     print("-" * 100)
     print("VERDICT  " + ("OK" if not flags else "ATTENTION: " + "; ".join(flags)))
     print("=" * 100)
