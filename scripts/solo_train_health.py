@@ -534,15 +534,19 @@ def _grad_norm_probe(net, tc: dict, actor_obs, critic_obs, actions, logp, adv,
         return math.sqrt(total)
 
     grad_clip = float(tc.get("grad_clip", 0.5))
+    # With separate actor/critic clamps (P0-3) the value term exceeding the shared
+    # clip is EXPECTED and no longer starves the actor, so the flag must not fire.
+    split = (tc.get("grad_clip_actor") is not None
+             or tc.get("grad_clip_critic") is not None)
     for p in net.parameters():
         p.grad = None
-    return {"minibatch": int(mb),
+    return {"minibatch": int(mb), "split_clips": bool(split),
             "policy_term_grad_norm": norm(gp),
             "value_term_grad_norm": norm(gv),
             "total_grad_norm": norm(g_all),
             "grad_clip": grad_clip,
             "clip_binds": bool(norm(g_all) > grad_clip),
-            "value_alone_binds": bool(norm(gv) > grad_clip)}
+            "value_alone_binds": bool(norm(gv) > grad_clip and not split)}
 
 
 # --------------------------------------------------------------------------
@@ -756,7 +760,14 @@ def cmd_health(args) -> int:
         nokeys_env, nokeys_trace = make_env(weights=weights, action_mode=mode,
                                             residual_scale=scale, jitter=False)
         nokeys_env.set_push_schedule(None)
-        base = np.asarray(stand_frame(nokeys_env.model)[1], np.float64)
+        # Same baseline-action rule as ``cmd_keyframe``: in residual mode the
+        # keyframe ACTION is the zero action; ``stand_frame(model)[1]`` is the ctrl
+        # vector (arm entries 0.2/1.28) and using it as the residual action
+        # depresses the baseline, which read as a false "+2.16% misalignment".
+        if str(mode) == "residual":
+            base = np.zeros(29, np.float64)
+        else:
+            base = np.asarray(stand_frame(nokeys_env.model)[1], np.float64)
         conditions = keyframe_conditions(base, offsets=(0.05, 0.10),
                                          n_random=0)
         scan = keyframe_scan(nokeys_env, nokeys_trace, base,
@@ -830,7 +841,8 @@ def _print_health(s: dict) -> None:
               f"{gp['value_term_grad_norm']:.2f} vs policy-term {gp['policy_term_grad_norm']:.2f} "
               f"| total {gp['total_grad_norm']:.2f} vs grad_clip {gp['grad_clip']} "
               f"-> clip {'BINDS' if gp['clip_binds'] else 'inactive'}"
-              f"{' (value term alone exceeds it)' if gp['value_alone_binds'] else ''}")
+              f"{' (value term alone exceeds it)' if gp['value_alone_binds'] else ''}"
+              f"{' | split actor/critic clips ACTIVE' if gp.get('split_clips') else ''}")
     print("-" * 100)
     print("TREND    (stored reads; upright / fall / com_max)")
     for t in s["trend"]:
