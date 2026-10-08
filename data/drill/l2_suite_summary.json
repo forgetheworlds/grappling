@@ -1,0 +1,91 @@
+{
+ "L2_ENTRY_SPEC": {
+  "paths": {
+   "npz": "/home/ubuntu/grappling/data/drill/L2_ENTRY_SPEC_feasible_L2_seed0.npz",
+   "json": "/home/ubuntu/grappling/data/drill/L2_ENTRY_SPEC_feasible_L2_seed0.json"
+  },
+  "falls": 0,
+  "longest_s": 13.98,
+  "steps": 1,
+  "elements": 1,
+  "timeouts": 0,
+  "slip_m": 0.0058,
+  "margin_min": 0.0137,
+  "ik_max": 0.0013,
+  "refusals": 9,
+  "required_com_travel": [
+   0.189,
+   0.209
+  ]
+ },
+ "L2_ENTRY_BASE": {
+  "paths": {
+   "npz": "/home/ubuntu/grappling/data/drill/L2_ENTRY_BASE_feasible_L2_seed0.npz",
+   "json": "/home/ubuntu/grappling/data/drill/L2_ENTRY_BASE_feasible_L2_seed0.json"
+  },
+  "falls": 1,
+  "longest_s": 9.6,
+  "steps": 1,
+  "elements": 10,
+  "timeouts": 4,
+  "slip_m": 0.0097,
+  "margin_min": -0.6751,
+  "ik_max": 0.0014,
+  "refusals": 1,
+  "required_com_travel": [
+   0.153
+  ]
+ },
+ "L2_CYCLE": {
+  "paths": {
+   "npz": "/home/ubuntu/grappling/data/drill/L2_CYCLE_feasible_L2_seed0.npz",
+   "json": "/home/ubuntu/grappling/data/drill/L2_CYCLE_feasible_L2_seed0.json"
+  },
+  "falls": 1,
+  "longest_s": 22.56,
+  "steps": 3,
+  "elements": 27,
+  "timeouts": 12,
+  "slip_m": 0.0066,
+  "margin_min": -0.644,
+  "ik_max": 0.0013,
+  "refusals": 0,
+  "required_com_travel": []
+ },
+ "L2_SHUFFLE": {
+  "paths": {
+   "npz": "/home/ubuntu/grappling/data/drill/L2_SHUFFLE_feasible_L2_seed0.npz",
+   "json": "/home/ubuntu/grappling/data/drill/L2_SHUFFLE_feasible_L2_seed0.json"
+  },
+  "falls": 0,
+  "longest_s": 33.980000000000004,
+  "steps": 4,
+  "elements": 28,
+  "timeouts": 12,
+  "slip_m": 0.0083,
+  "margin_min": -0.0017,
+  "ik_max": 0.0003,
+  "refusals": 0,
+  "required_com_travel": []
+ },
+ "L2_STANCE_REFUSED": {
+  "paths": {
+   "npz": "/home/ubuntu/grappling/data/drill/L2_STANCE_REFUSED_feasible_L2_seed0.npz",
+   "json": "/home/ubuntu/grappling/data/drill/L2_STANCE_REFUSED_feasible_L2_seed0.json"
+  },
+  "falls": 0,
+  "longest_s": 9.98,
+  "steps": 0,
+  "elements": 12,
+  "timeouts": 5,
+  "slip_m": 0.0,
+  "margin_min": 0.0387,
+  "ik_max": 0.0003,
+  "refusals": 7,
+  "required_com_travel": [
+   0.254,
+   0.265,
+   0.276
+  ]
+ }
+}

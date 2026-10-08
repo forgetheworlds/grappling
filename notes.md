@@ -184,6 +184,40 @@ Entries appended as experiments run (Phase 2 onward).
   needed a reset or a fall. All motion-producing agents (teacher, drill, mocap reference) are bound
   to the rubric.
 
+### E16 (2026-10-08) — CoM-gated lift works, but the WIDE stance cannot be stepped in (authority 0.14 m < required 0.25-0.28 m)
+- FIXED AND MEASURED (DrillStep2, reports/2026-10-08/drill_l2.md): the lift gate now fires on the
+  measured CoM margin inside the SUPPORT foot's own footprint hull (>= +0.02 m) with a 2-tick dwell
+  and 0.06 s lock, load recorded but never gated; regression test
+  `test_lift_gate_is_margin_not_load` (fails on a load-only gate). At fire: margin_support
+  +0.024..+0.027 m, com_travel 0.086-0.098 m, ankle_roll_support -0.156..-0.183 (limit ±0.2618),
+  swing load 35-62 N, pivot 0.32-0.50 rad. Supporting helpers added: support-foot toe-out yaw pivot
+  about the measured footprint centre, swing-foot roll compliance + roll-authority mask,
+  clearance-triggered pelvis drop (<=0.045 m), min-jerk shift profile (0.03 m/s, zero end velocity),
+  lead-based settle after landing, and an explicit geometry REFUSAL (reach cap 0.14 m) that reports
+  required_com_travel_m.
+- STAGE RESULTS: L2_ENTRY_SPEC 0 falls / 1 step / 9 refusals (required 0.189-0.209 m, margin_min
+  +0.0137, slip 0.0058); L2_ENTRY_BASE 1 fall at 9.6 s; L2_CYCLE 1 fall at 22.56 s after 3 steps;
+  L2_SHUFFLE **0 falls, 34 s, 4 steps**, margin_min -0.0017, slip 0.0083; L2_STANCE_REFUSED
+  (the 0.495 m drill stance) **0 steps, 7 refusals**, required 0.254-0.276 m vs the 0.14 m authority.
+- THE CONFLICT (central finding): the stance that matches the operator's reference (0.495 m wide) and
+  holds 90 s at +0.0295 m margin CANNOT be shuffled in — the required lateral CoM travel (0.25-0.28 m)
+  is roughly double the controller's authority (0.14 m), so stepping is only possible in a ~0.21 m
+  base (4 steps/34 s, clean) at a 5-7 s cadence (lateral ceiling ~0.03 m/s). Real wrestling resolves
+  this with edge loading/roll, hip abduction + torso counter-rotation, and reshuffle step-outs;
+  those mechanisms are now under test (dispatched to DrillMotion) along with a width sweep and a
+  cadence investigation.
+- REFERENCE TRACKING (D2, implemented + tested but the 8-track table was not produced): the retargeted
+  video tracks are NOT holdable at frame 0 (CoM margins -0.396..+0.073 m; 2 tracks start with NO foot
+  on the mat) and topple in 0.9-1.2 s even with a CoM clamp — i.e. the video-derived references need
+  the same GEOMETRIC REPAIR as the GrappleMap references (E9/E12). Tracking machinery exists
+  (src/drill/tracking.py: Track/TrackController/TrackParams + margin-driven reference clock +
+  support-envelope leaning clamp + honesty reporting; runner hooks `controller='track'`).
+- NEXT (dispatched, DrillMotion): width-vs-steppability decision table; authority mechanisms
+  (edge roll, hip abduction/torso counter-rotation, support-foot step-out, pivot quantification);
+  cadence improvement; optional track repair; and the deliverable clip
+  `videos/solo_drill/final_L2_motion.mp4` (>=60 s, repeated visible steps, 0 falls, HUD, slow-mo of
+  one step, evidence bundle).
+
 ### E15 (2026-10-08) — S1 solo harness COMPLETE (32 tests) + the T1 gate does not discriminate StandHold
 - FACT (SoloEnv, verified by orchestrator: tests/test_solo.py 32 passed): src/solo/ (15 modules:
   scene/stance/commands/pushes/fall/markers/obs/reward/metrics/env/eval/baselines/video/lock/train).

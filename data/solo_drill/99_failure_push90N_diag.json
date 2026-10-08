@@ -1,0 +1,464 @@
+{
+ "video": "/home/ubuntu/grappling/videos/solo_drill/99_failure_push90N_diag.mp4",
+ "contact_sheet": "/home/ubuntu/grappling/videos/solo_drill/99_failure_push90N_diag_sheet.png",
+ "trace_npz": "/home/ubuntu/grappling/data/drill/FAIL_PUSH90_feasible_L1_seed0.npz",
+ "run_json": "/home/ubuntu/grappling/data/drill/FAIL_PUSH90_feasible_L1_seed0.json",
+ "config": {
+  "controller": "feasible",
+  "rung": "L1",
+  "seconds": 25.0,
+  "seed": 0,
+  "start": "stance",
+  "pushes": [
+   {
+    "t": 8.0,
+    "dur": 0.12,
+    "fx": -90.0,
+    "fy": 0.0,
+    "fz": 0.0,
+    "label": "push-90N"
+   }
+  ],
+  "noise": 0.0,
+  "tag": "FAIL_PUSH90",
+  "render_every": 0,
+  "max_wall_s": 900.0
+ },
+ "provenance": {
+  "git_commit": "c9ab9a2",
+  "worktree_dirty": true,
+  "controller": "feasible",
+  "rung": "L1",
+  "seed": 0,
+  "config_hash": "275fe8970acac7f3",
+  "control_hz": 50,
+  "physics_dt_s": 0.002,
+  "physics_substeps_per_tick": 10,
+  "scene": "robots/g1/g1.xml + landmark/sole sites (single robot, MjSpec)",
+  "reset_count": 0,
+  "one_reset": true,
+  "sim_wall_s": null,
+  "reproduce": "MUJOCO_GL=egl python scripts/solo_drill_render.py run --controller feasible --rung L1 --seconds 25 --seed 0 --start stance --out-tag FAIL_PUSH90"
+ },
+ "metrics": {
+  "config": {
+   "controller": "feasible",
+   "rung": "L1",
+   "seed": 0,
+   "seconds": 25.0,
+   "start": "stance",
+   "n_pushes": 1
+  },
+  "duration_s": 9.14,
+  "longest_continuous_s": 9.14,
+  "falls": 1,
+  "fall_times": [
+   9.14
+  ],
+  "timeouts": 2,
+  "steps_completed": 0,
+  "step_quality": [],
+  "slip": {
+   "per_foot": {
+    "left": {
+     "loaded_frac": 0.0,
+     "max_tick_slip_m": 0.0,
+     "max_load_drift_m": 0.0,
+     "p95_tick_slip_m": 0.0
+    },
+    "right": {
+     "loaded_frac": 0.0,
+     "max_tick_slip_m": 0.0,
+     "max_load_drift_m": 0.0,
+     "p95_tick_slip_m": 0.0
+    }
+   },
+   "max_tick_slip_m": 0.0,
+   "max_load_drift_m": 0.0
+  },
+  "interfoot": {
+   "min_separation_m": 0.539187892517513,
+   "mean_separation_m": 0.5691344200725758
+  },
+  "pushes": {
+   "n_pushes": 1,
+   "recovered": 0,
+   "recoveries": [
+    {
+     "t": 8.0,
+     "force": [
+      -90.0,
+      0.0,
+      0.0
+     ],
+     "margin_min": -0.6277270135362433,
+     "returned": false
+    }
+   ]
+  },
+  "tracking": {
+   "mean_com_track_err_m": 0.0412386507457904,
+   "p95_com_track_err_m": 0.261278285622686,
+   "per_skill": {
+    "LEVEL_CHANGE": {
+     "ticks": 301,
+     "duration_s": 6.0,
+     "realized_disp_m": 0.05525377085021205,
+     "cmd_speed_mps": 0.0,
+     "cmd_yaw_rate": 0.0,
+     "realized_yaw_change_deg": 1.5476238932327866,
+     "mean_track_err_m": 0.009450392026040961
+    },
+    "RECOVER": {
+     "ticks": 157,
+     "duration_s": 3.12,
+     "realized_disp_m": 0.7297068095734773,
+     "cmd_speed_mps": 0.0,
+     "cmd_yaw_rate": 0.0,
+     "realized_yaw_change_deg": 54.88518798930268,
+     "mean_track_err_m": 0.10218301937409985
+    }
+   }
+  },
+  "posture": {
+   "tilt_deg": {
+    "mean": 15.341469380562579,
+    "max": 65.4159526681843,
+    "p95": 17.40507759018137
+   },
+   "pelvis_z": {
+    "mean": 0.6875320848907003,
+    "min": 0.06680072044647332,
+    "max": 0.7295967459449404
+   },
+   "head_z_mean": 1.1008277857624795,
+   "min_foot_clearance_m": -0.0006886399062330391,
+   "both_airborne_frac": 0.0
+  },
+  "plausibility": {
+   "penetration_min_m": -0.013759150066788822,
+   "penetration_gt_ground_thr": 1,
+   "penetration_gt_mesh_thr": 0,
+   "sat_frac_mean": 0.0,
+   "sat_frac_max": 0.0,
+   "ctrl_delta_p95_rad": 0.002846910896930163,
+   "ctrl_delta_max_rad": 0.04937133584611217
+  },
+  "continuity": {
+   "duration_s": 9.14,
+   "n_ticks": 458,
+   "clock_monotone": true,
+   "resets": 0,
+   "zero_motion_frac": 0.0
+  },
+  "elements_done": 3,
+  "cycles_done": 0,
+  "safety_blend_ticks": 50,
+  "ik_err_max": 0.00046555226189428674,
+  "emergency_plants": 0
+ },
+ "rubric": {
+  "file": "/home/ubuntu/grappling/data/drill/FAIL_PUSH90_feasible_L1_seed0.npz",
+  "rung": "L1",
+  "controller": "feasible",
+  "seed": 0,
+  "sections": {
+   "A_stance": {
+    "A1_width": {
+     "score": 3.0,
+     "value": 0.513,
+     "why": "mean lateral foot separation (m); spec >= 0.24 wide",
+     "evidence": "sole_pts"
+    },
+    "A2_base_depth": {
+     "score": 2.0,
+     "value": 0.246,
+     "why": "mean fore-aft foot separation (m); staggered stance (reference 0.062 m, this build 0.248 m)",
+     "evidence": "sole_pts"
+    },
+    "A3_knee_bend": {
+     "score": 3.0,
+     "value": [
+      0.639,
+      0.943
+     ],
+     "why": "mean knee flexion per leg (rad): the crouch comes from the legs",
+     "evidence": "qpos[10],qpos[16]"
+    },
+    "A4_torso_pitch": {
+     "score": 3.0,
+     "value": 15.3,
+     "why": "mean torso tilt from vertical (deg)",
+     "evidence": "tilt_deg"
+    },
+    "A5_head_up": {
+     "score": 3.0,
+     "value": 1.101,
+     "why": "mean head site height (m) vs pelvis",
+     "evidence": "head_z"
+    },
+    "A6_hands": {
+     "score": 2.0,
+     "value": [
+      0.1,
+      0.215
+     ],
+     "why": "hand carriage: forward and inside (x forward, |y| small)",
+     "evidence": "wrist sites overlaid in HUD"
+    },
+    "A7_com_margin": {
+     "score": 0.0,
+     "value": -0.6277,
+     "why": "worst CoM margin inside the support polygon (m)",
+     "evidence": "margin (convex hull of the loaded footprints)"
+    },
+    "A8_hold": {
+     "score": 0.0,
+     "value": {
+      "duration_s": 9.1,
+      "xy_drift_m": 0.782
+     },
+     "why": "continuous hold without a fall; the drill stance is held, not transiently visited",
+     "evidence": "whole trace"
+    }
+   },
+   "B_footwork": {
+    "B1_no_slide": {
+     "score": null,
+     "value": null,
+     "why": "n/a: no completed step at rung L1 (stepping is the L2+ component gate)",
+     "evidence": ""
+    },
+    "B2_weight_transfer": {
+     "score": null,
+     "value": null,
+     "why": "n/a: no completed step at rung L1 (stepping is the L2+ component gate)",
+     "evidence": ""
+    },
+    "B3_command_fidelity": {
+     "score": null,
+     "value": null,
+     "why": "n/a: no completed step at rung L1 (stepping is the L2+ component gate)",
+     "evidence": ""
+    },
+    "B4_cadence": {
+     "score": null,
+     "value": null,
+     "why": "n/a: no completed step at rung L1 (stepping is the L2+ component gate)",
+     "evidence": ""
+    },
+    "B5_feet_clear": {
+     "score": null,
+     "value": null,
+     "why": "n/a: no completed step at rung L1 (stepping is the L2+ component gate)",
+     "evidence": ""
+    },
+    "B6_posture_moving": {
+     "score": null,
+     "value": null,
+     "why": "n/a: no completed step at rung L1 (stepping is the L2+ component gate)",
+     "evidence": ""
+    }
+   },
+   "C_level_change": {
+    "C1_drop_depth": {
+     "score": 2.0,
+     "value": 0.6628,
+     "why": "pelvis z range (m): a visible crouch, not a collapse",
+     "evidence": "qpos[:,2]"
+    },
+    "C2_legs_not_waist": {
+     "score": 3.0,
+     "value": {
+      "knee_range_rad": 0.427,
+      "torso_tilt_max": 65.4
+     },
+     "why": "the drop is produced by knee/ankle flexion, not waist folding",
+     "evidence": "qpos knees vs tilt"
+    },
+    "C3_margin_in_drop": {
+     "score": 0.0,
+     "value": -0.6277,
+     "why": "worst CoM margin (m) over the run",
+     "evidence": "margin"
+    },
+    "C4_speed": {
+     "score": 1.0,
+     "value": 2.792,
+     "why": "peak pelvis vertical speed (m/s): controlled, no drop",
+     "evidence": "qpos[:,2]"
+    },
+    "C5_reversible": {
+     "score": 1.0,
+     "value": 0.0,
+     "why": "returns to the tall stance after the deepest crouch (m)",
+     "evidence": "qpos[:,2]"
+    }
+   },
+   "D_penetration": {
+    "D1_lead_step": {
+     "score": null,
+     "value": null,
+     "why": "n/a: penetration step not reached at this rung (L4 component gate)",
+     "evidence": ""
+    },
+    "D2_knee_lower": {
+     "score": null,
+     "value": null,
+     "why": "n/a: penetration step not reached at this rung (L4 component gate)",
+     "evidence": ""
+    },
+    "D3_trail_drive": {
+     "score": null,
+     "value": null,
+     "why": "n/a: penetration step not reached at this rung (L4 component gate)",
+     "evidence": ""
+    },
+    "D4_alignment": {
+     "score": null,
+     "value": null,
+     "why": "n/a: penetration step not reached at this rung (L4 component gate)",
+     "evidence": ""
+    },
+    "D5_arms": {
+     "score": null,
+     "value": null,
+     "why": "n/a: penetration step not reached at this rung (L4 component gate)",
+     "evidence": ""
+    },
+    "D6_depth": {
+     "score": null,
+     "value": null,
+     "why": "n/a: penetration step not reached at this rung (L4 component gate)",
+     "evidence": ""
+    },
+    "D7_recoverable": {
+     "score": null,
+     "value": null,
+     "why": "n/a: penetration step not reached at this rung (L4 component gate)",
+     "evidence": ""
+    }
+   },
+   "E_recovery": {
+    "E1_return": {
+     "score": null,
+     "value": null,
+     "why": "n/a: penetration step not reached at this rung (L4 component gate)",
+     "evidence": ""
+    },
+    "E2_no_post": {
+     "score": null,
+     "value": null,
+     "why": "n/a: penetration step not reached at this rung (L4 component gate)",
+     "evidence": ""
+    },
+    "E3_time": {
+     "score": null,
+     "value": null,
+     "why": "n/a: penetration step not reached at this rung (L4 component gate)",
+     "evidence": ""
+    },
+    "E4_stability": {
+     "score": null,
+     "value": null,
+     "why": "n/a: penetration step not reached at this rung (L4 component gate)",
+     "evidence": ""
+    }
+   },
+   "F_continuity": {
+    "F1_no_resets": {
+     "score": 0.0,
+     "value": {
+      "falls": 1,
+      "resets": 0
+     },
+     "why": "one initialisation, zero in-run resets; a fall ends the run",
+     "evidence": "runner meta + fall events"
+    },
+    "F2_no_stalls": {
+     "score": 3.0,
+     "value": 0.0,
+     "why": "fraction of ticks with no base motion",
+     "evidence": "qpos[:,:2]"
+    },
+    "F3_smooth": {
+     "score": 3.0,
+     "value": 0.002846910896930163,
+     "why": "95th percentile joint-target change per tick (rad)",
+     "evidence": "ctrl"
+    },
+    "F4_transitions": {
+     "score": 2.0,
+     "value": 0.00046555226189428674,
+     "why": "worst reference IK residual (m)",
+     "evidence": "ik_err"
+    },
+    "F5_repeats": {
+     "score": 0.0,
+     "value": 0,
+     "why": "completed cycles of the element programme",
+     "evidence": "cycle_done events"
+    }
+   },
+   "G_plausibility": {
+    "G1_mesh_pen": {
+     "score": 1.0,
+     "value": -0.0138,
+     "why": "worst contact penetration (m); -0.02 is the mesh limit",
+     "evidence": "contact distances"
+    },
+    "G2_ground_pen": {
+     "score": 0.0,
+     "value": -0.0138,
+     "why": "ground penetration (m); coarser than the mesh limit",
+     "evidence": "contact distances"
+    },
+    "G3_foot_slide": {
+     "score": 3.0,
+     "value": 0.0,
+     "why": "worst loaded-foot drift (m)",
+     "evidence": "sole_pts"
+    },
+    "G4_saturation": {
+     "score": 3.0,
+     "value": 0.0,
+     "why": "peak |force| / force range over the run",
+     "evidence": "actuator_force"
+    },
+    "G5_no_glitch": {
+     "score": 1.0,
+     "value": {
+      "joint": 0.0772,
+      "base": 0.0558
+     },
+     "why": "max per-tick joint (rad) and base (m) change: no pops",
+     "evidence": "qpos"
+    }
+   }
+  },
+  "scored_min": 0.0,
+  "ship_gate_pass": false,
+  "n_scored": 23,
+  "n_na": 17
+ },
+ "rubric_table": "rubric: FAIL_PUSH90_feasible_L1_seed0.npz  rung=L1 seed=0  min score=0.0  ship gate=FAIL\n  A_stance\n    A1_width             3  0.513                                                        mean lateral foot separation (m); spec >= 0.24 wide\n    A2_base_depth        2  0.246                                                        mean fore-aft foot separation (m); staggered stance (refer\n    A3_knee_bend         3  [0.639, 0.943]                                               mean knee flexion per leg (rad): the crouch comes from the\n    A4_torso_pitch       3  15.3                                                         mean torso tilt from vertical (deg)\n    A5_head_up           3  1.101                                                        mean head site height (m) vs pelvis\n    A6_hands             2  [0.1, 0.215]                                                 hand carriage: forward and inside (x forward, |y| small)\n    A7_com_margin        0  -0.6277                                                      worst CoM margin inside the support polygon (m)\n    A8_hold              0  {'duration_s': 9.1, 'xy_drift_m': 0.782}                     continuous hold without a fall; the drill stance is held, \n  B_footwork\n    B1_no_slide        n/a  None                                                         n/a: no completed step at rung L1 (stepping is the L2+ com\n    B2_weight_transfer n/a  None                                                         n/a: no completed step at rung L1 (stepping is the L2+ com\n    B3_command_fidelity n/a  None                                                         n/a: no completed step at rung L1 (stepping is the L2+ com\n    B4_cadence         n/a  None                                                         n/a: no completed step at rung L1 (stepping is the L2+ com\n    B5_feet_clear      n/a  None                                                         n/a: no completed step at rung L1 (stepping is the L2+ com\n    B6_posture_moving  n/a  None                                                         n/a: no completed step at rung L1 (stepping is the L2+ com\n  C_level_change\n    C1_drop_depth        2  0.6628                                                       pelvis z range (m): a visible crouch, not a collapse\n    C2_legs_not_waist    3  {'knee_range_rad': 0.427, 'torso_tilt_max': 65.4}            the drop is produced by knee/ankle flexion, not waist fold\n    C3_margin_in_drop    0  -0.6277                                                      worst CoM margin (m) over the run\n    C4_speed             1  2.792                                                        peak pelvis vertical speed (m/s): controlled, no drop\n    C5_reversible        1  0.0                                                          returns to the tall stance after the deepest crouch (m)\n  D_penetration\n    D1_lead_step       n/a  None                                                         n/a: penetration step not reached at this rung (L4 compone\n    D2_knee_lower      n/a  None                                                         n/a: penetration step not reached at this rung (L4 compone\n    D3_trail_drive     n/a  None                                                         n/a: penetration step not reached at this rung (L4 compone\n    D4_alignment       n/a  None                                                         n/a: penetration step not reached at this rung (L4 compone\n    D5_arms            n/a  None                                                         n/a: penetration step not reached at this rung (L4 compone\n    D6_depth           n/a  None                                                         n/a: penetration step not reached at this rung (L4 compone\n    D7_recoverable     n/a  None                                                         n/a: penetration step not reached at this rung (L4 compone\n  E_recovery\n    E1_return          n/a  None                                                         n/a: penetration step not reached at this rung (L4 compone\n    E2_no_post         n/a  None                                                         n/a: penetration step not reached at this rung (L4 compone\n    E3_time            n/a  None                                                         n/a: penetration step not reached at this rung (L4 compone\n    E4_stability       n/a  None                                                         n/a: penetration step not reached at this rung (L4 compone\n  F_continuity\n    F1_no_resets         0  {'falls': 1, 'resets': 0}                                    one initialisation, zero in-run resets; a fall ends the ru\n    F2_no_stalls         3  0.0                                                          fraction of ticks with no base motion\n    F3_smooth            3  0.0028                                                       95th percentile joint-target change per tick (rad)\n    F4_transitions       2  0.0005                                                       worst reference IK residual (m)\n    F5_repeats           0  0                                                            completed cycles of the element programme\n  G_plausibility\n    G1_mesh_pen          1  -0.0138                                                      worst contact penetration (m); -0.02 is the mesh limit\n    G2_ground_pen        0  -0.0138                                                      ground penetration (m); coarser than the mesh limit\n    G3_foot_slide        3  0.0                                                          worst loaded-foot drift (m)\n    G4_saturation        3  0.0                                                          peak |force| / force range over the run\n    G5_no_glitch         1  {'joint': 0.0772, 'base': 0.0558}                            max per-tick joint (rad) and base (m) change: no pops",
+ "label": "FAILURE: 90 N push",
+ "caption": "above the measured recovery limit: 20 N recovers, 35 N is marginal, 90 N topples",
+ "clip_verification": {
+  "path": "/home/ubuntu/grappling/videos/solo_drill/99_failure_push90N_diag.mp4",
+  "ok": false,
+  "problems": [
+   "duration 3.17s vs expected 7.00s",
+   "decode failed: cannot convert float infinity to integer"
+  ],
+  "codec_name": "h264",
+  "pix_fmt": "yuv420p",
+  "width": 480,
+  "height": 360,
+  "r_frame_rate": "30/1",
+  "nb_frames": "95",
+  "duration": "3.166667"
+ },
+ "reproduce": "MUJOCO_GL=egl python scripts/solo_drill_render.py run --controller feasible --rung L1 --seconds 25 --seed 0 --start stance --out-tag FAIL_PUSH90",
+ "render_command": "MUJOCO_GL=egl python scripts/solo_drill_render.py render --npz /home/ubuntu/grappling/data/drill/FAIL_PUSH90_feasible_L1_seed0.npz --out videos/solo_drill/99_failure_push90N_diag.mp4"
+}

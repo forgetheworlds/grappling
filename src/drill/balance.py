@@ -108,13 +108,17 @@ def measured_gains() -> dict:
 
 
 def channel_offsets(e_loc: np.ndarray, contact: np.ndarray, k_pitch: float,
-                    k_roll: float) -> np.ndarray:
+                    k_roll: float, roll_sides: tuple | None = None,
+                    k_roll_scale: float = 1.0) -> np.ndarray:
     """Direct pitch/roll balance offsets for a robot-local error (m).
 
     Same construction as the teacher's measured channels: the offset whose
     measured authority would cancel the error, split across ankle/knee/hip
     (pitch) or taken entirely by hip roll, and applied only to feet that are
-    on the mat.
+    on the mat.  ``roll_sides`` restricts the *roll* channel to the feet that
+    may carry roll authority (the step primitive's support foot while a foot
+    is stepping -- the swing leg is compliant, see ``stepping.roll_authority``);
+    pitch stays on every loaded foot.
     """
     dq = np.zeros(29)
     if not contact.any():
@@ -124,8 +128,11 @@ def channel_offsets(e_loc: np.ndarray, contact: np.ndarray, k_pitch: float,
             continue
         for name, share in PITCH_SPLIT.items():
             dq[idx[name]] += -share * k_pitch * e_loc[0] / AUTH_PITCH[name]
+        if roll_sides is not None and side not in roll_sides:
+            continue
         for name, share in ROLL_SPLIT.items():
-            dq[idx[name]] += -share * k_roll * e_loc[1] / AUTH_ROLL[name]
+            dq[idx[name]] += (-share * k_roll * k_roll_scale * e_loc[1]
+                              / AUTH_ROLL[name])
     return dq
 
 
@@ -146,10 +153,12 @@ class FootTarget:
     sole_z: float = K.SOLE_REST_Z  # lowest footprint point (m)
     planted: bool = True           # True = anchored to this world target
     pitch: float = 0.0             # toe up (rad) — swing clearance shaping
+    roll: float = 0.0              # sole roll (rad, + raises the +y edge) —
+    #                                swing-foot compliance through a weight shift
 
     def points(self, ids: K.RobotIds, side: str) -> np.ndarray:
         return K.foot_targets(ids, side, self.origin_xy, self.yaw,
-                              sole_z=self.sole_z, pitch=self.pitch)
+                              sole_z=self.sole_z, pitch=self.pitch, roll=self.roll)
 
 
 @dataclass
@@ -165,7 +174,7 @@ class DrillPlan:
     def copy(self) -> "DrillPlan":
         return DrillPlan(self.base_xyz.copy(), float(self.base_yaw),
                          {s: FootTarget(f.origin_xy.copy(), f.yaw, f.sole_z,
-                                        f.planted, f.pitch)
+                                        f.planted, f.pitch, f.roll)
                           for s, f in self.feet.items()},
                          self.upper.copy(), self.label)
 
@@ -183,6 +192,13 @@ class ReferenceSolver:
         #: (measured: a 0.8 rad knee step lifted both feet 5 cm off the mat).
         self.max_step = float(max_step)
         self._data = mujoco.MjData(model)
+        #: when set (36-pose tracking), ``solve`` returns these 29 joints
+        #: directly instead of solving the cartesian plan -- a retargeted
+        #: reference *is* a joint trajectory, and re-solving it through IK only
+        #: adds the solver's transient (measured: 3 damped-GN iterations from a
+        #: distant warm start left 3.5-6 cm of leg error for ~20 ticks and the
+        #: robot collapsed under a plan that its own pose contradicted)
+        self.direct: np.ndarray | None = None
         self.q_leg = {s: np.array([-0.20, 0.05, 0.0, 0.35, -0.15, 0.0])
                       for s in K.SIDES}
         self.q_out = {s: self.q_leg[s].copy() for s in K.SIDES}
@@ -207,6 +223,13 @@ class ReferenceSolver:
     def solve(self, plan: DrillPlan) -> np.ndarray:
         """29 joint values for the plan (legs IK; upper body from ``plan.upper``)."""
         model, ids, d = self.model, self.ids, self._data
+        if self.direct is not None:
+            q = np.asarray(self.direct, float).copy()
+            for s in K.SIDES:
+                self.q_leg[s] = q[ids.leg_qadr[s] - 7].copy()
+                self.q_out[s] = self.q_leg[s].copy()
+                self.ik_err[s] = 0.0
+            return q
         # scratch base pose for the leg IK: the planned pelvis pose
         d.qpos[:3] = plan.base_xyz
         d.qpos[3:7] = K.yaw_quat(plan.base_yaw)
@@ -270,7 +293,8 @@ class BalanceLaw:
 
     # -- one control tick --------------------------------------------------
     def offsets(self, data: mujoco.MjData, plan: DrillPlan,
-                com_ref: np.ndarray) -> tuple[np.ndarray, dict]:
+                com_ref: np.ndarray, roll_sides: tuple | None = None,
+                k_roll_scale: float = 1.0) -> tuple[np.ndarray, dict]:
         """(29,) balance offsets for this tick, and the measurement read-out.
 
         The task error tracks the *planned* CoM (``com_ref``), not the live
@@ -278,6 +302,9 @@ class BalanceLaw:
         law must follow the plan rather than fight any CoM that leaves the
         middle of the footprint.  Physical safety is enforced separately, by
         the measured margin and the emergency blend below.
+
+        ``roll_sides`` (see :func:`channel_offsets`) restricts the roll channel
+        to the feet allowed to push the body sideways this tick.
         """
         p, ids = self.p, self.ids
         com = ids.com(data)
@@ -298,7 +325,8 @@ class BalanceLaw:
         e_dir = np.clip(e + self._int, -p.task_clamp, p.task_clamp)
 
         base, yaw = ids.base_pose(data)
-        dq = channel_offsets(K.z_rot(-yaw) @ e_dir, contact, p.k_pitch, p.k_roll)
+        dq = channel_offsets(K.z_rot(-yaw) @ e_dir, contact, p.k_pitch, p.k_roll,
+                             roll_sides=roll_sides, k_roll_scale=k_roll_scale)
 
         # planted-foot anchoring + sole flattening + pelvis-height PI
         z_err = float(base[2] - plan.base_xyz[2])

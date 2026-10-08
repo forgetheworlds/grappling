@@ -285,6 +285,259 @@ def cmd_suite(a) -> int:
     return 0
 
 
+# --------------------------------------------------------------- L2 evidence
+#: the base the stepping rungs are demonstrated in.  The drill stance's own
+#: width is *not* steppable on this robot: measured, lifting a foot in a
+#: 0.495 m stance needs ~0.21-0.25 m of lateral CoM travel against a measured
+#: authority of ~0.14 m (see reports/2026-10-08/drill_l2.md).  The deviation is
+#: reported with every clip; the drill stance is unchanged and still the L1
+#: hold base.
+def _stepping_base(model, ids):
+    from drill import posture, stepping as stepping_mod
+
+    return posture.build_stance(model, stepping_mod.stepping_base_spec(), ids)
+
+
+def _l1_plus_step_scheduler(seed: int = 0, timeout: float = 14.0):
+    """The L1 programme with ONE step embedded per cycle (the L2 gate)."""
+    import numpy as np
+    from drill import scheduler as sch
+
+    rng = np.random.default_rng(seed)
+    sched = sch.SkillScheduler("L2", seed=seed)
+    sched.elements = sch.program("L1", rng) + [
+        sch.Element("x_step", "SHUFFLE_F", steps=1, timeout=timeout, guard="flat",
+                    params={"vx": 0.07}),
+        sch.Element("x_hold", "STANCE", hold_s=0.6, timeout=6.0, guard="stance")]
+    return sched
+
+
+def cmd_l2suite(a) -> int:
+    """Run + render the L2 (stepping) evidence set: one heap-free pass.
+
+    Stages (reports/2026-10-08/drill_l2.md): the isolated first step from the
+    stand, the entry walk, one step per L1 cycle, a 2-3 step shuffle -- each in
+    the base the primitive can actually use -- plus the *refusal* evidence in
+    the drill stance itself (the geometry that names why).
+    """
+    import numpy as np
+
+    from drill import posture, scene
+    from drill import stepping as stepping_mod
+    from drill import rubric as rubric_mod
+    from drill import video as video_mod
+    from drill.lock import sim_lock
+    from drill.runner import RunConfig, run
+
+    DATA.mkdir(parents=True, exist_ok=True)
+    (REPO / "data" / "solo_drill").mkdir(parents=True, exist_ok=True)
+    model = scene.load_model()
+    ids = scene_mod_ids(model)
+    nbase = _stepping_base(model, ids)
+    spec = posture.build_stance(model, posture.StanceSpec(), ids)
+    jobs = [
+        # (tag, RunConfig, stance, scheduler, renders)
+        ("L2_ENTRY_SPEC", dict(controller="feasible", rung="L2", seconds=14.0,
+                               start="stand", tag="L2_ENTRY_SPEC"), spec, None, [
+            ("L2_isolated_step.mp4", "L2: the first step out of the stand (drill stance base)",
+             0.4, 7.0, "one isolated step: margin-gated lift, world-tracked swing, "
+             "load-gated landing; the rest of the entry is refused on geometry", 1.0)]),
+        ("L2_ENTRY_BASE", dict(controller="feasible", rung="L2", seconds=25.0,
+                               start="stand", tag="L2_ENTRY_BASE"), nbase, None, [
+            ("final_L2_entry_walk.mp4", "L2: stand -> stepping base, walked",
+             0.4, 16.0, "the entry walk in the base the primitive can use "
+             "(0.25 m wide, 0.06 m deep)", 1.0)]),
+        ("L2_CYCLE", dict(controller="feasible", rung="L2", seconds=34.0,
+                          start="stance", tag="L2_CYCLE"), nbase,
+         _l1_plus_step_scheduler(0), [
+            ("L2_cycle_step_diag.mp4", "L2: one step per L1 programme cycle",
+             8.0, 18.0, "level change / rise with one gate-checked step per cycle", 0.5)]),
+        ("L2_SHUFFLE", dict(controller="feasible", rung="L2", seconds=34.0,
+                            start="stance", tag="L2_SHUFFLE"), nbase, None, [
+            ("L2_shuffle_3steps_diag.mp4", "L2: short shuffle (2-3 steps)",
+             4.0, 18.0, "consecutive single-foot repositions with the settle between", 0.5)]),
+        ("L2_STANCE_REFUSED", dict(controller="feasible", rung="L2", seconds=10.0,
+                                   start="stance", tag="L2_STANCE_REFUSED"), spec, None, [
+            ("L2_stance_step_refused_diag.mp4",
+             "L2: the drill stance refuses the step (geometry)", 1.0, 8.0,
+             "the same primitive in the 0.495 m stance: every lift needs more CoM "
+             "travel than the robot has; it refuses instead of toppling", 0.5)]),
+    ]
+    results = {}
+    with sim_lock("L2 suite"):
+        for tag, cfg_kw, stance, sched, _renders in jobs:
+            cfg = RunConfig(**cfg_kw)
+            res = run(cfg, stance=stance, model=model, scheduler=sched, verbose=False)
+            paths = res.save(DATA)
+            m = res.metrics
+            results[tag] = {
+                "paths": paths, "falls": m["falls"], "longest_s": m["longest_continuous_s"],
+                "steps": m["steps_completed"], "elements": m["elements_done"],
+                "timeouts": m["timeouts"],
+                "slip_m": round(float(m["slip"]["max_load_drift_m"]), 4),
+                "margin_min": round(float(np.min(res.trace["margin"])), 4),
+                "ik_max": round(float(m["ik_err_max"]), 4),
+                "refusals": len([e for e in res.events
+                                 if e.get("event") == "step_refused"]),
+                "required_com_travel": sorted({round(float(e["required_com_travel_m"]), 3)
+                                               for e in res.events
+                                               if e.get("event") == "step_refused"}),
+            }
+            print(f"[L2] {tag}: falls {m['falls']} steps {m['steps_completed']} "
+                  f"margin_min {results[tag]['margin_min']:+.4f} "
+                  f"refusals {results[tag]['refusals']}", flush=True)
+    # render pass (lock-free: cached traces only)
+    for tag, cfg_kw, stance, sched, renders in jobs:
+        cfg = RunConfig(**cfg_kw)
+        paths = results[tag]["paths"]
+        for name, title, t0, t1, caption, scale in renders:
+            npz = Path(paths["npz"])
+            meta = _meta_for(npz, name.split("_")[0], title)
+            meta["footer"] = f"config {npz.name} | one reset | {caption}"
+            r = video_mod.render_trace(video_mod.load_trace(npz), VIDEO / name,
+                                       meta=meta, t0=t0, t1=t1, scale=scale,
+                                       sheet_times=tuple(np.linspace(t0 + 0.4, t1 - 0.4, 3)),
+                                       caption=caption)
+            ver = verify_clip(Path(r["mp4"]), expect_s=t1 - t0, expect_frames=r["frames"])
+            blob = json.loads(Path(paths["json"]).read_text())
+            rub = rubric_mod.assess(paths["npz"], blob)
+            bundle = {"video": str(VIDEO / name), "contact_sheet": r.get("sheet"),
+                      "trace_npz": paths["npz"], "run_json": paths["json"],
+                      "config": blob.get("config"), "provenance": blob.get("provenance"),
+                      "metrics": blob.get("metrics"), "rubric": rub,
+                      "rubric_table": rubric_mod.render_table(rub),
+                      "label": title, "caption": caption,
+                      "clip_verification": ver,
+                      "l2_evidence_notes": results[tag],
+                      "reproduce": (f"MUJOCO_GL=egl python scripts/solo_drill_render.py "
+                                    f"run --controller feasible --rung {cfg.rung} "
+                                    f"--seconds {cfg.seconds:g} --start {cfg.start} "
+                                    f"--out-tag {cfg.tag}")}
+            (REPO / "data" / "solo_drill" / (Path(name).stem + ".json")).write_text(
+                json.dumps(bundle, indent=1, default=str))
+            print(f"[L2] rendered {r['mp4']} verify={ver['ok']} "
+                  f"problems={ver['problems']}", flush=True)
+    (DATA / "l2_suite_summary.json").write_text(json.dumps(results, indent=1, default=str))
+    print(json.dumps(results, indent=1, default=str))
+    return 0
+
+
+def scene_mod_ids(model):
+    from drill import kin as K
+
+    return K.RobotIds.build(model)
+
+
+# ------------------------------------------------------- reference tracking
+def cmd_tracks(a) -> int:
+    """Run every retargeted reference track and write the per-track report."""
+    import numpy as np
+
+    from drill import kin as K, posture, scene
+    from drill import rubric as rubric_mod
+    from drill import video as video_mod
+    from drill.lock import sim_lock
+    from drill.runner import RunConfig, run
+    from drill.tracking import TRACK_ORDER, Track
+
+    DATA.mkdir(parents=True, exist_ok=True)
+    (REPO / "data" / "solo_drill").mkdir(parents=True, exist_ok=True)
+    model = scene.load_model()
+    ids = K.RobotIds.build(model)
+    stance = posture.build_stance(model, posture.StanceSpec(), ids)
+    names = [n for n in TRACK_ORDER if (REPO / "data" / "refs_video" / f"{n}.npz").exists()]
+    summary = {}
+    with sim_lock("track suite"):
+        for name in names:
+            trk = Track.load(name)
+            cfg = RunConfig(controller="track", rung="L3", track=name,
+                            seconds=trk.duration + 1.0, seed=0, start="track",
+                            tag=f"TRACK_{name}")
+            res = run(cfg, stance=stance, model=model, verbose=False,
+                      scheduler=_TrackScheduler(name))
+            paths = res.save(DATA)
+            m = res.metrics
+            qpos = np.asarray(res.trace["qpos"], float)
+            apeak = float(max(np.abs(qpos[:, ids.leg_qadr[s][5]]).max() for s in K.SIDES))
+            summary[name] = {
+                "paths": paths,
+                "duration_s": round(trk.duration, 2),
+                "falls": m["falls"], "fall_t": m["fall_times"],
+                "longest_s": round(float(m["longest_continuous_s"]), 2),
+                "margin_min": round(float(np.min(res.trace["margin"])), 4),
+                "ankle_roll_peak": round(apeak, 4),
+                "ankle_roll_limit": round(float(ids.leg_limits["left"][5, 1]), 4),
+                "slip_m": round(float(m["slip"]["max_load_drift_m"]), 4),
+                "ik_max": round(float(m["ik_err_max"]), 4),
+                "rubric": rubric_mod.assess(paths["npz"], json.loads(
+                    Path(paths["json"]).read_text())),
+                "tracking": m.get("reference_tracking"),
+            }
+            t = summary[name]["tracking"] or {}
+            print(f"[TRK] {name}: falls {m['falls']} longest "
+                  f"{summary[name]['longest_s']}s tracked {t.get('tracked_frac')} "
+                  f"e_joint {t.get('e_joint_mean_rad')} e_site {t.get('e_site_mean_m')} "
+                  f"clamp {t.get('clamp_shift_max_m')} "
+                  f"margin_min {summary[name]['margin_min']:+.3f}", flush=True)
+    # clips for the tracks that ran longest (diagnostic scale: render budget)
+    order = sorted(names, key=lambda n: -summary[n]["longest_s"])[:3]
+    for name in order:
+        paths = summary[name]["paths"]
+        npz = Path(paths["npz"])
+        trk = Track.load(name)
+        t_end = max(1.5, summary[name]["longest_s"] + 0.4)
+        meta = _meta_for(npz, "TRK", f"reference tracking: {name}")
+        meta["footer"] = (f"track {name} (retargeted, not dynamically validated) | "
+                          f"cached trace {npz.name}")
+        r = video_mod.render_trace(video_mod.load_trace(npz),
+                                   VIDEO / f"L3_track_{name}_diag.mp4", meta=meta,
+                                   t0=0.0, t1=t_end, scale=0.5,
+                                   sheet_times=(0.2, t_end / 2, max(0.3, t_end - 0.2)),
+                                   caption=("reference trajectory tracking: the plan is "
+                                            "driven by the retargeted track; partial "
+                                            "tracking is expected and reported"))
+        ver = verify_clip(Path(r["mp4"]), expect_s=t_end, expect_frames=r["frames"])
+        blob = json.loads(Path(paths["json"]).read_text())
+        bundle = {"video": str(VIDEO / f"L3_track_{name}_diag.mp4"),
+                  "contact_sheet": r.get("sheet"), "trace_npz": paths["npz"],
+                  "run_json": paths["json"], "config": blob.get("config"),
+                  "provenance": blob.get("provenance"), "metrics": blob.get("metrics"),
+                  "reference_tracking": blob["metrics"].get("reference_tracking"),
+                  "clip_verification": ver,
+                  "reference_note": ("retargeted from monocular video (mediapipe); "
+                                     "not dynamically validated -- tracking is "
+                                     "reported as partial"),
+                  "reproduce": (f"MUJOCO_GL=egl python scripts/solo_drill_render.py "
+                                f"run --controller track --track {name} "
+                                f"--seconds {trk.duration + 1.0:g} --start track "
+                                f"--out-tag TRACK_{name}")}
+        (REPO / "data" / "solo_drill" / f"L3_track_{name}.json").write_text(
+            json.dumps(bundle, indent=1, default=str))
+        print(f"[TRK] rendered {r['mp4']} verify={ver['ok']}", flush=True)
+    (DATA / "tracks_summary.json").write_text(json.dumps(summary, indent=1, default=str))
+    print(json.dumps({k: {kk: vv for kk, vv in v.items() if kk != "paths"}
+                      for k, v in summary.items()}, indent=1, default=str))
+    return 0
+
+
+class _TrackScheduler:
+    """One TRACK command for the whole episode (the mode's own driver)."""
+
+    def __init__(self, name: str):
+        self.name = name
+
+    def reset(self, model, data) -> None:
+        pass
+
+    def tick(self, ids, data, ctrl, t):
+        from drill.controller import DrillCommand
+
+        return DrillCommand("TRACK", phase=f"track {self.name}")
+
+    def drain_events(self):
+        return []
+
+
 def main(argv=None) -> int:
     ap = argparse.ArgumentParser(description=__doc__.splitlines()[0])
     sub = ap.add_subparsers(dest="cmd", required=True)
@@ -319,6 +572,12 @@ def main(argv=None) -> int:
 
     s_ = sub.add_parser("suite", help="run + render the whole deliverable set")
     s_.set_defaults(func=cmd_suite)
+
+    l2 = sub.add_parser("l2suite", help="run + render the L2 stepping evidence set")
+    l2.set_defaults(func=cmd_l2suite)
+
+    tk = sub.add_parser("tracks", help="run every retargeted reference track")
+    tk.set_defaults(func=cmd_tracks)
 
     a = ap.parse_args(argv)
     return a.func(a)

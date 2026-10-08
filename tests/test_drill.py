@@ -276,3 +276,139 @@ def test_measured_constants_match_the_teacher():
         assert st.PITCH_SPLIT[name] == pytest.approx(share)
         assert st.AUTH[name][0] == pytest.approx(balance.AUTH_PITCH[name])
     assert st.AUTH["hip_roll"][1] == pytest.approx(balance.AUTH_ROLL["hip_roll"])
+
+
+# ----------------------------------------------------------------- L2 stepping
+def test_lift_gate_is_margin_not_load():
+    """The L2 fix: the lift gate reads the CoM margin, never the foot load.
+
+    A gate that reverted to "the swing foot is unloaded" answers True to the
+    second case below (margin outside the support hull, zero load) -- exactly
+    the state the old gate fired in, right before the swing ankle saturated.
+    The first case (good margin, the swing foot still carrying 45 % of its
+    half-weight share) must lift: the load is a record, not a condition.
+    """
+    from drill import stepping
+    p = stepping.StepParams()
+    body_w = 33.0 * 9.81
+    ok_margin, rec = stepping.lift_gate(p.support_margin + 0.005,
+                                        0.45 * 0.5 * body_w, body_w, p)
+    assert ok_margin, "a satisfied margin must allow the lift whatever the load"
+    assert rec["swing_load_n"] > 0.0
+    ok_unloaded, _ = stepping.lift_gate(-0.010, 0.0, body_w, p)
+    assert not ok_unloaded, (
+        "an unloaded swing foot with the CoM OUTSIDE the support hull must not "
+        "lift -- that is the load-only gate this fix replaced")
+
+
+def test_step_is_refused_when_the_gate_point_is_out_of_reach(built):
+    """The drill stance needs ~0.21 m of CoM travel per lift: refuse, do not drive.
+
+    Driven straight from the built stance with a shuffle command, the primitive
+    must emit ``step_refused`` (with the required travel in the event) and never
+    a ``shift_done``/``step_done``: the geometry, not the controller, is the
+    limit, and the robot must stay up.
+    """
+    model, ids, stance = built
+    ctrl = controller.FeasibleDrill(stance, ids, rung="L2")
+    data = mujoco.MjData(model)
+    data.qpos[:] = stance.qpos
+    data.ctrl[:] = np.clip(data.qpos[7:36], ids.ctrl_lo, ids.ctrl_hi)
+    mujoco.mj_forward(model, data)
+    ctrl.reset(model, data)
+    for _ in range(400):                       # 8 s of control
+        data.ctrl[:] = ctrl.act(model, data, controller.DrillCommand("SHUFFLE_F", vx=0.08))
+        for _ in range(10):
+            mujoco.mj_step(model, data)
+    events = list(ctrl.events)
+    refused = [e for e in events if e.get("event") == "step_refused"]
+    assert refused, "the 0.495 m stance's lift must be refused on geometry"
+    assert all(e["required_com_travel_m"] > ctrl.step_params.reach_cap
+               for e in refused)
+    assert not [e for e in events if e.get("event") == "shift_done"]
+    assert not [e for e in events if e.get("event") == "step_done"]
+
+
+def test_shift_gate_and_landing_report_the_measured_margin(built):
+    """In a base that can be stepped in, the lift is gated and the landing is
+    load-gated, and every reported number comes from the measured state."""
+    from drill import stepping as stepping_mod
+    model, ids, _ = built
+    stance = posture.build_stance(model, stepping_mod.stepping_base_spec(), ids)
+    ctrl = controller.FeasibleDrill(stance, ids, rung="L2")
+    data = mujoco.MjData(model)
+    data.qpos[:] = stance.qpos
+    data.ctrl[:] = np.clip(data.qpos[7:36], ids.ctrl_lo, ids.ctrl_hi)
+    mujoco.mj_forward(model, data)
+    ctrl.reset(model, data)
+    for _ in range(800):                       # 16 s: one full step + settle
+        data.ctrl[:] = ctrl.act(model, data, controller.DrillCommand("SHUFFLE_F", vx=0.07))
+        for _ in range(10):
+            mujoco.mj_step(model, data)
+    events = list(ctrl.events)
+    fires = [e for e in events if e.get("event") == "shift_done"]
+    assert fires, "a step in the measured base must lift"
+    for e in fires:
+        assert e["margin_support"] >= ctrl.step_params.support_margin - 1e-9, e
+        assert e["gate"] == "com_margin_support_hull"
+    done = [e for e in events if e.get("event") == "step_done"]
+    assert done, "the step must land"
+    for e in done:
+        assert e["landing_load_n"] > 0.0
+        assert e["margin"] > 0.0
+
+
+# --------------------------------------------------- reference-track mode (D2)
+def test_track_load_and_interpolation():
+    """The reference tracks are (T, 36) 50 Hz joint trajectories with metadata."""
+    from drill import tracking
+    path = tracking.TRACK_DIR / "stance_widen_step.npz"
+    if not path.exists():
+        pytest.skip("no retargeted tracks in data/refs_video")
+    t = tracking.Track.load("stance_widen_step")
+    assert t.qpos.shape[1] == 36 and len(t.t) == len(t.qpos)
+    assert t.duration > 0.0
+    mid = t.at(0.5 * t.duration)
+    assert mid.shape == (36,) and np.all(np.isfinite(mid))
+    # interpolation is well behaved at the ends
+    assert np.allclose(t.at(-5.0), t.qpos[0])
+    assert np.allclose(t.at(1e6), t.qpos[-1])
+
+
+def test_track_mode_caps_authority_and_reports_partial_tracking(built):
+    """The tracking mode runs, publishes its report, and does not claim fidelity.
+
+    The references are retargeted from monocular video and are not dynamically
+    validated; the contract is that the mode *reports* how much of the track was
+    actually followed (``tracked_frac``) and what the deviation cost
+    (``clamp_shift_max_m``), never that the track was reproduced.
+    """
+    from drill import runner, tracking
+    path = tracking.TRACK_DIR / "level_change_full.npz"
+    if not path.exists():
+        pytest.skip("no retargeted tracks in data/refs_video")
+    model, ids, stance = built
+    trk = tracking.Track.load("level_change_full")
+    cfg = runner.RunConfig(controller="track", rung="L3", track="level_change_full",
+                           seconds=min(3.0, trk.duration), seed=0, start="track",
+                           tag="TEST_TRACK")
+    res = runner.run(cfg, stance=stance, model=model, verbose=False,
+                     scheduler=runner.__dict__.get("_t", None) or _TrackSched())
+    rep = res.metrics.get("reference_tracking")
+    assert rep is not None, "the mode must publish its tracking report"
+    assert rep["track"] == "level_change_full"
+    assert 0.0 <= rep["tracked_frac"] <= 1.0
+    assert rep["e_joint_mean_rad"] is not None and rep["e_site_mean_m"] is not None
+    assert rep["clamp_shift_max_m"] >= 0.0
+    assert rep["ref_rate_mean"] <= 1.0
+
+
+class _TrackSched:
+    def reset(self, model, data):
+        pass
+
+    def tick(self, ids, data, ctrl, t):
+        return controller.DrillCommand("TRACK", phase="track test")
+
+    def drain_events(self):
+        return []

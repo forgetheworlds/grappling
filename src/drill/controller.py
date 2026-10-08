@@ -186,7 +186,9 @@ class FeasibleDrill:
         q_ref = self.solver.solve(self.plan)
         com_ref = self._reference_com(model)
         self.com_local = com_ref - np.asarray(self.plan.base_xyz[:2], float)
-        dq, info = self.law.offsets(data, self.plan, com_ref)
+        dq, info = self.law.offsets(data, self.plan, com_ref,
+                                    roll_sides=self.stepper.roll_authority(),
+                                    k_roll_scale=2.0 if self.stepper.busy() else 1.0)
         if self.law.info["alpha"] > 0.0 and not self.stepper.busy():
             # last resort, and only with both feet down: blend the reference
             # toward the built stance.  Blending while a foot swings would drag
@@ -262,11 +264,13 @@ class FeasibleDrill:
             return
         for side in K.SIDES:
             st = self.stepper.state[side]
-            if not st.active():
+            if st.phase in ("idle", "recover"):
                 continue
-            cur = self.ids.sole_center(data, side)
+            # the foot *frame* origin, the same handle the plan targets use --
+            # sole_center() is the footprint centre, 3.5 cm further forward,
+            # and mixing the two drags the foot (drill.md §9.4)
             ft = self.plan.feet[side]
-            ft.origin_xy = np.array(cur[:2], float)
+            ft.origin_xy = np.array(data.xpos[self.ids.foot_body[side]][:2], float)
             ft.sole_z = K.SOLE_REST_Z
             ft.planted = True
             self.stepper._abort(st)

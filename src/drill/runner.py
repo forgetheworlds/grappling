@@ -60,6 +60,7 @@ class RunConfig:
     pushes: list = field(default_factory=list)
     noise: float = 0.0                    # initial joint noise sigma (rad)
     tag: str = "run"
+    track: str = ""                       # reference track for the "track" mode
     render_every: int = 0                 # >0: save qpos at that control-step stride
     max_wall_s: float = 900.0
 
@@ -163,6 +164,10 @@ def build_controller(cfg: RunConfig, model, ids, stance):
         return controller_mod.FeasibleDrill(stance, ids, rung=cfg.rung, seed=cfg.seed)
     if cfg.controller == "stance_pd":
         return controller_mod.StancePD(stance, ids)
+    if cfg.controller == "track":
+        from .tracking import TrackController
+
+        return TrackController(stance, ids, track=cfg.track, seed=cfg.seed)
     if cfg.controller == "teacher":
         from .teacher_adapter import TeacherAdapter
 
@@ -176,6 +181,12 @@ def start_qpos(model, cfg: RunConfig, stance) -> np.ndarray:
         return scene_mod.keyframe(model, "stand").copy()
     if cfg.start == "stance":
         return stance.qpos.copy()
+    if cfg.start == "track":
+        from . import kin as kin_mod
+        from . import tracking as tracking_mod
+
+        return tracking_mod.Track.load(cfg.track).start_qpos(
+            model, kin_mod.RobotIds.build(model))
     raise ValueError(f"unknown start {cfg.start!r}")
 
 
@@ -324,6 +335,10 @@ def run(cfg: RunConfig, stance=None, model=None, scheduler=None,
                                "rung": cfg.rung, "seed": cfg.seed,
                                "start": cfg.start}], dtype=object)
     metrics = metrics_mod.summarize(trace, events, cfg)
+    if hasattr(ctrl, "tracking_report"):
+        # the reference-tracking mode reports its own numbers (weighted joint
+        # and site error, clock authority, base follow) beside the run metrics
+        metrics["reference_tracking"] = ctrl.tracking_report()
     res = RunResult(cfg, trace, events, metrics, time.time() - t0, aborted)
     prov = provenance(cfg)
     prov["sim_wall_s"] = round(res.wall_s, 1)
