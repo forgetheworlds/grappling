@@ -124,6 +124,14 @@ class TrainConfig:
     #: fall_rate stays low).  Scaling the per-step survival signal up makes the
     #: standing-vs-collapsed gap dominate that one-off penalty.
     alive_weight: float = 1.0
+    #: P1-4: ramp ``log_std`` from its init to this value over
+    #: ``log_std_anneal_steps`` control steps (None = leave the learned noise).
+    log_std_final: float | None = None
+    log_std_anneal_steps: int = 100_000
+    #: P0-3: separate gradient-norm clamps for the actor/critic (None = the
+    #: shared ``PPOConfig.grad_clip``, the historical behaviour).
+    grad_clip_actor: float | None = None
+    grad_clip_critic: float | None = None
 
     def ppo_config(self):
         from rl.ppo import PPOConfig
@@ -134,7 +142,27 @@ class TrainConfig:
                          entropy_coef=self.entropy_coef, epochs=self.epochs,
                          minibatches=self.minibatches, hidden=tuple(self.hidden),
                          action_mode=self.action_mode, lr=self.lr, seed=self.seed,
-                         torch_threads=self.torch_threads)
+                         torch_threads=self.torch_threads,
+                         grad_clip_actor=self.grad_clip_actor,
+                         grad_clip_critic=self.grad_clip_critic)
+
+
+def log_std_at(steps_done: int, cfg: "TrainConfig") -> float:
+    """Behaviour-noise schedule (P1-4); ``nan`` means "leave the parameter alone".
+
+    v5's ``log_std`` never left its init (-1.0155 at 401k) while its *mean*
+    action was the stand keyframe: the behaviour policy kept +/-0.13 rad/joint of
+    residual noise and fell in ~40 steps, so the optimiser never saw the keyframe
+    trajectory.  With ``log_std_final`` set, the noise ramps linearly from the
+    PPO init over ``log_std_anneal_steps`` control steps.
+    """
+    if cfg.log_std_final is None:
+        return float("nan")
+    from rl.ppo import PPOConfig
+
+    init = float(PPOConfig().log_std_init)
+    frac = min(1.0, max(0.0, float(steps_done) / max(1, int(cfg.log_std_anneal_steps))))
+    return init + frac * (float(cfg.log_std_final) - init)
 
 
 class SoloTrainer:
@@ -519,6 +547,8 @@ class SoloTrainer:
         start_steps = self.steps_done
         t0 = time.perf_counter()
         while self.steps_done < self.cfg.steps and not self._stop:
+            if self.cfg.log_std_final is not None:
+                self.net.set_log_std(log_std_at(self.steps_done, self.cfg))
             batch = self.collect_vec() if self.vec is not None else self.collect()
             progress = self.steps_done / max(1, self.cfg.steps)
             stats = ppo_update(self.net, self.optimizer, batch, cfg,
@@ -719,6 +749,17 @@ def main(argv=None) -> int:
     ap.add_argument("--clip", type=float, default=0.2)
     ap.add_argument("--epochs", type=int, default=4)
     ap.add_argument("--minibatches", type=int, default=4)
+    ap.add_argument("--log-std-final", type=float, default=None,
+                    help="P1-4: anneal the behaviour log_std from its init to this "
+                         "value over --log-std-anneal-steps control steps "
+                         "(unset = leave the learned noise alone)")
+    ap.add_argument("--log-std-anneal-steps", type=int, default=100_000)
+    ap.add_argument("--grad-clip-actor", type=float, default=None,
+                    help="P0-3: clamp the actor's gradient norm separately from the "
+                         "critic's (unset = the shared 0.5 clip, which the audit "
+                         "measured the value term deciding 38:1)")
+    ap.add_argument("--grad-clip-critic", type=float, default=None,
+                    help="P0-3: clamp the critic's gradient norm separately")
     ap.add_argument("--hidden", default="256,256",
                     help="comma-separated MLP widths, e.g. 256,256")
     ap.add_argument("--action-mode", choices=("absolute", "residual"), default=None,
@@ -825,6 +866,10 @@ def main(argv=None) -> int:
                       push_warmup_steps=args.push_warmup_steps,
                       push_seed=args.push_seed,
                       alive_weight=args.alive_weight,
+                      log_std_final=args.log_std_final,
+                      log_std_anneal_steps=args.log_std_anneal_steps,
+                      grad_clip_actor=args.grad_clip_actor,
+                      grad_clip_critic=args.grad_clip_critic,
                       reward_set=args.reward_set,
                       freeze_joints=(args.freeze_joints == "balance"),
                       lit_weights=_parse_lit_weights(args.lit_weight),

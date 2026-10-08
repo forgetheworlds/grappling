@@ -111,6 +111,18 @@ class Actor(nn.Module):
         """Mean action squashed to ``(-1, 1)`` (evaluation)."""
         return torch.tanh(self.mean(obs))
 
+    def set_log_std(self, value: float) -> None:
+        """Set the behaviour noise (all action dims) in place.
+
+        The trainer's anneal: v5's ``log_std`` never left its init (-1.0155 at
+        401k) while the *mean* action was the stand keyframe, so the behaviour
+        policy kept +/-0.13 rad/joint of residual noise and fell in ~40 steps --
+        the optimiser never saw the keyframe trajectory.  Writing the parameter
+        directly keeps the effect visible in ``log_std``.
+        """
+        with torch.no_grad():
+            self.log_std.fill_(float(value))
+
 
 def _squashed_logp(log_prob_z: torch.Tensor, z: torch.Tensor) -> torch.Tensor:
     """``log p(tanh(z)) = log p(z) - sum log(1 - tanh(z)^2)`` per sample."""
@@ -149,6 +161,10 @@ class ActorCritic(nn.Module):
 
     def value(self, critic_obs: torch.Tensor) -> torch.Tensor:
         return self.critic(critic_obs)
+
+    def set_log_std(self, value: float) -> None:
+        """Set the behaviour noise (see :meth:`Actor.set_log_std`)."""
+        self.actor.set_log_std(value)
 
     def n_params(self) -> dict:
         return {

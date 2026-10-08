@@ -176,3 +176,57 @@ def test_bc_warm_start(tmp_path):
         warm_start_from_bc(net, path, strict=True)
     status2 = warm_start_from_bc(net, tmp_path / "nope.pt")
     assert not status2["ok"] and "not found" in status2["note"]
+
+def test_split_grad_clipping_frees_the_actor_from_value_error():
+    """P0-3: a shared clip lets the value term decide the actor's step.
+
+    The 2026-10-08 audit measured the value term's gradient at 38x the policy
+    term's (289.0 vs 7.5) against a shared clip of 0.5 -- the actor moved ~600x
+    less than the unclipped direction while the critic chased noisy targets.
+    With separate clamps the actor's step is set by its own gradient norm, so
+    the same batch (a large value error, a small policy signal) must move the
+    actor further.  SGD (not Adam: Adam normalises per parameter and hides the
+    gradient scale) makes the clipped gradient observable in the step size.
+    """
+
+    def run(clip_actor, clip_critic):
+        net = ActorCritic(8, 12, act_dim=3, cfg=NetConfig(hidden=(16, 16)))
+        opt = torch.optim.SGD(net.parameters(), lr=1e-2)
+        cfg = PPOConfig(grad_clip_actor=clip_actor, grad_clip_critic=clip_critic)
+        b = _toy_batch(T=5, N=2)
+        b.returns = b.returns + 5000.0       # a value error 1000x the policy signal
+        b.advantages = b.advantages * 0.01   # a small policy signal
+        before = copy.deepcopy(net.actor.state_dict())
+        ppo_update(net, opt, b, cfg, cfg.lr, torch.Generator().manual_seed(0))
+        delta = sum(float(((net.actor.state_dict()[k] - v) ** 2).sum())
+                    for k, v in before.items())
+        return float(np.sqrt(delta))
+
+    shared = run(None, None)
+    split = run(0.5, 0.5)
+    assert shared > 0.0 and split > shared, (shared, split)
+    assert split > 3.0 * shared, (shared, split)
+
+
+def test_log_std_anneal_ramps_and_pins_the_noise():
+    """P1-4: the behaviour noise must be settable (v5's never left its init)."""
+    from solo.train import TrainConfig, log_std_at
+
+    assert np.isnan(log_std_at(0, TrainConfig()))          # unset -> leave alone
+    cfg = TrainConfig(steps=100_000, log_std_final=-2.5, log_std_anneal_steps=100_000)
+    assert log_std_at(0, cfg) == pytest.approx(-1.0)       # the PPO init
+    assert log_std_at(50_000, cfg) == pytest.approx(-1.75)
+    assert log_std_at(100_000, cfg) == pytest.approx(-2.5)
+    assert log_std_at(500_000, cfg) == pytest.approx(-2.5)  # clamped at the end
+    net = ActorCritic(8, 12, act_dim=3, cfg=NetConfig(hidden=(16, 16)))
+    net.set_log_std(-2.5)
+    assert net.actor.log_std.detach().mean().item() == pytest.approx(-2.5)
+    assert float(np.exp(net.actor.log_std.detach().mean().item())) == pytest.approx(0.0821, abs=1e-3)
+    # and the update reports it (the monitor's acceptance reads sigma)
+    opt = torch.optim.Adam(net.parameters(), lr=1e-3)
+    stats = ppo_update(net, opt, _toy_batch(), PPOConfig(), 1e-3,
+                       torch.Generator().manual_seed(0))
+    # the update itself moves log_std (it is a parameter), so pin the REPORTING
+    assert stats["log_std_mean"] == pytest.approx(-2.5, abs=0.05)
+    assert stats["sigma_mean"] == pytest.approx(
+        float(np.exp(stats["log_std_mean"])), rel=1e-6)

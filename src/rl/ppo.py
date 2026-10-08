@@ -56,6 +56,14 @@ class PPOConfig:
     lr_schedule: str = "linear"        # "linear" | "constant"
     lr_end_frac: float = 0.1
     grad_clip: float = 0.5
+    #: Separate gradient-norm clamps for the actor and the critic (``None`` =
+    #: use ``grad_clip`` for both, the historical shared behaviour).  The
+    #: 2026-10-08 audit measured the value term's gradient at 38x the policy
+    #: term's (289.0 vs 7.5) against a shared clip of 0.5, so the actor moved
+    #: ~600x less than the unclipped direction while the critic chased noisy
+    #: targets: set these to keep the actor's step independent of value error.
+    grad_clip_actor: float | None = None
+    grad_clip_critic: float | None = None
     # misc
     seed: int = 0
     device: str = "cpu"
@@ -194,8 +202,17 @@ def ppo_update(policy: ActorCritic, optimizer: torch.optim.Optimizer, batch: Rol
             loss = policy_loss + cfg.value_coef * value_loss - cfg.entropy_coef * ent
             optimizer.zero_grad()
             loss.backward()
-            nn.utils.clip_grad_norm_(list(policy.actor.parameters()) + list(policy.critic.parameters()),
-                                     cfg.grad_clip)
+            if cfg.grad_clip_actor is None and cfg.grad_clip_critic is None:
+                nn.utils.clip_grad_norm_(
+                    list(policy.actor.parameters()) + list(policy.critic.parameters()),
+                    cfg.grad_clip)
+            else:
+                nn.utils.clip_grad_norm_(
+                    list(policy.actor.parameters()),
+                    cfg.grad_clip if cfg.grad_clip_actor is None else cfg.grad_clip_actor)
+                nn.utils.clip_grad_norm_(
+                    list(policy.critic.parameters()),
+                    cfg.grad_clip if cfg.grad_clip_critic is None else cfg.grad_clip_critic)
             optimizer.step()
             with torch.no_grad():
                 stats["policy_loss"] += float(policy_loss)
@@ -214,6 +231,11 @@ def ppo_update(policy: ActorCritic, optimizer: torch.optim.Optimizer, batch: Rol
     n_mb = max(1, (n // mb_size) * epochs_run)
     for k in ("policy_loss", "value_loss", "entropy", "clip_frac"):
         stats[k] /= n_mb
+    with torch.no_grad():
+        # the behaviour noise (P1-4's acceptance reads this): sigma in z-space
+        stats["log_std_mean"] = float(policy.actor.log_std.mean())
+        stats["sigma_mean"] = float(torch.exp(policy.actor.log_std.clamp(
+            *policy.actor.cfg.log_std_clip)).mean())
     return stats
 
 
