@@ -1,0 +1,160 @@
+{
+ "config": {
+  "controller": "stance_pd",
+  "rung": "L1",
+  "seconds": 10.0,
+  "seed": 0,
+  "start": "stance",
+  "pushes": [],
+  "noise": 0.0,
+  "tag": "BASELINE_PD",
+  "render_every": 0,
+  "max_wall_s": 900.0
+ },
+ "metrics": {
+  "config": {
+   "controller": "stance_pd",
+   "rung": "L1",
+   "seed": 0,
+   "seconds": 10.0,
+   "start": "stance",
+   "n_pushes": 0
+  },
+  "duration_s": 8.38,
+  "longest_continuous_s": 8.38,
+  "falls": 1,
+  "fall_times": [
+   8.38
+  ],
+  "timeouts": 2,
+  "steps_completed": 0,
+  "step_quality": [],
+  "slip": {
+   "per_foot": {
+    "left": {
+     "loaded_frac": 0.0,
+     "max_tick_slip_m": 0.0,
+     "max_load_drift_m": 0.0,
+     "p95_tick_slip_m": 0.0
+    },
+    "right": {
+     "loaded_frac": 0.0,
+     "max_tick_slip_m": 0.0,
+     "max_load_drift_m": 0.0,
+     "p95_tick_slip_m": 0.0
+    }
+   },
+   "max_tick_slip_m": 0.0,
+   "max_load_drift_m": 0.0
+  },
+  "interfoot": {
+   "min_separation_m": 0.47162608321978866,
+   "mean_separation_m": 0.5004666083769044
+  },
+  "pushes": {
+   "n_pushes": 0,
+   "recovered": 0,
+   "recoveries": []
+  },
+  "tracking": {
+   "mean_com_track_err_m": 0.0,
+   "p95_com_track_err_m": 0.0,
+   "per_skill": {
+    "LEVEL_CHANGE": {
+     "ticks": 301,
+     "duration_s": 6.0,
+     "realized_disp_m": 0.03629788491730117,
+     "cmd_speed_mps": 0.0,
+     "cmd_yaw_rate": 0.0,
+     "realized_yaw_change_deg": 3.461908420702122,
+     "mean_track_err_m": 0.0
+    },
+    "RECOVER": {
+     "ticks": 119,
+     "duration_s": 2.3600000000000003,
+     "realized_disp_m": 0.7804578375286418,
+     "cmd_speed_mps": 0.0,
+     "cmd_yaw_rate": 0.0,
+     "realized_yaw_change_deg": 31.030562702893622,
+     "mean_track_err_m": 0.0
+    }
+   }
+  },
+  "posture": {
+   "tilt_deg": {
+    "mean": 16.428925423610234,
+    "max": 80.50724289541623,
+    "p95": 32.637943035082216
+   },
+   "pelvis_z": {
+    "mean": 0.7259073859834959,
+    "min": 0.29908542171056524,
+    "max": 0.7361538451666845
+   },
+   "head_z_mean": 1.1343056644805998,
+   "min_foot_clearance_m": 0.00021858578642329702,
+   "both_airborne_frac": 0.0
+  },
+  "plausibility": {
+   "penetration_min_m": -0.001983427407805961,
+   "penetration_gt_ground_thr": 0,
+   "penetration_gt_mesh_thr": 0,
+   "sat_frac_mean": 0.0,
+   "sat_frac_max": 0.0,
+   "ctrl_delta_p95_rad": 0.0,
+   "ctrl_delta_max_rad": 0.0
+  },
+  "continuity": {
+   "duration_s": 8.38,
+   "n_ticks": 420,
+   "clock_monotone": true,
+   "resets": 0,
+   "zero_motion_frac": 0.007159904534606206
+  },
+  "elements_done": 3,
+  "cycles_done": 0,
+  "safety_blend_ticks": 0,
+  "ik_err_max": 0.0,
+  "emergency_plants": 0
+ },
+ "events": [
+  {
+   "t": 6.02,
+   "event": "element_timeout",
+   "phase": "l1_crouch_0"
+  },
+  {
+   "t": 6.02,
+   "event": "element_done",
+   "phase": "l1_crouch_0",
+   "how": "timeout",
+   "elapsed": 6.0
+  },
+  {
+   "t": 6.92,
+   "event": "element_done",
+   "phase": "l1_rise_0",
+   "how": "hold",
+   "elapsed": 0.88
+  },
+  {
+   "t": 6.92,
+   "event": "element_timeout",
+   "phase": "l1_crouch_1"
+  },
+  {
+   "t": 6.92,
+   "event": "element_done",
+   "phase": "l1_crouch_1",
+   "how": "timeout",
+   "elapsed": 6.92
+  },
+  {
+   "t": 8.38,
+   "event": "fall",
+   "detail": "fall: pelvis_z=0.299 tilt=80.5 up_z=0.16 sustained 8 ticks"
+  }
+ ],
+ "wall_s": 3.005234718322754,
+ "aborted": "fall: pelvis_z=0.299 tilt=80.5 up_z=0.16 sustained 8 ticks"
+}

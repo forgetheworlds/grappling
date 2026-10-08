@@ -1,0 +1,231 @@
+{
+ "pelvis_z": 0.72,
+ "width_m": 0.3145340993669047,
+ "base_depth_m": 0.3512899868587876,
+ "foot_yaw_deg": {
+  "left": 6.9,
+  "right": -17.2
+ },
+ "knee_flex_rad": {
+  "left": 0.5643229180131073,
+  "right": 0.851469043348345
+ },
+ "ankle_pitch_rad": {
+  "left": 0.0868224719625407,
+  "right": -0.6346910567000669
+ },
+ "waist_pitch_rad": 0.16,
+ "hip_pitch_rad": {
+  "left": -0.6469102036393088,
+  "right": -0.1701834007362435
+ },
+ "torso_tilt_deg": 9.167324722093138,
+ "head_z": 1.1440825040996163,
+ "com": [
+  0.08741666937465636,
+  -0.001779797581711038,
+  0.6763062535367197
+ ],
+ "com_margin_m": 0.07665493554185047,
+ "support_centroid": [
+  0.08643,
+  -0.00169
+ ],
+ "sole_flat": {
+  "left": true,
+  "right": true
+ },
+ "sole_min_z": {
+  "left": 0.003111055419043017,
+  "right": 0.003019823471813697
+ },
+ "hands_local": {
+  "left": [
+   0.2997,
+   0.105,
+   1.04
+  ],
+  "right": [
+   0.2996,
+   -0.1051,
+   1.0399
+  ]
+ },
+ "base_yaw_deg": 0.0,
+ "spec": {
+  "lead_fwd": 0.15,
+  "rear_back": -0.2,
+  "half_width": 0.15,
+  "lead_yaw": 0.12,
+  "rear_yaw": -0.3,
+  "waist_pitch": 0.16,
+  "waist_yaw": 0.12,
+  "waist_roll": 0.0,
+  "hand_fwd": 0.3,
+  "hand_lat": 0.105,
+  "hand_up": 0.32,
+  "min_width": 0.24,
+  "pelvis_z": 0.72
+ },
+ "solve": {
+  "history": [
+   {
+    "z": 0.788,
+    "err": 0.04968,
+    "reason": "reach"
+   },
+   {
+    "z": 0.776,
+    "err": 0.03594,
+    "reason": "reach"
+   },
+   {
+    "z": 0.764,
+    "err": 0.02207,
+    "reason": "reach"
+   },
+   {
+    "z": 0.752,
+    "err": 0.00804,
+    "reason": "reach"
+   },
+   {
+    "z": 0.744,
+    "knee_min": 0.259,
+    "reason": "crouch"
+   },
+   {
+    "z": 0.736,
+    "knee_min": 0.404,
+    "reason": "crouch"
+   },
+   {
+    "z": 0.728,
+    "knee_min": 0.509,
+    "reason": "crouch"
+   },
+   {
+    "z": 0.728,
+    "err": 0.00019,
+    "knee": 0.664,
+    "gap": [
+     -0.0625,
+     -0.0023
+    ],
+    "xy": [
+     0.0,
+     0.0
+    ]
+   },
+   {
+    "z": 0.728,
+    "err": 0.00018,
+    "knee": 0.663,
+    "gap": [
+     -0.022,
+     -0.0
+    ],
+    "xy": [
+     -0.05,
+     -0.0018
+    ]
+   },
+   {
+    "z": 0.72,
+    "knee_min": 0.518,
+    "reason": "crouch"
+   },
+   {
+    "z": 0.72,
+    "err": 3e-05,
+    "knee": 0.719,
+    "gap": [
+     -0.0092,
+     0.0004
+    ],
+    "xy": [
+     -0.0676,
+     -0.0018
+    ]
+   },
+   {
+    "z": 0.72,
+    "err": 0.0001,
+    "knee": 0.71,
+    "gap": [
+     -0.003,
+     0.0002
+    ],
+    "xy": [
+     -0.0749,
+     -0.0016
+    ]
+   },
+   {
+    "z": 0.72,
+    "err": 0.00012,
+    "knee": 0.708,
+    "gap": [
+     -0.001,
+     0.0001
+    ],
+    "xy": [
+     -0.0773,
+     -0.0014
+    ]
+   }
+  ],
+  "pelvis_final": [
+   -0.0773,
+   -0.0014,
+   0.72
+  ],
+  "hips_back_m": -0.0773,
+  "hips_side_m": -0.0014,
+  "leg_ik": {
+   "left": {
+    "err": 0.0001,
+    "knee": 0.5643,
+    "hip": -0.6469,
+    "ankle": 0.0868,
+    "ankle_roll": -0.0176
+   },
+   "right": {
+    "err": 0.0001,
+    "knee": 0.8515,
+    "hip": -0.1702,
+    "ankle": -0.6347,
+    "ankle_roll": 0.1331
+   }
+  }
+ },
+ "support_hull_xy": [
+  [
+   -0.1778,
+   -0.1577
+  ],
+  [
+   -0.0169,
+   -0.2127
+  ],
+  [
+   0.3501,
+   0.136
+  ],
+  [
+   0.3429,
+   0.1955
+  ],
+  [
+   0.1747,
+   0.1702
+  ],
+  [
+   -0.163,
+   -0.1099
+  ]
+ ],
+ "hull_note": "convex hull of the eight sole contact spheres (four per foot, each r=5 mm) projected on the mat -- the measured support polygon, not a site-height proxy",
+ "com_margin_analytic_m": 0.0767,
+ "ankle_note": "ankle moments at the built stance are far inside the 50 Nm limit; the binding constraint is geometric (CoP inside the contact patches) -- see reports/2026-10-08/support_envelope.md"
+}

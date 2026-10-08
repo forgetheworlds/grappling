@@ -33,13 +33,24 @@ SMOOTH_S = 0.15         # moving-average window for vz (chatter suppression)
 
 
 def _smooth(x: np.ndarray, t: np.ndarray, win_s: float) -> np.ndarray:
-    """Zero-phase moving average over an (approximately) uniform time grid."""
-    n = max(1, int(round(win_s / (t[1] - t[0]))))
-    if n <= 1:
-        return x
-    kernel = np.ones(n) / n
-    pad = np.concatenate([np.full(n - 1, x[0]), x, np.full(n - 1, x[-1])])
-    return np.convolve(pad, kernel, mode="valid")[: len(x)]
+    """Zero-phase moving average (symmetric, edge-padded — no lag).
+
+    ``np.convolve(x, k, "same")`` is centred but biased at the edges; a
+    ``valid`` convolution of a symmetrically edge-padded signal keeps the
+    centred, non-causal average without shifting the output: a step in ``x``
+    produces a ramp centred exactly on the step index (asserted in
+    tests/test_teacher.py::test_phase_smoother_is_zero_phase).  Phase
+    boundaries gate the stabilizer, so boundary lag is not acceptable.
+    """
+    dt = float(np.median(np.diff(t))) if len(t) > 1 else 1.0
+    n = max(int(round(win_s / dt)), 1)
+    if n % 2 == 0:
+        n += 1
+    if n <= 1 or len(x) < n:
+        return np.asarray(x, float).copy()
+    half = n // 2
+    pad = np.concatenate([np.full(half, x[0]), x, np.full(half, x[-1])])
+    return np.convolve(pad, np.ones(n) / n, mode="valid")
 
 
 def label_frames(t: np.ndarray, pelvis_z: np.ndarray) -> np.ndarray:

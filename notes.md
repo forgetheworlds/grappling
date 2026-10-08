@@ -184,6 +184,48 @@ Entries appended as experiments run (Phase 2 onward).
   needed a reset or a fall. All motion-producing agents (teacher, drill, mocap reference) are bound
   to the rubric.
 
+### E13 (2026-10-08) — FIRST CLEAN ARTIFACT: drill L1 (90 s, 0 falls) + teacher fixes landed
+- DRILL (DrillDirector, verified by orchestrator: tests/test_drill.py 14 passed; stance_report.json
+  read directly): L1 CLEAN and shipped — 90.0 s continuous, 0 falls, 0 resets (one initialisation),
+  18 programme cycles, worst CoM margin +0.023 m, loaded-foot slip 0.000 m, actuator saturation
+  0.00, worst contact penetration -2.7 mm, worst tilt 13.6 deg. Built stance: 0.315 m wide x
+  0.351 m deep, pelvis 0.720 m, CoM margin +0.077 m (analytic hull of the 8 sole contact spheres),
+  knees 0.56/0.85 rad, torso 9.2 deg, both soles flat. Same-pose PD baseline TOPPLES at 8.4 s —
+  a clean contrast for the video. Push limit measured: 20 N recovered 2/2, 35 N 1/3, >=50 N 0.
+  Ladder: L0 clean; L1 clean; L2 PARTIAL (isolated step clean: slip 0.000 m, 3.8 cm clearance,
+  load-gated lift; but the stand->stance entry walk falls at 5.8 s); L3/L4 not attempted.
+  Artifacts: src/drill/* (13 modules incl. rubric.py), scripts/solo_drill_render.py,
+  tests/test_drill.py (14), data/drill/* (stance/push/suite JSON + cached traces), report
+  reports/2026-10-08/drill.md. Renders were IN FLIGHT (~35 min per 90 s clip, 9 clips);
+  videos/solo_drill/final_continuous_drill.mp4 exists but was still being written at inspection.
+  Traps fixed and pinned by tests: mj_jacSite needs mj_comPos; straight-leg IK seed is singular;
+  mixed foot-frame/footprint-centre plans cause drag; cfrc_ext is torque-first vs xfrc_applied
+  force-first; CoM-servo weight shift must use an absolute per-step target; teacher ki/int windup
+  (reduced 0.6/0.12 -> 0.15/0.03); a 1 cm edge roll collapses a point-based support polygon.
+- TEACHER FIXES (TeacherExecFix, verified: tests/test_teacher.py 18 passed): F1 live-reference
+  update (set_rows/update_reference, 7-row window per tick), F2 cadence correct (measured 375
+  control calls / 7.48 s = 50 Hz, rolling timeline, no 18 s cap), F3 governor now activates on the
+  UNCLIPPED capture-point error, F4 heading written into the reference quaternion. Single-robot
+  port done: RobotTeacher = one explicit 29-target context (name-resolved ids, no hardcoded slices),
+  TeacherController = thin 58-target composition, teacher/solo_scene.py single-G1 scene.
+  Headline numbers: stance hold 12 s, drift 0.034 m, tilt 4 deg (rubric A 1->2); level change
+  executes knee 0.18-0.23 rad but topples at every depth (rubric C stays 1); STAND_UP reference
+  REBUILT (chain t1125->t380->t540, 244 frames, rms 0.041, 0% airborne vs 71% before, junctions
+  rms 0.0, min foot z -0.014/-0.021 m; sha256 e7a80311…, old file kept as STAND_UP.airborne.npz),
+  stay_up still 0.000 (no rise primitive) but scorer 0.324 -> 0.577; stance sweep: widths
+  0.14-0.42 m all hold 8 s (drift <= 0.037 m) while IK foot-placement stances collapse in a 1 s
+  settle -> shipped width 0.30 m, sagittal 0.
+- STEP PHYSICS (measured, explains the L2 entry failure and constrains all future stepping): a step
+  needs ~0.13 m of lateral CoM shift; with both feet pinned flat the legs deliver only ~0.033 m, and
+  ankle roll saturates at +-0.26 rad near a 0.10 m shift. Therefore stepping must unweight first
+  (load the support foot, soften the swing-side hip/knee, use foot yaw/pivot for lateral reach) —
+  which is exactly what the drill's load-gated lift does.
+- NEXT (dispatched): integrate ONE clean step per programme cycle into the headline sequence, fix or
+  honestly drop the entry walk, then attempt level change -> lead-foot entry (CoM outside the hull
+  is legitimate here) -> knee lowering -> trail-leg drive -> rise, each as its own gate; render the
+  headline clip first; frame-level self-critique against the operator's STANCE/STALKING/CIRCLING
+  reference frames (rubric H).
+
 ### E12 (2026-10-08) — feasibility audit: only 6.9% of reference frames are statically holdable; STANCE misses by 1-10 mm
 - SOURCE: reports/2026-10-08/support_envelope.md (+ data/support_envelope.json, script, PNG).
   Method: kinematic replay, CoM = subtree_com (mass-verified 33.341 kg), contact = sole patch rule,

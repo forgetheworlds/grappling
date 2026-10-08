@@ -1,0 +1,261 @@
+{
+ "config": {
+  "controller": "feasible",
+  "rung": "L2",
+  "seconds": 30.0,
+  "seed": 0,
+  "start": "stand",
+  "pushes": [],
+  "noise": 0.0,
+  "tag": "FAIL_ENTRY_L2",
+  "render_every": 0,
+  "max_wall_s": 900.0
+ },
+ "metrics": {
+  "config": {
+   "controller": "feasible",
+   "rung": "L2",
+   "seed": 0,
+   "seconds": 30.0,
+   "start": "stand",
+   "n_pushes": 0
+  },
+  "duration_s": 5.76,
+  "longest_continuous_s": 5.76,
+  "falls": 1,
+  "fall_times": [
+   5.76
+  ],
+  "timeouts": 0,
+  "steps_completed": 1,
+  "step_quality": [
+   {
+    "side": "left",
+    "t": 1.98,
+    "clearance_m": 0.0486,
+    "loaded_slip_m": 0.0
+   }
+  ],
+  "slip": {
+   "per_foot": {
+    "left": {
+     "loaded_frac": 0.0,
+     "max_tick_slip_m": 0.0,
+     "max_load_drift_m": 0.0,
+     "p95_tick_slip_m": 0.0
+    },
+    "right": {
+     "loaded_frac": 0.11458333333333333,
+     "max_tick_slip_m": 0.0013447036300200603,
+     "max_load_drift_m": 0.006619124735039651,
+     "p95_tick_slip_m": 0.0011590967290704612
+    }
+   },
+   "max_tick_slip_m": 0.0013447036300200603,
+   "max_load_drift_m": 0.006619124735039651
+  },
+  "interfoot": {
+   "min_separation_m": 0.2014963272232756,
+   "mean_separation_m": 0.29628358310952485
+  },
+  "pushes": {
+   "n_pushes": 0,
+   "recovered": 0,
+   "recoveries": []
+  },
+  "tracking": {
+   "mean_com_track_err_m": 0.08022967169094311,
+   "p95_com_track_err_m": 0.45432213000308086,
+   "per_skill": {
+    "STANCE": {
+     "ticks": 39,
+     "duration_s": 0.76,
+     "realized_disp_m": 0.02703763259606522,
+     "cmd_speed_mps": 0.0,
+     "cmd_yaw_rate": 0.0,
+     "realized_yaw_change_deg": 0.3586385250188747,
+     "mean_track_err_m": 0.007109317635446639
+    },
+    "ENTRY": {
+     "ticks": 250,
+     "duration_s": 4.9799999999999995,
+     "realized_disp_m": 0.8116142538827504,
+     "cmd_speed_mps": 0.0,
+     "cmd_yaw_rate": 0.0,
+     "realized_yaw_change_deg": 82.9722623823229,
+     "mean_track_err_m": 0.09163644692360055
+    }
+   }
+  },
+  "posture": {
+   "tilt_deg": {
+    "mean": 8.434936812168955,
+    "max": 79.46157951476354,
+    "p95": 31.05770924687601
+   },
+   "pelvis_z": {
+    "mean": 0.7300373290821304,
+    "min": 0.09739204996167887,
+    "max": 0.7915303159413777
+   },
+   "head_z_mean": 1.1454610967956511,
+   "min_foot_clearance_m": -0.014030899798829962,
+   "both_airborne_frac": 0.0
+  },
+  "plausibility": {
+   "penetration_min_m": -0.017092776535690305,
+   "penetration_gt_ground_thr": 4,
+   "penetration_gt_mesh_thr": 0,
+   "sat_frac_mean": 0.0,
+   "sat_frac_max": 0.0,
+   "ctrl_delta_p95_rad": 0.014067089157547561,
+   "ctrl_delta_max_rad": 0.8293951655629115
+  },
+  "continuity": {
+   "duration_s": 5.76,
+   "n_ticks": 289,
+   "clock_monotone": true,
+   "resets": 0,
+   "zero_motion_frac": 0.0
+  },
+  "elements_done": 1,
+  "cycles_done": 0,
+  "safety_blend_ticks": 112,
+  "ik_err_max": 0.00027353225915560333,
+  "emergency_plants": 1
+ },
+ "events": [
+  {
+   "t": 0.78,
+   "event": "element_done",
+   "phase": "entry_settle",
+   "how": "hold",
+   "elapsed": 0.76
+  },
+  {
+   "t": 0.9400000000000005,
+   "side": "left",
+   "event": "step_start",
+   "label": "ENTRY-left-0"
+  },
+  {
+   "t": 1.4200000000000008,
+   "side": "left",
+   "event": "shift_done",
+   "margin": 0.0428,
+   "margin_support": -0.0285,
+   "swing_load_n": 61.9
+  },
+  {
+   "t": 1.600000000000001,
+   "side": "left",
+   "event": "lift_done",
+   "clearance": 0.0317
+  },
+  {
+   "t": 1.7600000000000011,
+   "side": "left",
+   "event": "swing_done",
+   "place_err": 0.00161
+  },
+  {
+   "t": 1.8000000000000012,
+   "event": "descent_hold",
+   "clearance": [
+    0.04613241707900712,
+    0.0011564792869051114
+   ]
+  },
+  {
+   "t": 1.8200000000000012,
+   "event": "descent_hold",
+   "clearance": [
+    0.044204643297849816,
+    0.0011266036192321264
+   ]
+  },
+  {
+   "t": 1.8400000000000012,
+   "event": "descent_hold",
+   "clearance": [
+    0.042947169019877864,
+    0.0006550143696038417
+   ]
+  },
+  {
+   "t": 1.8600000000000012,
+   "event": "descent_hold",
+   "clearance": [
+    0.04018079743129086,
+    0.0009730398170295141
+   ]
+  },
+  {
+   "t": 1.8800000000000012,
+   "event": "descent_hold",
+   "clearance": [
+    0.03677321761443022,
+    0.001386761195892787
+   ]
+  },
+  {
+   "t": 1.9000000000000012,
+   "event": "descent_hold",
+   "clearance": [
+    0.030716540955138996,
+    0.0014478963001000864
+   ]
+  },
+  {
+   "t": 1.9200000000000013,
+   "event": "descent_hold",
+   "clearance": [
+    0.021442709666014706,
+    0.0013914653548073156
+   ]
+  },
+  {
+   "t": 1.9800000000000013,
+   "side": "left",
+   "event": "step_done",
+   "label": "ENTRY-left-0",
+   "landing_load_n": 57.4,
+   "margin": 0.0436,
+   "steps": 1
+  },
+  {
+   "t": 2.660000000000002,
+   "side": "right",
+   "event": "step_start",
+   "label": "ENTRY-right-0"
+  },
+  {
+   "t": 3.3000000000000025,
+   "side": "right",
+   "event": "shift_done",
+   "margin": 0.0607,
+   "margin_support": -0.0278,
+   "swing_load_n": 72.5
+  },
+  {
+   "t": 3.5400000000000027,
+   "side": "right",
+   "event": "lift_done",
+   "clearance": 0.0286
+  },
+  {
+   "t": 3.5800000000000027,
+   "event": "emergency_plant",
+   "side": "right",
+   "margin": -0.0316,
+   "e_track": 0.0586
+  },
+  {
+   "t": 5.76,
+   "event": "fall",
+   "detail": "fall: pelvis_z=0.097 tilt=79.5 up_z=0.18 sustained 8 ticks"
+  }
+ ],
+ "wall_s": 3.0384068489074707,
+ "aborted": "fall: pelvis_z=0.097 tilt=79.5 up_z=0.18 sustained 8 ticks"
+}
