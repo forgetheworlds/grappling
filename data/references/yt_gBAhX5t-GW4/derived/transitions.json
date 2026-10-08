@@ -1,0 +1,16 @@
+[
+  {"name": "stance_hold", "t0": 30.4, "t1": 34.8, "chapter": "stance"},
+  {"name": "stance_widen_step", "t0": 27.6, "t1": 30.4, "chapter": "stance"},
+  {"name": "level_change_full", "t0": 259.7, "t1": 261.2, "chapter": "level_change"},
+  {"name": "level_change_fast", "t0": 256.9, "t1": 258.0, "chapter": "level_change"},
+  {"name": "shot_entry_full", "t0": 422.8, "t1": 431.0, "chapter": "shots"},
+  {"name": "shot_recover", "t0": 432.5, "t1": 437.0, "chapter": "shots"},
+  {"name": "knee_sprawl_entry", "t0": 683.4, "t1": 686.2, "chapter": "knee_sprawl"},
+  {"name": "knee_sprawl_hold", "t0": 685.8, "t1": 690.2, "chapter": "knee_sprawl"},
+  {"name": "knee_sprawl_entry2", "t0": 769.5, "t1": 772.5, "chapter": "knee_sprawl"},
+  {"name": "knee_sprawl_recover", "t0": 779.8, "t1": 782.2, "chapter": "knee_sprawl"},
+  {"name": "stalk_shuffle", "t0": 122.0, "t1": 131.6, "chapter": "stalking",
+   "npz": "data/references/yt_gBAhX5t-GW4/pose_pass2/landmarks.npz"},
+  {"name": "circle_step", "t0": 178.0, "t1": 190.0, "chapter": "circling",
+   "npz": "data/references/yt_gBAhX5t-GW4/pose_pass2/landmarks.npz"}
+]

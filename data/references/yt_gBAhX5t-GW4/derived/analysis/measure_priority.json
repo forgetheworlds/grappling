@@ -1,0 +1,3462 @@
+{
+  "npz": "data/references/yt_gBAhX5t-GW4/pose/landmarks.npz",
+  "coach_h_assumed_m": 1.78,
+  "alpha_g1_over_coach": 0.7416,
+  "chapters": {
+    "2": {
+      "n_takes": 3,
+      "takes": [
+        {
+          "chapter": 2,
+          "t0": 25.566666666666666,
+          "t1": 35.7,
+          "n_active": 41,
+          "dur_s": 10.133333333333336,
+          "mean_conf": 0.9666,
+          "fullbody_frac": 0.9527,
+          "mean_speed": 0.6079,
+          "mean_pelvis_h": 0.7975410895454252,
+          "i0": 1,
+          "i1": 138,
+          "merged": 2,
+          "standing_pelvis_h_m": 1.4759,
+          "phases": [
+            {
+              "label": "VSTANCE",
+              "i0": 1,
+              "i1": 53,
+              "t0": 26.066666666666666,
+              "t1": 29.53333333333333,
+              "dur_s": 3.467
+            },
+            {
+              "label": "VSTANCE",
+              "i0": 54,
+              "i1": 138,
+              "t0": 29.6,
+              "t1": 35.2,
+              "dur_s": 5.6
+            }
+          ],
+          "transitions": [
+            {
+              "from": "VSTANCE",
+              "to": "VSTANCE",
+              "t0": 29.533,
+              "t1": 29.6,
+              "dur_s": 0.067,
+              "d_pelvis_h_m": -0.06,
+              "d_pelvis_h_g1_m": -0.0445
+            }
+          ],
+          "phase_metrics": {
+            "VSTANCE_0": {
+              "n": 53,
+              "pelvis_h_m": 0.824,
+              "pelvis_h_min_m": 0.7271,
+              "pelvis_h_max_m": 0.8487,
+              "pelvis_h_over_standing": 0.558,
+              "stance_width_m": 0.2664,
+              "stance_width_over_h": 0.181,
+              "stance_width_g1_m": 0.1976,
+              "stance_depth_m": 0.0692,
+              "stance_depth_over_h": 0.047,
+              "stance_depth_g1_m": 0.0513,
+              "knee_flexion_deg": 150.6,
+              "torso_pitch_deg": 29.5,
+              "head_above_pelvis_m": 0.6174,
+              "knee_min_height_m": 0.391,
+              "lwri_rel_pelvis_flm": [
+                0.392,
+                -0.07,
+                0.125
+              ],
+              "rwri_rel_pelvis_flm": [
+                0.339,
+                0.163,
+                0.097
+              ]
+            },
+            "VSTANCE_1": {
+              "n": 85,
+              "pelvis_h_m": 0.764,
+              "pelvis_h_min_m": 0.7408,
+              "pelvis_h_max_m": 0.8235,
+              "pelvis_h_over_standing": 0.518,
+              "stance_width_m": 0.5655,
+              "stance_width_over_h": 0.383,
+              "stance_width_g1_m": 0.4194,
+              "stance_depth_m": 0.0619,
+              "stance_depth_over_h": 0.042,
+              "stance_depth_g1_m": 0.0459,
+              "knee_flexion_deg": 129.6,
+              "torso_pitch_deg": 49.7,
+              "head_above_pelvis_m": 0.4424,
+              "knee_min_height_m": 0.4053,
+              "lwri_rel_pelvis_flm": [
+                0.318,
+                -0.217,
+                -0.057
+              ],
+              "rwri_rel_pelvis_flm": [
+                0.31,
+                0.245,
+                -0.073
+              ]
+            }
+          }
+        },
+        {
+          "chapter": 2,
+          "t0": 59.9,
+          "t1": 66.83333333333334,
+          "n_active": 72,
+          "dur_s": 6.933333333333344,
+          "mean_conf": 0.9572931436391977,
+          "fullbody_frac": 0.9326923076923077,
+          "mean_speed": 0.6180479321950163,
+          "mean_pelvis_h": 0.7995132649536464,
+          "i0": 516,
+          "i1": 605,
+          "standing_pelvis_h_m": 1.2012,
+          "phases": [
+            {
+              "label": "VSTANCE",
+              "i0": 516,
+              "i1": 605,
+              "t0": 60.4,
+              "t1": 66.33333333333334,
+              "dur_s": 5.933
+            }
+          ],
+          "transitions": [],
+          "phase_metrics": {
+            "VSTANCE_0": {
+              "n": 90,
+              "pelvis_h_m": 0.8082,
+              "pelvis_h_min_m": 0.7505,
+              "pelvis_h_max_m": 0.853,
+              "pelvis_h_over_standing": 0.673,
+              "stance_width_m": 0.5824,
+              "stance_width_over_h": 0.485,
+              "stance_width_g1_m": 0.4319,
+              "stance_depth_m": 0.0596,
+              "stance_depth_over_h": 0.05,
+              "stance_depth_g1_m": 0.0442,
+              "knee_flexion_deg": 138.5,
+              "torso_pitch_deg": 66.9,
+              "head_above_pelvis_m": 0.247,
+              "knee_min_height_m": 0.4246,
+              "lwri_rel_pelvis_flm": [
+                0.15,
+                -0.163,
+                -0.044
+              ],
+              "rwri_rel_pelvis_flm": [
+                0.144,
+                0.239,
+                -0.083
+              ]
+            }
+          }
+        },
+        {
+          "chapter": 2,
+          "t0": 71.23333333333333,
+          "t1": 82.03333333333333,
+          "n_active": 118,
+          "dur_s": 10.799999999999997,
+          "mean_conf": 0.9494134625534952,
+          "fullbody_frac": 0.9567901234567902,
+          "mean_speed": 0.7016381386770202,
+          "mean_pelvis_h": 0.7908274427227249,
+          "i0": 686,
+          "i1": 833,
+          "standing_pelvis_h_m": 1.1897,
+          "phases": [
+            {
+              "label": "VSTANCE",
+              "i0": 686,
+              "i1": 722,
+              "t0": 71.73333333333333,
+              "t1": 74.13333333333333,
+              "dur_s": 2.4
+            },
+            {
+              "label": "VSTANCE",
+              "i0": 723,
+              "i1": 833,
+              "t0": 74.2,
+              "t1": 81.53333333333333,
+              "dur_s": 7.333
+            }
+          ],
+          "transitions": [
+            {
+              "from": "VSTANCE",
+              "to": "VSTANCE",
+              "t0": 74.133,
+              "t1": 74.2,
+              "dur_s": 0.067,
+              "d_pelvis_h_m": 0.0166,
+              "d_pelvis_h_g1_m": 0.0123
+            }
+          ],
+          "phase_metrics": {
+            "VSTANCE_0": {
+              "n": 37,
+              "pelvis_h_m": 0.7783,
+              "pelvis_h_min_m": 0.7388,
+              "pelvis_h_max_m": 0.8702,
+              "pelvis_h_over_standing": 0.654,
+              "stance_width_m": 0.3607,
+              "stance_width_over_h": 0.303,
+              "stance_width_g1_m": 0.2675,
+              "stance_depth_m": 0.2141,
+              "stance_depth_over_h": 0.18,
+              "stance_depth_g1_m": 0.1588,
+              "knee_flexion_deg": 123.0,
+              "torso_pitch_deg": 62.3,
+              "head_above_pelvis_m": 0.3095,
+              "knee_min_height_m": 0.4177,
+              "lwri_rel_pelvis_flm": [
+                0.395,
+                -0.065,
+                -0.134
+              ],
+              "rwri_rel_pelvis_flm": [
+                0.301,
+                0.071,
+                -0.037
+              ]
+            },
+            "VSTANCE_1": {
+              "n": 111,
+              "pelvis_h_m": 0.7949,
+              "pelvis_h_min_m": 0.7328,
+              "pelvis_h_max_m": 0.8395,
+              "pelvis_h_over_standing": 0.668,
+              "stance_width_m": 0.5812,
+              "stance_width_over_h": 0.488,
+              "stance_width_g1_m": 0.431,
+              "stance_depth_m": 0.0506,
+              "stance_depth_over_h": 0.043,
+              "stance_depth_g1_m": 0.0375,
+              "knee_flexion_deg": 139.2,
+              "torso_pitch_deg": 72.4,
+              "head_above_pelvis_m": 0.2033,
+              "knee_min_height_m": 0.4214,
+              "lwri_rel_pelvis_flm": [
+                0.074,
+                -0.18,
+                -0.076
+              ],
+              "rwri_rel_pelvis_flm": [
+                0.032,
+                0.247,
+                -0.116
+              ]
+            }
+          }
+        }
+      ]
+    },
+    "5": {
+      "n_takes": 2,
+      "takes": [
+        {
+          "chapter": 5,
+          "t0": 201.5,
+          "t1": 223.36666666666667,
+          "n_active": 60,
+          "dur_s": 21.866666666666674,
+          "mean_conf": 0.9717,
+          "fullbody_frac": 0.9842,
+          "mean_speed": 0.546,
+          "mean_pelvis_h": 0.8003943199658599,
+          "i0": 856,
+          "i1": 1169,
+          "merged": 2,
+          "standing_pelvis_h_m": 1.4875,
+          "phases": [
+            {
+              "label": "VSTANCE",
+              "i0": 856,
+              "i1": 930,
+              "t0": 202.0,
+              "t1": 206.93333333333334,
+              "dur_s": 4.933
+            },
+            {
+              "label": "CROUCH",
+              "i0": 931,
+              "i1": 972,
+              "t0": 207.0,
+              "t1": 209.73333333333332,
+              "dur_s": 2.733
+            },
+            {
+              "label": "VSTANCE",
+              "i0": 973,
+              "i1": 1169,
+              "t0": 209.8,
+              "t1": 222.86666666666667,
+              "dur_s": 13.067
+            }
+          ],
+          "transitions": [
+            {
+              "from": "VSTANCE",
+              "to": "CROUCH",
+              "t0": 206.933,
+              "t1": 207.0,
+              "dur_s": 0.067,
+              "d_pelvis_h_m": -0.1301,
+              "d_pelvis_h_g1_m": -0.0965
+            },
+            {
+              "from": "CROUCH",
+              "to": "VSTANCE",
+              "t0": 209.733,
+              "t1": 209.8,
+              "dur_s": 0.067,
+              "d_pelvis_h_m": 0.1153,
+              "d_pelvis_h_g1_m": 0.0855
+            }
+          ],
+          "phase_metrics": {
+            "VSTANCE_0": {
+              "n": 75,
+              "pelvis_h_m": 0.8354,
+              "pelvis_h_min_m": 0.7375,
+              "pelvis_h_max_m": 0.8507,
+              "pelvis_h_over_standing": 0.562,
+              "stance_width_m": 0.2808,
+              "stance_width_over_h": 0.189,
+              "stance_width_g1_m": 0.2082,
+              "stance_depth_m": 0.0644,
+              "stance_depth_over_h": 0.043,
+              "stance_depth_g1_m": 0.0478,
+              "knee_flexion_deg": 153.9,
+              "torso_pitch_deg": 29.4,
+              "head_above_pelvis_m": 0.6083,
+              "knee_min_height_m": 0.4122,
+              "lwri_rel_pelvis_flm": [
+                0.238,
+                -0.182,
+                0.048
+              ],
+              "rwri_rel_pelvis_flm": [
+                0.172,
+                0.255,
+                0.008
+              ]
+            },
+            "CROUCH_1": {
+              "n": 42,
+              "pelvis_h_m": 0.7053,
+              "pelvis_h_min_m": 0.6934,
+              "pelvis_h_max_m": 0.7297,
+              "pelvis_h_over_standing": 0.474,
+              "stance_width_m": 0.5498,
+              "stance_width_over_h": 0.37,
+              "stance_width_g1_m": 0.4077,
+              "stance_depth_m": 0.0738,
+              "stance_depth_over_h": 0.05,
+              "stance_depth_g1_m": 0.0547,
+              "knee_flexion_deg": 115.1,
+              "torso_pitch_deg": 69.1,
+              "head_above_pelvis_m": 0.247,
+              "knee_min_height_m": 0.4253,
+              "lwri_rel_pelvis_flm": [
+                0.501,
+                0.052,
+                -0.107
+              ],
+              "rwri_rel_pelvis_flm": [
+                0.481,
+                0.097,
+                -0.17
+              ]
+            },
+            "VSTANCE_2": {
+              "n": 197,
+              "pelvis_h_m": 0.8206,
+              "pelvis_h_min_m": 0.7371,
+              "pelvis_h_max_m": 0.8527,
+              "pelvis_h_over_standing": 0.552,
+              "stance_width_m": 0.3298,
+              "stance_width_over_h": 0.222,
+              "stance_width_g1_m": 0.2445,
+              "stance_depth_m": 0.0924,
+              "stance_depth_over_h": 0.062,
+              "stance_depth_g1_m": 0.0685,
+              "knee_flexion_deg": 148.2,
+              "torso_pitch_deg": 28.1,
+              "head_above_pelvis_m": 0.6143,
+              "knee_min_height_m": 0.3435,
+              "lwri_rel_pelvis_flm": [
+                0.365,
+                -0.085,
+                0.11
+              ],
+              "rwri_rel_pelvis_flm": [
+                0.161,
+                0.258,
+                -0.015
+              ]
+            }
+          }
+        },
+        {
+          "chapter": 5,
+          "t0": 256.23333333333335,
+          "t1": 261.43333333333334,
+          "n_active": 60,
+          "dur_s": 5.199999999999989,
+          "mean_conf": 0.9296779930591583,
+          "fullbody_frac": 0.9027777777777778,
+          "mean_speed": 1.1434813526750633,
+          "mean_pelvis_h": 0.7507337997134746,
+          "i0": 1677,
+          "i1": 1740,
+          "standing_pelvis_h_m": 1.3514,
+          "phases": [
+            {
+              "label": "VSTANCE",
+              "i0": 1677,
+              "i1": 1683,
+              "t0": 256.73333333333335,
+              "t1": 257.1333333333333,
+              "dur_s": 0.4
+            },
+            {
+              "label": "CROUCH",
+              "i0": 1684,
+              "i1": 1692,
+              "t0": 257.2,
+              "t1": 257.73333333333335,
+              "dur_s": 0.533
+            },
+            {
+              "label": "VSTANCE",
+              "i0": 1693,
+              "i1": 1708,
+              "t0": 257.8,
+              "t1": 258.8,
+              "dur_s": 1.0
+            },
+            {
+              "label": "VSTANCE",
+              "i0": 1709,
+              "i1": 1727,
+              "t0": 258.8666666666667,
+              "t1": 260.06666666666666,
+              "dur_s": 1.2
+            },
+            {
+              "label": "CROUCH",
+              "i0": 1728,
+              "i1": 1740,
+              "t0": 260.1333333333333,
+              "t1": 260.93333333333334,
+              "dur_s": 0.8
+            }
+          ],
+          "transitions": [
+            {
+              "from": "VSTANCE",
+              "to": "CROUCH",
+              "t0": 257.133,
+              "t1": 257.2,
+              "dur_s": 0.067,
+              "d_pelvis_h_m": -0.2276,
+              "d_pelvis_h_g1_m": -0.1688
+            },
+            {
+              "from": "CROUCH",
+              "to": "VSTANCE",
+              "t0": 257.733,
+              "t1": 257.8,
+              "dur_s": 0.067,
+              "d_pelvis_h_m": 0.2018,
+              "d_pelvis_h_g1_m": 0.1496
+            },
+            {
+              "from": "VSTANCE",
+              "to": "VSTANCE",
+              "t0": 258.8,
+              "t1": 258.867,
+              "dur_s": 0.067,
+              "d_pelvis_h_m": 0.0249,
+              "d_pelvis_h_g1_m": 0.0185
+            },
+            {
+              "from": "VSTANCE",
+              "to": "CROUCH",
+              "t0": 260.067,
+              "t1": 260.133,
+              "dur_s": 0.067,
+              "d_pelvis_h_m": -0.184,
+              "d_pelvis_h_g1_m": -0.1364
+            }
+          ],
+          "phase_metrics": {
+            "VSTANCE_0": {
+              "n": 7,
+              "pelvis_h_m": 0.8137,
+              "pelvis_h_min_m": 0.7808,
+              "pelvis_h_max_m": 0.851,
+              "pelvis_h_over_standing": 0.602,
+              "stance_width_m": 0.6622,
+              "stance_width_over_h": 0.49,
+              "stance_width_g1_m": 0.4911,
+              "stance_depth_m": 0.0905,
+              "stance_depth_over_h": 0.067,
+              "stance_depth_g1_m": 0.0671,
+              "knee_flexion_deg": 146.6,
+              "torso_pitch_deg": 76.1,
+              "head_above_pelvis_m": 0.1621,
+              "knee_min_height_m": 0.423,
+              "lwri_rel_pelvis_flm": [
+                0.167,
+                -0.191,
+                -0.091
+              ],
+              "rwri_rel_pelvis_flm": [
+                0.101,
+                0.223,
+                -0.13
+              ]
+            },
+            "CROUCH_1": {
+              "n": 9,
+              "pelvis_h_m": 0.5861,
+              "pelvis_h_min_m": 0.4792,
+              "pelvis_h_max_m": 0.7446,
+              "pelvis_h_over_standing": 0.434,
+              "stance_width_m": 0.347,
+              "stance_width_over_h": 0.257,
+              "stance_width_g1_m": 0.2573,
+              "stance_depth_m": 0.3089,
+              "stance_depth_over_h": 0.229,
+              "stance_depth_g1_m": 0.2291,
+              "knee_flexion_deg": 80.0,
+              "torso_pitch_deg": 72.5,
+              "head_above_pelvis_m": 0.1693,
+              "knee_min_height_m": 0.3983,
+              "lwri_rel_pelvis_flm": [
+                0.163,
+                -0.208,
+                -0.039
+              ],
+              "rwri_rel_pelvis_flm": [
+                0.166,
+                0.191,
+                -0.045
+              ]
+            },
+            "VSTANCE_2": {
+              "n": 16,
+              "pelvis_h_m": 0.7879,
+              "pelvis_h_min_m": 0.7555,
+              "pelvis_h_max_m": 0.8326,
+              "pelvis_h_over_standing": 0.583,
+              "stance_width_m": 0.3003,
+              "stance_width_over_h": 0.222,
+              "stance_width_g1_m": 0.2227,
+              "stance_depth_m": 0.1905,
+              "stance_depth_over_h": 0.141,
+              "stance_depth_g1_m": 0.1413,
+              "knee_flexion_deg": 136.3,
+              "torso_pitch_deg": 60.8,
+              "head_above_pelvis_m": 0.3355,
+              "knee_min_height_m": 0.3963,
+              "lwri_rel_pelvis_flm": [
+                0.269,
+                -0.223,
+                -0.09
+              ],
+              "rwri_rel_pelvis_flm": [
+                0.26,
+                0.1,
+                -0.01
+              ]
+            },
+            "VSTANCE_3": {
+              "n": 19,
+              "pelvis_h_m": 0.8128,
+              "pelvis_h_min_m": 0.7383,
+              "pelvis_h_max_m": 0.8373,
+              "pelvis_h_over_standing": 0.601,
+              "stance_width_m": 0.5415,
+              "stance_width_over_h": 0.401,
+              "stance_width_g1_m": 0.4016,
+              "stance_depth_m": 0.0336,
+              "stance_depth_over_h": 0.025,
+              "stance_depth_g1_m": 0.0249,
+              "knee_flexion_deg": 147.7,
+              "torso_pitch_deg": 55.4,
+              "head_above_pelvis_m": 0.3623,
+              "knee_min_height_m": 0.4121,
+              "lwri_rel_pelvis_flm": [
+                0.455,
+                -0.139,
+                0.017
+              ],
+              "rwri_rel_pelvis_flm": [
+                0.384,
+                0.214,
+                0.002
+              ]
+            },
+            "CROUCH_4": {
+              "n": 13,
+              "pelvis_h_m": 0.6288,
+              "pelvis_h_min_m": 0.5866,
+              "pelvis_h_max_m": 0.7337,
+              "pelvis_h_over_standing": 0.465,
+              "stance_width_m": 0.8363,
+              "stance_width_over_h": 0.619,
+              "stance_width_g1_m": 0.6202,
+              "stance_depth_m": 0.2755,
+              "stance_depth_over_h": 0.204,
+              "stance_depth_g1_m": 0.2043,
+              "knee_flexion_deg": 131.5,
+              "torso_pitch_deg": 72.3,
+              "head_above_pelvis_m": 0.2015,
+              "knee_min_height_m": 0.2793,
+              "lwri_rel_pelvis_flm": [
+                0.556,
+                -0.049,
+                -0.006
+              ],
+              "rwri_rel_pelvis_flm": [
+                0.346,
+                0.187,
+                -0.041
+              ]
+            }
+          }
+        }
+      ]
+    },
+    "7": {
+      "n_takes": 4,
+      "takes": [
+        {
+          "chapter": 7,
+          "t0": 399.5,
+          "t1": 416.9,
+          "n_active": 82,
+          "dur_s": 17.399999999999977,
+          "mean_conf": 0.9661,
+          "fullbody_frac": 0.9456,
+          "mean_speed": 0.6389,
+          "mean_pelvis_h": 0.8289452681065742,
+          "i0": 1742,
+          "i1": 1988,
+          "merged": 2,
+          "standing_pelvis_h_m": 1.5062,
+          "phases": [
+            {
+              "label": "MOVE",
+              "i0": 1742,
+              "i1": 1742,
+              "t0": 400.0,
+              "t1": 400.0,
+              "dur_s": 0.0
+            },
+            {
+              "label": "VSTANCE",
+              "i0": 1743,
+              "i1": 1852,
+              "t0": 400.06666666666666,
+              "t1": 407.3333333333333,
+              "dur_s": 7.267
+            },
+            {
+              "label": "VSTANCE",
+              "i0": 1853,
+              "i1": 1988,
+              "t0": 407.4,
+              "t1": 416.4,
+              "dur_s": 9.0
+            }
+          ],
+          "transitions": [
+            {
+              "from": "MOVE",
+              "to": "VSTANCE",
+              "t0": 400.0,
+              "t1": 400.067,
+              "dur_s": 0.067,
+              "d_pelvis_h_m": -0.0054,
+              "d_pelvis_h_g1_m": -0.004
+            },
+            {
+              "from": "VSTANCE",
+              "to": "VSTANCE",
+              "t0": 407.333,
+              "t1": 407.4,
+              "dur_s": 0.067,
+              "d_pelvis_h_m": -0.0143,
+              "d_pelvis_h_g1_m": -0.0106
+            }
+          ],
+          "phase_metrics": {
+            "MOVE_0": {
+              "n": 1,
+              "pelvis_h_m": 0.8373,
+              "pelvis_h_min_m": 0.8373,
+              "pelvis_h_max_m": 0.8373,
+              "pelvis_h_over_standing": 0.556,
+              "stance_width_m": 0.2912,
+              "stance_width_over_h": 0.193,
+              "stance_width_g1_m": 0.216,
+              "stance_depth_m": 0.0162,
+              "stance_depth_over_h": 0.011,
+              "stance_depth_g1_m": 0.012,
+              "knee_flexion_deg": 157.3,
+              "torso_pitch_deg": 27.2,
+              "head_above_pelvis_m": 0.6151,
+              "knee_min_height_m": 0.4336,
+              "lwri_rel_pelvis_flm": [
+                0.185,
+                -0.241,
+                0.048
+              ],
+              "rwri_rel_pelvis_flm": [
+                0.41,
+                0.216,
+                0.274
+              ]
+            },
+            "VSTANCE_1": {
+              "n": 110,
+              "pelvis_h_m": 0.8319,
+              "pelvis_h_min_m": 0.8017,
+              "pelvis_h_max_m": 0.855,
+              "pelvis_h_over_standing": 0.552,
+              "stance_width_m": 0.2173,
+              "stance_width_over_h": 0.144,
+              "stance_width_g1_m": 0.1611,
+              "stance_depth_m": 0.1529,
+              "stance_depth_over_h": 0.102,
+              "stance_depth_g1_m": 0.1134,
+              "knee_flexion_deg": 153.8,
+              "torso_pitch_deg": 25.3,
+              "head_above_pelvis_m": 0.6198,
+              "knee_min_height_m": 0.4018,
+              "lwri_rel_pelvis_flm": [
+                0.178,
+                -0.191,
+                0.08
+              ],
+              "rwri_rel_pelvis_flm": [
+                0.325,
+                0.226,
+                0.168
+              ]
+            },
+            "VSTANCE_2": {
+              "n": 136,
+              "pelvis_h_m": 0.8176,
+              "pelvis_h_min_m": 0.7378,
+              "pelvis_h_max_m": 0.8521,
+              "pelvis_h_over_standing": 0.543,
+              "stance_width_m": 0.4563,
+              "stance_width_over_h": 0.303,
+              "stance_width_g1_m": 0.3383,
+              "stance_depth_m": 0.1405,
+              "stance_depth_over_h": 0.093,
+              "stance_depth_g1_m": 0.1042,
+              "knee_flexion_deg": 149.6,
+              "torso_pitch_deg": 41.3,
+              "head_above_pelvis_m": 0.5025,
+              "knee_min_height_m": 0.3317,
+              "lwri_rel_pelvis_flm": [
+                0.37,
+                -0.135,
+                0.057
+              ],
+              "rwri_rel_pelvis_flm": [
+                0.236,
+                0.196,
+                -0.04
+              ]
+            }
+          }
+        },
+        {
+          "chapter": 7,
+          "t0": 455.1,
+          "t1": 488.1,
+          "n_active": 319,
+          "dur_s": 33.0,
+          "mean_conf": 0.9491532602695504,
+          "fullbody_frac": 0.9717171717171718,
+          "mean_speed": 0.704933310682196,
+          "mean_pelvis_h": 0.7513720748707549,
+          "i0": 2576,
+          "i1": 3056,
+          "standing_pelvis_h_m": 1.4971,
+          "phases": [
+            {
+              "label": "VSTANCE",
+              "i0": 2576,
+              "i1": 2578,
+              "t0": 455.6,
+              "t1": 455.73333333333335,
+              "dur_s": 0.133
+            },
+            {
+              "label": "CROUCH",
+              "i0": 2579,
+              "i1": 2586,
+              "t0": 455.8,
+              "t1": 456.26666666666665,
+              "dur_s": 0.467
+            },
+            {
+              "label": "VSTANCE",
+              "i0": 2587,
+              "i1": 2843,
+              "t0": 456.3333333333333,
+              "t1": 473.4,
+              "dur_s": 17.067
+            },
+            {
+              "label": "VSTANCE",
+              "i0": 2844,
+              "i1": 2851,
+              "t0": 473.4666666666667,
+              "t1": 473.93333333333334,
+              "dur_s": 0.467
+            },
+            {
+              "label": "CROUCH",
+              "i0": 2852,
+              "i1": 2972,
+              "t0": 474.0,
+              "t1": 482.0,
+              "dur_s": 8.0
+            },
+            {
+              "label": "VSTANCE",
+              "i0": 2973,
+              "i1": 2981,
+              "t0": 482.06666666666666,
+              "t1": 482.6,
+              "dur_s": 0.533
+            },
+            {
+              "label": "CROUCH",
+              "i0": 2982,
+              "i1": 3045,
+              "t0": 482.6666666666667,
+              "t1": 486.8666666666667,
+              "dur_s": 4.2
+            },
+            {
+              "label": "CROUCH",
+              "i0": 3046,
+              "i1": 3056,
+              "t0": 486.93333333333334,
+              "t1": 487.6,
+              "dur_s": 0.667
+            }
+          ],
+          "transitions": [
+            {
+              "from": "VSTANCE",
+              "to": "CROUCH",
+              "t0": 455.733,
+              "t1": 455.8,
+              "dur_s": 0.067,
+              "d_pelvis_h_m": -0.0936,
+              "d_pelvis_h_g1_m": -0.0694
+            },
+            {
+              "from": "CROUCH",
+              "to": "VSTANCE",
+              "t0": 456.267,
+              "t1": 456.333,
+              "dur_s": 0.067,
+              "d_pelvis_h_m": 0.1217,
+              "d_pelvis_h_g1_m": 0.0902
+            },
+            {
+              "from": "VSTANCE",
+              "to": "VSTANCE",
+              "t0": 473.4,
+              "t1": 473.467,
+              "dur_s": 0.067,
+              "d_pelvis_h_m": -0.0621,
+              "d_pelvis_h_g1_m": -0.0461
+            },
+            {
+              "from": "VSTANCE",
+              "to": "CROUCH",
+              "t0": 473.933,
+              "t1": 474.0,
+              "dur_s": 0.067,
+              "d_pelvis_h_m": -0.1088,
+              "d_pelvis_h_g1_m": -0.0807
+            },
+            {
+              "from": "CROUCH",
+              "to": "VSTANCE",
+              "t0": 482.0,
+              "t1": 482.067,
+              "dur_s": 0.067,
+              "d_pelvis_h_m": 0.1069,
+              "d_pelvis_h_g1_m": 0.0793
+            },
+            {
+              "from": "VSTANCE",
+              "to": "CROUCH",
+              "t0": 482.6,
+              "t1": 482.667,
+              "dur_s": 0.067,
+              "d_pelvis_h_m": -0.097,
+              "d_pelvis_h_g1_m": -0.0719
+            },
+            {
+              "from": "CROUCH",
+              "to": "CROUCH",
+              "t0": 486.867,
+              "t1": 486.933,
+              "dur_s": 0.067,
+              "d_pelvis_h_m": -0.056,
+              "d_pelvis_h_g1_m": -0.0415
+            }
+          ],
+          "phase_metrics": {
+            "VSTANCE_0": {
+              "n": 3,
+              "pelvis_h_m": 0.8034,
+              "pelvis_h_min_m": 0.7938,
+              "pelvis_h_max_m": 0.817,
+              "pelvis_h_over_standing": 0.537,
+              "stance_width_m": 0.3712,
+              "stance_width_over_h": 0.248,
+              "stance_width_g1_m": 0.2752,
+              "stance_depth_m": 0.0953,
+              "stance_depth_over_h": 0.064,
+              "stance_depth_g1_m": 0.0707,
+              "knee_flexion_deg": 132.2,
+              "torso_pitch_deg": 55.1,
+              "head_above_pelvis_m": 0.3873,
+              "knee_min_height_m": 0.447,
+              "lwri_rel_pelvis_flm": [
+                0.303,
+                -0.071,
+                0.039
+              ],
+              "rwri_rel_pelvis_flm": [
+                0.391,
+                0.115,
+                -0.037
+              ]
+            },
+            "CROUCH_1": {
+              "n": 8,
+              "pelvis_h_m": 0.7098,
+              "pelvis_h_min_m": 0.6801,
+              "pelvis_h_max_m": 0.8019,
+              "pelvis_h_over_standing": 0.474,
+              "stance_width_m": 0.8635,
+              "stance_width_over_h": 0.577,
+              "stance_width_g1_m": 0.6404,
+              "stance_depth_m": 0.3241,
+              "stance_depth_over_h": 0.216,
+              "stance_depth_g1_m": 0.2403,
+              "knee_flexion_deg": 139.5,
+              "torso_pitch_deg": 50.0,
+              "head_above_pelvis_m": 0.4121,
+              "knee_min_height_m": 0.3303,
+              "lwri_rel_pelvis_flm": [
+                0.383,
+                -0.125,
+                0.087
+              ],
+              "rwri_rel_pelvis_flm": [
+                0.285,
+                0.062,
+                -0.02
+              ]
+            },
+            "VSTANCE_2": {
+              "n": 257,
+              "pelvis_h_m": 0.8315,
+              "pelvis_h_min_m": 0.6881,
+              "pelvis_h_max_m": 0.8737,
+              "pelvis_h_over_standing": 0.555,
+              "stance_width_m": 0.2743,
+              "stance_width_over_h": 0.183,
+              "stance_width_g1_m": 0.2034,
+              "stance_depth_m": 0.102,
+              "stance_depth_over_h": 0.068,
+              "stance_depth_g1_m": 0.0756,
+              "knee_flexion_deg": 151.5,
+              "torso_pitch_deg": 28.6,
+              "head_above_pelvis_m": 0.6025,
+              "knee_min_height_m": 0.3874,
+              "lwri_rel_pelvis_flm": [
+                0.396,
+                -0.017,
+                0.195
+              ],
+              "rwri_rel_pelvis_flm": [
+                0.221,
+                0.211,
+                0.014
+              ]
+            },
+            "VSTANCE_3": {
+              "n": 8,
+              "pelvis_h_m": 0.7694,
+              "pelvis_h_min_m": 0.7651,
+              "pelvis_h_max_m": 0.7949,
+              "pelvis_h_over_standing": 0.514,
+              "stance_width_m": 0.405,
+              "stance_width_over_h": 0.271,
+              "stance_width_g1_m": 0.3003,
+              "stance_depth_m": 0.0836,
+              "stance_depth_over_h": 0.056,
+              "stance_depth_g1_m": 0.062,
+              "knee_flexion_deg": 126.6,
+              "torso_pitch_deg": 80.2,
+              "head_above_pelvis_m": 0.1172,
+              "knee_min_height_m": 0.4231,
+              "lwri_rel_pelvis_flm": [
+                0.498,
+                0.011,
+                -0.15
+              ],
+              "rwri_rel_pelvis_flm": [
+                0.499,
+                0.094,
+                -0.275
+              ]
+            },
+            "CROUCH_4": {
+              "n": 121,
+              "pelvis_h_m": 0.6606,
+              "pelvis_h_min_m": 0.5942,
+              "pelvis_h_max_m": 0.7289,
+              "pelvis_h_over_standing": 0.441,
+              "stance_width_m": 0.8944,
+              "stance_width_over_h": 0.597,
+              "stance_width_g1_m": 0.6633,
+              "stance_depth_m": 0.3453,
+              "stance_depth_over_h": 0.231,
+              "stance_depth_g1_m": 0.256,
+              "knee_flexion_deg": 134.1,
+              "torso_pitch_deg": 69.2,
+              "head_above_pelvis_m": 0.2122,
+              "knee_min_height_m": 0.3024,
+              "lwri_rel_pelvis_flm": [
+                0.544,
+                -0.086,
+                -0.022
+              ],
+              "rwri_rel_pelvis_flm": [
+                0.436,
+                0.246,
+                -0.042
+              ]
+            },
+            "VSTANCE_5": {
+              "n": 9,
+              "pelvis_h_m": 0.7675,
+              "pelvis_h_min_m": 0.7395,
+              "pelvis_h_max_m": 0.8066,
+              "pelvis_h_over_standing": 0.513,
+              "stance_width_m": 0.8919,
+              "stance_width_over_h": 0.596,
+              "stance_width_g1_m": 0.6614,
+              "stance_depth_m": 0.3862,
+              "stance_depth_over_h": 0.258,
+              "stance_depth_g1_m": 0.2864,
+              "knee_flexion_deg": 153.2,
+              "torso_pitch_deg": 68.9,
+              "head_above_pelvis_m": 0.2392,
+              "knee_min_height_m": 0.4166,
+              "lwri_rel_pelvis_flm": [
+                0.188,
+                -0.186,
+                -0.021
+              ],
+              "rwri_rel_pelvis_flm": [
+                0.38,
+                0.127,
+                -0.197
+              ]
+            },
+            "CROUCH_6": {
+              "n": 64,
+              "pelvis_h_m": 0.6705,
+              "pelvis_h_min_m": 0.578,
+              "pelvis_h_max_m": 0.7379,
+              "pelvis_h_over_standing": 0.448,
+              "stance_width_m": 0.884,
+              "stance_width_over_h": 0.59,
+              "stance_width_g1_m": 0.6555,
+              "stance_depth_m": 0.4519,
+              "stance_depth_over_h": 0.302,
+              "stance_depth_g1_m": 0.3351,
+              "knee_flexion_deg": 142.1,
+              "torso_pitch_deg": 61.7,
+              "head_above_pelvis_m": 0.298,
+              "knee_min_height_m": 0.3116,
+              "lwri_rel_pelvis_flm": [
+                0.424,
+                -0.078,
+                -0.052
+              ],
+              "rwri_rel_pelvis_flm": [
+                0.373,
+                0.124,
+                -0.066
+              ]
+            },
+            "CROUCH_7": {
+              "n": 11,
+              "pelvis_h_m": 0.6145,
+              "pelvis_h_min_m": 0.4732,
+              "pelvis_h_max_m": 0.7293,
+              "pelvis_h_over_standing": 0.41,
+              "stance_width_m": 0.7514,
+              "stance_width_over_h": 0.502,
+              "stance_width_g1_m": 0.5572,
+              "stance_depth_m": 0.2376,
+              "stance_depth_over_h": 0.159,
+              "stance_depth_g1_m": 0.1762,
+              "knee_flexion_deg": 112.8,
+              "torso_pitch_deg": 54.7,
+              "head_above_pelvis_m": 0.3254,
+              "knee_min_height_m": 0.0721,
+              "lwri_rel_pelvis_flm": [
+                0.042,
+                -0.311,
+                0.108
+              ],
+              "rwri_rel_pelvis_flm": [
+                0.219,
+                0.184,
+                -0.091
+              ]
+            }
+          }
+        },
+        {
+          "chapter": 7,
+          "t0": 430.6333333333333,
+          "t1": 442.8333333333333,
+          "n_active": 109,
+          "dur_s": 12.199999999999989,
+          "mean_conf": 0.9392220628717558,
+          "fullbody_frac": 0.9617486338797814,
+          "mean_speed": 0.6364593393395407,
+          "mean_pelvis_h": 0.5119824021150707,
+          "i0": 2209,
+          "i1": 2377,
+          "standing_pelvis_h_m": 1.2959,
+          "phases": [
+            {
+              "label": "KNEE",
+              "i0": 2209,
+              "i1": 2237,
+              "t0": 431.1333333333333,
+              "t1": 433.0,
+              "dur_s": 1.867
+            },
+            {
+              "label": "KNEE",
+              "i0": 2238,
+              "i1": 2254,
+              "t0": 433.06666666666666,
+              "t1": 434.1333333333333,
+              "dur_s": 1.067
+            },
+            {
+              "label": "VSTANCE",
+              "i0": 2255,
+              "i1": 2268,
+              "t0": 434.2,
+              "t1": 435.06666666666666,
+              "dur_s": 0.867
+            },
+            {
+              "label": "KNEE",
+              "i0": 2269,
+              "i1": 2290,
+              "t0": 435.1333333333333,
+              "t1": 436.5333333333333,
+              "dur_s": 1.4
+            },
+            {
+              "label": "VSTANCE",
+              "i0": 2291,
+              "i1": 2327,
+              "t0": 436.6,
+              "t1": 439.0,
+              "dur_s": 2.4
+            },
+            {
+              "label": "KNEE",
+              "i0": 2328,
+              "i1": 2334,
+              "t0": 439.06666666666666,
+              "t1": 439.4666666666667,
+              "dur_s": 0.4
+            },
+            {
+              "label": "KNEE",
+              "i0": 2335,
+              "i1": 2357,
+              "t0": 439.5333333333333,
+              "t1": 441.0,
+              "dur_s": 1.467
+            },
+            {
+              "label": "VSTANCE",
+              "i0": 2358,
+              "i1": 2377,
+              "t0": 441.06666666666666,
+              "t1": 442.3333333333333,
+              "dur_s": 1.267
+            }
+          ],
+          "transitions": [
+            {
+              "from": "KNEE",
+              "to": "KNEE",
+              "t0": 433.0,
+              "t1": 433.067,
+              "dur_s": 0.067,
+              "d_pelvis_h_m": 0.1667,
+              "d_pelvis_h_g1_m": 0.1236
+            },
+            {
+              "from": "KNEE",
+              "to": "VSTANCE",
+              "t0": 434.133,
+              "t1": 434.2,
+              "dur_s": 0.067,
+              "d_pelvis_h_m": 0.0221,
+              "d_pelvis_h_g1_m": 0.0164
+            },
+            {
+              "from": "VSTANCE",
+              "to": "KNEE",
+              "t0": 435.067,
+              "t1": 435.133,
+              "dur_s": 0.067,
+              "d_pelvis_h_m": -0.0597,
+              "d_pelvis_h_g1_m": -0.0443
+            },
+            {
+              "from": "KNEE",
+              "to": "VSTANCE",
+              "t0": 436.533,
+              "t1": 436.6,
+              "dur_s": 0.067,
+              "d_pelvis_h_m": 0.1103,
+              "d_pelvis_h_g1_m": 0.0818
+            },
+            {
+              "from": "VSTANCE",
+              "to": "KNEE",
+              "t0": 439.0,
+              "t1": 439.067,
+              "dur_s": 0.067,
+              "d_pelvis_h_m": -0.0653,
+              "d_pelvis_h_g1_m": -0.0484
+            },
+            {
+              "from": "KNEE",
+              "to": "KNEE",
+              "t0": 439.467,
+              "t1": 439.533,
+              "dur_s": 0.067,
+              "d_pelvis_h_m": 0.0286,
+              "d_pelvis_h_g1_m": 0.0212
+            },
+            {
+              "from": "KNEE",
+              "to": "VSTANCE",
+              "t0": 441.0,
+              "t1": 441.067,
+              "dur_s": 0.067,
+              "d_pelvis_h_m": 0.0045,
+              "d_pelvis_h_g1_m": 0.0033
+            }
+          ],
+          "phase_metrics": {
+            "KNEE_0": {
+              "n": 29,
+              "pelvis_h_m": 0.3527,
+              "pelvis_h_min_m": 0.2731,
+              "pelvis_h_max_m": 0.3935,
+              "pelvis_h_over_standing": 0.272,
+              "stance_width_m": 0.3526,
+              "stance_width_over_h": 0.272,
+              "stance_width_g1_m": 0.2615,
+              "stance_depth_m": 0.5252,
+              "stance_depth_over_h": 0.405,
+              "stance_depth_g1_m": 0.3895,
+              "knee_flexion_deg": 51.9,
+              "torso_pitch_deg": 43.3,
+              "head_above_pelvis_m": 0.4327,
+              "knee_min_height_m": -0.0384,
+              "lwri_rel_pelvis_flm": [
+                0.62,
+                0.22,
+                0.306
+              ],
+              "rwri_rel_pelvis_flm": [
+                0.522,
+                0.481,
+                0.209
+              ]
+            },
+            "KNEE_1": {
+              "n": 17,
+              "pelvis_h_m": 0.5194,
+              "pelvis_h_min_m": 0.3887,
+              "pelvis_h_max_m": 0.5469,
+              "pelvis_h_over_standing": 0.401,
+              "stance_width_m": 0.2247,
+              "stance_width_over_h": 0.173,
+              "stance_width_g1_m": 0.1666,
+              "stance_depth_m": 0.6278,
+              "stance_depth_over_h": 0.484,
+              "stance_depth_g1_m": 0.4656,
+              "knee_flexion_deg": 85.8,
+              "torso_pitch_deg": 42.0,
+              "head_above_pelvis_m": 0.4396,
+              "knee_min_height_m": 0.0705,
+              "lwri_rel_pelvis_flm": [
+                0.4,
+                0.025,
+                0.122
+              ],
+              "rwri_rel_pelvis_flm": [
+                0.322,
+                0.138,
+                0.055
+              ]
+            },
+            "VSTANCE_2": {
+              "n": 14,
+              "pelvis_h_m": 0.5415,
+              "pelvis_h_min_m": 0.5174,
+              "pelvis_h_max_m": 0.5703,
+              "pelvis_h_over_standing": 0.418,
+              "stance_width_m": 0.2557,
+              "stance_width_over_h": 0.197,
+              "stance_width_g1_m": 0.1896,
+              "stance_depth_m": 0.7105,
+              "stance_depth_over_h": 0.548,
+              "stance_depth_g1_m": 0.5269,
+              "knee_flexion_deg": 94.9,
+              "torso_pitch_deg": 44.3,
+              "head_above_pelvis_m": 0.4338,
+              "knee_min_height_m": 0.1731,
+              "lwri_rel_pelvis_flm": [
+                0.38,
+                -0.058,
+                0.114
+              ],
+              "rwri_rel_pelvis_flm": [
+                0.457,
+                0.091,
+                0.031
+              ]
+            },
+            "KNEE_3": {
+              "n": 22,
+              "pelvis_h_m": 0.4818,
+              "pelvis_h_min_m": 0.4679,
+              "pelvis_h_max_m": 0.5622,
+              "pelvis_h_over_standing": 0.372,
+              "stance_width_m": 0.2993,
+              "stance_width_over_h": 0.231,
+              "stance_width_g1_m": 0.222,
+              "stance_depth_m": 0.7319,
+              "stance_depth_over_h": 0.565,
+              "stance_depth_g1_m": 0.5428,
+              "knee_flexion_deg": 91.6,
+              "torso_pitch_deg": 28.3,
+              "head_above_pelvis_m": 0.5294,
+              "knee_min_height_m": 0.1296,
+              "lwri_rel_pelvis_flm": [
+                0.455,
+                0.124,
+                0.155
+              ],
+              "rwri_rel_pelvis_flm": [
+                0.508,
+                0.166,
+                0.124
+              ]
+            },
+            "VSTANCE_4": {
+              "n": 37,
+              "pelvis_h_m": 0.5921,
+              "pelvis_h_min_m": 0.5331,
+              "pelvis_h_max_m": 0.6363,
+              "pelvis_h_over_standing": 0.457,
+              "stance_width_m": 0.2848,
+              "stance_width_over_h": 0.22,
+              "stance_width_g1_m": 0.2112,
+              "stance_depth_m": 0.5784,
+              "stance_depth_over_h": 0.446,
+              "stance_depth_g1_m": 0.4289,
+              "knee_flexion_deg": 91.5,
+              "torso_pitch_deg": 46.3,
+              "head_above_pelvis_m": 0.4167,
+              "knee_min_height_m": 0.1828,
+              "lwri_rel_pelvis_flm": [
+                0.418,
+                -0.149,
+                0.105
+              ],
+              "rwri_rel_pelvis_flm": [
+                0.335,
+                0.11,
+                -0.193
+              ]
+            },
+            "KNEE_5": {
+              "n": 7,
+              "pelvis_h_m": 0.5268,
+              "pelvis_h_min_m": 0.4532,
+              "pelvis_h_max_m": 0.5462,
+              "pelvis_h_over_standing": 0.406,
+              "stance_width_m": 0.1996,
+              "stance_width_over_h": 0.154,
+              "stance_width_g1_m": 0.148,
+              "stance_depth_m": 0.1696,
+              "stance_depth_over_h": 0.131,
+              "stance_depth_g1_m": 0.1258,
+              "knee_flexion_deg": 80.0,
+              "torso_pitch_deg": 45.6,
+              "head_above_pelvis_m": 0.4404,
+              "knee_min_height_m": 0.0592,
+              "lwri_rel_pelvis_flm": [
+                0.44,
+                -0.164,
+                0.058
+              ],
+              "rwri_rel_pelvis_flm": [
+                0.516,
+                0.153,
+                0.013
+              ]
+            },
+            "KNEE_6": {
+              "n": 23,
+              "pelvis_h_m": 0.5554,
+              "pelvis_h_min_m": 0.4169,
+              "pelvis_h_max_m": 0.6398,
+              "pelvis_h_over_standing": 0.429,
+              "stance_width_m": 0.2825,
+              "stance_width_over_h": 0.218,
+              "stance_width_g1_m": 0.2095,
+              "stance_depth_m": 0.7715,
+              "stance_depth_over_h": 0.595,
+              "stance_depth_g1_m": 0.5722,
+              "knee_flexion_deg": 96.8,
+              "torso_pitch_deg": 46.2,
+              "head_above_pelvis_m": 0.4407,
+              "knee_min_height_m": 0.0567,
+              "lwri_rel_pelvis_flm": [
+                0.439,
+                -0.124,
+                0.089
+              ],
+              "rwri_rel_pelvis_flm": [
+                0.556,
+                0.077,
+                0.04
+              ]
+            },
+            "VSTANCE_7": {
+              "n": 20,
+              "pelvis_h_m": 0.5599,
+              "pelvis_h_min_m": 0.5318,
+              "pelvis_h_max_m": 0.7516,
+              "pelvis_h_over_standing": 0.432,
+              "stance_width_m": 0.266,
+              "stance_width_over_h": 0.205,
+              "stance_width_g1_m": 0.1973,
+              "stance_depth_m": 0.6482,
+              "stance_depth_over_h": 0.5,
+              "stance_depth_g1_m": 0.4807,
+              "knee_flexion_deg": 96.6,
+              "torso_pitch_deg": 35.8,
+              "head_above_pelvis_m": 0.5211,
+              "knee_min_height_m": 0.1827,
+              "lwri_rel_pelvis_flm": [
+                0.383,
+                -0.089,
+                0.111
+              ],
+              "rwri_rel_pelvis_flm": [
+                0.489,
+                0.076,
+                0.066
+              ]
+            }
+          }
+        },
+        {
+          "chapter": 7,
+          "t0": 516.7666666666667,
+          "t1": 549.4333333333334,
+          "n_active": 180,
+          "dur_s": 32.66666666666674,
+          "mean_conf": 0.9158,
+          "fullbody_frac": 0.79,
+          "mean_speed": 1.3439,
+          "mean_pelvis_h": 0.7399581733999534,
+          "i0": 3501,
+          "i1": 3976,
+          "merged": 3,
+          "standing_pelvis_h_m": NaN,
+          "phases": [
+            {
+              "label": "MOVE",
+              "i0": 3501,
+              "i1": 3637,
+              "t0": 517.2666666666667,
+              "t1": 526.3333333333334,
+              "dur_s": 9.067
+            },
+            {
+              "label": "KNEE",
+              "i0": 3638,
+              "i1": 3679,
+              "t0": 526.4,
+              "t1": 529.1333333333333,
+              "dur_s": 2.733
+            },
+            {
+              "label": "MOVE",
+              "i0": 3680,
+              "i1": 3721,
+              "t0": 529.2,
+              "t1": 531.9333333333334,
+              "dur_s": 2.733
+            },
+            {
+              "label": "MOVE",
+              "i0": 3722,
+              "i1": 3771,
+              "t0": 532.0,
+              "t1": 535.2666666666667,
+              "dur_s": 3.267
+            },
+            {
+              "label": "MOVE",
+              "i0": 3772,
+              "i1": 3848,
+              "t0": 535.3333333333334,
+              "t1": 540.4,
+              "dur_s": 5.067
+            },
+            {
+              "label": "KNEE",
+              "i0": 3849,
+              "i1": 3861,
+              "t0": 540.4666666666667,
+              "t1": 541.2666666666667,
+              "dur_s": 0.8
+            },
+            {
+              "label": "MOVE",
+              "i0": 3862,
+              "i1": 3910,
+              "t0": 541.3333333333334,
+              "t1": 544.5333333333333,
+              "dur_s": 3.2
+            },
+            {
+              "label": "KNEE",
+              "i0": 3911,
+              "i1": 3917,
+              "t0": 544.6,
+              "t1": 545.0,
+              "dur_s": 0.4
+            },
+            {
+              "label": "MOVE",
+              "i0": 3918,
+              "i1": 3948,
+              "t0": 545.0666666666666,
+              "t1": 547.0666666666666,
+              "dur_s": 2.0
+            },
+            {
+              "label": "KNEE",
+              "i0": 3949,
+              "i1": 3954,
+              "t0": 547.1333333333333,
+              "t1": 547.4666666666667,
+              "dur_s": 0.333
+            },
+            {
+              "label": "MOVE",
+              "i0": 3955,
+              "i1": 3969,
+              "t0": 547.5333333333333,
+              "t1": 548.4666666666667,
+              "dur_s": 0.933
+            },
+            {
+              "label": "MOVE",
+              "i0": 3970,
+              "i1": 3976,
+              "t0": 548.5333333333333,
+              "t1": 548.9333333333334,
+              "dur_s": 0.4
+            }
+          ],
+          "transitions": [
+            {
+              "from": "MOVE",
+              "to": "KNEE",
+              "t0": 526.333,
+              "t1": 526.4,
+              "dur_s": 0.067,
+              "d_pelvis_h_m": -0.3981,
+              "d_pelvis_h_g1_m": -0.2952
+            },
+            {
+              "from": "KNEE",
+              "to": "MOVE",
+              "t0": 529.133,
+              "t1": 529.2,
+              "dur_s": 0.067,
+              "d_pelvis_h_m": 0.3386,
+              "d_pelvis_h_g1_m": 0.2511
+            },
+            {
+              "from": "MOVE",
+              "to": "MOVE",
+              "t0": 531.933,
+              "t1": 532.0,
+              "dur_s": 0.067,
+              "d_pelvis_h_m": 0.0484,
+              "d_pelvis_h_g1_m": 0.0359
+            },
+            {
+              "from": "MOVE",
+              "to": "MOVE",
+              "t0": 535.267,
+              "t1": 535.333,
+              "dur_s": 0.067,
+              "d_pelvis_h_m": 0.0085,
+              "d_pelvis_h_g1_m": 0.0063
+            },
+            {
+              "from": "MOVE",
+              "to": "KNEE",
+              "t0": 540.4,
+              "t1": 540.467,
+              "dur_s": 0.067,
+              "d_pelvis_h_m": -0.3798,
+              "d_pelvis_h_g1_m": -0.2816
+            },
+            {
+              "from": "KNEE",
+              "to": "MOVE",
+              "t0": 541.267,
+              "t1": 541.333,
+              "dur_s": 0.067,
+              "d_pelvis_h_m": 0.3058,
+              "d_pelvis_h_g1_m": 0.2268
+            },
+            {
+              "from": "MOVE",
+              "to": "KNEE",
+              "t0": 544.533,
+              "t1": 544.6,
+              "dur_s": 0.067,
+              "d_pelvis_h_m": -0.275,
+              "d_pelvis_h_g1_m": -0.2039
+            },
+            {
+              "from": "KNEE",
+              "to": "MOVE",
+              "t0": 545.0,
+              "t1": 545.067,
+              "dur_s": 0.067,
+              "d_pelvis_h_m": 0.3071,
+              "d_pelvis_h_g1_m": 0.2277
+            },
+            {
+              "from": "MOVE",
+              "to": "KNEE",
+              "t0": 547.067,
+              "t1": 547.133,
+              "dur_s": 0.067,
+              "d_pelvis_h_m": -0.3048,
+              "d_pelvis_h_g1_m": -0.226
+            },
+            {
+              "from": "KNEE",
+              "to": "MOVE",
+              "t0": 547.467,
+              "t1": 547.533,
+              "dur_s": 0.067,
+              "d_pelvis_h_m": NaN,
+              "d_pelvis_h_g1_m": NaN
+            },
+            {
+              "from": "MOVE",
+              "to": "MOVE",
+              "t0": 548.467,
+              "t1": 548.533,
+              "dur_s": 0.067,
+              "d_pelvis_h_m": NaN,
+              "d_pelvis_h_g1_m": NaN
+            }
+          ],
+          "phase_metrics": {
+            "MOVE_0": {
+              "n": 137,
+              "pelvis_h_m": 0.8299,
+              "pelvis_h_min_m": 0.6607,
+              "pelvis_h_max_m": 0.8603,
+              "pelvis_h_over_standing": NaN,
+              "stance_width_m": 0.3173,
+              "stance_width_over_h": NaN,
+              "stance_width_g1_m": 0.2353,
+              "stance_depth_m": 0.1368,
+              "stance_depth_over_h": NaN,
+              "stance_depth_g1_m": 0.1014,
+              "knee_flexion_deg": 148.5,
+              "torso_pitch_deg": 33.0,
+              "head_above_pelvis_m": 0.5665,
+              "knee_min_height_m": 0.2617,
+              "lwri_rel_pelvis_flm": [
+                0.374,
+                -0.103,
+                0.078
+              ],
+              "rwri_rel_pelvis_flm": [
+                0.158,
+                0.281,
+                -0.018
+              ]
+            },
+            "KNEE_1": {
+              "n": 42,
+              "pelvis_h_m": 0.4318,
+              "pelvis_h_min_m": 0.3909,
+              "pelvis_h_max_m": 0.5439,
+              "pelvis_h_over_standing": NaN,
+              "stance_width_m": 0.6107,
+              "stance_width_over_h": NaN,
+              "stance_width_g1_m": 0.4529,
+              "stance_depth_m": 0.7279,
+              "stance_depth_over_h": NaN,
+              "stance_depth_g1_m": 0.5398,
+              "knee_flexion_deg": 94.5,
+              "torso_pitch_deg": 52.2,
+              "head_above_pelvis_m": 0.4044,
+              "knee_min_height_m": -0.0111,
+              "lwri_rel_pelvis_flm": [
+                0.435,
+                -0.051,
+                0.181
+              ],
+              "rwri_rel_pelvis_flm": [
+                0.392,
+                0.045,
+                -0.095
+              ]
+            },
+            "MOVE_2": {
+              "n": 42,
+              "pelvis_h_m": 0.7704,
+              "pelvis_h_min_m": 0.4846,
+              "pelvis_h_max_m": 0.8409,
+              "pelvis_h_over_standing": NaN,
+              "stance_width_m": 0.5985,
+              "stance_width_over_h": NaN,
+              "stance_width_g1_m": 0.4438,
+              "stance_depth_m": 0.2271,
+              "stance_depth_over_h": NaN,
+              "stance_depth_g1_m": 0.1684,
+              "knee_flexion_deg": 141.7,
+              "torso_pitch_deg": 53.9,
+              "head_above_pelvis_m": 0.4031,
+              "knee_min_height_m": 0.0362,
+              "lwri_rel_pelvis_flm": [
+                0.362,
+                -0.119,
+                0.056
+              ],
+              "rwri_rel_pelvis_flm": [
+                0.338,
+                0.115,
+                -0.027
+              ]
+            },
+            "MOVE_3": {
+              "n": 50,
+              "pelvis_h_m": 0.8188,
+              "pelvis_h_min_m": 0.4025,
+              "pelvis_h_max_m": 0.8575,
+              "pelvis_h_over_standing": NaN,
+              "stance_width_m": 0.5144,
+              "stance_width_over_h": NaN,
+              "stance_width_g1_m": 0.3815,
+              "stance_depth_m": 0.2516,
+              "stance_depth_over_h": NaN,
+              "stance_depth_g1_m": 0.1866,
+              "knee_flexion_deg": 140.7,
+              "torso_pitch_deg": 46.0,
+              "head_above_pelvis_m": 0.4459,
+              "knee_min_height_m": 0.0023,
+              "lwri_rel_pelvis_flm": [
+                0.389,
+                -0.06,
+                0.044
+              ],
+              "rwri_rel_pelvis_flm": [
+                0.285,
+                0.201,
+                0.008
+              ]
+            },
+            "MOVE_4": {
+              "n": 77,
+              "pelvis_h_m": 0.8273,
+              "pelvis_h_min_m": 0.5439,
+              "pelvis_h_max_m": 0.8526,
+              "pelvis_h_over_standing": NaN,
+              "stance_width_m": 0.366,
+              "stance_width_over_h": NaN,
+              "stance_width_g1_m": 0.2714,
+              "stance_depth_m": 0.1484,
+              "stance_depth_over_h": NaN,
+              "stance_depth_g1_m": 0.11,
+              "knee_flexion_deg": 146.2,
+              "torso_pitch_deg": 40.1,
+              "head_above_pelvis_m": 0.517,
+              "knee_min_height_m": 0.242,
+              "lwri_rel_pelvis_flm": [
+                0.396,
+                -0.068,
+                0.106
+              ],
+              "rwri_rel_pelvis_flm": [
+                0.169,
+                0.232,
+                -0.038
+              ]
+            },
+            "KNEE_5": {
+              "n": 13,
+              "pelvis_h_m": 0.4475,
+              "pelvis_h_min_m": 0.3883,
+              "pelvis_h_max_m": 0.5434,
+              "pelvis_h_over_standing": NaN,
+              "stance_width_m": 0.3109,
+              "stance_width_over_h": NaN,
+              "stance_width_g1_m": 0.2306,
+              "stance_depth_m": 0.7342,
+              "stance_depth_over_h": NaN,
+              "stance_depth_g1_m": 0.5445,
+              "knee_flexion_deg": 80.9,
+              "torso_pitch_deg": 36.2,
+              "head_above_pelvis_m": 0.4806,
+              "knee_min_height_m": -0.0019,
+              "lwri_rel_pelvis_flm": [
+                0.476,
+                0.035,
+                0.186
+              ],
+              "rwri_rel_pelvis_flm": [
+                0.431,
+                0.226,
+                0.122
+              ]
+            },
+            "MOVE_6": {
+              "n": 49,
+              "pelvis_h_m": 0.7533,
+              "pelvis_h_min_m": 0.4641,
+              "pelvis_h_max_m": 0.839,
+              "pelvis_h_over_standing": NaN,
+              "stance_width_m": 0.4204,
+              "stance_width_over_h": NaN,
+              "stance_width_g1_m": 0.3118,
+              "stance_depth_m": 0.0677,
+              "stance_depth_over_h": NaN,
+              "stance_depth_g1_m": 0.0502,
+              "knee_flexion_deg": 126.8,
+              "torso_pitch_deg": 52.2,
+              "head_above_pelvis_m": 0.3937,
+              "knee_min_height_m": 0.157,
+              "lwri_rel_pelvis_flm": [
+                0.237,
+                -0.149,
+                0.065
+              ],
+              "rwri_rel_pelvis_flm": [
+                0.313,
+                0.18,
+                -0.007
+              ]
+            },
+            "KNEE_7": {
+              "n": 7,
+              "pelvis_h_m": 0.4783,
+              "pelvis_h_min_m": 0.4444,
+              "pelvis_h_max_m": 0.52,
+              "pelvis_h_over_standing": NaN,
+              "stance_width_m": 0.2812,
+              "stance_width_over_h": NaN,
+              "stance_width_g1_m": 0.2085,
+              "stance_depth_m": 0.6209,
+              "stance_depth_over_h": NaN,
+              "stance_depth_g1_m": 0.4605,
+              "knee_flexion_deg": 75.0,
+              "torso_pitch_deg": 40.8,
+              "head_above_pelvis_m": 0.4774,
+              "knee_min_height_m": 0.0723,
+              "lwri_rel_pelvis_flm": [
+                0.313,
+                -0.031,
+                0.053
+              ],
+              "rwri_rel_pelvis_flm": [
+                0.119,
+                0.136,
+                -0.058
+              ]
+            },
+            "MOVE_8": {
+              "n": 31,
+              "pelvis_h_m": 0.7854,
+              "pelvis_h_min_m": 0.6195,
+              "pelvis_h_max_m": 0.8333,
+              "pelvis_h_over_standing": NaN,
+              "stance_width_m": 0.408,
+              "stance_width_over_h": NaN,
+              "stance_width_g1_m": 0.3026,
+              "stance_depth_m": 0.1428,
+              "stance_depth_over_h": NaN,
+              "stance_depth_g1_m": 0.1059,
+              "knee_flexion_deg": 137.8,
+              "torso_pitch_deg": 56.0,
+              "head_above_pelvis_m": 0.3667,
+              "knee_min_height_m": 0.2519,
+              "lwri_rel_pelvis_flm": [
+                0.408,
+                -0.052,
+                -0.03
+              ],
+              "rwri_rel_pelvis_flm": [
+                0.313,
+                0.194,
+                -0.052
+              ]
+            },
+            "KNEE_9": {
+              "n": 6,
+              "pelvis_h_m": 0.4806,
+              "pelvis_h_min_m": 0.4363,
+              "pelvis_h_max_m": 0.5656,
+              "pelvis_h_over_standing": NaN,
+              "stance_width_m": 0.5196,
+              "stance_width_over_h": NaN,
+              "stance_width_g1_m": 0.3853,
+              "stance_depth_m": 0.7061,
+              "stance_depth_over_h": NaN,
+              "stance_depth_g1_m": 0.5236,
+              "knee_flexion_deg": 97.3,
+              "torso_pitch_deg": 41.0,
+              "head_above_pelvis_m": 0.5086,
+              "knee_min_height_m": 0.0438,
+              "lwri_rel_pelvis_flm": [
+                0.437,
+                0.038,
+                0.175
+              ],
+              "rwri_rel_pelvis_flm": [
+                0.428,
+                0.021,
+                0.069
+              ]
+            },
+            "MOVE_10": {
+              "n": 15,
+              "pelvis_h_m": NaN,
+              "pelvis_h_min_m": NaN,
+              "pelvis_h_max_m": NaN,
+              "pelvis_h_over_standing": NaN,
+              "stance_width_m": NaN,
+              "stance_width_over_h": NaN,
+              "stance_width_g1_m": NaN,
+              "stance_depth_m": NaN,
+              "stance_depth_over_h": NaN,
+              "stance_depth_g1_m": NaN,
+              "knee_flexion_deg": NaN,
+              "torso_pitch_deg": NaN,
+              "head_above_pelvis_m": NaN,
+              "knee_min_height_m": NaN,
+              "lwri_rel_pelvis_flm": [
+                NaN,
+                NaN,
+                NaN
+              ],
+              "rwri_rel_pelvis_flm": [
+                NaN,
+                NaN,
+                NaN
+              ]
+            },
+            "MOVE_11": {
+              "n": 7,
+              "pelvis_h_m": 0.8462,
+              "pelvis_h_min_m": 0.8243,
+              "pelvis_h_max_m": 0.898,
+              "pelvis_h_over_standing": NaN,
+              "stance_width_m": 0.3274,
+              "stance_width_over_h": NaN,
+              "stance_width_g1_m": 0.2428,
+              "stance_depth_m": 0.1823,
+              "stance_depth_over_h": NaN,
+              "stance_depth_g1_m": 0.1352,
+              "knee_flexion_deg": 154.6,
+              "torso_pitch_deg": 29.5,
+              "head_above_pelvis_m": 0.6108,
+              "knee_min_height_m": 0.4299,
+              "lwri_rel_pelvis_flm": [
+                0.387,
+                -0.198,
+                0.148
+              ],
+              "rwri_rel_pelvis_flm": [
+                0.17,
+                0.19,
+                0.013
+              ]
+            }
+          }
+        }
+      ]
+    },
+    "10": {
+      "n_takes": 7,
+      "takes": [
+        {
+          "chapter": 10,
+          "t0": 718.7666666666667,
+          "t1": 729.9,
+          "n_active": 92,
+          "dur_s": 11.133333333333326,
+          "mean_conf": 0.9749495800287445,
+          "fullbody_frac": 0.9580838323353293,
+          "mean_speed": 0.4973425452808421,
+          "mean_pelvis_h": 0.839183294709247,
+          "i0": 4837,
+          "i1": 4989,
+          "standing_pelvis_h_m": 1.4971,
+          "phases": [
+            {
+              "label": "VSTANCE",
+              "i0": 4837,
+              "i1": 4989,
+              "t0": 719.2666666666667,
+              "t1": 729.4,
+              "dur_s": 10.133
+            }
+          ],
+          "transitions": [],
+          "phase_metrics": {
+            "VSTANCE_0": {
+              "n": 153,
+              "pelvis_h_m": 0.8378,
+              "pelvis_h_min_m": 0.8062,
+              "pelvis_h_max_m": 0.871,
+              "pelvis_h_over_standing": 0.56,
+              "stance_width_m": 0.2741,
+              "stance_width_over_h": 0.183,
+              "stance_width_g1_m": 0.2032,
+              "stance_depth_m": 0.0744,
+              "stance_depth_over_h": 0.05,
+              "stance_depth_g1_m": 0.0551,
+              "knee_flexion_deg": 154.2,
+              "torso_pitch_deg": 28.3,
+              "head_above_pelvis_m": 0.6126,
+              "knee_min_height_m": 0.4045,
+              "lwri_rel_pelvis_flm": [
+                0.27,
+                -0.191,
+                0.09
+              ],
+              "rwri_rel_pelvis_flm": [
+                0.253,
+                0.268,
+                0.062
+              ]
+            }
+          }
+        },
+        {
+          "chapter": 10,
+          "t0": 732.5,
+          "t1": 749.8333333333334,
+          "n_active": 50,
+          "dur_s": 17.33333333333337,
+          "mean_conf": 0.9735,
+          "fullbody_frac": 0.978,
+          "mean_speed": 0.6489,
+          "mean_pelvis_h": 0.8378831066674508,
+          "i0": 5043,
+          "i1": 5288,
+          "merged": 2,
+          "standing_pelvis_h_m": 1.4736,
+          "phases": [
+            {
+              "label": "VSTANCE",
+              "i0": 5043,
+              "i1": 5204,
+              "t0": 733.0,
+              "t1": 743.7333333333333,
+              "dur_s": 10.733
+            },
+            {
+              "label": "CROUCH",
+              "i0": 5205,
+              "i1": 5211,
+              "t0": 743.8,
+              "t1": 744.2,
+              "dur_s": 0.4
+            },
+            {
+              "label": "VSTANCE",
+              "i0": 5212,
+              "i1": 5239,
+              "t0": 744.2666666666667,
+              "t1": 746.0666666666666,
+              "dur_s": 1.8
+            },
+            {
+              "label": "VSTANCE",
+              "i0": 5240,
+              "i1": 5247,
+              "t0": 746.1333333333333,
+              "t1": 746.6,
+              "dur_s": 0.467
+            },
+            {
+              "label": "VSTANCE",
+              "i0": 5248,
+              "i1": 5274,
+              "t0": 746.6666666666666,
+              "t1": 748.4,
+              "dur_s": 1.733
+            },
+            {
+              "label": "CROUCH",
+              "i0": 5275,
+              "i1": 5281,
+              "t0": 748.4666666666667,
+              "t1": 748.8666666666667,
+              "dur_s": 0.4
+            },
+            {
+              "label": "KNEE",
+              "i0": 5282,
+              "i1": 5288,
+              "t0": 748.9333333333334,
+              "t1": 749.3333333333334,
+              "dur_s": 0.4
+            }
+          ],
+          "transitions": [
+            {
+              "from": "VSTANCE",
+              "to": "CROUCH",
+              "t0": 743.733,
+              "t1": 743.8,
+              "dur_s": 0.067,
+              "d_pelvis_h_m": -0.1087,
+              "d_pelvis_h_g1_m": -0.0806
+            },
+            {
+              "from": "CROUCH",
+              "to": "VSTANCE",
+              "t0": 744.2,
+              "t1": 744.267,
+              "dur_s": 0.067,
+              "d_pelvis_h_m": 0.0947,
+              "d_pelvis_h_g1_m": 0.0702
+            },
+            {
+              "from": "VSTANCE",
+              "to": "VSTANCE",
+              "t0": 746.067,
+              "t1": 746.133,
+              "dur_s": 0.067,
+              "d_pelvis_h_m": 0.0263,
+              "d_pelvis_h_g1_m": 0.0195
+            },
+            {
+              "from": "VSTANCE",
+              "to": "VSTANCE",
+              "t0": 746.6,
+              "t1": 746.667,
+              "dur_s": 0.067,
+              "d_pelvis_h_m": -0.035,
+              "d_pelvis_h_g1_m": -0.026
+            },
+            {
+              "from": "VSTANCE",
+              "to": "CROUCH",
+              "t0": 748.4,
+              "t1": 748.467,
+              "dur_s": 0.067,
+              "d_pelvis_h_m": -0.1061,
+              "d_pelvis_h_g1_m": -0.0787
+            },
+            {
+              "from": "CROUCH",
+              "to": "KNEE",
+              "t0": 748.867,
+              "t1": 748.933,
+              "dur_s": 0.067,
+              "d_pelvis_h_m": -0.4312,
+              "d_pelvis_h_g1_m": -0.3198
+            }
+          ],
+          "phase_metrics": {
+            "VSTANCE_0": {
+              "n": 162,
+              "pelvis_h_m": 0.829,
+              "pelvis_h_min_m": 0.7436,
+              "pelvis_h_max_m": 0.8656,
+              "pelvis_h_over_standing": 0.563,
+              "stance_width_m": 0.2841,
+              "stance_width_over_h": 0.193,
+              "stance_width_g1_m": 0.2107,
+              "stance_depth_m": 0.0812,
+              "stance_depth_over_h": 0.055,
+              "stance_depth_g1_m": 0.0602,
+              "knee_flexion_deg": 154.0,
+              "torso_pitch_deg": 27.0,
+              "head_above_pelvis_m": 0.6081,
+              "knee_min_height_m": 0.4012,
+              "lwri_rel_pelvis_flm": [
+                0.331,
+                -0.163,
+                0.182
+              ],
+              "rwri_rel_pelvis_flm": [
+                0.294,
+                0.237,
+                0.137
+              ]
+            },
+            "CROUCH_1": {
+              "n": 7,
+              "pelvis_h_m": 0.7203,
+              "pelvis_h_min_m": 0.7051,
+              "pelvis_h_max_m": 0.7381,
+              "pelvis_h_over_standing": 0.489,
+              "stance_width_m": 0.4934,
+              "stance_width_over_h": 0.335,
+              "stance_width_g1_m": 0.3659,
+              "stance_depth_m": 0.0563,
+              "stance_depth_over_h": 0.038,
+              "stance_depth_g1_m": 0.0418,
+              "knee_flexion_deg": 112.1,
+              "torso_pitch_deg": 68.7,
+              "head_above_pelvis_m": 0.2307,
+              "knee_min_height_m": 0.4441,
+              "lwri_rel_pelvis_flm": [
+                0.454,
+                0.058,
+                -0.125
+              ],
+              "rwri_rel_pelvis_flm": [
+                0.455,
+                0.157,
+                -0.178
+              ]
+            },
+            "VSTANCE_2": {
+              "n": 28,
+              "pelvis_h_m": 0.815,
+              "pelvis_h_min_m": 0.7402,
+              "pelvis_h_max_m": 0.8907,
+              "pelvis_h_over_standing": 0.553,
+              "stance_width_m": 0.3741,
+              "stance_width_over_h": 0.254,
+              "stance_width_g1_m": 0.2774,
+              "stance_depth_m": 0.0494,
+              "stance_depth_over_h": 0.034,
+              "stance_depth_g1_m": 0.0366,
+              "knee_flexion_deg": 145.6,
+              "torso_pitch_deg": 63.2,
+              "head_above_pelvis_m": 0.2889,
+              "knee_min_height_m": 0.4242,
+              "lwri_rel_pelvis_flm": [
+                0.246,
+                -0.275,
+                0.0
+              ],
+              "rwri_rel_pelvis_flm": [
+                0.393,
+                0.155,
+                -0.098
+              ]
+            },
+            "VSTANCE_3": {
+              "n": 8,
+              "pelvis_h_m": 0.8413,
+              "pelvis_h_min_m": 0.7917,
+              "pelvis_h_max_m": 0.8741,
+              "pelvis_h_over_standing": 0.571,
+              "stance_width_m": 0.2783,
+              "stance_width_over_h": 0.189,
+              "stance_width_g1_m": 0.2064,
+              "stance_depth_m": 0.2191,
+              "stance_depth_over_h": 0.149,
+              "stance_depth_g1_m": 0.1625,
+              "knee_flexion_deg": 133.9,
+              "torso_pitch_deg": 81.3,
+              "head_above_pelvis_m": 0.0957,
+              "knee_min_height_m": 0.4397,
+              "lwri_rel_pelvis_flm": [
+                0.278,
+                -0.347,
+                -0.103
+              ],
+              "rwri_rel_pelvis_flm": [
+                0.379,
+                0.164,
+                -0.252
+              ]
+            },
+            "VSTANCE_4": {
+              "n": 27,
+              "pelvis_h_m": 0.8063,
+              "pelvis_h_min_m": 0.7637,
+              "pelvis_h_max_m": 0.8398,
+              "pelvis_h_over_standing": 0.547,
+              "stance_width_m": 0.4495,
+              "stance_width_over_h": 0.305,
+              "stance_width_g1_m": 0.3334,
+              "stance_depth_m": 0.2339,
+              "stance_depth_over_h": 0.159,
+              "stance_depth_g1_m": 0.1734,
+              "knee_flexion_deg": 132.7,
+              "torso_pitch_deg": 77.5,
+              "head_above_pelvis_m": 0.1326,
+              "knee_min_height_m": 0.4588,
+              "lwri_rel_pelvis_flm": [
+                0.203,
+                -0.391,
+                -0.037
+              ],
+              "rwri_rel_pelvis_flm": [
+                0.373,
+                0.047,
+                -0.142
+              ]
+            },
+            "CROUCH_5": {
+              "n": 7,
+              "pelvis_h_m": 0.7002,
+              "pelvis_h_min_m": 0.5317,
+              "pelvis_h_max_m": 0.7357,
+              "pelvis_h_over_standing": 0.475,
+              "stance_width_m": 0.3662,
+              "stance_width_over_h": 0.249,
+              "stance_width_g1_m": 0.2716,
+              "stance_depth_m": 0.2374,
+              "stance_depth_over_h": 0.161,
+              "stance_depth_g1_m": 0.1761,
+              "knee_flexion_deg": 118.5,
+              "torso_pitch_deg": 87.6,
+              "head_above_pelvis_m": 0.0259,
+              "knee_min_height_m": 0.3256,
+              "lwri_rel_pelvis_flm": [
+                0.469,
+                -0.204,
+                -0.4
+              ],
+              "rwri_rel_pelvis_flm": [
+                0.427,
+                0.244,
+                -0.175
+              ]
+            },
+            "KNEE_6": {
+              "n": 7,
+              "pelvis_h_m": 0.269,
+              "pelvis_h_min_m": 0.1197,
+              "pelvis_h_max_m": 0.327,
+              "pelvis_h_over_standing": 0.183,
+              "stance_width_m": 0.2867,
+              "stance_width_over_h": 0.195,
+              "stance_width_g1_m": 0.2126,
+              "stance_depth_m": 0.2294,
+              "stance_depth_over_h": 0.156,
+              "stance_depth_g1_m": 0.1701,
+              "knee_flexion_deg": 111.2,
+              "torso_pitch_deg": 92.0,
+              "head_above_pelvis_m": -0.018,
+              "knee_min_height_m": -0.1032,
+              "lwri_rel_pelvis_flm": [
+                0.378,
+                -0.129,
+                -0.232
+              ],
+              "rwri_rel_pelvis_flm": [
+                0.433,
+                0.229,
+                -0.331
+              ]
+            }
+          }
+        },
+        {
+          "chapter": 10,
+          "t0": 661.5,
+          "t1": 685.7,
+          "n_active": 252,
+          "dur_s": 24.200000000000045,
+          "mean_conf": 0.9678202144215616,
+          "fullbody_frac": 0.9803370786516854,
+          "mean_speed": 0.6461633637325535,
+          "mean_pelvis_h": 0.7961111361878958,
+          "i0": 3978,
+          "i1": 4326,
+          "standing_pelvis_h_m": 1.493,
+          "phases": [
+            {
+              "label": "VSTANCE",
+              "i0": 3978,
+              "i1": 4198,
+              "t0": 662.0,
+              "t1": 676.6666666666666,
+              "dur_s": 14.667
+            },
+            {
+              "label": "VSTANCE",
+              "i0": 4199,
+              "i1": 4212,
+              "t0": 676.7333333333333,
+              "t1": 677.6,
+              "dur_s": 0.867
+            },
+            {
+              "label": "VSTANCE",
+              "i0": 4213,
+              "i1": 4292,
+              "t0": 677.6666666666666,
+              "t1": 682.9333333333333,
+              "dur_s": 5.267
+            },
+            {
+              "label": "VSTANCE",
+              "i0": 4293,
+              "i1": 4304,
+              "t0": 683.0,
+              "t1": 683.7333333333333,
+              "dur_s": 0.733
+            },
+            {
+              "label": "CROUCH",
+              "i0": 4305,
+              "i1": 4310,
+              "t0": 683.8,
+              "t1": 684.1333333333333,
+              "dur_s": 0.333
+            },
+            {
+              "label": "KNEE",
+              "i0": 4311,
+              "i1": 4326,
+              "t0": 684.2,
+              "t1": 685.2,
+              "dur_s": 1.0
+            }
+          ],
+          "transitions": [
+            {
+              "from": "VSTANCE",
+              "to": "VSTANCE",
+              "t0": 676.667,
+              "t1": 676.733,
+              "dur_s": 0.067,
+              "d_pelvis_h_m": -0.0572,
+              "d_pelvis_h_g1_m": -0.0424
+            },
+            {
+              "from": "VSTANCE",
+              "to": "VSTANCE",
+              "t0": 677.6,
+              "t1": 677.667,
+              "dur_s": 0.067,
+              "d_pelvis_h_m": 0.0599,
+              "d_pelvis_h_g1_m": 0.0444
+            },
+            {
+              "from": "VSTANCE",
+              "to": "VSTANCE",
+              "t0": 682.933,
+              "t1": 683.0,
+              "dur_s": 0.067,
+              "d_pelvis_h_m": -0.0497,
+              "d_pelvis_h_g1_m": -0.0369
+            },
+            {
+              "from": "VSTANCE",
+              "to": "CROUCH",
+              "t0": 683.733,
+              "t1": 683.8,
+              "dur_s": 0.067,
+              "d_pelvis_h_m": -0.1082,
+              "d_pelvis_h_g1_m": -0.0802
+            },
+            {
+              "from": "CROUCH",
+              "to": "KNEE",
+              "t0": 684.133,
+              "t1": 684.2,
+              "dur_s": 0.067,
+              "d_pelvis_h_m": -0.3043,
+              "d_pelvis_h_g1_m": -0.2257
+            }
+          ],
+          "phase_metrics": {
+            "VSTANCE_0": {
+              "n": 221,
+              "pelvis_h_m": 0.8332,
+              "pelvis_h_min_m": 0.7881,
+              "pelvis_h_max_m": 0.8931,
+              "pelvis_h_over_standing": 0.558,
+              "stance_width_m": 0.2999,
+              "stance_width_over_h": 0.201,
+              "stance_width_g1_m": 0.2224,
+              "stance_depth_m": 0.0901,
+              "stance_depth_over_h": 0.06,
+              "stance_depth_g1_m": 0.0668,
+              "knee_flexion_deg": 154.0,
+              "torso_pitch_deg": 25.8,
+              "head_above_pelvis_m": 0.6221,
+              "knee_min_height_m": 0.4072,
+              "lwri_rel_pelvis_flm": [
+                0.254,
+                -0.194,
+                0.057
+              ],
+              "rwri_rel_pelvis_flm": [
+                0.253,
+                0.249,
+                0.073
+              ]
+            },
+            "VSTANCE_1": {
+              "n": 14,
+              "pelvis_h_m": 0.776,
+              "pelvis_h_min_m": 0.767,
+              "pelvis_h_max_m": 0.8292,
+              "pelvis_h_over_standing": 0.52,
+              "stance_width_m": 0.503,
+              "stance_width_over_h": 0.337,
+              "stance_width_g1_m": 0.373,
+              "stance_depth_m": 0.0289,
+              "stance_depth_over_h": 0.019,
+              "stance_depth_g1_m": 0.0214,
+              "knee_flexion_deg": 130.9,
+              "torso_pitch_deg": 65.5,
+              "head_above_pelvis_m": 0.2744,
+              "knee_min_height_m": 0.3965,
+              "lwri_rel_pelvis_flm": [
+                0.463,
+                -0.003,
+                -0.095
+              ],
+              "rwri_rel_pelvis_flm": [
+                0.333,
+                0.183,
+                -0.204
+              ]
+            },
+            "VSTANCE_2": {
+              "n": 80,
+              "pelvis_h_m": 0.8359,
+              "pelvis_h_min_m": 0.6612,
+              "pelvis_h_max_m": 0.8796,
+              "pelvis_h_over_standing": 0.56,
+              "stance_width_m": 0.4816,
+              "stance_width_over_h": 0.323,
+              "stance_width_g1_m": 0.3571,
+              "stance_depth_m": 0.0848,
+              "stance_depth_over_h": 0.057,
+              "stance_depth_g1_m": 0.0629,
+              "knee_flexion_deg": 150.1,
+              "torso_pitch_deg": 57.6,
+              "head_above_pelvis_m": 0.3545,
+              "knee_min_height_m": 0.3892,
+              "lwri_rel_pelvis_flm": [
+                0.394,
+                -0.103,
+                -0.033
+              ],
+              "rwri_rel_pelvis_flm": [
+                0.307,
+                0.125,
+                -0.159
+              ]
+            },
+            "VSTANCE_3": {
+              "n": 12,
+              "pelvis_h_m": 0.7862,
+              "pelvis_h_min_m": 0.7632,
+              "pelvis_h_max_m": 0.8086,
+              "pelvis_h_over_standing": 0.527,
+              "stance_width_m": 0.5456,
+              "stance_width_over_h": 0.365,
+              "stance_width_g1_m": 0.4046,
+              "stance_depth_m": 0.2978,
+              "stance_depth_over_h": 0.199,
+              "stance_depth_g1_m": 0.2208,
+              "knee_flexion_deg": 135.5,
+              "torso_pitch_deg": 71.3,
+              "head_above_pelvis_m": 0.2075,
+              "knee_min_height_m": 0.4059,
+              "lwri_rel_pelvis_flm": [
+                0.341,
+                -0.005,
+                -0.076
+              ],
+              "rwri_rel_pelvis_flm": [
+                0.383,
+                0.268,
+                -0.072
+              ]
+            },
+            "CROUCH_4": {
+              "n": 6,
+              "pelvis_h_m": 0.678,
+              "pelvis_h_min_m": 0.5827,
+              "pelvis_h_max_m": 0.7432,
+              "pelvis_h_over_standing": 0.454,
+              "stance_width_m": 0.6535,
+              "stance_width_over_h": 0.438,
+              "stance_width_g1_m": 0.4846,
+              "stance_depth_m": 0.232,
+              "stance_depth_over_h": 0.155,
+              "stance_depth_g1_m": 0.172,
+              "knee_flexion_deg": 118.7,
+              "torso_pitch_deg": 76.0,
+              "head_above_pelvis_m": 0.1498,
+              "knee_min_height_m": 0.3101,
+              "lwri_rel_pelvis_flm": [
+                0.456,
+                0.001,
+                -0.153
+              ],
+              "rwri_rel_pelvis_flm": [
+                0.528,
+                0.312,
+                -0.083
+              ]
+            },
+            "KNEE_5": {
+              "n": 16,
+              "pelvis_h_m": 0.3737,
+              "pelvis_h_min_m": 0.245,
+              "pelvis_h_max_m": 0.4432,
+              "pelvis_h_over_standing": 0.25,
+              "stance_width_m": 0.4949,
+              "stance_width_over_h": 0.331,
+              "stance_width_g1_m": 0.367,
+              "stance_depth_m": 0.0455,
+              "stance_depth_over_h": 0.03,
+              "stance_depth_g1_m": 0.0337,
+              "knee_flexion_deg": 71.0,
+              "torso_pitch_deg": 83.1,
+              "head_above_pelvis_m": 0.0712,
+              "knee_min_height_m": -0.1621,
+              "lwri_rel_pelvis_flm": [
+                0.543,
+                -0.183,
+                -0.325
+              ],
+              "rwri_rel_pelvis_flm": [
+                0.422,
+                0.221,
+                -0.262
+              ]
+            }
+          }
+        },
+        {
+          "chapter": 10,
+          "t0": 800.5666666666666,
+          "t1": 823.9666666666667,
+          "n_active": 244,
+          "dur_s": 23.40000000000009,
+          "mean_conf": 0.9654596849363677,
+          "fullbody_frac": 0.9767441860465116,
+          "mean_speed": 1.2002265996923687,
+          "mean_pelvis_h": 0.8089602104537553,
+          "i0": 6064,
+          "i1": 6400,
+          "standing_pelvis_h_m": NaN,
+          "phases": [
+            {
+              "label": "MOVE",
+              "i0": 6064,
+              "i1": 6068,
+              "t0": 801.0666666666666,
+              "t1": 801.3333333333334,
+              "dur_s": 0.267
+            },
+            {
+              "label": "MOVE",
+              "i0": 6069,
+              "i1": 6103,
+              "t0": 801.4,
+              "t1": 803.6666666666666,
+              "dur_s": 2.267
+            },
+            {
+              "label": "MOVE",
+              "i0": 6104,
+              "i1": 6400,
+              "t0": 803.7333333333333,
+              "t1": 823.4666666666667,
+              "dur_s": 19.733
+            }
+          ],
+          "transitions": [
+            {
+              "from": "MOVE",
+              "to": "MOVE",
+              "t0": 801.333,
+              "t1": 801.4,
+              "dur_s": 0.067,
+              "d_pelvis_h_m": NaN,
+              "d_pelvis_h_g1_m": NaN
+            },
+            {
+              "from": "MOVE",
+              "to": "MOVE",
+              "t0": 803.667,
+              "t1": 803.733,
+              "dur_s": 0.067,
+              "d_pelvis_h_m": NaN,
+              "d_pelvis_h_g1_m": NaN
+            }
+          ],
+          "phase_metrics": {
+            "MOVE_0": {
+              "n": 5,
+              "pelvis_h_m": 0.4406,
+              "pelvis_h_min_m": 0.3672,
+              "pelvis_h_max_m": 0.499,
+              "pelvis_h_over_standing": NaN,
+              "stance_width_m": 0.3386,
+              "stance_width_over_h": NaN,
+              "stance_width_g1_m": 0.2511,
+              "stance_depth_m": 0.1237,
+              "stance_depth_over_h": NaN,
+              "stance_depth_g1_m": 0.0918,
+              "knee_flexion_deg": 139.8,
+              "torso_pitch_deg": 102.3,
+              "head_above_pelvis_m": -0.1439,
+              "knee_min_height_m": 0.0059,
+              "lwri_rel_pelvis_flm": [
+                0.462,
+                -0.117,
+                -0.379
+              ],
+              "rwri_rel_pelvis_flm": [
+                0.344,
+                0.341,
+                -0.501
+              ]
+            },
+            "MOVE_1": {
+              "n": 35,
+              "pelvis_h_m": NaN,
+              "pelvis_h_min_m": NaN,
+              "pelvis_h_max_m": NaN,
+              "pelvis_h_over_standing": NaN,
+              "stance_width_m": NaN,
+              "stance_width_over_h": NaN,
+              "stance_width_g1_m": NaN,
+              "stance_depth_m": NaN,
+              "stance_depth_over_h": NaN,
+              "stance_depth_g1_m": NaN,
+              "knee_flexion_deg": NaN,
+              "torso_pitch_deg": NaN,
+              "head_above_pelvis_m": NaN,
+              "knee_min_height_m": NaN,
+              "lwri_rel_pelvis_flm": [
+                NaN,
+                NaN,
+                NaN
+              ],
+              "rwri_rel_pelvis_flm": [
+                NaN,
+                NaN,
+                NaN
+              ]
+            },
+            "MOVE_2": {
+              "n": 297,
+              "pelvis_h_m": 0.8405,
+              "pelvis_h_min_m": 0.7905,
+              "pelvis_h_max_m": 0.8749,
+              "pelvis_h_over_standing": NaN,
+              "stance_width_m": 0.1936,
+              "stance_width_over_h": NaN,
+              "stance_width_g1_m": 0.1435,
+              "stance_depth_m": 0.1237,
+              "stance_depth_over_h": NaN,
+              "stance_depth_g1_m": 0.0917,
+              "knee_flexion_deg": 151.7,
+              "torso_pitch_deg": 26.5,
+              "head_above_pelvis_m": 0.6212,
+              "knee_min_height_m": 0.4137,
+              "lwri_rel_pelvis_flm": [
+                0.209,
+                -0.216,
+                0.046
+              ],
+              "rwri_rel_pelvis_flm": [
+                0.181,
+                0.246,
+                0.032
+              ]
+            }
+          }
+        },
+        {
+          "chapter": 10,
+          "t0": 766.1,
+          "t1": 771.0333333333333,
+          "n_active": 57,
+          "dur_s": 4.93333333333328,
+          "mean_conf": 0.931810844588924,
+          "fullbody_frac": 0.8108108108108109,
+          "mean_speed": 1.5558690314547763,
+          "mean_pelvis_h": 0.7182642348301723,
+          "i0": 5547,
+          "i1": 5606,
+          "standing_pelvis_h_m": 1.3029,
+          "phases": [
+            {
+              "label": "VSTANCE",
+              "i0": 5547,
+              "i1": 5550,
+              "t0": 766.6,
+              "t1": 766.8,
+              "dur_s": 0.2
+            },
+            {
+              "label": "VSTANCE",
+              "i0": 5551,
+              "i1": 5594,
+              "t0": 766.8666666666667,
+              "t1": 769.7333333333333,
+              "dur_s": 2.867
+            },
+            {
+              "label": "CROUCH",
+              "i0": 5595,
+              "i1": 5600,
+              "t0": 769.8,
+              "t1": 770.1333333333333,
+              "dur_s": 0.333
+            },
+            {
+              "label": "KNEE",
+              "i0": 5601,
+              "i1": 5606,
+              "t0": 770.2,
+              "t1": 770.5333333333333,
+              "dur_s": 0.333
+            }
+          ],
+          "transitions": [
+            {
+              "from": "VSTANCE",
+              "to": "VSTANCE",
+              "t0": 766.8,
+              "t1": 766.867,
+              "dur_s": 0.067,
+              "d_pelvis_h_m": -0.0859,
+              "d_pelvis_h_g1_m": -0.0637
+            },
+            {
+              "from": "VSTANCE",
+              "to": "CROUCH",
+              "t0": 769.733,
+              "t1": 769.8,
+              "dur_s": 0.067,
+              "d_pelvis_h_m": -0.1284,
+              "d_pelvis_h_g1_m": -0.0952
+            },
+            {
+              "from": "CROUCH",
+              "to": "KNEE",
+              "t0": 770.133,
+              "t1": 770.2,
+              "dur_s": 0.067,
+              "d_pelvis_h_m": -0.4067,
+              "d_pelvis_h_g1_m": -0.3016
+            }
+          ],
+          "phase_metrics": {
+            "VSTANCE_0": {
+              "n": 4,
+              "pelvis_h_m": 0.9061,
+              "pelvis_h_min_m": 0.8341,
+              "pelvis_h_max_m": 0.9642,
+              "pelvis_h_over_standing": 0.695,
+              "stance_width_m": 0.3477,
+              "stance_width_over_h": 0.267,
+              "stance_width_g1_m": 0.2578,
+              "stance_depth_m": 0.0355,
+              "stance_depth_over_h": 0.027,
+              "stance_depth_g1_m": 0.0263,
+              "knee_flexion_deg": 148.4,
+              "torso_pitch_deg": 55.0,
+              "head_above_pelvis_m": 0.3823,
+              "knee_min_height_m": 0.4411,
+              "lwri_rel_pelvis_flm": [
+                0.303,
+                -0.188,
+                -0.041
+              ],
+              "rwri_rel_pelvis_flm": [
+                0.235,
+                0.198,
+                -0.077
+              ]
+            },
+            "VSTANCE_1": {
+              "n": 44,
+              "pelvis_h_m": 0.8202,
+              "pelvis_h_min_m": 0.7373,
+              "pelvis_h_max_m": 0.8576,
+              "pelvis_h_over_standing": 0.629,
+              "stance_width_m": 0.5922,
+              "stance_width_over_h": 0.455,
+              "stance_width_g1_m": 0.4392,
+              "stance_depth_m": 0.0464,
+              "stance_depth_over_h": 0.036,
+              "stance_depth_g1_m": 0.0344,
+              "knee_flexion_deg": 140.6,
+              "torso_pitch_deg": 63.0,
+              "head_above_pelvis_m": 0.3047,
+              "knee_min_height_m": 0.407,
+              "lwri_rel_pelvis_flm": [
+                0.353,
+                -0.196,
+                -0.092
+              ],
+              "rwri_rel_pelvis_flm": [
+                0.318,
+                0.193,
+                -0.154
+              ]
+            },
+            "CROUCH_2": {
+              "n": 6,
+              "pelvis_h_m": 0.6918,
+              "pelvis_h_min_m": 0.6609,
+              "pelvis_h_max_m": 0.7304,
+              "pelvis_h_over_standing": 0.531,
+              "stance_width_m": 0.7404,
+              "stance_width_over_h": 0.568,
+              "stance_width_g1_m": 0.549,
+              "stance_depth_m": 0.1845,
+              "stance_depth_over_h": 0.142,
+              "stance_depth_g1_m": 0.1368,
+              "knee_flexion_deg": 129.8,
+              "torso_pitch_deg": 93.8,
+              "head_above_pelvis_m": -0.0463,
+              "knee_min_height_m": 0.3197,
+              "lwri_rel_pelvis_flm": [
+                0.445,
+                -0.281,
+                -0.268
+              ],
+              "rwri_rel_pelvis_flm": [
+                0.494,
+                0.271,
+                -0.498
+              ]
+            },
+            "KNEE_3": {
+              "n": 6,
+              "pelvis_h_m": 0.2851,
+              "pelvis_h_min_m": 0.1822,
+              "pelvis_h_max_m": 0.467,
+              "pelvis_h_over_standing": 0.219,
+              "stance_width_m": 0.5718,
+              "stance_width_over_h": 0.439,
+              "stance_width_g1_m": 0.424,
+              "stance_depth_m": 0.08,
+              "stance_depth_over_h": 0.061,
+              "stance_depth_g1_m": 0.0593,
+              "knee_flexion_deg": 123.1,
+              "torso_pitch_deg": 81.2,
+              "head_above_pelvis_m": 0.0814,
+              "knee_min_height_m": -0.0667,
+              "lwri_rel_pelvis_flm": [
+                0.475,
+                -0.408,
+                -0.266
+              ],
+              "rwri_rel_pelvis_flm": [
+                0.431,
+                0.188,
+                -0.253
+              ]
+            }
+          }
+        },
+        {
+          "chapter": 10,
+          "t0": 691.3666666666667,
+          "t1": 703.5,
+          "n_active": 121,
+          "dur_s": 12.133333333333326,
+          "mean_conf": 0.9293018520207695,
+          "fullbody_frac": 0.7747252747252747,
+          "mean_speed": 1.8912092088390011,
+          "mean_pelvis_h": 0.6361867595919477,
+          "i0": 4426,
+          "i1": 4593,
+          "standing_pelvis_h_m": NaN,
+          "phases": [
+            {
+              "label": "KNEE",
+              "i0": 4426,
+              "i1": 4447,
+              "t0": 691.8666666666667,
+              "t1": 693.2666666666667,
+              "dur_s": 1.4
+            },
+            {
+              "label": "MOVE",
+              "i0": 4448,
+              "i1": 4464,
+              "t0": 693.3333333333334,
+              "t1": 694.4,
+              "dur_s": 1.067
+            },
+            {
+              "label": "MOVE",
+              "i0": 4465,
+              "i1": 4483,
+              "t0": 694.4666666666667,
+              "t1": 695.6666666666666,
+              "dur_s": 1.2
+            },
+            {
+              "label": "MOVE",
+              "i0": 4484,
+              "i1": 4585,
+              "t0": 695.7333333333333,
+              "t1": 702.4666666666667,
+              "dur_s": 6.733
+            },
+            {
+              "label": "KNEE",
+              "i0": 4586,
+              "i1": 4593,
+              "t0": 702.5333333333333,
+              "t1": 703.0,
+              "dur_s": 0.467
+            }
+          ],
+          "transitions": [
+            {
+              "from": "KNEE",
+              "to": "MOVE",
+              "t0": 693.267,
+              "t1": 693.333,
+              "dur_s": 0.067,
+              "d_pelvis_h_m": 0.4481,
+              "d_pelvis_h_g1_m": 0.3323
+            },
+            {
+              "from": "MOVE",
+              "to": "MOVE",
+              "t0": 694.4,
+              "t1": 694.467,
+              "dur_s": 0.067,
+              "d_pelvis_h_m": NaN,
+              "d_pelvis_h_g1_m": NaN
+            },
+            {
+              "from": "MOVE",
+              "to": "MOVE",
+              "t0": 695.667,
+              "t1": 695.733,
+              "dur_s": 0.067,
+              "d_pelvis_h_m": NaN,
+              "d_pelvis_h_g1_m": NaN
+            },
+            {
+              "from": "MOVE",
+              "to": "KNEE",
+              "t0": 702.467,
+              "t1": 702.533,
+              "dur_s": 0.067,
+              "d_pelvis_h_m": -0.5181,
+              "d_pelvis_h_g1_m": -0.3842
+            }
+          ],
+          "phase_metrics": {
+            "KNEE_0": {
+              "n": 22,
+              "pelvis_h_m": 0.2877,
+              "pelvis_h_min_m": 0.2492,
+              "pelvis_h_max_m": 0.5266,
+              "pelvis_h_over_standing": NaN,
+              "stance_width_m": 0.3615,
+              "stance_width_over_h": NaN,
+              "stance_width_g1_m": 0.2681,
+              "stance_depth_m": 0.0279,
+              "stance_depth_over_h": NaN,
+              "stance_depth_g1_m": 0.0207,
+              "knee_flexion_deg": 68.8,
+              "torso_pitch_deg": 78.7,
+              "head_above_pelvis_m": 0.1294,
+              "knee_min_height_m": -0.131,
+              "lwri_rel_pelvis_flm": [
+                0.532,
+                -0.176,
+                -0.335
+              ],
+              "rwri_rel_pelvis_flm": [
+                0.444,
+                0.185,
+                -0.294
+              ]
+            },
+            "MOVE_1": {
+              "n": 17,
+              "pelvis_h_m": 0.7358,
+              "pelvis_h_min_m": 0.1835,
+              "pelvis_h_max_m": 0.8062,
+              "pelvis_h_over_standing": NaN,
+              "stance_width_m": 0.2415,
+              "stance_width_over_h": NaN,
+              "stance_width_g1_m": 0.1791,
+              "stance_depth_m": 0.1827,
+              "stance_depth_over_h": NaN,
+              "stance_depth_g1_m": 0.1355,
+              "knee_flexion_deg": 151.1,
+              "torso_pitch_deg": 98.9,
+              "head_above_pelvis_m": -0.0861,
+              "knee_min_height_m": 0.1596,
+              "lwri_rel_pelvis_flm": [
+                0.324,
+                -0.16,
+                -0.508
+              ],
+              "rwri_rel_pelvis_flm": [
+                0.38,
+                0.078,
+                -0.428
+              ]
+            },
+            "MOVE_2": {
+              "n": 19,
+              "pelvis_h_m": NaN,
+              "pelvis_h_min_m": NaN,
+              "pelvis_h_max_m": NaN,
+              "pelvis_h_over_standing": NaN,
+              "stance_width_m": NaN,
+              "stance_width_over_h": NaN,
+              "stance_width_g1_m": NaN,
+              "stance_depth_m": NaN,
+              "stance_depth_over_h": NaN,
+              "stance_depth_g1_m": NaN,
+              "knee_flexion_deg": NaN,
+              "torso_pitch_deg": NaN,
+              "head_above_pelvis_m": NaN,
+              "knee_min_height_m": NaN,
+              "lwri_rel_pelvis_flm": [
+                NaN,
+                NaN,
+                NaN
+              ],
+              "rwri_rel_pelvis_flm": [
+                NaN,
+                NaN,
+                NaN
+              ]
+            },
+            "MOVE_3": {
+              "n": 102,
+              "pelvis_h_m": 0.8102,
+              "pelvis_h_min_m": 0.5239,
+              "pelvis_h_max_m": 0.8899,
+              "pelvis_h_over_standing": NaN,
+              "stance_width_m": 0.477,
+              "stance_width_over_h": NaN,
+              "stance_width_g1_m": 0.3537,
+              "stance_depth_m": 0.0813,
+              "stance_depth_over_h": NaN,
+              "stance_depth_g1_m": 0.0603,
+              "knee_flexion_deg": 142.3,
+              "torso_pitch_deg": 65.1,
+              "head_above_pelvis_m": 0.2738,
+              "knee_min_height_m": 0.2783,
+              "lwri_rel_pelvis_flm": [
+                0.467,
+                -0.115,
+                -0.023
+              ],
+              "rwri_rel_pelvis_flm": [
+                0.369,
+                0.241,
+                -0.118
+              ]
+            },
+            "KNEE_4": {
+              "n": 8,
+              "pelvis_h_m": 0.2921,
+              "pelvis_h_min_m": 0.1802,
+              "pelvis_h_max_m": 0.3906,
+              "pelvis_h_over_standing": NaN,
+              "stance_width_m": 0.3747,
+              "stance_width_over_h": NaN,
+              "stance_width_g1_m": 0.2779,
+              "stance_depth_m": 0.0349,
+              "stance_depth_over_h": NaN,
+              "stance_depth_g1_m": 0.0259,
+              "knee_flexion_deg": 95.9,
+              "torso_pitch_deg": 76.2,
+              "head_above_pelvis_m": 0.1559,
+              "knee_min_height_m": -0.1665,
+              "lwri_rel_pelvis_flm": [
+                0.361,
+                -0.233,
+                -0.295
+              ],
+              "rwri_rel_pelvis_flm": [
+                0.329,
+                0.086,
+                -0.268
+              ]
+            }
+          }
+        },
+        {
+          "chapter": 10,
+          "t0": 705.1,
+          "t1": 710.5666666666666,
+          "n_active": 46,
+          "dur_s": 5.466666666666583,
+          "mean_conf": 0.869355066322986,
+          "fullbody_frac": 0.573170731707317,
+          "mean_speed": 2.759358676097434,
+          "mean_pelvis_h": 0.7174597698819677,
+          "i0": 4632,
+          "i1": 4699,
+          "standing_pelvis_h_m": NaN,
+          "phases": [
+            {
+              "label": "MOVE",
+              "i0": 4632,
+              "i1": 4648,
+              "t0": 705.6,
+              "t1": 706.6666666666666,
+              "dur_s": 1.067
+            },
+            {
+              "label": "KNEE",
+              "i0": 4649,
+              "i1": 4654,
+              "t0": 706.7333333333333,
+              "t1": 707.0666666666666,
+              "dur_s": 0.333
+            },
+            {
+              "label": "MOVE",
+              "i0": 4655,
+              "i1": 4682,
+              "t0": 707.1333333333333,
+              "t1": 708.9333333333333,
+              "dur_s": 1.8
+            },
+            {
+              "label": "MOVE",
+              "i0": 4683,
+              "i1": 4699,
+              "t0": 709.0,
+              "t1": 710.0666666666666,
+              "dur_s": 1.067
+            }
+          ],
+          "transitions": [
+            {
+              "from": "MOVE",
+              "to": "KNEE",
+              "t0": 706.667,
+              "t1": 706.733,
+              "dur_s": 0.067,
+              "d_pelvis_h_m": -0.3398,
+              "d_pelvis_h_g1_m": -0.252
+            },
+            {
+              "from": "KNEE",
+              "to": "MOVE",
+              "t0": 707.067,
+              "t1": 707.133,
+              "dur_s": 0.067,
+              "d_pelvis_h_m": NaN,
+              "d_pelvis_h_g1_m": NaN
+            },
+            {
+              "from": "MOVE",
+              "to": "MOVE",
+              "t0": 708.933,
+              "t1": 709.0,
+              "dur_s": 0.067,
+              "d_pelvis_h_m": NaN,
+              "d_pelvis_h_g1_m": NaN
+            }
+          ],
+          "phase_metrics": {
+            "MOVE_0": {
+              "n": 17,
+              "pelvis_h_m": 0.8139,
+              "pelvis_h_min_m": 0.5004,
+              "pelvis_h_max_m": 0.8407,
+              "pelvis_h_over_standing": NaN,
+              "stance_width_m": 0.5101,
+              "stance_width_over_h": NaN,
+              "stance_width_g1_m": 0.3783,
+              "stance_depth_m": 0.0897,
+              "stance_depth_over_h": NaN,
+              "stance_depth_g1_m": 0.0665,
+              "knee_flexion_deg": 138.2,
+              "torso_pitch_deg": 61.4,
+              "head_above_pelvis_m": 0.3206,
+              "knee_min_height_m": 0.2255,
+              "lwri_rel_pelvis_flm": [
+                0.134,
+                -0.205,
+                -0.011
+              ],
+              "rwri_rel_pelvis_flm": [
+                0.321,
+                0.201,
+                -0.14
+              ]
+            },
+            "KNEE_1": {
+              "n": 6,
+              "pelvis_h_m": 0.4741,
+              "pelvis_h_min_m": 0.3999,
+              "pelvis_h_max_m": 0.5046,
+              "pelvis_h_over_standing": NaN,
+              "stance_width_m": 0.3173,
+              "stance_width_over_h": NaN,
+              "stance_width_g1_m": 0.2353,
+              "stance_depth_m": 0.1533,
+              "stance_depth_over_h": NaN,
+              "stance_depth_g1_m": 0.1137,
+              "knee_flexion_deg": 94.2,
+              "torso_pitch_deg": 67.8,
+              "head_above_pelvis_m": 0.2278,
+              "knee_min_height_m": 0.0601,
+              "lwri_rel_pelvis_flm": [
+                0.248,
+                -0.234,
+                -0.231
+              ],
+              "rwri_rel_pelvis_flm": [
+                0.323,
+                0.099,
+                -0.328
+              ]
+            },
+            "MOVE_2": {
+              "n": 28,
+              "pelvis_h_m": NaN,
+              "pelvis_h_min_m": NaN,
+              "pelvis_h_max_m": NaN,
+              "pelvis_h_over_standing": NaN,
+              "stance_width_m": NaN,
+              "stance_width_over_h": NaN,
+              "stance_width_g1_m": NaN,
+              "stance_depth_m": NaN,
+              "stance_depth_over_h": NaN,
+              "stance_depth_g1_m": NaN,
+              "knee_flexion_deg": NaN,
+              "torso_pitch_deg": NaN,
+              "head_above_pelvis_m": NaN,
+              "knee_min_height_m": NaN,
+              "lwri_rel_pelvis_flm": [
+                NaN,
+                NaN,
+                NaN
+              ],
+              "rwri_rel_pelvis_flm": [
+                NaN,
+                NaN,
+                NaN
+              ]
+            },
+            "MOVE_3": {
+              "n": 17,
+              "pelvis_h_m": 0.7269,
+              "pelvis_h_min_m": 0.6397,
+              "pelvis_h_max_m": 0.9281,
+              "pelvis_h_over_standing": NaN,
+              "stance_width_m": 0.3561,
+              "stance_width_over_h": NaN,
+              "stance_width_g1_m": 0.2641,
+              "stance_depth_m": 0.1338,
+              "stance_depth_over_h": NaN,
+              "stance_depth_g1_m": 0.0992,
+              "knee_flexion_deg": 142.1,
+              "torso_pitch_deg": 87.6,
+              "head_above_pelvis_m": 0.0294,
+              "knee_min_height_m": 0.3032,
+              "lwri_rel_pelvis_flm": [
+                0.202,
+                -0.155,
+                -0.243
+              ],
+              "rwri_rel_pelvis_flm": [
+                0.091,
+                0.119,
+                -0.267
+              ]
+            }
+          }
+        }
+      ]
+    }
+  }
+}

@@ -1,0 +1,28 @@
+[
+  {
+    "name": "STANCE",
+    "dur_s": 2.34,
+    "pelvis_z_min": 0.806,
+    "pelvis_z_max": 0.807,
+    "pelvis_z_end": 0.806,
+    "width_med": 0.263,
+    "width_max": 0.263,
+    "depth_med": 0.15,
+    "depth_max": 0.15,
+    "knee_min": 0.36,
+    "knee_at_end": 0.36
+  },
+  {
+    "name": "DOUBLE_LEG",
+    "dur_s": 3.08,
+    "pelvis_z_min": 0.333,
+    "pelvis_z_max": 0.754,
+    "pelvis_z_end": 0.333,
+    "width_med": 0.312,
+    "width_max": 0.438,
+    "depth_med": 0.203,
+    "depth_max": 0.585,
+    "knee_min": 0.064,
+    "knee_at_end": 0.064
+  }
+]
