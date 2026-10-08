@@ -19,3 +19,7 @@ data/datasets/
 # Scratch
 /tmp/
 *.log
+
+# Agent/harness session state + MuJoCo runtime logs (never commit)
+.omo/
+MUJOCO_LOG.TXT
