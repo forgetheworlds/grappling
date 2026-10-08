@@ -158,7 +158,15 @@ class FeasibleDrill:
         self.entry_tol = 0.008
         self._entry_done_t = 0.0
         self._emergency_cooldown = 0.0
-        self.step_centre_tol = 0.030      # CoM must be near the mid-foot before a new step
+        #: CoM must be near the mid-foot before a new step (m).  The default is
+        #: the shipped 0.03; the motion study raises it to chain steps without a
+        #: full recentre (measured: the recentre is the slowest phase of a step).
+        self.step_centre_tol = float(self.step_params.centre_tol)
+        #: drill-programme hook: force the stepping foot (a one-foot tap drill
+        #: keeps the weight over one planted foot, which removes the lateral
+        #: base crossing that dominates the wide-stance step cost).  None =
+        #: alternate as usual.
+        self.step_side_override: str | None = None
         self.nominal_now = self.nominal_xy.copy()
 
     # -- interface ---------------------------------------------------------
@@ -188,7 +196,8 @@ class FeasibleDrill:
         self.com_local = com_ref - np.asarray(self.plan.base_xyz[:2], float)
         dq, info = self.law.offsets(data, self.plan, com_ref,
                                     roll_sides=self.stepper.roll_authority(),
-                                    k_roll_scale=2.0 if self.stepper.busy() else 1.0)
+                                    k_roll_scale=2.0 if self.stepper.busy() else 1.0,
+                                    k_up_scale=self._upright_scale())
         if self.law.info["alpha"] > 0.0 and not self.stepper.busy():
             # last resort, and only with both feet down: blend the reference
             # toward the built stance.  Blending while a foot swings would drag
@@ -293,6 +302,18 @@ class FeasibleDrill:
         """Emergency target: the built stance (both feet planted, hips centred)."""
         return self._stance_q.copy()
 
+    def _upright_scale(self) -> float:
+        """Back the torso-upright task off while the plan commands a trunk lean.
+
+        The lean is a deliberate posture (the weight shift onto the support
+        foot); an upright task at full gain fights it and the shift stalls
+        (measured).  The task returns to full gain as the lean unwinds.
+        """
+        lean = abs(self.stepper.trunk_lean())
+        if self.step_params.lean_max <= 1e-9:
+            return 1.0
+        return float(1.0 - 0.8 * min(1.0, lean / self.step_params.lean_max))
+
     # -- per-skill plan updates -------------------------------------------
     def _update_plan(self, model, data, cmd: DrillCommand, dt: float) -> None:
         plan = self.plan
@@ -325,7 +346,9 @@ class FeasibleDrill:
         self.stepper.com_local = self.com_local
         self._maybe_request_step(cmd, data, dt)
         ev = self.stepper.update(data, plan, dt, self.ids.com_xy(data),
-                                 self.nominal_now, load=self.ids.foot_load(data))
+                                 self.nominal_now, load=self.ids.foot_load(data),
+                                 com_v=np.asarray(self.law.info.get(
+                                     "v_com", np.zeros(2)), float))
         for e in ev:
             self.events.append({"t": self.t, **e})
             if e.get("event", "").endswith("timeout"):
@@ -357,7 +380,13 @@ class FeasibleDrill:
                                           -0.25 * dt, 0.25 * dt)
 
     def _upper_targets(self, cmd: DrillCommand, dt: float) -> None:
-        """Skill-dependent upper-body carriage (arms drive the shot gesture)."""
+        """Skill-dependent upper-body carriage (arms drive the shot gesture).
+
+        The step primitive's trunk lean (D2 mechanism b) is added here: while a
+        weight shift is running, the waist rolls toward the support foot, which
+        moves part of the required CoM travel onto the trunk instead of the
+        pelvis (measured gain: 0.065 m of CoM per rad of waist roll).
+        """
         u = self._upper_hold.copy()
         sk = cmd.skill
         if sk == "SHOT_GESTURE":
@@ -371,6 +400,7 @@ class FeasibleDrill:
             sway = 0.05 * np.sin(2.0 * np.pi * 0.22 * self.t)
             u[6] += sway
             u[13] -= sway
+        u[1] += self.stepper.trunk_lean()      # plan.upper[1] = waist roll
         self.plan.upper = self.plan.upper + np.clip(u - self.plan.upper,
                                                     -0.06, 0.06 * dt / 0.02)
 
@@ -392,11 +422,12 @@ class FeasibleDrill:
             length = float(np.clip(np.hypot(vx, vy) * 0.55, 0.05, 0.10))
             ang = np.arctan2(vy, vx) if np.hypot(vx, vy) > 1e-6 else 0.0
             jitter = float(self.rng.uniform(-0.15, 0.15)) * length
-            side = self._next_side(sk)
+            side = self.step_side_override or self._next_side(sk)
             tgt = feet[side].origin_xy + length * np.array([np.cos(ang), np.sin(ang)])
             tgt = rotate_about(tgt, self.nominal_xy + self.com_local, 0.0)
             # keep the stance width: lateral component respects the home offset
             tgt[1] += jitter * 0.3
+            tgt = self._recentre_target(data, side, tgt)
             self.stepper.request(side, tgt, feet[side].yaw,
                                  f"{sk}-{side}-{self.stepper.state[side].steps_done}")
         elif sk in ("CIRCLE_L", "CIRCLE_R") and "step" in RUNG_ELEMENTS[rung]:
@@ -442,6 +473,34 @@ class FeasibleDrill:
                 self._shot["phase"] = "trail"
         elif self._shot["phase"] == "trail" and not self.stepper.busy():
             self._shot = None
+
+    def _recentre_target(self, data, side: str, tgt: np.ndarray) -> np.ndarray:
+        """Pull a step target laterally so the new base stays centred on the CoM.
+
+        The step length is a *displacement* along the command direction, which
+        lets the base walk away from the body: measured, the required CoM travel
+        for the next step then grows until it exceeds the primitive's reach cap
+        and the drill stalls on refusals (or, with the cap raised, the landing
+        puts the CoM at the support hull's edge and the body topples out of it).
+        This correction moves the target's *lateral* component (perpendicular to
+        the body heading) so that the mid-foot point after the placement lands on
+        the measured CoM's lateral coordinate, plus the nominal offset.  Off by
+        default (``recentre_gain = 0``): the shipped primitive is unchanged.
+        """
+        g = float(self.step_params.recentre_gain)
+        if g <= 0.0:
+            return tgt
+        yaw = float(self.plan.base_yaw)
+        other = "right" if side == "left" else "left"
+        mid = 0.5 * (np.asarray(tgt, float) + self.plan.feet[other].origin_xy)
+        com = self.ids.com_xy(data)
+        corr = np.asarray(com, float) - mid
+        # lateral component only (perpendicular to the body heading)
+        lat = np.array([-np.sin(yaw), np.cos(yaw)])
+        err = float(corr @ lat)
+        step = float(np.clip(g * err, -self.step_params.recentre_max,
+                             self.step_params.recentre_max))
+        return np.asarray(tgt, float) + step * lat
 
     def _com_mid_error(self, data) -> float:
         """Distance from the measured CoM to the mid-foot point (m).

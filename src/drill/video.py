@@ -121,7 +121,10 @@ def render_trace(trace: dict, out_mp4: Path | str, *, meta: dict | None = None,
             cam.distance = CAM_DISTANCE
             cam.lookat[:] = [base_xy[0], base_xy[1] + 0.02, CAM_LOOKAT_Z]
             renderer.update_scene(data, camera=cam)
-            flags[mujoco.mjtRndFlag.mjRND_SHADOW] = 0
+            # shadows ON: with the shadow flag off the mat reads as a
+            # featureless plane and foot-floor contact cannot be judged from
+            # the frames (independent visual check, 2026-10-08)
+            flags[mujoco.mjtRndFlag.mjRND_SHADOW] = 1
             flags[mujoco.mjtRndFlag.mjRND_REFLECTION] = 0
             img = renderer.render()
             lines = _hud_lines(frames, i, meta or {}, label)
@@ -180,7 +183,7 @@ def render_stills(trace: dict, times, out_dir: Path | str, *, meta: dict | None 
             cam.azimuth, cam.elevation = CAM_AZIMUTH, CAM_ELEVATION
             cam.distance, cam.lookat[:] = CAM_DISTANCE, [qpos[k, 0], qpos[k, 1], CAM_LOOKAT_Z]
             renderer.update_scene(data, camera=cam)
-            flags[mujoco.mjtRndFlag.mjRND_SHADOW] = 0
+            flags[mujoco.mjtRndFlag.mjRND_SHADOW] = 1
             flags[mujoco.mjtRndFlag.mjRND_REFLECTION] = 0
             frames = sample_frames(trace, fps=FPS, t0=tt, t1=tt)
             lines = _hud_lines(frames, 0, meta or {}, label)

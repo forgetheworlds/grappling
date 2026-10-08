@@ -1,0 +1,321 @@
+{
+ "config": {
+  "controller": "feasible",
+  "rung": "L2",
+  "seconds": 14.0,
+  "seed": 0,
+  "start": "stand",
+  "pushes": [],
+  "noise": 0.0,
+  "tag": "L2_ENTRY_SPEC",
+  "track": "",
+  "render_every": 0,
+  "max_wall_s": 900.0
+ },
+ "metrics": {
+  "config": {
+   "controller": "feasible",
+   "rung": "L2",
+   "seed": 0,
+   "seconds": 14.0,
+   "start": "stand",
+   "n_pushes": 0
+  },
+  "duration_s": 13.98,
+  "longest_continuous_s": 13.98,
+  "falls": 0,
+  "fall_times": [],
+  "timeouts": 0,
+  "steps_completed": 1,
+  "step_quality": [
+   {
+    "side": "left",
+    "t": 3.68,
+    "clearance_m": 0.0359,
+    "loaded_slip_m": 0.0
+   }
+  ],
+  "slip": {
+   "per_foot": {
+    "left": {
+     "loaded_frac": 0.0,
+     "max_tick_slip_m": 0.0,
+     "max_load_drift_m": 0.0,
+     "p95_tick_slip_m": 0.0
+    },
+    "right": {
+     "loaded_frac": 0.14163090128755365,
+     "max_tick_slip_m": 0.001046223189540741,
+     "max_load_drift_m": 0.00583933483247135,
+     "p95_tick_slip_m": 0.00029940259476905637
+    }
+   },
+   "max_tick_slip_m": 0.001046223189540741,
+   "max_load_drift_m": 0.00583933483247135
+  },
+  "interfoot": {
+   "min_separation_m": 0.1823109053509649,
+   "mean_separation_m": 0.3201856899162133
+  },
+  "pushes": {
+   "n_pushes": 0,
+   "recovered": 0,
+   "recoveries": []
+  },
+  "tracking": {
+   "mean_com_track_err_m": 0.015589282691959062,
+   "p95_com_track_err_m": 0.026198885324165123,
+   "per_skill": {
+    "STANCE": {
+     "ticks": 39,
+     "duration_s": 0.76,
+     "realized_disp_m": 0.029743514379401002,
+     "cmd_speed_mps": 0.0,
+     "cmd_yaw_rate": 0.0,
+     "realized_yaw_change_deg": 0.06966965152448694,
+     "mean_track_err_m": 0.006825490673690884
+    },
+    "ENTRY": {
+     "ticks": 661,
+     "duration_s": 13.200000000000001,
+     "realized_disp_m": 0.09014888474632679,
+     "cmd_speed_mps": 0.0,
+     "cmd_yaw_rate": 0.0,
+     "realized_yaw_change_deg": -5.387839370530606,
+     "mean_track_err_m": 0.01610635967942118
+    }
+   }
+  },
+  "posture": {
+   "tilt_deg": {
+    "mean": 2.4470872495517764,
+    "max": 6.35138148966265,
+    "p95": 3.0122778765680476
+   },
+   "pelvis_z": {
+    "mean": 0.7328114883021128,
+    "min": 0.7137420481333188,
+    "max": 0.7908811941198959
+   },
+   "head_z_mean": 1.1612029928443244,
+   "min_foot_clearance_m": -0.001942821221326442,
+   "both_airborne_frac": 0.0
+  },
+  "plausibility": {
+   "penetration_min_m": -0.003874587031037778,
+   "penetration_gt_ground_thr": 0,
+   "penetration_gt_mesh_thr": 0,
+   "sat_frac_mean": 0.0,
+   "sat_frac_max": 0.0,
+   "ctrl_delta_p95_rad": 0.0034163547879565714,
+   "ctrl_delta_max_rad": 0.12291437620097789
+  },
+  "continuity": {
+   "duration_s": 13.98,
+   "n_ticks": 700,
+   "clock_monotone": true,
+   "resets": 0,
+   "zero_motion_frac": 0.4406294706723891
+  },
+  "elements_done": 1,
+  "cycles_done": 0,
+  "safety_blend_ticks": 0,
+  "ik_err_max": 0.001268843511922067,
+  "emergency_plants": 0
+ },
+ "events": [
+  {
+   "t": 0.78,
+   "event": "element_done",
+   "phase": "entry_settle",
+   "how": "hold",
+   "elapsed": 0.76
+  },
+  {
+   "t": 0.8000000000000004,
+   "side": "left",
+   "event": "step_start",
+   "label": "ENTRY-left-0",
+   "shift_goal": [
+    0.0142,
+    -0.1217
+   ],
+   "required_com_travel_m": 0.1113
+  },
+  {
+   "t": 3.1600000000000024,
+   "side": "left",
+   "event": "shift_done",
+   "margin_support": 0.0242,
+   "swing_load_n": 62.0,
+   "load_frac_half_weight": 0.379,
+   "gate": "com_margin_support_hull",
+   "ankle_roll_support": -0.1556,
+   "ankle_roll_swing": 0.197,
+   "pivot_rad": 0.5,
+   "shift_s": 0.0,
+   "com_travel_m": 0.086,
+   "margin_combined": 0.0294,
+   "gate_ticks": 4,
+   "lock_s": 0.06
+  },
+  {
+   "t": 3.3000000000000025,
+   "side": "left",
+   "event": "lift_done",
+   "clearance": 0.0295
+  },
+  {
+   "t": 3.4600000000000026,
+   "side": "left",
+   "event": "swing_done",
+   "place_err": 0.00185
+  },
+  {
+   "t": 3.680000000000003,
+   "side": "left",
+   "event": "step_done",
+   "label": "ENTRY-left-0",
+   "landing_load_n": 197.8,
+   "margin": 0.0402,
+   "steps": 1
+  },
+  {
+   "t": 5.099999999999979,
+   "side": "left",
+   "event": "settled",
+   "com_mid_err": 0.0169
+  },
+  {
+   "t": 5.119999999999979,
+   "side": "right",
+   "event": "step_refused",
+   "label": "ENTRY-right-0",
+   "required_com_travel_m": 0.2086,
+   "reach_cap_m": 0.14,
+   "goal": [
+    0.1114,
+    0.2035
+   ]
+  },
+  {
+   "t": 6.139999999999957,
+   "side": "right",
+   "event": "step_refused",
+   "label": "ENTRY-right-0",
+   "required_com_travel_m": 0.1891,
+   "reach_cap_m": 0.14,
+   "goal": [
+    0.1108,
+    0.2061
+   ]
+  },
+  {
+   "t": 6.159999999999957,
+   "side": "right",
+   "event": "pivot_restored"
+  },
+  {
+   "t": 7.159999999999935,
+   "side": "right",
+   "event": "step_refused",
+   "label": "ENTRY-right-0",
+   "required_com_travel_m": 0.1892,
+   "reach_cap_m": 0.14,
+   "goal": [
+    0.1108,
+    0.206
+   ]
+  },
+  {
+   "t": 8.179999999999914,
+   "side": "right",
+   "event": "step_refused",
+   "label": "ENTRY-right-0",
+   "required_com_travel_m": 0.1892,
+   "reach_cap_m": 0.14,
+   "goal": [
+    0.1108,
+    0.206
+   ]
+  },
+  {
+   "t": 9.199999999999893,
+   "side": "right",
+   "event": "step_refused",
+   "label": "ENTRY-right-0",
+   "required_com_travel_m": 0.1892,
+   "reach_cap_m": 0.14,
+   "goal": [
+    0.1108,
+    0.206
+   ]
+  },
+  {
+   "t": 10.219999999999871,
+   "side": "right",
+   "event": "step_refused",
+   "label": "ENTRY-right-0",
+   "required_com_travel_m": 0.1892,
+   "reach_cap_m": 0.14,
+   "goal": [
+    0.1108,
+    0.206
+   ]
+  },
+  {
+   "t": 11.23999999999985,
+   "side": "right",
+   "event": "step_refused",
+   "label": "ENTRY-right-0",
+   "required_com_travel_m": 0.1892,
+   "reach_cap_m": 0.14,
+   "goal": [
+    0.1108,
+    0.206
+   ]
+  },
+  {
+   "t": 12.259999999999827,
+   "side": "right",
+   "event": "step_refused",
+   "label": "ENTRY-right-0",
+   "required_com_travel_m": 0.1892,
+   "reach_cap_m": 0.14,
+   "goal": [
+    0.1108,
+    0.206
+   ]
+  },
+  {
+   "t": 13.279999999999806,
+   "side": "right",
+   "event": "step_refused",
+   "label": "ENTRY-right-0",
+   "required_com_travel_m": 0.1892,
+   "reach_cap_m": 0.14,
+   "goal": [
+    0.1108,
+    0.206
+   ]
+  }
+ ],
+ "wall_s": 3.3769452571868896,
+ "aborted": null,
+ "provenance": {
+  "git_commit": "757fe57",
+  "worktree_dirty": true,
+  "controller": "feasible",
+  "rung": "L2",
+  "seed": 0,
+  "config_hash": "30b7b3d612e3d0ab",
+  "control_hz": 50,
+  "physics_dt_s": 0.002,
+  "physics_substeps_per_tick": 10,
+  "scene": "robots/g1/g1.xml + landmark/sole sites (single robot, MjSpec)",
+  "reset_count": 0,
+  "one_reset": true,
+  "sim_wall_s": null,
+  "reproduce": "MUJOCO_GL=egl python scripts/solo_drill_render.py run --controller feasible --rung L2 --seconds 14 --seed 0 --start stand --out-tag L2_ENTRY_SPEC"
+ }
+}

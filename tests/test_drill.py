@@ -412,3 +412,64 @@ class _TrackSched:
 
     def drain_events(self):
         return []
+
+
+# ------------------------------------------------------ motion clip acceptance
+class _StubStepper:
+    """Minimal stepper stand-in: the test drives completed-step counts."""
+
+    def __init__(self):
+        self.state = {s: type("S", (), {"steps_done": 0, "phase": "idle"})()
+                      for s in kin.SIDES}
+
+
+class _StubCtrl:
+    def __init__(self):
+        self.stepper = _StubStepper()
+
+
+def test_program_scheduler_advances_only_on_physical_steps():
+    """The deliverable programme's phase must advance with *real* steps.
+
+    This is the acceptance rule the independent L1 clip review demanded: a clip
+    whose phase label never changes is a failed clip.  The programme waits for
+    the step counter to move, so a refused or aborted step cannot run the
+    command ahead of the body.
+    """
+    from drill import motion
+
+    sched = motion.DrillProgramSched(hold_s=0.2, block_hold_s=0.5)
+    ctrl = _StubCtrl()
+    phases, t = [], 0.0
+    for _ in range(400):                       # 8 s at 50 Hz, no steps taken
+        t += 0.02
+        cmd = sched.tick(None, None, ctrl, t)
+        phases.append(cmd.phase)
+    assert any("stalk_fwd" in p for p in phases), "the programme must reach its first block"
+    assert sched.ix <= 3, "blocks must not advance without completed steps"
+    for _ in range(3000):
+        t += 0.02
+        cmd = sched.tick(None, None, ctrl, t)
+        if "step" in cmd.phase and sched.state == "step":
+            for st in ctrl.stepper.state.values():
+                st.steps_done += 1
+    assert sched.ix >= 4, "completed steps must advance the programme blocks"
+
+
+def test_phase_advance_and_motion_span_are_measured():
+    """The clip-acceptance counters: phase changes and physical travel."""
+    from drill import motion
+
+    n = 200
+    t = np.arange(n) * 0.02
+    trace = {"t": t,
+             "skill_id": np.array([0] * 100 + [2] * 100),
+             "qpos": np.zeros((n, 36)),
+             "com": np.stack([np.linspace(0, 0.3, n), np.zeros(n), np.full(n, 0.7)], axis=1),
+             "knee_z": np.stack([np.full(n, 0.3), np.full(n, 0.32)], axis=1)}
+    assert motion.phase_advance_count(trace) == 1
+    span = motion.motion_span(trace)
+    assert span["com_span_m"] == pytest.approx(0.3, abs=1e-6)
+    assert span["com_travel_m"] == pytest.approx(0.3, abs=1e-6)
+    trace["skill_id"] = np.zeros(n, dtype=int)
+    assert motion.phase_advance_count(trace) == 0, "a frozen skill must count as zero"

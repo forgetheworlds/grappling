@@ -191,8 +191,13 @@ def start_qpos(model, cfg: RunConfig, stance) -> np.ndarray:
 
 
 def run(cfg: RunConfig, stance=None, model=None, scheduler=None,
-        verbose: bool = True) -> RunResult:
-    """Simulate one continuous episode; returns the trace, events, metrics."""
+        verbose: bool = True, controller=None) -> RunResult:
+    """Simulate one continuous episode; returns the trace, events, metrics.
+
+    ``controller`` overrides the factory (used by the motion study to hand in a
+    controller with non-default step parameters); it must satisfy the
+    :class:`drill.controller.DrillController` protocol.
+    """
     from . import metrics as metrics_mod
     from . import scheduler as scheduler_mod
 
@@ -203,7 +208,8 @@ def run(cfg: RunConfig, stance=None, model=None, scheduler=None,
         from . import posture as posture_mod
 
         stance = posture_mod.build_stance(ids_model, posture_mod.StanceSpec(), ids)
-    ctrl = build_controller(cfg, ids_model, ids, stance)
+    ctrl = controller if controller is not None else build_controller(
+        cfg, ids_model, ids, stance)
     sched = scheduler or scheduler_mod.SkillScheduler(cfg.rung, seed=cfg.seed)
 
     data = mujoco.MjData(ids_model)

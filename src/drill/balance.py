@@ -294,7 +294,7 @@ class BalanceLaw:
     # -- one control tick --------------------------------------------------
     def offsets(self, data: mujoco.MjData, plan: DrillPlan,
                 com_ref: np.ndarray, roll_sides: tuple | None = None,
-                k_roll_scale: float = 1.0) -> tuple[np.ndarray, dict]:
+                k_roll_scale: float = 1.0, k_up_scale: float = 1.0) -> tuple[np.ndarray, dict]:
         """(29,) balance offsets for this tick, and the measurement read-out.
 
         The task error tracks the *planned* CoM (``com_ref``), not the live
@@ -340,10 +340,15 @@ class BalanceLaw:
             if not ft.planted:
                 continue
             tg = ft.points(ids, side).copy()
+            # a foot with a *planned* sole roll (the D2 edge-roll mechanism) is
+            # anchored to its tilted plane: flattening it would cancel the roll
+            # the mechanism commands, and the roll is what keeps the loaded
+            # ankle inside its band.  Flat feet keep the shipped behaviour.
+            kf = 0.0 if abs(ft.roll) > 1e-6 else p.k_flat
             for j, sid in enumerate(ids.sole_sites[side]):
                 cur = data.site_xpos[int(sid)]
                 tgt = tg[j].copy()
-                tgt[2] = (1 - p.k_flat) * tgt[2] + p.k_flat * (K.SOLE_REST_Z + dz)
+                tgt[2] = (1 - kf) * tgt[2] + kf * (K.SOLE_REST_Z + dz)
                 tgt[2] += dz
                 err = np.clip(tgt - cur, -p.anchor_clamp, p.anchor_clamp)
                 mujoco.mj_jacSite(self.model, data, self._jac, None, int(sid))
@@ -370,13 +375,14 @@ class BalanceLaw:
                     rows.append(row)
                     des.append(p.k_swing * err)
 
-        # torso upright (waist channel)
-        if p.k_up > 0:
+        # torso upright (waist channel); the gain is scaled down while a
+        # deliberate trunk lean is commanded (D2 mechanism b)
+        if p.k_up > 0 and k_up_scale > 0:
             up = ids.torso_up(data)
             err = np.cross(up, np.array([0.0, 0.0, 1.0]))
             mujoco.mj_jacBodyCom(self.model, data, self._jac, self._jacr, ids.torso)
             rows.append(self._jacr[:2, ids.dofs].copy())
-            des.append(p.k_up * err[:2])
+            des.append(p.k_up * float(k_up_scale) * err[:2])
         dq_ls = _solve_rows(rows, des, p.reg)
 
         # safety: unclipped tracking error + a measured CoM outside support

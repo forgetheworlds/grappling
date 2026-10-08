@@ -99,6 +99,12 @@ class StepParams:
     support_margin: float = 0.020   # required CoM margin (m) inside the SUPPORT
     #                                 foot's own hull before the swing foot may
     #                                 leave the mat
+    v_gate: float = 0.0             # optional CoM-speed cap (m/s) of the lift
+    #                                 gate: 0 = off (shipped).  Measured: with
+    #                                 the margin alone the lift starts while the
+    #                                 CoM still coasts at 0.1-0.2 m/s and the
+    #                                 body then leaves the support hull on the
+    #                                 far side -- the foot cannot brake it.
     gate_dwell: int = 2             # consecutive ticks the margin must hold
     lock_time: float = 0.06         # seconds the gate must hold before the lift
     reach_cap: float = 0.140        # measured lateral weight-shift authority (m):
@@ -122,12 +128,31 @@ class StepParams:
     track_deadband: float = 0.025   # error below which the base stays put (m)
     track_max: float = 0.120        # error beyond which the base stops following (m)
     track_lead_max: float = 0.040   # how far the reference may lead the body (m)
+    settle_lead_max: float = 0.040  # lead used by the between-steps recentre:
+    #                                 the balance law holds a ~4 cm steady-state
+    #                                 CoM offset, so a lead of the same size
+    #                                 cancels exactly and the recentre stalls
+    #                                 (measured: the settle then times out at 9 s
+    #                                 on every step -- the whole step cadence is
+    #                                 paid for by this one number)
 
     # -- recentring between steps (bring the weight back to the middle)
     recover_speed: float = 0.10     # m/s, used by the abort recovery
     recover_tol: float = 0.030      # CoM-to-midfoot error that ends recovery (m)
     t_recover: float = 4.00         # safeguard (s)
     settle_tol: float = 0.020       # measured CoM-to-midfoot error that ends it
+    settle_v: float = 0.0           # optional: |CoM speed| (m/s) that ends it.
+    #                                 0 = off (shipped).  Measured: the recentre
+    #                                 cannot reach the geometric mid-foot at all
+    #                                 (the balance law holds a ~4 cm steady-state
+    #                                 CoM offset that the 4 cm lead exactly
+    #                                 cancels), so the settle ran its full 9 s
+    #                                 safeguard on every step and the cadence
+    #                                 was spent there.  What physically matters is
+    #                                 that the body has *stopped* with the CoM
+    #                                 inside the support -- that is the exit.
+    settle_min_s: float = 0.40      # minimum time in settle before a speed exit
+    settle_margin: float = 0.020    # CoM margin required by the speed exit (m)
     #                                 (tighter than the caller's own
     #                                 step_centre_tol, or the next step is
     #                                 never requested)
@@ -137,6 +162,28 @@ class StepParams:
     pivot_max: float = 0.50         # max toe-out yaw of the support foot (rad)
     pivot_rate: float = 0.35        # rad/s (slow: a loaded pivot must not scrub)
     pivot_restore: float = 0.20     # rad/s back to the planned yaw once idle
+
+    # -- D2 authority mechanisms (0 = off = the shipped primitive; each one is
+    #    measured in reports/2026-10-08/drill_motion.md) --------------------
+    lean_gain: float = 0.0          # waist roll (rad) per metre of lateral shift:
+    #                                 leans the trunk toward the support foot, so
+    #                                 part of the required CoM travel is trunk, not
+    #                                 pelvis (measured: 0.065 m of CoM per rad)
+    lean_max: float = 0.26          # cap on the commanded lean (rad, waist range 0.52)
+    support_roll_gain: float = 0.0  # support-foot edge roll (1 = full relief policy):
+    #                                 lets the loaded foot roll onto its edge so the
+    #                                 support ankle roll stays inside its band
+    support_roll_band: float = 0.10 # |ankle roll| comfort band of the support foot
+    support_roll_follow: float = 1.0  # sole roll follows the measured sole tilt
+    centre_tol: float = 0.030       # CoM-to-midfoot error before a new step is requested
+    settle: bool = True             # run the between-steps recentre phase
+    recentre_gain: float = 0.0      # lateral placement recentre (0 = off, shipped):
+    #                                 when > 0 the step target is pulled laterally so
+    #                                 the new mid-foot point tracks the measured CoM
+    #                                 (measured: without it the base drifts laterally
+    #                                 until the required travel exceeds ``reach_cap``
+    #                                 and the drill stalls in refusals)
+    recentre_max: float = 0.05      # cap on that per-step lateral correction (m)
 
     # -- swing-foot roll compliance (the swing leg carries no roll authority)
     swing_follow: float = 1.00      # how far the swing plan target follows the
@@ -160,7 +207,7 @@ class StepParams:
 
 
 def lift_gate(margin_support: float, swing_load: float, body_w: float,
-              params: StepParams) -> tuple[bool, dict]:
+              params: StepParams, v_com: float | None = None) -> tuple[bool, dict]:
     """The lift gate: CoM margin inside the *support* foot's own hull.
 
     Returns ``(ok, record)``.  ``ok`` is True only when the measured margin is
@@ -169,14 +216,30 @@ def lift_gate(margin_support: float, swing_load: float, body_w: float,
     is the regression surface for the L2 fix: a gate that reverted to
     "swing foot unloaded" would answer True to ``(margin=-0.01, load=0.0)``,
     which the test suite asserts against.
+
+    ``v_com`` (m/s, horizontal CoM speed) is a second, optional condition: when
+    ``params.v_gate > 0`` the gate additionally requires the measured CoM to be
+    slower than ``v_gate``.  Measured reason (reports/2026-10-08/drill_motion.md):
+    with the margin alone the lift starts while the CoM is still coasting at
+    0.1-0.2 m/s toward/over the support foot, and the 0.06 m-wide foot has no
+    braking authority left at that point -- the body then leaves the support
+    hull on the far side and topples.  Requiring a near-stationary CoM makes
+    the lift start from a body that is *there*, not passing through.
     """
     ok = bool(float(margin_support) >= params.support_margin)
+    v_ok = True
+    if params.v_gate > 0.0 and v_com is not None:
+        v_ok = bool(abs(float(v_com)) <= params.v_gate)
+    ok = ok and v_ok
     half = 0.5 * float(body_w)
     return ok, {"margin_support": round(float(margin_support), 4),
                 "swing_load_n": round(float(swing_load), 1),
                 "load_frac_half_weight": round(float(swing_load / half), 3)
                 if half > 0 else 0.0,
-                "gate": "com_margin_support_hull" if ok else "hold"}
+                "com_v_m_s": round(float(v_com), 4) if v_com is not None else None,
+                "v_gate_m_s": float(params.v_gate),
+                "gate": ("com_margin_support_hull" if (ok and v_ok) else
+                         ("com_velocity" if (not v_ok) else "hold"))}
 
 
 def stepping_base_spec():
@@ -252,6 +315,7 @@ class FootStepper:
         self.last_event: dict = {}
         self.com_local = np.zeros(2)      # CoM offset from the pelvis (planning)
         self._refuse_cd = 0.0             # cooldown after a geometric refusal (s)
+        self._lean = 0.0                  # commanded trunk lean of the active shift (rad)
 
     def reset(self) -> None:
         self.state = {s: FootState() for s in K.SIDES}
@@ -293,16 +357,21 @@ class FootStepper:
 
     # -- one control tick --------------------------------------------------
     def update(self, data, plan: DrillPlan, dt: float, com_xy: np.ndarray,
-               nominal_xy: np.ndarray, load: np.ndarray | None = None) -> list:
+               nominal_xy: np.ndarray, load: np.ndarray | None = None,
+               com_v: np.ndarray | None = None) -> list:
         ev = []
         self._refuse_cd = max(0.0, self._refuse_cd - dt)
         for side in K.SIDES:
             st = self.state[side]
             ft: FootTarget = plan.feet[side]
             if not st.active():
-                if abs(ft.roll) > 1e-6:
+                if abs(ft.roll) > 1e-6 and not (
+                        self.p.support_roll_gain > 0
+                        and self.supporting_side() == side):
                     # an idle sole target must be flat: any compliance roll is
-                    # released as soon as the foot is not being shifted
+                    # released as soon as the foot is not being shifted (the
+                    # one exception: a support foot carrying a deliberate
+                    # edge-roll, which *is* the mechanism under test)
                     ft.roll *= max(0.0, 1.0 - self.p.roll_flatten * dt)
                 if self.queue[side] is not None:
                     tgt, yaw, label = self.queue[side]
@@ -348,7 +417,8 @@ class FootStepper:
                 continue
             st.t_phase += dt
             if st.phase == "shift":
-                ev += self._shift(side, st, plan, data, dt, com_xy, nominal_xy, load)
+                ev += self._shift(side, st, plan, data, dt, com_xy, nominal_xy,
+                                  load, com_v)
             elif st.phase == "lift":
                 ev += self._lift(side, st, plan, data, dt)
             elif st.phase == "move":
@@ -358,7 +428,15 @@ class FootStepper:
             elif st.phase == "recover":
                 ev += self._recover(side, st, plan, data, dt)
             elif st.phase == "settle":
-                ev += self._settle(side, st, plan, data, dt)
+                ev += self._settle(side, st, plan, data, dt, com_v)
+
+        # (a) the support-foot edge roll is a *whole-step* mechanism: the loaded
+        # ankle saturates during the lift/move/plant too (the CoM keeps drifting
+        # while the other foot is in the air), so it is refreshed in every phase
+        # while a foot is stepping, not only during the shift.
+        sup = self.supporting_side()
+        if sup is not None and self.p.support_roll_gain > 0.0:
+            self._support_roll_policy(sup, plan, data, dt)
 
         if not any(st.phase == "shift" for st in self.state.values()):
             # the plan must keep agreeing with the body in every phase but the
@@ -374,13 +452,16 @@ class FootStepper:
                 elif s_.phase in ("settle", "recover") and s_.set_goal is not None:
                     goals.append(s_.set_goal)
             goal = goals[0] if goals else self._mid_goal(plan)
+            lead = self.p.settle_lead_max if any(
+                s_.phase == "settle" for s_ in self.state.values()) else None
             # the reference always keeps a bounded lead toward that goal: the
             # lead is the only sustained lateral force this balance law applies,
             # and without it the body's momentum is undamped (measured: a
             # 0.08 m/s post-step drift that ran the CoM over the far foot)
-            self._track_body(plan, com_xy, dt, goal=goal)
+            self._track_body(plan, com_xy, dt, goal=goal, lead_max=lead)
         if all(st.phase in ("idle", "recover", "settle") for st in self.state.values()):
             ev += self._restore_pivots(plan, data, dt)
+        self._update_lean(plan)
         self.last_event = ev[-1] if ev else {}
         return ev
 
@@ -480,7 +561,52 @@ class FootStepper:
                 ev.append({"side": side, "event": "pivot_restored"})
         return ev
 
-    # -- (b) swing-foot roll compliance ------------------------------------
+    # -- (a) the support-foot edge roll ------------------------------------
+    def _support_roll_policy(self, side: str, plan: DrillPlan, data, dt: float) -> float:
+        """Let the *loaded* foot roll onto its edge when its ankle roll runs out.
+
+        Humans do this in every real weight shift: the sole rolls onto its medial
+        or lateral edge and the ankle stays inside its range.  Measured (this
+        report): the support ankle roll is one of the two joints that saturate
+        when the pelvis travels laterally, so relieving it is what extends the
+        usable shift.  Returns the applied sole roll (rad).
+        """
+        p = self.p
+        if p.support_roll_gain <= 0.0:
+            return 0.0
+        ft = plan.feet[side]
+        a = float(data.qpos[self.ids.leg_qadr[side][5]])
+        tilt = self._sole_tilt(data, side)
+        excess = max(0.0, abs(a) - p.support_roll_band)
+        relief = -np.sign(a) * excess * p.roll_relieve
+        target = float(np.clip(p.support_roll_follow * tilt
+                               + p.support_roll_gain * relief,
+                               -p.roll_limit, p.roll_limit))
+        ft.roll += float(np.clip(target - ft.roll, -p.roll_rate * dt,
+                                 p.roll_rate * dt))
+        return float(ft.roll)
+
+    # -- (b) the trunk lean -------------------------------------------------
+    def trunk_lean(self) -> float:
+        """Commanded waist-roll offset (rad) of the active shift (0 when idle).
+
+        Sign: leans the trunk *toward the support foot*, the direction the body
+        is being shifted, so part of the required CoM travel is trunk rather
+        than pelvis.  Computed from the pelvis displacement from the shift
+        start, so it unwinds by itself as the next settle brings the body back.
+        """
+        return float(self._lean)
+
+    def _update_lean(self, plan: DrillPlan) -> None:
+        p = self.p
+        self._lean = 0.0
+        if p.lean_gain <= 0.0:
+            return
+        for st in self.state.values():
+            if st.phase != "idle" and st.shift_start is not None:
+                dy = float(plan.base_xyz[1] - st.shift_start[1])
+                self._lean = float(np.clip(-p.lean_gain * dy, -p.lean_max, p.lean_max))
+                return
     def _sole_tilt(self, data, side: str) -> float:
         """Signed roll (rad) of the sole plane about the foot's long axis.
 
@@ -530,7 +656,8 @@ class FootStepper:
         ft.origin_xy = (1.0 - aft) * np.asarray(ft.origin_xy, float) + aft * cur
 
     def _track_body(self, plan: DrillPlan, com_xy: np.ndarray, dt: float,
-                    goal: np.ndarray | None = None) -> None:
+                    goal: np.ndarray | None = None,
+                    lead_max: float | None = None) -> None:
         """Keep the plan's base on the *body*, optionally leading it by a goal.
 
         This is the reference-honesty rule of the whole primitive: the leg IK
@@ -547,8 +674,9 @@ class FootStepper:
         if goal is not None:
             lead = np.asarray(goal, float) - body
             n_lead = float(np.linalg.norm(lead))
-            if n_lead > self.p.track_lead_max:
-                lead *= self.p.track_lead_max / n_lead
+            lim = self.p.track_lead_max if lead_max is None else float(lead_max)
+            if n_lead > lim:
+                lead *= lim / n_lead
             tgt = body + lead
         d = tgt - np.asarray(plan.base_xyz[:2], float)
         n = float(np.linalg.norm(d))
@@ -566,7 +694,7 @@ class FootStepper:
     # -- the weight shift, gated on the measured support-foot margin -------
     def _shift(self, side: str, st: FootState, plan: DrillPlan, data, dt: float,
                com_xy: np.ndarray, nominal_xy: np.ndarray,
-               load: np.ndarray | None) -> list:
+               load: np.ndarray | None, com_v: np.ndarray | None = None) -> list:
         """Transfer the CoM over the support foot; lift only when it is *there*.
 
         The gate is :func:`lift_gate` -- the measured CoM margin inside the
@@ -587,6 +715,8 @@ class FootStepper:
             d = float(min(p.pivot_rate * dt, p.pivot_max - sup_st.pivot))
             self._pivot(support, plan, data, self._toe_out(support) * d)
             sup_st.pivot += d
+        # (a) support-foot edge roll (relieves the loaded ankle roll; measured)
+        self._support_roll_policy(support, plan, data, dt)
         # (b) swing-side roll compliance (the swing leg carries no roll authority)
         self._roll_policy(side, plan, data, dt)
         self._follow_swing(side, plan, data)
@@ -625,7 +755,8 @@ class FootStepper:
         a_sup = float(data.qpos[ids.leg_qadr[support][5]])
         a_sw = float(data.qpos[ids.leg_qadr[side][5]])
         a_lim = float(ids.leg_limits[support][5, 1])
-        ok, gate = lift_gate(margin_sup, swing_load, body_w, p)
+        ok, gate = lift_gate(margin_sup, swing_load, body_w, p,
+                             None if com_v is None else float(np.linalg.norm(com_v)))
         st.gate_ticks = st.gate_ticks + 1 if ok else 0
         if st.gate_ticks >= p.gate_dwell:
             st.lag_t = 0.0             # the plan is deliberately frozen here
@@ -637,6 +768,8 @@ class FootStepper:
                           "load": round(swing_load, 1),
                           "ankle_support": round(a_sup, 4),
                           "ankle_swing": round(a_sw, 4),
+                          "com_v": round(float(np.linalg.norm(com_v)), 4)
+                          if com_v is not None else None,
                           "pivot": round(sup_st.pivot, 4),
                           "lag": round(lag, 4)})
         travel = float(np.linalg.norm(np.asarray(com_xy, float) - st.com0)) \
@@ -727,7 +860,8 @@ class FootStepper:
         mid = np.mean([plan.feet[s].origin_xy for s in K.SIDES], axis=0)
         return np.asarray(mid, float) - self.com_local
 
-    def _settle(self, side: str, st: FootState, plan: DrillPlan, data, dt: float) -> list:
+    def _settle(self, side: str, st: FootState, plan: DrillPlan, data, dt: float,
+                com_v: np.ndarray | None = None) -> list:
         """Smooth recentre of the CoM between the feet after a landing.
 
         The recentre is a *lead*, not a trajectory: the reference stays on the
@@ -740,6 +874,16 @@ class FootStepper:
         mid = np.mean([plan.feet[s].origin_xy for s in K.SIDES], axis=0)
         err = float(np.linalg.norm(np.asarray(mid, float)
                                    - np.asarray(self.ids.com_xy(data), float)))
+        v = 0.0 if com_v is None else float(np.linalg.norm(com_v))
+        combined = K.hull2d(np.vstack([self.ids.sole_xy(data, s) for s in K.SIDES]))
+        margin = float(K.polygon_margin(self.ids.com_xy(data), combined))
+        if (self.p.settle_v > 0.0 and st.t_phase >= self.p.settle_min_s
+                and v <= self.p.settle_v and margin >= self.p.settle_margin):
+            # physical exit: the body has stopped with the CoM inside the support
+            self._advance(st, "idle")
+            return [{"side": side, "event": "settled", "com_mid_err": round(err, 4),
+                     "reason": "stopped", "com_v": round(v, 4),
+                     "margin": round(margin, 4)}]
         if err < self.p.settle_tol:
             self._advance(st, "idle")
             return [{"side": side, "event": "settled", "com_mid_err": round(err, 4)}]
@@ -810,8 +954,11 @@ class FootStepper:
         margin = K.polygon_margin(self.ids.com_xy(data), combined)
         if flat and loaded and margin > self.p.step_margin and u >= 1.0:
             st.steps_done += 1
-            self._begin_settle(st, plan)
-            self._advance(st, "settle")
+            if self.p.settle:
+                self._begin_settle(st, plan)
+                self._advance(st, "settle")
+            else:
+                self._advance(st, "idle")
             return [{"side": side, "event": "step_done", "label": st.label,
                      "landing_load_n": round(load_now, 1),
                      "margin": round(float(margin), 4), "steps": st.steps_done}]

@@ -61,7 +61,10 @@ def build_spec(stance: np.ndarray | None = None) -> mujoco.MjSpec:
     spec.add_material(name="grid", textures=["grid"], texuniform=True,
                       texrepeat=[6.0, 6.0])
     spec.worldbody.add_geom(
-        name="floor", type=mujoco.mjtGeom.mjGEOM_PLANE, size=[0.0, 0.0, 0.05],
+        # plane size = (half-x, half-y, grid spacing) for rendering only: the
+        # zero half-extents of the first build made the texture UVs degenerate,
+        # so the mat rendered as a featureless white plane (visual check)
+        name="floor", type=mujoco.mjtGeom.mjGEOM_PLANE, size=[3.0, 3.0, 0.05],
         pos=[0.0, 0.0, 0.0], material="grid",
         condim=4, friction=[1.0, 0.005, 0.0001])
     spec.worldbody.add_light(name="key", pos=[2.5, -2.0, 3.0], dir=[-0.6, 0.5, -1.0],
@@ -86,8 +89,26 @@ def build_spec(stance: np.ndarray | None = None) -> mujoco.MjSpec:
 
 
 def load_model(stance: np.ndarray | None = None) -> mujoco.MjModel:
-    """Compiled single-G1 drill model (nq=36, nu=29)."""
-    return build_spec(stance).compile()
+    """Compiled single-G1 drill model (nq=36, nu=29).
+
+    ``spec.add_material(textures=["grid"])`` does not survive this MuJoCo
+    version's XML round-trip (the material serialises without a texture), so
+    the floor material is patched on the *compiled* model: without it the mat
+    renders as a featureless white plane and foot-floor contact cannot be
+    judged from a frame (independent visual check, 2026-10-08).
+    """
+    model = build_spec(stance).compile()
+    try:
+        tid = mujoco.mj_name2id(model, mujoco.mjtObj.mjOBJ_TEXTURE, "grid")
+        mid = mujoco.mj_name2id(model, mujoco.mjtObj.mjOBJ_MATERIAL, "grid")
+        if tid >= 0 and mid >= 0:
+            model.mat_texid[mid, 0] = tid
+            model.mat_rgba[mid] = [1.0, 1.0, 1.0, 1.0]
+            model.mat_texrepeat[mid] = [6.0, 6.0]
+            model.mat_texuniform[mid] = 1
+    except Exception:                                   # pragma: no cover
+        pass
+    return model
 
 
 def write_scene_xml(path: Path | str = SCENE_XML, stance: np.ndarray | None = None) -> Path:

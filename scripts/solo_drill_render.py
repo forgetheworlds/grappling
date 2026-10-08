@@ -149,7 +149,11 @@ def verify_clip(path: Path, expect_s: float, expect_frames: int,
     try:
         rd = imageio.get_reader(str(path))
         meta = rd.get_meta_data()
-        n = int(meta.get("nframes") or expect_frames)
+        nf = meta.get("nframes")
+        try:
+            n = int(nf) if nf is not None and np.isfinite(float(nf)) else int(expect_frames)
+        except (TypeError, ValueError):
+            n = int(expect_frames)
         idx = [int(n * f) for f in (0.1, 0.4, 0.7, 0.95) if 0 <= int(n * f) < n]
         imgs = [np.asarray(rd.get_data(i), dtype=float) for i in idx]
         rd.close()
@@ -538,6 +542,257 @@ class _TrackScheduler:
         return []
 
 
+# ------------------------------------------------------------ deliverable clip
+DELIVER_SPEC = dict(width=0.30, depth=0.10, reach_cap=0.25, settle_tol=0.026,
+                    lean_gain=0.12, v_gate=0.04, pivot_max=0.0)
+
+
+def deliver_case(model, ids, seconds=95.0, spec_kw=None, tag="L2_MOTION",
+                 save=True):
+    """Run the deliverable motion programme (one continuous episode)."""
+    from drill import motion
+
+    spec = motion.MotionSpec(**(spec_kw or DELIVER_SPEC))
+    sched = motion.DrillProgramSched(hold_s=0.3, block_hold_s=3.0)
+    res = motion.run_case(model, ids, spec, seconds, sched=sched, tag=tag,
+                          save_dir=DATA if save else None)
+    return spec, sched, res
+
+
+def cmd_deliver(a) -> int:
+    """Run + render the deliverable motion clip with its full evidence bundle."""
+    import numpy as np
+
+    from drill import kin as K, motion, rubric as rubric_mod, scene
+    from drill import video as video_mod
+    from drill.lock import sim_lock
+
+    model = scene.load_model()
+    ids = K.RobotIds.build(model)
+    kw = dict(DELIVER_SPEC)
+    for item in (a.set or []):
+        k, v = item.split("=")
+        kw[k] = float(v)
+    if a.npz:
+        # render from a cached trace (the measured way: a clip is rendered from
+        # the episode it is claimed to describe, never re-simulated inside a
+        # render)
+        from drill import motion as motion_mod
+
+        npz_in = Path(a.npz)
+        blob_in = json.loads(npz_in.with_suffix(".json").read_text())
+        trace_in = video_mod.load_trace(npz_in)
+        summary = motion_mod.motion_span(trace_in)
+        summary.update({"falls": blob_in["metrics"]["falls"],
+                        "steps": blob_in["metrics"]["steps_completed"],
+                        "longest_s": blob_in["metrics"]["longest_continuous_s"],
+                        "margin_min": round(float(np.min(np.asarray(
+                            trace_in["margin"], float))), 4)})
+        res = {"paths": {"npz": str(npz_in), "json": str(npz_in.with_suffix(".json"))},
+               "summary": summary, "res": type("R", (), {"trace": trace_in})()}
+        a.seconds = float(np.asarray(trace_in["t"])[-1])
+    else:
+        with sim_lock("deliverable motion run"):
+            spec, sched, res = deliver_case(model, ids, seconds=a.seconds, spec_kw=kw)
+    paths = res["paths"]
+    m = res["summary"]
+    print("[deliver] steps", m["steps"], "falls", m["falls"],
+          "margin_min", m.get("margin_min"), flush=True)
+    # phase-advance evidence: the scheduler's own phase string over the run
+    trace = res["res"].trace
+    t = np.asarray(trace["t"], float)
+    cmd_arr = np.asarray(trace["cmd"], float)
+    skill = np.asarray(trace["skill_id"], int)
+    changes = int(np.sum(np.diff(skill) != 0))
+    print("[deliver] skill changes", changes, flush=True)
+    npz = Path(paths["npz"])
+    blob = json.loads(Path(paths["json"]).read_text())
+    meta = _meta_for(npz, "L2", "L2 motion: continuous stepping in the drill stance")
+    meta["footer"] = (f"stance {kw['width']:.2f} x {kw['depth']:.2f} m wide "
+                      f"(reference is 0.49 m wide: narrowed for steppability) | "
+                      f"scripted feedback, one reset, no in-run resets")
+    step_done = [e for e in blob["events"] if e.get("event") == "step_done"]
+    summary_from_trace = motion.motion_span(npz and video_mod.load_trace(npz))
+    t_first = float(step_done[0]["t"]) - 1.6 if step_done else 4.0
+    r = video_mod.render_trace(video_mod.load_trace(npz), VIDEO / "final_L2_motion.mp4",
+                               meta=meta, t0=0.0, t1=a.seconds,
+                               sheet_times=tuple(np.linspace(3.0, a.seconds - 3.0, 3)),
+                               caption=("rung L2: stance + repeated steps (stalk / "
+                                        "backpedal / lateral shuffle); every step is "
+                                        "gate-checked on the measured CoM margin"))
+    ver = verify_clip(Path(r["mp4"]), expect_s=a.seconds, expect_frames=r["frames"])
+    print("[deliver] main clip", ver, flush=True)
+    # 0.25x slow motion of the first complete step cycle
+    r2 = video_mod.render_trace(video_mod.load_trace(npz),
+                                VIDEO / "L2_motion_slowmo_step_quarter.mp4",
+                                meta=meta, t0=t_first, t1=t_first + 9.0,
+                                speed=0.25, scale=0.5,
+                                sheet_times=(t_first + 1.0, t_first + 4.5, t_first + 8.0),
+                                caption="0.25x: one step cycle (shift, lift, swing, plant, settle)")
+    ver2 = verify_clip(Path(r2["mp4"]), expect_s=(r2["t1"] - r2["t0"]) / 0.25,
+                       expect_frames=r2["frames"])
+    print("[deliver] slowmo", ver2, flush=True)
+    rub = rubric_mod.assess(paths["npz"], blob)
+    bundle = {"video": str(VIDEO / "final_L2_motion.mp4"), "contact_sheet": r.get("sheet"),
+              "slowmo": str(VIDEO / "L2_motion_slowmo_step_quarter.mp4"),
+              "trace_npz": paths["npz"], "run_json": paths["json"],
+              "config": blob.get("config"), "provenance": blob.get("provenance"),
+              "metrics": blob.get("metrics"), "summary": m,
+              "skill_changes": changes, "step_events": step_done,
+              "rubric": rub, "rubric_table": rubric_mod.render_table(rub),
+              "clip_verification": ver, "slowmo_verification": ver2,
+              "stance_note": (f"stance {kw['width']:.2f} x {kw['depth']:.2f} m: a "
+                              "documented narrowing from the operator's 0.49 m "
+                              "reference -- the crossing CoM travel a lift needs "
+                              "grows as half the width, and the measured lateral "
+                              "authority caps it (reports/2026-10-08/drill_motion.md)"),
+              "reproduce": (f"MUJOCO_GL=egl python scripts/solo_drill_render.py "
+                            f"deliver --seconds {a.seconds:g}")}
+    (REPO / "data" / "solo_drill").mkdir(parents=True, exist_ok=True)
+    (REPO / "data" / "solo_drill" / "final_L2_motion.json").write_text(
+        json.dumps(bundle, indent=1, default=str))
+    print(json.dumps({"steps": m["steps"], "falls": m["falls"],
+                      "margin_min": m["margin_min"], "cadence": m["cadence_s_per_step"],
+                      "verify": ver["ok"], "verify_slowmo": ver2["ok"],
+                      "skill_changes": changes}, indent=1))
+    return 0
+
+
+# --------------------------------------------------------- motion study (D1-D3)
+def cmd_motion(a) -> int:
+    """The width/mechanism/cadence study and the deliverable-motion clip.
+
+    Stages:
+      widths     -- the decision table: widths x {required, achievable, cadence}
+      mech       -- D2 authority mechanisms, one at a time and composed
+      cadence    -- the shift-speed / settle / drop sweep
+      deliver    -- run the chosen programme and render final_L2_motion.mp4
+      tracks     -- D4 reference-track repair probe (stance_widen_step, stalk_shuffle)
+    """
+    import numpy as np
+
+    from drill import kin as K, motion, scene
+    from drill.lock import sim_lock
+
+    stage = a.stage
+    model = scene.load_model()
+    ids = K.RobotIds.build(model)
+    DATA.mkdir(parents=True, exist_ok=True)
+    base = motion.MotionSpec(width=a.width, depth=a.depth, reach_cap=a.cap,
+                             shift_speed=a.speed, drop_max=a.drop,
+                             settle_tol=a.settle_tol, lean_gain=a.lean,
+                             support_roll=a.support_roll,
+                             v_gate=a.v_gate, pivot_max=a.pivot_max,
+                             settle=not a.no_settle,
+                             centre_tol=(a.centre_tol if a.centre_tol is not None
+                                         else 0.030))
+    out = {}
+    if stage == "widths":
+        widths = [float(v) for v in a.widths.split(",")]
+        with sim_lock(f"motion widths x{len(widths)}"):
+            rows = motion.stage_width_table(
+                model, ids, widths=widths, depth=a.depth, seconds=a.seconds,
+                reach_cap=a.cap, base=base, sched=motion.ShuffleSched(vy=a.vy))
+        (DATA / "motion_widths.json").write_text(json.dumps(rows, indent=1, default=str))
+        out = {"rows": rows}
+    elif stage == "mech":
+        variants = {
+            "m0_baseline": base,
+            "m1_lean": replace_spec(base, lean_gain=0.16),
+            "m2_support_roll": replace_spec(base, support_roll=True),
+            "m3_lean_roll": replace_spec(base, lean_gain=0.16, support_roll=True),
+            "m4_speed": replace_spec(base, shift_speed=0.055),
+            "m5_all": replace_spec(base, lean_gain=0.16, support_roll=True,
+                                   shift_speed=0.055, drop_max=0.055,
+                                   settle_tol=0.026, drop_gain=0.26),
+        }
+        with sim_lock(f"motion mechanisms x{len(variants)}"):
+            out = motion.stage_variants(model, ids, variants, seconds=a.seconds,
+                                        sched=motion.ShuffleSched(vy=a.vy))
+        (DATA / "motion_mech.json").write_text(json.dumps(out, indent=1, default=str))
+    elif stage == "cadence":
+        variants = {}
+        for sp in (0.030, 0.045, 0.060, 0.080):
+            variants[f"speed{int(sp*1000):03d}"] = replace_spec(
+                base, shift_speed=sp, centre_tol=(a.centre_tol or 0.30),
+                settle=False)
+        for stl in (0.020, 0.026, 0.035):
+            variants[f"settle{int(stl*1000):03d}"] = replace_spec(base,
+                                                                  settle_tol=stl)
+        with sim_lock(f"motion cadence x{len(variants)}"):
+            out = motion.stage_variants(model, ids, variants, seconds=a.seconds,
+                                        sched=motion.ShuffleSched(vy=a.vy))
+        (DATA / "motion_cadence.json").write_text(json.dumps(out, indent=1, default=str))
+    elif stage == "singles":
+        out = singles(model, ids, base, a)
+    else:
+        raise SystemExit(f"unknown motion stage {stage!r}")
+    print(json.dumps(out, indent=1, default=str)[:4000])
+    return 0
+
+
+def replace_spec(base, **kw):
+    from dataclasses import replace
+
+    return replace(base, **kw)
+
+
+def singles(model, ids, base, a):
+    """Single-case runs used to iterate on one parameter (tag -> saved trace)."""
+    import json as _json
+
+    import numpy as np
+
+    from drill import motion
+    from drill.lock import sim_lock
+
+    cases = {}
+    for item in (a.case or []):
+        # name:key=val,key=val  (values are floats or 0/1 for flags)
+        name, _, body = item.partition(":")
+        kw = {}
+        for kv in filter(None, body.split(",")):
+            k, v = kv.split("=")
+            k = {"w": "width", "d": "depth", "cap": "reach_cap",
+                 "speed": "shift_speed"}.get(k, k)
+            kw[k] = float(v)
+        cases[name] = replace_spec(base, **kw)
+    seconds = a.seconds
+    saved = {}
+    with sim_lock(f"motion singles x{len(cases)}"):
+        for name, spec in cases.items():
+            if a.deliverable or a.sched == "deliverable":
+                sched = motion.DeliverableSched(block_s=a.block, start_hold=0.5)
+            elif a.sched == "hold":
+                sched = motion.StepHoldSched(vx=a.vx, vy=a.vy, hold_s=a.hold_s,
+                                             axis=a.axis)
+            elif a.sched == "program":
+                sched = motion.DrillProgramSched(hold_s=a.hold_s,
+                                                 block_hold_s=(a.block if a.block > 1.0 else 3.0))
+            elif a.sched == "tap":
+                sched = motion.TapSched(vx=a.vx, hold_s=a.hold_s,
+                                        switch_s=a.switch_s)
+            else:
+                sched = motion.ShuffleSched(vy=a.vy, vx=a.vx, axis=a.axis,
+                                            block=a.block)
+            res = motion.run_case(model, ids, spec, seconds, sched=sched,
+                                  tag=f"M_{name}",
+                                  save_dir=DATA if a.save else None)
+            saved[name] = {**res["summary"],
+                           "events": [e for e in res["events"]
+                                      if e.get("event") in (
+                                          "shift_done", "step_done", "step_aborted",
+                                          "step_refused", "fall", "emergency_plant",
+                                          "settle_timeout", "recovered")][:400],
+                           "paths": res.get("paths")}
+            print(f"[{name}] fall {saved[name]['falls']} steps {saved[name]['steps']} "
+                  f"aborts {saved[name]['aborts']} cadence "
+                  f"{saved[name]['cadence_s_per_step']} margin_min "
+                  f"{saved[name]['margin_min']}", flush=True)
+    (DATA / "motion_singles.json").write_text(_json.dumps(saved, indent=1, default=str))
+    return saved
+
+
 def main(argv=None) -> int:
     ap = argparse.ArgumentParser(description=__doc__.splitlines()[0])
     sub = ap.add_subparsers(dest="cmd", required=True)
@@ -578,6 +833,43 @@ def main(argv=None) -> int:
 
     tk = sub.add_parser("tracks", help="run every retargeted reference track")
     tk.set_defaults(func=cmd_tracks)
+
+    m = sub.add_parser("motion", help="width/mechanism/cadence study + motion clip")
+    m.add_argument("--stage", default="widths",
+                   choices=("widths", "mech", "cadence", "singles", "tracks",
+                            "deliver"))
+    m.add_argument("--widths", default="0.21,0.28,0.35,0.42,0.495")
+    m.add_argument("--width", type=float, default=0.28)
+    m.add_argument("--depth", type=float, default=0.14)
+    m.add_argument("--seconds", type=float, default=30.0)
+    m.add_argument("--cap", type=float, default=0.40)
+    m.add_argument("--speed", type=float, default=0.030)
+    m.add_argument("--drop", type=float, default=0.045)
+    m.add_argument("--settle-tol", type=float, default=0.020)
+    m.add_argument("--lean", type=float, default=0.0)
+    m.add_argument("--support-roll", action="store_true")
+    m.add_argument("--v-gate", type=float, default=0.0)
+    m.add_argument("--pivot-max", type=float, default=0.50)
+    m.add_argument("--no-settle", action="store_true")
+    m.add_argument("--centre-tol", type=float, default=None)
+    m.add_argument("--vy", type=float, default=0.09)
+    m.add_argument("--vx", type=float, default=0.09)
+    m.add_argument("--axis", default="y", choices=("x", "y"))
+    m.add_argument("--sched", default="shuffle",
+                   choices=("shuffle", "hold", "tap", "program", "deliverable"))
+    m.add_argument("--switch-s", type=float, default=0.0)
+    m.add_argument("--hold-s", type=float, default=1.2)
+    m.add_argument("--block", type=float, default=9.0)
+    m.add_argument("--case", action="append")
+    m.add_argument("--save", action="store_true")
+    m.add_argument("--deliverable", action="store_true")
+    m.set_defaults(func=cmd_motion)
+
+    dv = sub.add_parser("deliver", help="run + render the deliverable motion clip")
+    dv.add_argument("--seconds", type=float, default=95.0)
+    dv.add_argument("--set", action="append")
+    dv.add_argument("--npz", default="")
+    dv.set_defaults(func=cmd_deliver)
 
     a = ap.parse_args(argv)
     return a.func(a)

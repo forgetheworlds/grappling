@@ -184,6 +184,42 @@ Entries appended as experiments run (Phase 2 onward).
   needed a reset or a fall. All motion-producing agents (teacher, drill, mocap reference) are bound
   to the rubric.
 
+### E18 (2026-10-08) — width-vs-steppability resolved by measurement; cadence bottleneck = the 9 s settle
+- WIDTH TABLE (DrillMotion, data/drill/motion_widths.json): required CoM travel per lift ≈ w/2 - 0.01 m
+  plus the fore-aft distance to the support footprint centre; measured authority 0.14 m (shipped cap)
+  to 0.20 m (delivered travel). Stepping is possible up to ~0.30 m width: w=0.28 -> 3 steps, 0 falls,
+  17.5 s/step; w=0.30 -> 6 steps, 0 falls, 13.7 s/step; w=0.21 -> 4 steps, 1 fall, 13.3 s/step;
+  w=0.35/0.42/0.495 -> past authority (falls or refusals; the operator's 0.495 m width is STRUCTURALLY
+  un-steppable: 59 refusals, refused rather than toppled). DELIVERED CHOICE: 0.28 m (57% of the
+  reference width) as a documented deviation justified by steppability.
+- MECHANISM RESULTS: support-foot EDGE ROLL REJECTED (falls with 0 completed steps at 0.21-0.30 m;
+  rolling a loaded foot halves the CoP braking range); TORSO LEAN KEPT (0.065 m CoM per rad of waist
+  roll; 4.70 -> 3.98 s/step and margin +0.0031 -> +0.0053 m at the 0.21 m base); support-foot
+  step-out reshuffle measured but NOT used (destabilises before it helps); YAW PIVOT REJECTED (a
+  0.5 rad loaded pivot is a hidden fall cause: pivot_max=0 converts 1-2-step falls into 90 s clean
+  runs); NEW KEPT MECHANISM: CoM-VELOCITY lift gate (|v_com| <= 0.04-0.05 m/s) — lifts now start
+  from a stationary CoM (0.0006-0.036 m/s vs 0.10-0.16 m/s before).
+- CADENCE: 12.1 s/step delivered (4.0 s/step at a 0.21 m base); limit decomposed as
+  crossing/0.03 m/s + 0.5 s swing + **9 s settle**, where the settle times out because the balance
+  law's ~4 cm steady-state CoM offset equals the recentre lead. Target 1.5-2.5 s/step NOT reached.
+- DELIVERED RUN (data/drill/M_D28c_feasible_L3_seed0.json): 69.98 s, 0 falls, 0 resets, 5/5 steps
+  with no refusals or aborts, CoM span 0.374 m (0.306 m in the second half), margin_min -0.0257 m
+  (transient single-support transfer — must be stated as such, not hidden). A same-spec 0.30 m run
+  fell at 22.9 s after 2 steps and is kept as the variance/failure sample.
+- CLIP: videos/solo_drill/final_L2_motion.mp4 was still rendering at hand-off (moov atom absent at
+  inspection); L2_motion_slowmo_step_quarter.mp4 present. Defects fixed meanwhile: L1 static-clip
+  claims corrected in drill.md + VISUALS; phase-advance acceptance added
+  (motion.phase_advance_count + motion_span + 2 tests, 21 passing); shadows on + plane extents fixed
+  (mat texture not applied by this MuJoCo version — stated, not claimed as done); fingers claim
+  corrected in drill.md §6.2; 03_side_by_side_reference.png rebuilt at matched scale with per-panel
+  timestamps.
+- NEXT (dispatched): P1 fix the settle (characterise the balance law's steady-state offset; use the
+  measured steady-state as the recentre set-point or add a bias/integral term; shorten the settle
+  criterion to |v_com| <= 0.01 m/s AND support load >= 90% AND margin >= 0.02 m) targeting <= 4 s/step
+  at 0.28 m; P2 then attempt a continuous capture-point shuffle (CoM keeps 0.03-0.08 m/s and the next
+  step catches it) and report the measured fall threshold; P3 re-deliver the motion clip with the
+  improved cadence; P4 explain the transient negative margin; P5 track repair only if budget remains.
+
 ### E17 (2026-10-08) — L1 clip visual verdict: CLEAN but NEARLY STATIC; the "18 cycles" claim is NOT in the artifact
 - INDEPENDENT FRAME-LEVEL VERDICT (L1VisualCheck, reports/2026-10-08/l1_clip_visual_check.md):
   **PARTIALLY MATCHES**. CLEAN: 0 black/flat/pop frames over 2700, no cuts, feet pixel-stationary

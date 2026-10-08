@@ -10,7 +10,7 @@ no resets inside a run, labelled evidence (rubric: `docs/QUALITY_RUBRIC.md`).
 
 | claim | evidence |
 |---|---|
-| **Ship candidate: rung L1** — wide staggered stance held continuously for **90 s from a single initial state**, no fall, no reset, with posture modulation (weight shift, arm carriage) and repeated level changes | `videos/solo_drill/final_continuous_drill.mp4`, `data/drill/FINAL_L1_90_feasible_L1_seed0.json/.npz` |
+| **Ship candidate: rung L1** — wide staggered stance held continuously for **90 s from a single initial state**, no fall, no reset, with posture modulation (weight shift, arm carriage) | `videos/solo_drill/final_L1_90s.mp4`, `data/drill/FINAL_L1_90_feasible_L1_seed0.json`. **CORRECTION (independent frame-level check, 2026-10-08): the artifact is a *static hold*, not a motion clip** — one crouch/rise in t=0–8 s, pelvis-z range 3 mm afterwards; the level-change elements time out on the descent governor (93 `element_timeout`) while the scheduler's phase/element counters advance. It is evidence of **stability**, and it does not satisfy "the robot visibly moves". The motion artifact is `videos/solo_drill/final_L2_motion.mp4` (`reports/2026-10-08/drill_motion.md`) |
 | The same controller **recovers from 20 N pushes** injected mid-run (3 pushes in one 90 s episode, no fall) | `final_disturbances.mp4`, `FINAL_L1_push_*.json`; measured limit below |
 | Rung **L0** (stance hold + posture modulation, both feet planted) holds for 60 s clean; L1 adds level changes | `L0_hold_60s.mp4`, `FINAL_L0_60_*.json` |
 | The **PD baseline topples** on the same stance (no feedback) | `01_baseline_stancepd.mp4` (fall at 8.4 s) |
@@ -172,7 +172,7 @@ Headline run (`FINAL_L1_90`, rung L1, seed 0, 90 s, 0 falls):
 | F2 no stalls | 3 | 0.4 % of ticks with no base motion |
 | F3 smoothness | 3 | p95 joint-target change 0.0017 rad/tick |
 | F4 transitions | 2 | worst reference IK residual 0.0068 m |
-| F5 repeats | 3 | 18 completed programme cycles |
+| F5 repeats | 1 | 18 programme cycles were *executed by the scheduler*, but an independent frame-level check (2026-10-08) shows the clip is physically static after t=8 s (pelvis-z range 3 mm): every `l1_crouch` element times out on the descent governor, so the cycles are scheduler bookkeeping, not motion |
 | G1/G2 penetration | 3 | worst contact penetration −2.7 mm (limits: 20 mm mesh, 10 mm ground) |
 | G3 foot slide | 3 | worst loaded-foot drift **0.000 m** |
 | G4 saturation | 3 | peak actuator force / range 0.00 |
@@ -210,7 +210,7 @@ Side-by-side against the operator's own reference frames
 | hand carriage | **DIFFERS (fixable)** | the reference carries the hands low (hip height, elbows in); this build carries them forward at chest height (0.30 m forward, 1.06 m up). It is a *choice* in `StanceSpec.hand_up`, not a limitation; lowering it (~0.18 m) is the first visual change to make next, at the cost of re-solving the stance and re-verifying the CoM/leg reach |
 | level change shape | **APPROXIMATES** | both drop with the torso staying tall and the legs absorbing it; the reference goes deeper and faster |
 | motion character | **DIFFERS** | his chapter is stance *and motion* (stalking/shuffling steps); this rung is an in-place hold plus level changes, because the sequenced step is the open L2 gate (§5) |
-| fingers/grips | **DIFFERS by morphology** | the G1 has rubber pads, no articulated fingers; no grip or opponent force is simulated or claimed |
+| fingers/grips | **DIFFERS** | the renders show articulated hand/finger geometry on this model (an earlier claim of "no fingers" was wrong); what is *not* modelled or claimed is grip force, finger contact or any opponent interaction |
 
 ## 6.3 Threshold recalibrations (declared)
 
