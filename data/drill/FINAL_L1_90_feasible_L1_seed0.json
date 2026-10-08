@@ -2027,10 +2027,10 @@
    "elapsed": 89.96
   }
  ],
- "wall_s": 20.824325799942017,
+ "wall_s": 20.822937965393066,
  "aborted": null,
  "provenance": {
-  "git_commit": "3a7ce45",
+  "git_commit": "c9ab9a2",
   "worktree_dirty": true,
   "controller": "feasible",
   "rung": "L1",

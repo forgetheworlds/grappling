@@ -184,6 +184,31 @@ Entries appended as experiments run (Phase 2 onward).
   needed a reset or a fall. All motion-producing agents (teacher, drill, mocap reference) are bound
   to the rubric.
 
+### E14 (2026-10-08) — L2 step: FIRST VIOLATED CONSTRAINT named + render lock fixed
+- STEP DIAGNOSIS (DrillDirector, reports/2026-10-08/drill.md §7.1): the first violated constraint in
+  the L2 entry run is the SWING leg's ankle_roll limit (±0.2618 rad), 2 ticks after the lift command
+  begins. Trace: at the unload gate (t=1.18 s) CoM y=-0.058, base y=-0.075, foot load 68/270 N; then
+  swing ankle_roll runs -0.275 (1.22 s), -0.325 (1.24), -0.375 (1.26), -0.415 (1.28) while the CoM
+  only reaches y=-0.074. CAUSE: the unload gate fires on the swing foot's VERTICAL LOAD (0.21 of body
+  weight) while the CoM is still ~0.05-0.06 m short of the 0.10-0.13 m lateral travel this staggered
+  base requires, so the swing leg absorbs the residual in ankle roll, saturates, and the geometry
+  breaks. FIX (stated, dispatched): gate the lift on the measured CoM margin over the SUPPORT foot's
+  own hull (≥ +0.02 m), keep the swing-side hip/knee compliant through the shift, and allow a small
+  support-foot yaw pivot to shorten the required lateral travel; land with the existing load-gated
+  landing.
+- RENDER LOCK FIXED (self-inflicted bottleneck removed): the suite now takes data/locks/sim.lock only
+  for the 6 simulation passes (~5 min) and renders LOCK-FREE from cached traces. Render priority:
+  final_L1_90s.mp4 → 01_baseline_stancepd.mp4 → 99_failure_entry_L2.mp4 → pushes → L0/slowmo at 0.5
+  scale named `_diag`. Every clip is ffprobe-verified (h264/yuv420p/960x720, duration+frames vs the
+  trace) plus a non-black/non-static check, with a data/solo_drill/<name>.json evidence bundle.
+- STANCE now matches the operator's measured reference on width (0.495 m vs spec 0.491) with hands
+  at hip height; torso pitch 15.3° vs 47° recorded as a morphology-bound difference (CoP inside four
+  5 mm contact spheres; ankle roll saturates at 0.26 rad). Margin improved: built +0.086 m, worst
+  in-run +0.0295 m; rubric A1 3, A3 3, A6 2.
+- NOT DONE (dispatched to a new agent, DrillStep2): the CoM-gated lift implementation, the
+  reference-trajectory tracking mode (src/drill/tracking.py over data/refs_video/*.npz — the strongest
+  lead for L2/L3), and TeacherAdapter wiring to the single-robot RobotTeacher.
+
 ### E13 (2026-10-08) — FIRST CLEAN ARTIFACT: drill L1 (90 s, 0 falls) + teacher fixes landed
 - DRILL (DrillDirector, verified by orchestrator: tests/test_drill.py 14 passed; stance_report.json
   read directly): L1 CLEAN and shipped — 90.0 s continuous, 0 falls, 0 resets (one initialisation),

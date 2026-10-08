@@ -239,6 +239,37 @@ small absolute limit is a real property of this robot+controller (there is no pu
 policy; the M0 audit already recorded push machinery as absent before this session) and it
 is reported rather than dressed up — 35 N is 11 % of body weight for 0.12 s.
 
+## 7.1 Step-sequencing diagnosis (first violated constraint, with numbers)
+
+Instrumented run: L2 (stand → stance entry), per-control-tick log of CoM xy + margin, the support
+hull, per-foot load, ankle roll vs its ±0.2618 rad limit, the safety blend alpha, the tracking
+error and the stepper phase.
+
+**First violated constraint: the *swing* leg's `ankle_roll` joint limit, 2 ticks after the lift
+command starts (t = 1.22 s, 50 Hz; the trace is reproduced by
+`MUJOCO_GL=egl python scripts/solo_drill_render.py run --controller feasible --rung L2
+--seconds 30 --start stand`).**
+
+| t (s) | stepper | CoM y (m) | base y (m) | foot load L/R (N) | ankle roll L/R (rad) | margin |
+|---|---|---|---|---|---|---|
+| 1.14 | shift | −0.051 | −0.067 | 86 / 252 | −0.241 / −0.252 | +0.046 |
+| 1.18 | shift (gate fires) | −0.058 | −0.075 | 68 / 270 | −0.244 / −0.256 | +0.047 |
+| 1.22 | **lift** | −0.065 | −0.082 | 0 / 313 | **−0.275** / −0.262 | +0.047 |
+| 1.26 | lift | −0.071 | −0.088 | 0 / 355 | **−0.375** / −0.267 | +0.048 |
+| 1.28 | lift | −0.074 | −0.091 | 0 / 347 | **−0.415** / −0.267 | +0.049 |
+
+The unload gate fired on the *vertical load* (the swing foot at 68 N = 0.21 of body weight) while
+the CoM was still only 0.058 m toward the support foot, but the geometry of this staggered base
+needs ≈ 0.10–0.13 m of lateral CoM travel before the swing leg can hang without lateral ankle
+torque. The swing leg's ankle roll then saturates (±0.2618 rad) within two ticks, the leg
+geometry breaks, the foot is dragged and the body tips — i.e. the sequence **translates the CoM
+while both feet are still loaded**, exactly the failure mode the physics bound predicts.
+
+**What a corrected sequence must do differently (one line): gate the lift on the measured CoM
+position over the *support foot's own hull* (margin ≥ +0.02 m there), not on the swing foot's
+vertical load, and make the swing-side hip/knee compliant while the shift completes — with a
+small support-foot yaw pivot to shorten the required lateral travel.**
+
 ## 8. Failures kept in the record
 
 * `99_failure_entry_L2.mp4` — the stand→stance entry walk (1 step completed, fall at 5.8 s).
@@ -345,11 +376,10 @@ vs 0.033 m leg reach) match what this build observed.
   `FeasibleDrill` (consuming `qpos_a (T,36)` with the balancer active) that is not built. They
   are the strongest lead for the L2/L3 gate: the coach's own shuffle/circle tracks are already
   in the G1 joint format.
-* **The step-sequencing diagnosis is incomplete**: the failing sequence is reproducible
-  (`FAIL_ENTRY_L2`, and the reverted L1-with-one-step variant), the failing transition is
-  identified (the weight transfer *between* steps: the CoM must return to the mid-foot before
-  the next lift and does not settle in the staggered base), but the per-tick first-violated
-  constraint trace has not been produced.
+* The step-sequencing diagnosis is **done**: the first violated constraint is the swing leg's
+  `ankle_roll` limit, 2 ticks after the lift starts (§7.1), caused by lifting before the CoM has
+  travelled far enough laterally. The fix is specified (gate on CoM-over-support-foot, compliant
+  swing leg, support-foot pivot) but **not implemented** in this delivery.
 * **The teacher seam was re-checked and is now single-robot** (`src/teacher/controller.py:
   RobotTeacher`, 29 targets, prefix `""`; `teacher/solo_scene.py`). `TeacherAdapter` is still a
   stub in this delivery: wiring and verifying it is a small, well-defined next step (the

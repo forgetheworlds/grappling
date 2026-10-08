@@ -182,8 +182,18 @@ def cmd_suite(a) -> int:
         (f"{tag}_L1_90", dict(controller="feasible", rung="L1", seconds=90.0,
                               start="stance", tag=f"{tag}_L1_90"), [
             ("final_L1_90s.mp4", "rung L1 - stance hold + weight shift + level change (90 s)",
-             0.0, None, ("the headline clip: one unbroken episode, no resets, "
-                         "rung L1 (stance hold + weight shift + level change)")),
+             0.0, None, ("the rung-L1 clip: one unbroken episode, no resets, "
+                         "stance hold + weight shift + level change"), 1.0),
+        ]),
+        ("BASE_PD", dict(controller="stance_pd", rung="L1", seconds=12.0,
+                         start="stance", tag="BASE_PD"), [
+            ("01_baseline_stancepd.mp4", "baseline: StancePD (no feedback)",
+             0.0, None, "the same stance pose under pure position control: it topples", 1.0),
+        ]),
+        ("FAIL_ENTRY_L2", dict(controller="feasible", rung="L2", seconds=30.0,
+                               start="stand", tag="FAIL_ENTRY_L2"), [
+            ("99_failure_entry_L2.mp4", "FAILURE: stand -> stance entry (L2 stepping)",
+             1.0, 12.0, "the entry walk: steps complete in isolation but the sequence is not clean yet", 1.0),
         ]),
         (f"{tag}_L1_push", dict(controller="feasible", rung="L1", seconds=90.0,
                                 start="stance", tag=f"{tag}_L1_push",
@@ -191,38 +201,31 @@ def cmd_suite(a) -> int:
                                         PushSpec(t=38.0, dur=0.12, fy=20.0, label="push+20N"),
                                         PushSpec(t=62.0, dur=0.12, fx=20.0, label="push+20N")]), [
             ("L1_90s_with_pushes.mp4", "rung L1 with pushes (3 x 20 N, all recovered)",
-             0.0, 60.0, "3 x 20 N pushes (all recovered): CoM, margin and the push windows are overlaid"),
+             0.0, 60.0, "3 x 20 N pushes (all recovered): CoM, margin and the push windows are overlaid", 1.0),
         ]),
         (f"{tag}_L0_60", dict(controller="feasible", rung="L0", seconds=60.0,
                               start="stance", tag=f"{tag}_L0_60"), [
             ("L0_hold_30s.mp4", "rung L0: stance hold + posture modulation",
-             0.0, 30.0, "both feet planted throughout: the rung below the ship candidate"),
-        ]),
-        ("BASE_PD", dict(controller="stance_pd", rung="L1", seconds=12.0,
-                         start="stance", tag="BASE_PD"), [
-            ("01_baseline_stancepd.mp4", "baseline: StancePD (no feedback)",
-             0.0, None, "the same stance pose under pure position control: it topples"),
+             0.0, 30.0, "both feet planted throughout: the rung below the ship candidate", 0.5),
         ]),
         ("FAIL_PUSH90", dict(controller="feasible", rung="L1", seconds=25.0,
                              start="stance", tag="FAIL_PUSH90",
                              pushes=[PushSpec(t=8.0, dur=0.12, fx=-90.0, label="push-90N")]), [
             ("99_failure_push90N.mp4", "FAILURE: 90 N push",
-             6.0, 13.0, "above the measured recovery limit: 20 N recovers, 35 N is marginal, 90 N topples"),
-        ]),
-        ("FAIL_ENTRY_L2", dict(controller="feasible", rung="L2", seconds=30.0,
-                               start="stand", tag="FAIL_ENTRY_L2"), [
-            ("99_failure_entry_L2.mp4", "FAILURE: stand -> stance entry (L2 stepping)",
-             1.0, 12.0, "the entry walk: steps complete in isolation but the sequence is not clean yet"),
+             6.0, 13.0, "above the measured recovery limit: 20 N recovers, 35 N is marginal, 90 N topples", 0.5),
         ]),
         ("SLOWMO_L1", dict(controller="feasible", rung="L1", seconds=20.0,
                            start="stance", tag="SLOWMO_L1"), [
             ("02_slowmo_level_change_quarter_speed.mp4",
              "slow motion 0.25x: level change down / hold / rise", 3.0, 6.0,
-             "0.25x of the level change: descent, hold, rise (rubric H3)"),
+             "0.25x of the level change: descent, hold, rise (rubric H3)", 1.0),
         ]),
     ]
     results = {}
-    with sim_lock("drill suite (runs + renders)"):
+    # 1) SIMULATION pass: takes the heavy-process lock, one run at a time, and
+    #    releases it as soon as the traces are saved (~5 min total).  Rendering
+    #    never blocks another agent's simulation: it only reads cached traces.
+    with sim_lock("drill suite: 6 short runs"):
         for run_tag, cfg_kw, renders in jobs:
             cfg = RunConfig(**cfg_kw)
             res = run(cfg, verbose=True)
@@ -233,51 +236,50 @@ def cmd_suite(a) -> int:
                                 "steps": res.metrics["steps_completed"]}
             print(f"[suite] {run_tag}: falls={res.metrics['falls']} "
                   f"steps={res.metrics['steps_completed']}", flush=True)
-            for name, title, t0, t1, caption in renders:
-                npz = Path(paths["npz"])
-                meta = _meta_for(npz, name.split("_")[0], title)
-                meta["footer"] = (f"config {npz.name} | one reset, no in-run resets | "
-                                  f"{caption}")
-                r = video_mod.render_trace(video_mod.load_trace(npz), VIDEO / name,
-                                           meta=meta, t0=t0, t1=t1,
-                                           sheet_times=tuple(np.linspace(
-                                               t0 + 0.5, float(
-                                                   (t1 if t1 else np.load(npz)["t"][-1]))
-                                               - 0.5, 3)),
-                                           caption=caption)
-                ver = verify_clip(Path(r["mp4"]), expect_s=(t1 or float(
-                    np.load(npz)["t"][-1])) - t0, expect_frames=r["frames"])
-                print(f"[suite] rendered {r['mp4']} ({r['frames']} frames) "
-                      f"verify={ver}", flush=True)
-                # evidence bundle: metrics + rubric + provenance beside the clip
-                # (docs/EVIDENCE_PROTOCOL.md: data/<stage>/<name>.json, same basename)
-                run_blob = json.loads((Path(paths["json"])).read_text())
-                rub = rubric_mod.assess(paths["npz"], run_blob)
-                bundle = {"video": str(VIDEO / name),
-                          "contact_sheet": r.get("sheet"),
-                          "trace_npz": paths["npz"], "run_json": paths["json"],
-                          "config": run_blob.get("config"),
-                          "provenance": run_blob.get("provenance"),
-                          "metrics": run_blob.get("metrics"),
-                          "rubric": rub,
-                          "rubric_table": rubric_mod.render_table(rub),
-                          "label": title, "caption": caption,
-                          "reproduce": run_blob.get("provenance", {}).get("reproduce"),
-                          "render_command": (f"MUJOCO_GL=egl python scripts/solo_drill_render.py "
-                                             f"render --npz {paths['npz']} --out videos/solo_drill/{name}")}
-                bdir = REPO / "data" / "solo_drill"
-                bdir.mkdir(parents=True, exist_ok=True)
-                (bdir / (Path(name).stem + ".json")).write_text(
-                    json.dumps(bundle, indent=1, default=str))
-                if name == "final_L1_90s.mp4" and not cfg.pushes:
-                    # the acceptance name `final_continuous_drill.mp4` stays
-                    # EMPTY until a clip genuinely contains stance -> shuffle/
-                    # circle -> level change -> penetration -> knee -> recovery
-                    # (docs/EVIDENCE_PROTOCOL.md naming rules; a rung clip must
-                    # not occupy the acceptance name)
-                    print("[suite] rung clip named final_L1_90s.mp4; the acceptance name "
-                          "final_continuous_drill.mp4 is intentionally NOT created "
-                          "(no full-drill clip exists)", flush=True)
+    # 2) RENDER pass: LOCK-FREE (no physics is stepped here).  Priority order:
+    #    the rung clip first, then the baseline and one failure clip, then the
+    #    rest -- the last group at diagnostic scale, named *_diag.
+    for run_tag, cfg_kw, renders in jobs:
+        cfg = RunConfig(**cfg_kw)
+        paths = results[run_tag]["paths"]
+        for name, title, t0, t1, caption, scale in renders:
+            if scale < 1.0:
+                name = name.replace(".mp4", "_diag.mp4")
+            npz = Path(paths["npz"])
+            meta = _meta_for(npz, name.split("_")[0], title)
+            meta["footer"] = (f"config {npz.name} | one reset, no in-run resets | {caption}")
+            r = video_mod.render_trace(video_mod.load_trace(npz), VIDEO / name,
+                                       meta=meta, t0=t0, t1=t1, scale=scale,
+                                       sheet_times=tuple(np.linspace(
+                                           t0 + 0.5, float(
+                                               (t1 if t1 else np.load(npz)["t"][-1])) - 0.5, 3)),
+                                       caption=caption)
+            ver = verify_clip(Path(r["mp4"]), expect_s=(t1 or float(
+                np.load(npz)["t"][-1])) - t0, expect_frames=r["frames"])
+            print(f"[suite] rendered {r['mp4']} ({r['frames']} frames) verify={ver}",
+                  flush=True)
+            results[run_tag].setdefault("renders", []).append({"name": name, "verify": ver})
+            run_blob = json.loads((Path(paths["json"])).read_text())
+            rub = rubric_mod.assess(paths["npz"], run_blob)
+            bundle = {"video": str(VIDEO / name),
+                      "contact_sheet": r.get("sheet"), "trace_npz": paths["npz"],
+                      "run_json": paths["json"], "config": run_blob.get("config"),
+                      "provenance": run_blob.get("provenance"),
+                      "metrics": run_blob.get("metrics"), "rubric": rub,
+                      "rubric_table": rubric_mod.render_table(rub),
+                      "label": title, "caption": caption,
+                      "clip_verification": ver,
+                      "reproduce": run_blob.get("provenance", {}).get("reproduce"),
+                      "render_command": (f"MUJOCO_GL=egl python scripts/solo_drill_render.py "
+                                         f"render --npz {paths['npz']} --out videos/solo_drill/{name}")}
+            bdir = REPO / "data" / "solo_drill"
+            bdir.mkdir(parents=True, exist_ok=True)
+            (bdir / (Path(name).stem + ".json")).write_text(
+                json.dumps(bundle, indent=1, default=str))
+            if name == "final_L1_90s.mp4" and not cfg.pushes:
+                print("[suite] rung clip named final_L1_90s.mp4; the acceptance name "
+                      "final_continuous_drill.mp4 is intentionally NOT created "
+                      "(no full-drill clip exists)", flush=True)
     (DATA / "suite_summary.json").write_text(json.dumps(results, indent=1, default=str))
     print(json.dumps(results, indent=1, default=str))
     return 0

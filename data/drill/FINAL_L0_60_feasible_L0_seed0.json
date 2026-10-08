@@ -46,8 +46,8 @@
    "max_load_drift_m": 0.0
   },
   "interfoot": {
-   "min_separation_m": 0.47179907459385795,
-   "mean_separation_m": 0.5016500395489981
+   "min_separation_m": 0.5504333808976593,
+   "mean_separation_m": 0.5737992057585789
   },
   "pushes": {
    "n_pushes": 0,
@@ -55,592 +55,592 @@
    "recoveries": []
   },
   "tracking": {
-   "mean_com_track_err_m": 0.030700079097452374,
-   "p95_com_track_err_m": 0.041743824891216925,
+   "mean_com_track_err_m": 0.004491643745171795,
+   "p95_com_track_err_m": 0.010837643491757212,
    "per_skill": {
     "STANCE": {
      "ticks": 3000,
      "duration_s": 59.980000000000004,
-     "realized_disp_m": 0.0626374024490963,
+     "realized_disp_m": 0.03545109145577265,
      "cmd_speed_mps": 0.0,
      "cmd_yaw_rate": 0.0,
-     "realized_yaw_change_deg": 1.3674775137237887,
-     "mean_track_err_m": 0.030700079097452374
+     "realized_yaw_change_deg": 1.5434669140326585,
+     "mean_track_err_m": 0.004491643745171795
     }
    }
   },
   "posture": {
    "tilt_deg": {
-    "mean": 10.004351160902623,
-    "max": 11.625859859224818,
-    "p95": 10.522289613192934
+    "mean": 15.182953739951486,
+    "max": 15.508764079285383,
+    "p95": 15.446592830346136
    },
    "pelvis_z": {
-    "mean": 0.7002986882586044,
-    "min": 0.6910127478679348,
-    "max": 0.7204157905708299
+    "mean": 0.7101366205129443,
+    "min": 0.7009819593700635,
+    "max": 0.72959994205008
    },
-   "head_z_mean": 1.1234058606576383,
-   "min_foot_clearance_m": -0.0005095412339838081,
+   "head_z_mean": 1.1257777242848221,
+   "min_foot_clearance_m": -0.0006893632217668823,
    "both_airborne_frac": 0.0
   },
   "plausibility": {
-   "penetration_min_m": -0.002503876603987122,
+   "penetration_min_m": -0.0025904299856445113,
    "penetration_gt_ground_thr": 0,
    "penetration_gt_mesh_thr": 0,
    "sat_frac_mean": 0.0,
    "sat_frac_max": 0.0,
-   "ctrl_delta_p95_rad": 0.001408630114143189,
-   "ctrl_delta_max_rad": 0.0382195576679743
+   "ctrl_delta_p95_rad": 0.001310796148078875,
+   "ctrl_delta_max_rad": 0.030940427097051207
   },
   "continuity": {
    "duration_s": 59.980000000000004,
    "n_ticks": 3000,
    "clock_monotone": true,
    "resets": 0,
-   "zero_motion_frac": 0.15171723907969323
+   "zero_motion_frac": 0.0
   },
   "elements_done": 52,
   "cycles_done": 8,
   "safety_blend_ticks": 0,
-  "ik_err_max": 0.000312181673824117,
+  "ik_err_max": 0.0004669242881215377,
   "emergency_plants": 0
  },
  "events": [
   {
-   "t": 1.96,
+   "t": 2.18,
    "event": "element_done",
    "phase": "l0_shift_0",
    "how": "hold",
-   "elapsed": 1.94
+   "elapsed": 2.16
   },
   {
-   "t": 4.44,
+   "t": 4.6,
    "event": "element_done",
    "phase": "l0_shift_1",
    "how": "hold",
-   "elapsed": 2.46
+   "elapsed": 2.4
   },
   {
-   "t": 6.78,
+   "t": 6.94,
    "event": "element_done",
    "phase": "l0_shift_2",
    "how": "hold",
    "elapsed": 2.32
   },
   {
-   "t": 6.78,
+   "t": 6.94,
    "event": "element_timeout",
    "phase": "l0_shift_3"
   },
   {
-   "t": 6.78,
+   "t": 6.94,
    "event": "element_done",
    "phase": "l0_shift_3",
    "how": "timeout",
-   "elapsed": 6.78
+   "elapsed": 6.94
   },
   {
-   "t": 8.54,
-   "event": "element_done",
-   "phase": "l0_shift_4",
-   "how": "hold",
-   "elapsed": 1.74
-  },
-  {
-   "t": 8.54,
-   "event": "element_timeout",
-   "phase": "l0_shift_5"
-  },
-  {
-   "t": 8.54,
-   "event": "element_done",
-   "phase": "l0_shift_5",
-   "how": "timeout",
-   "elapsed": 8.54
-  },
-  {
-   "t": 8.54,
-   "event": "cycle_done",
-   "cycle": 1
-  },
-  {
-   "t": 10.76,
-   "event": "element_done",
-   "phase": "l0_shift_0",
-   "how": "hold",
-   "elapsed": 2.2
-  },
-  {
-   "t": 10.76,
-   "event": "element_timeout",
-   "phase": "l0_shift_1"
-  },
-  {
-   "t": 10.76,
-   "event": "element_done",
-   "phase": "l0_shift_1",
-   "how": "timeout",
-   "elapsed": 10.76
-  },
-  {
-   "t": 13.12,
-   "event": "element_done",
-   "phase": "l0_shift_2",
-   "how": "hold",
-   "elapsed": 2.34
-  },
-  {
-   "t": 13.12,
-   "event": "element_timeout",
-   "phase": "l0_shift_3"
-  },
-  {
-   "t": 13.12,
-   "event": "element_done",
-   "phase": "l0_shift_3",
-   "how": "timeout",
-   "elapsed": 13.12
-  },
-  {
-   "t": 15.72,
-   "event": "element_done",
-   "phase": "l0_shift_4",
-   "how": "hold",
-   "elapsed": 2.58
-  },
-  {
-   "t": 15.72,
-   "event": "element_timeout",
-   "phase": "l0_shift_5"
-  },
-  {
-   "t": 15.72,
-   "event": "element_done",
-   "phase": "l0_shift_5",
-   "how": "timeout",
-   "elapsed": 15.72
-  },
-  {
-   "t": 15.72,
-   "event": "cycle_done",
-   "cycle": 2
-  },
-  {
-   "t": 18.06,
-   "event": "element_done",
-   "phase": "l0_shift_0",
-   "how": "hold",
-   "elapsed": 2.32
-  },
-  {
-   "t": 18.06,
-   "event": "element_timeout",
-   "phase": "l0_shift_1"
-  },
-  {
-   "t": 18.06,
-   "event": "element_done",
-   "phase": "l0_shift_1",
-   "how": "timeout",
-   "elapsed": 18.06
-  },
-  {
-   "t": 20.08,
-   "event": "element_done",
-   "phase": "l0_shift_2",
-   "how": "hold",
-   "elapsed": 2.0
-  },
-  {
-   "t": 20.08,
-   "event": "element_timeout",
-   "phase": "l0_shift_3"
-  },
-  {
-   "t": 20.08,
-   "event": "element_done",
-   "phase": "l0_shift_3",
-   "how": "timeout",
-   "elapsed": 20.08
-  },
-  {
-   "t": 22.44,
-   "event": "element_done",
-   "phase": "l0_shift_4",
-   "how": "hold",
-   "elapsed": 2.34
-  },
-  {
-   "t": 22.44,
-   "event": "element_timeout",
-   "phase": "l0_shift_5"
-  },
-  {
-   "t": 22.44,
-   "event": "element_done",
-   "phase": "l0_shift_5",
-   "how": "timeout",
-   "elapsed": 22.44
-  },
-  {
-   "t": 22.44,
-   "event": "cycle_done",
-   "cycle": 3
-  },
-  {
-   "t": 24.38,
-   "event": "element_done",
-   "phase": "l0_shift_0",
-   "how": "hold",
-   "elapsed": 1.92
-  },
-  {
-   "t": 24.38,
-   "event": "element_timeout",
-   "phase": "l0_shift_1"
-  },
-  {
-   "t": 24.38,
-   "event": "element_done",
-   "phase": "l0_shift_1",
-   "how": "timeout",
-   "elapsed": 24.38
-  },
-  {
-   "t": 26.88,
-   "event": "element_done",
-   "phase": "l0_shift_2",
-   "how": "hold",
-   "elapsed": 2.48
-  },
-  {
-   "t": 26.88,
-   "event": "element_timeout",
-   "phase": "l0_shift_3"
-  },
-  {
-   "t": 26.88,
-   "event": "element_done",
-   "phase": "l0_shift_3",
-   "how": "timeout",
-   "elapsed": 26.88
-  },
-  {
-   "t": 28.52,
+   "t": 8.58,
    "event": "element_done",
    "phase": "l0_shift_4",
    "how": "hold",
    "elapsed": 1.62
   },
   {
-   "t": 28.52,
+   "t": 8.58,
    "event": "element_timeout",
    "phase": "l0_shift_5"
   },
   {
-   "t": 28.52,
+   "t": 8.58,
    "event": "element_done",
    "phase": "l0_shift_5",
    "how": "timeout",
-   "elapsed": 28.52
+   "elapsed": 8.58
   },
   {
-   "t": 28.52,
+   "t": 8.58,
+   "event": "cycle_done",
+   "cycle": 1
+  },
+  {
+   "t": 10.8,
+   "event": "element_done",
+   "phase": "l0_shift_0",
+   "how": "hold",
+   "elapsed": 2.2
+  },
+  {
+   "t": 10.8,
+   "event": "element_timeout",
+   "phase": "l0_shift_1"
+  },
+  {
+   "t": 10.8,
+   "event": "element_done",
+   "phase": "l0_shift_1",
+   "how": "timeout",
+   "elapsed": 10.8
+  },
+  {
+   "t": 13.16,
+   "event": "element_done",
+   "phase": "l0_shift_2",
+   "how": "hold",
+   "elapsed": 2.34
+  },
+  {
+   "t": 13.16,
+   "event": "element_timeout",
+   "phase": "l0_shift_3"
+  },
+  {
+   "t": 13.16,
+   "event": "element_done",
+   "phase": "l0_shift_3",
+   "how": "timeout",
+   "elapsed": 13.16
+  },
+  {
+   "t": 15.76,
+   "event": "element_done",
+   "phase": "l0_shift_4",
+   "how": "hold",
+   "elapsed": 2.58
+  },
+  {
+   "t": 15.76,
+   "event": "element_timeout",
+   "phase": "l0_shift_5"
+  },
+  {
+   "t": 15.76,
+   "event": "element_done",
+   "phase": "l0_shift_5",
+   "how": "timeout",
+   "elapsed": 15.76
+  },
+  {
+   "t": 15.76,
+   "event": "cycle_done",
+   "cycle": 2
+  },
+  {
+   "t": 18.02,
+   "event": "element_done",
+   "phase": "l0_shift_0",
+   "how": "hold",
+   "elapsed": 2.24
+  },
+  {
+   "t": 18.02,
+   "event": "element_timeout",
+   "phase": "l0_shift_1"
+  },
+  {
+   "t": 18.02,
+   "event": "element_done",
+   "phase": "l0_shift_1",
+   "how": "timeout",
+   "elapsed": 18.02
+  },
+  {
+   "t": 20.16,
+   "event": "element_done",
+   "phase": "l0_shift_2",
+   "how": "hold",
+   "elapsed": 2.12
+  },
+  {
+   "t": 20.16,
+   "event": "element_timeout",
+   "phase": "l0_shift_3"
+  },
+  {
+   "t": 20.16,
+   "event": "element_done",
+   "phase": "l0_shift_3",
+   "how": "timeout",
+   "elapsed": 20.16
+  },
+  {
+   "t": 22.52,
+   "event": "element_done",
+   "phase": "l0_shift_4",
+   "how": "hold",
+   "elapsed": 2.34
+  },
+  {
+   "t": 22.52,
+   "event": "element_timeout",
+   "phase": "l0_shift_5"
+  },
+  {
+   "t": 22.52,
+   "event": "element_done",
+   "phase": "l0_shift_5",
+   "how": "timeout",
+   "elapsed": 22.52
+  },
+  {
+   "t": 22.52,
+   "event": "cycle_done",
+   "cycle": 3
+  },
+  {
+   "t": 24.46,
+   "event": "element_done",
+   "phase": "l0_shift_0",
+   "how": "hold",
+   "elapsed": 1.92
+  },
+  {
+   "t": 24.46,
+   "event": "element_timeout",
+   "phase": "l0_shift_1"
+  },
+  {
+   "t": 24.46,
+   "event": "element_done",
+   "phase": "l0_shift_1",
+   "how": "timeout",
+   "elapsed": 24.46
+  },
+  {
+   "t": 26.96,
+   "event": "element_done",
+   "phase": "l0_shift_2",
+   "how": "hold",
+   "elapsed": 2.48
+  },
+  {
+   "t": 26.96,
+   "event": "element_timeout",
+   "phase": "l0_shift_3"
+  },
+  {
+   "t": 26.96,
+   "event": "element_done",
+   "phase": "l0_shift_3",
+   "how": "timeout",
+   "elapsed": 26.96
+  },
+  {
+   "t": 28.6,
+   "event": "element_done",
+   "phase": "l0_shift_4",
+   "how": "hold",
+   "elapsed": 1.62
+  },
+  {
+   "t": 28.6,
+   "event": "element_timeout",
+   "phase": "l0_shift_5"
+  },
+  {
+   "t": 28.6,
+   "event": "element_done",
+   "phase": "l0_shift_5",
+   "how": "timeout",
+   "elapsed": 28.6
+  },
+  {
+   "t": 28.6,
    "event": "cycle_done",
    "cycle": 4
   },
   {
-   "t": 31.04,
+   "t": 31.12,
    "event": "element_done",
    "phase": "l0_shift_0",
    "how": "hold",
    "elapsed": 2.5
   },
   {
-   "t": 31.04,
+   "t": 31.12,
    "event": "element_timeout",
    "phase": "l0_shift_1"
   },
   {
-   "t": 31.04,
+   "t": 31.12,
    "event": "element_done",
    "phase": "l0_shift_1",
    "how": "timeout",
-   "elapsed": 31.04
+   "elapsed": 31.12
   },
   {
-   "t": 32.72,
+   "t": 32.92,
    "event": "element_done",
    "phase": "l0_shift_2",
    "how": "hold",
-   "elapsed": 1.66
+   "elapsed": 1.78
   },
   {
-   "t": 32.72,
+   "t": 32.92,
    "event": "element_timeout",
    "phase": "l0_shift_3"
   },
   {
-   "t": 32.72,
+   "t": 32.92,
    "event": "element_done",
    "phase": "l0_shift_3",
    "how": "timeout",
-   "elapsed": 32.72
+   "elapsed": 32.92
   },
   {
-   "t": 35.14,
+   "t": 35.34,
    "event": "element_done",
    "phase": "l0_shift_4",
    "how": "hold",
    "elapsed": 2.4
   },
   {
-   "t": 35.14,
+   "t": 35.34,
    "event": "element_timeout",
    "phase": "l0_shift_5"
   },
   {
-   "t": 35.14,
+   "t": 35.34,
    "event": "element_done",
    "phase": "l0_shift_5",
    "how": "timeout",
-   "elapsed": 35.14
+   "elapsed": 35.34
   },
   {
-   "t": 35.14,
+   "t": 35.34,
    "event": "cycle_done",
    "cycle": 5
   },
   {
-   "t": 37.1,
+   "t": 37.3,
    "event": "element_done",
    "phase": "l0_shift_0",
    "how": "hold",
    "elapsed": 1.94
   },
   {
-   "t": 37.1,
+   "t": 37.3,
    "event": "element_timeout",
    "phase": "l0_shift_1"
   },
   {
-   "t": 37.1,
+   "t": 37.3,
    "event": "element_done",
    "phase": "l0_shift_1",
    "how": "timeout",
-   "elapsed": 37.1
+   "elapsed": 37.3
   },
   {
-   "t": 38.8,
+   "t": 39.04,
    "event": "element_done",
    "phase": "l0_shift_2",
    "how": "hold",
-   "elapsed": 1.68
+   "elapsed": 1.72
   },
   {
-   "t": 38.8,
+   "t": 39.04,
    "event": "element_timeout",
    "phase": "l0_shift_3"
   },
   {
-   "t": 38.8,
+   "t": 39.04,
    "event": "element_done",
    "phase": "l0_shift_3",
    "how": "timeout",
-   "elapsed": 38.8
+   "elapsed": 39.04
   },
   {
-   "t": 41.22,
+   "t": 41.46,
    "event": "element_done",
    "phase": "l0_shift_4",
    "how": "hold",
    "elapsed": 2.4
   },
   {
-   "t": 41.22,
+   "t": 41.46,
    "event": "element_timeout",
    "phase": "l0_shift_5"
   },
   {
-   "t": 41.22,
+   "t": 41.46,
    "event": "element_done",
    "phase": "l0_shift_5",
    "how": "timeout",
-   "elapsed": 41.22
+   "elapsed": 41.46
   },
   {
-   "t": 41.22,
+   "t": 41.46,
    "event": "cycle_done",
    "cycle": 6
   },
   {
-   "t": 43.82,
+   "t": 44.06,
    "event": "element_done",
    "phase": "l0_shift_0",
    "how": "hold",
    "elapsed": 2.58
   },
   {
-   "t": 43.82,
+   "t": 44.06,
    "event": "element_timeout",
    "phase": "l0_shift_1"
   },
   {
-   "t": 43.82,
+   "t": 44.06,
    "event": "element_done",
    "phase": "l0_shift_1",
    "how": "timeout",
-   "elapsed": 43.82
+   "elapsed": 44.06
   },
   {
-   "t": 45.78,
+   "t": 46.02,
    "event": "element_done",
    "phase": "l0_shift_2",
    "how": "hold",
    "elapsed": 1.94
   },
   {
-   "t": 45.78,
+   "t": 46.02,
    "event": "element_timeout",
    "phase": "l0_shift_3"
   },
   {
-   "t": 45.78,
+   "t": 46.02,
    "event": "element_done",
    "phase": "l0_shift_3",
    "how": "timeout",
-   "elapsed": 45.78
+   "elapsed": 46.02
   },
   {
-   "t": 47.56,
+   "t": 47.8,
    "event": "element_done",
    "phase": "l0_shift_4",
    "how": "hold",
    "elapsed": 1.76
   },
   {
-   "t": 47.56,
+   "t": 47.8,
    "event": "element_timeout",
    "phase": "l0_shift_5"
   },
   {
-   "t": 47.56,
+   "t": 47.8,
    "event": "element_done",
    "phase": "l0_shift_5",
    "how": "timeout",
-   "elapsed": 47.56
+   "elapsed": 47.8
   },
   {
-   "t": 47.56,
+   "t": 47.8,
    "event": "cycle_done",
    "cycle": 7
   },
   {
-   "t": 50.0,
+   "t": 50.24,
    "event": "element_done",
    "phase": "l0_shift_0",
    "how": "hold",
    "elapsed": 2.42
   },
   {
-   "t": 50.0,
+   "t": 50.24,
    "event": "element_timeout",
    "phase": "l0_shift_1"
   },
   {
-   "t": 50.0,
+   "t": 50.24,
    "event": "element_done",
    "phase": "l0_shift_1",
    "how": "timeout",
-   "elapsed": 50.0
+   "elapsed": 50.24
   },
   {
-   "t": 51.96,
+   "t": 52.2,
    "event": "element_done",
    "phase": "l0_shift_2",
    "how": "hold",
    "elapsed": 1.94
   },
   {
-   "t": 51.96,
+   "t": 52.2,
    "event": "element_timeout",
    "phase": "l0_shift_3"
   },
   {
-   "t": 51.96,
+   "t": 52.2,
    "event": "element_done",
    "phase": "l0_shift_3",
    "how": "timeout",
-   "elapsed": 51.96
+   "elapsed": 52.2
   },
   {
-   "t": 53.8,
+   "t": 54.04,
    "event": "element_done",
    "phase": "l0_shift_4",
    "how": "hold",
    "elapsed": 1.82
   },
   {
-   "t": 53.8,
+   "t": 54.04,
    "event": "element_timeout",
    "phase": "l0_shift_5"
   },
   {
-   "t": 53.8,
+   "t": 54.04,
    "event": "element_done",
    "phase": "l0_shift_5",
    "how": "timeout",
-   "elapsed": 53.8
+   "elapsed": 54.04
   },
   {
-   "t": 53.8,
+   "t": 54.04,
    "event": "cycle_done",
    "cycle": 8
   },
   {
-   "t": 55.8,
+   "t": 56.04,
    "event": "element_done",
    "phase": "l0_shift_0",
    "how": "hold",
    "elapsed": 1.98
   },
   {
-   "t": 55.8,
+   "t": 56.04,
    "event": "element_timeout",
    "phase": "l0_shift_1"
   },
   {
-   "t": 55.8,
+   "t": 56.04,
    "event": "element_done",
    "phase": "l0_shift_1",
    "how": "timeout",
-   "elapsed": 55.8
+   "elapsed": 56.04
   },
   {
-   "t": 58.26,
+   "t": 58.5,
    "event": "element_done",
    "phase": "l0_shift_2",
    "how": "hold",
    "elapsed": 2.44
   },
   {
-   "t": 58.26,
+   "t": 58.5,
    "event": "element_timeout",
    "phase": "l0_shift_3"
   },
   {
-   "t": 58.26,
+   "t": 58.5,
    "event": "element_done",
    "phase": "l0_shift_3",
    "how": "timeout",
-   "elapsed": 58.26
+   "elapsed": 58.5
   }
  ],
- "wall_s": 27.13270115852356,
+ "wall_s": 13.896193742752075,
  "aborted": null,
  "provenance": {
-  "git_commit": "8314141",
+  "git_commit": "c9ab9a2",
   "worktree_dirty": true,
   "controller": "feasible",
   "rung": "L0",
