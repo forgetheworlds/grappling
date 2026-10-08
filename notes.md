@@ -162,6 +162,43 @@ Entries appended as experiments run (Phase 2 onward).
   overlays; ghost-reference vs actual; reward-vs-behaviour; contact/clinch force transfer;
   locomotion/coordination tracking; genuine exchange vs stationary/moving/competent
   opponent) and their "paired baseline vs candidate on identical seeds" discipline.
+- TRUE (third confirmed defect, added after re-check): src/teacher/phases.py `_smooth()` is a
+  LAGGING centered average ((n-1)/2 samples ≈ 0.07 s at 50 Hz for n=8) despite its
+  "zero-phase" docstring → phase-transition timing lag where phases gate the stabilizer.
+  Fix requested from TeacherRetry (true zero-phase or corrected docstring + test). Related
+  design concern: phases.py infers PRONE from pelvis height/velocity alone, switching the
+  stabilizer off for any low pelvis regardless of cause — mitigation/justification requested.
+
+### E3 (2026-10-08) — M0 audit results (MotorAudit; reports/2026-10-08/motor_audit.md)
+- ABSENT (no code at all): (1) dynamic-balance push recovery — there is NO push/perturbation
+  machinery in the repo (no xfrc/qfrc/apply_force); (2) ALL locomotion — walk fwd/back/
+  lateral, velocity tracking, turning, accel/decel/stop, direction change; (3) support
+  polygon / convex hull (only a support-centre mean point, inside the in-flux teacher);
+  (4) fall detection/termination for balance tasks (termination is match-clock only; the
+  back detector catches only persistent dorsal contact); (5) wrestling locomotion —
+  shuffle/circle, angle change vs opponent, controlled knee drop; (6) arm/reach while
+  balancing, torso+arm+leg coordination.
+- CODE-ONLY (exists, never validated): CoM/capture-point/support-centre/foot-contact logic
+  lives only in the in-flux teacher (controller.py:277, stabilizers.py:120-124,189,198) —
+  no test, no report, no video.
+- MEASURED FAILURE: stance maintenance, level change without collapsing, recovery from
+  non-standing states (STAND_UP PD replay never completes; bodies end dorsal).
+- No learned motor behaviour exists anywhere: best measured policy stands 13.1% of the time
+  (E1). Static stands are scripted-hold only (5 s keyframe; 20 s StandHold draw).
+- ADVANCEMENT: outcome-rate gate measured to be unsafe (stage-C smoke W/L 299/0/20 while the
+  same checkpoint stands 13.1%); wins can come from opponent collapse; no attribution; single
+  metric. Gate fix in flight, now keyed to each stage's OWN objective (similarity for A-C,
+  outcome for D-E) after the wins-only variant was rejected as a stage-A deadlock risk.
+- FORGETTING surfaces: single policy across the ladder (trainer.py:130-191 rebuilds env
+  only), shared 84-dim/29-action interface, window reset on advance, no replay/regularisation
+  /snapshot league.
+- FIVE UNCERTAINTIES + smallest tests (audit §5): U1 can a position-servo G1 learn sustained
+  balance at all (M1 harness baselines + 300k PPO, held-out tilts); U2 does the env express
+  M1/M2 (fall detector + velocity-command wrapper, validated on scripted falls); U3 how much
+  retargeted geometry is outside the static support envelope (→ SupportEnvelope task, launched);
+  U4 can the PISTY ladder be salvaged for M5 (score the smoke checkpoint with M-gates);
+  U5 CPU budget realism (benchmark M1 task, one 1M-step run).
+
 
 ### 2026-10-08 — Phase 5 infra (RLTrainer, verified by orchestrator)
 - FACT: PPO/resistance infra in src/rl (obs, privileged, net, ppo, rollout, checkpoint,
