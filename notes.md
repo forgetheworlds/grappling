@@ -198,6 +198,28 @@ Entries appended as experiments run (Phase 2 onward).
   (v3, launched), (3) TERMINATION-PENALTY MAGNITUDE if v3 still collapses — reducing the −100 is the
   named next lever rather than "adding reward signal", which is already dense.
 
+### E29 (2026-10-08) — CORRECTION to E28's wording (not an interrupted render — a deliberate refusal), and the interim evidence is a STATIC HOLD
+- E28 said the acceptance artifact was "an in-flight render that never completed". That is WRONG.
+  Verified: `scripts/solo_drill_render.py:283-286` prints "[suite] rung clip named final_L1_90s.mp4;
+  the acceptance name final_continuous_drill.mp4 is intentionally NOT created (no full-drill clip
+  exists)", and `reports/2026-10-08/drill.md:330` documents the same rule — "a rung clip must not
+  occupy the acceptance name". So the absence is POLICY, and the policy is correct: no clip yet
+  contains stance -> shuffle/circle -> level change -> penetration -> knee -> recovery, so no clip is
+  entitled to the acceptance name. The old ledger line claiming the file existed was simply false.
+- ALSO CORRECTED, and it matters more than the naming: the headline L1 evidence is a STATIC HOLD, not
+  a motion clip. `drill.md`'s own independent frame-level check records one crouch/rise in t = 0-8 s,
+  then a pelvis-z range of 3 mm for the remaining 82 s, with 93 `element_timeout` events on the
+  level-change descent governor while the scheduler's phase/element counters kept advancing. The motion
+  artifact is `videos/solo_drill/final_L2_motion.mp4`. So L1 evidence demonstrates STABILITY ONLY.
+- CONSEQUENCE FOR THE MILESTONE: the mandate asks for a continuous *drill* — movement through the
+  skill sequence under learned feedback control. What exists is (a) a scripted, near-motionless 90 s
+  hold, (b) an isolated clean step, (c) a stand->stance entry walk that FALLS at 5.8 s (rendered as a
+  labelled failure). The milestone is unmet in substance, not merely in filename.
+- STRENGTHENED RULE (extends E28): before describing an artifact's status, verify it on disk AND read
+  the script that produces it. A missing acceptance artifact can be correct engineering discipline; a
+  present one can still be near-motionless. Never infer "deliverable" from "file exists", and never
+  infer "failed" from "file absent".
+
 ### E28 (2026-10-08) — CONTRADICTORY ROADMAPS + A FALSE "SHIPPED" CLAIM: single authority re-established
 - TRIGGER: operator pointed out the todo list contained conflicting/contradictory items. It did, and
   worse than a stale list: three overlapping acceptance ladders and one claim that was factually false.
