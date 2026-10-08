@@ -1730,3 +1730,14 @@ scripts/calibrate_scorer.py, scripts/score_trace.py, tests/test_scorer.py.
   settles |v_com| 0.0996 -> 0.0509 -> 0.0166 -> 0.0025 m/s over 300 steps (pelvis 0.7916), so the
   100-step window scores the settle, and a perturbed ctrl can damp it slightly better. The
   settled-window read (400 steps) is the honest acceptance number.
+- CORRECTION (same session, after the transient read): the residual delta was NOT the transient —
+  it was a BASELINE BUG in `scripts/solo_train_health.py keyframe`: it used
+  `stand_frame(model)[1]` (the CTRL vector, whose arm/waist entries are 0.2/1.28, not zero) as the
+  residual ACTION, silently perturbing the arms and depressing the baseline by 22 points/400 steps.
+  With the correct zero action in residual mode the acceptance is MET: `balance_lit` 0/246
+  perturbations beat the keyframe (max delta +0.0000%), `shipped_balance` +0.4155%, `v5_training`
+  +0.0063% — all < 1%. The 8 s lit total is +786.2 (1.9654/step of the 1.97 theoretical max).
+  JSON: `data/solo/metrics/solo_health/keyframe_fixed_{100,400}.json`; commit `da5586c` (the
+  reward retarget) + the check fix. NOTE: the audit's §3 numbers were computed against the same
+  buggy baseline, but its independent static finding (com_support 0.716 at the keyframe, i.e. the
+  CoM 3.2 cm from the centroid) was real and is fixed.
