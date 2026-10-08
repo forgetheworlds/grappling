@@ -184,6 +184,31 @@ Entries appended as experiments run (Phase 2 onward).
   needed a reset or a fall. All motion-producing agents (teacher, drill, mocap reference) are bound
   to the rubric.
 
+### E12 (2026-10-08) — feasibility audit: only 6.9% of reference frames are statically holdable; STANCE misses by 1-10 mm
+- SOURCE: reports/2026-10-08/support_envelope.md (+ data/support_envelope.json, script, PNG).
+  Method: kinematic replay, CoM = subtree_com (mass-verified 33.341 kg), contact = sole patch rule,
+  classifier = convex hull of sole contact patches; 2115 non-airborne robot-frames, LP feasibility
+  agrees with the geometric class on ALL of them (0 mismatches). Runtime ~30 s.
+- NUMBERS: aggregate 6.9% of all robot-frames / 9.2% of standing frames have the CoM inside the
+  support region. Per technique (standing-frame infeasible %, holdable window): STANCE 100/100,
+  none, deficit 0.002 (a) / 0.010 (b); SNAPDOWN 100/100, none, 0.029/0.051; STAND_UP 100/100, none,
+  0.025/0.036; DOUBLE_LEG 81.7/25.4, 0.28/0.62 s, 0.774/0.255; SINGLE_LEG 72.9/90.2, 0.98/0.34 s,
+  0.657/0.452; BODY_LOCK 84.1/81.9, 0.56/0.26 s, 0.377/0.328; SPRAWL 65.1/56.8, none/0.32 s.
+  Deepest violation overall: DOUBLE_LEG a f152 (t=3.04 s, margin -0.774 m); worst standing episode:
+  SINGLE_LEG a f28-32 (one foot down, CoM 0.62 m from the planted ankle — a lunge in free fall).
+- KEY IMPLICATIONS: (1) ankle torque is NOT the binding constraint (best achievable worst-ankle
+  moment <= 23.9 Nm vs the 50 Nm limit) — the limit is geometric (CoP must lie inside the contact
+  patches); (2) STANCE is only 1-10 mm outside the hull, so FOOT PLACEMENT (centimetres of hull
+  movement) fixes it while joint-offset trims cannot — this explains the failed trim measurements;
+  (3) dynamic frames (dive/penetration/lean) are outside the hull BY DESIGN and need the dynamic
+  balance layer, not trimming.
+- CONCURRENT CHANGE recorded: data/refs/STAND_UP.npz was replaced mid-audit (06:03, 470 -> 244
+  frames) by the STAND_UP-rebuild work; the audit anchored itself to file hashes. Any claim about
+  STAND_UP must now cite the new file's hash.
+- PROCESS LESSON: that agent's run FAILED at the end because its yield payload exceeded the tool's
+  JSON limits (4 KB+ nested). Convention: yields stay small (status + paths + headline numbers);
+  detail goes to the report file on disk.
+
 ### E11 (2026-10-08 night) — teacher FINAL: honest FAIL, causes handed off
 - ACCEPTANCE (final): stay-up gate MET only by SNAPDOWN 0.956 (a 0.98/b 0.96, worst seed 0.89).
   Missed: STANCE 0.758, DOUBLE_LEG 0.520, SPRAWL 0.316, SINGLE_LEG 0.267, BODY_LOCK 0.200
