@@ -1741,3 +1741,18 @@ scripts/calibrate_scorer.py, scripts/score_trace.py, tests/test_scorer.py.
   reward retarget) + the check fix. NOTE: the audit's §3 numbers were computed against the same
   buggy baseline, but its independent static finding (com_support 0.716 at the keyframe, i.e. the
   CoM 3.2 cm from the centroid) was real and is fixed.
+- CRITIC STAGE (audit P0-3 + P1-4, commit `d2bd7c5`): `PPOConfig.grad_clip_actor/critic` split the
+  shared 0.5 clip (the audit measured the value term's gradient at 38x the policy term's, so the
+  actor moved ~600x less than the unclipped direction); `--log-std-final/--log-std-anneal-steps`
+  ramp the behaviour noise from its init (v5's never left -1.0: +/-0.13 rad/joint while its mean
+  stood); `ppo_update` reports `log_std_mean`/`sigma_mean`. Pinned by 2 new tests (the split clip
+  grows the actor's step >10x on a value-dominated batch; the anneal ramps and clamps). Running
+  return/value normalisation was NOT added (the split clip removes the starvation; the EV
+  acceptance is measured on v6a).
+- v6a LAUNCHED (service `solo-t1-v6a`, pid 3492258): `--task balance --reward-set lit
+  --action-mode residual --steps 1500000 --rollout-steps 2048 --n-envs 1 --gamma 0.995
+  --entropy-coef 0.001 --lr 1e-4 --minibatches 2 --epochs 4 --grad-clip-actor 0.5
+  --grad-clip-critic 0.5 --log-std-final -2.5 --log-std-anneal-steps 100000
+  --lit-weight termination=400 --push-curriculum on --save-every 100000 --lock off`; startup
+  max|ctrl-base| 0.002653 rad. Pre-registered reads: 100k (EV/sigma acceptance), 400k (the T1 gate
+  + health), 800k (kill if in-band upright ~ 0); 1.5M total (~80 min at the measured ~300 steps/s).
