@@ -1,0 +1,7 @@
+#!/bin/bash
+exec 1>&2
+if [ -z "$(git config user.name)" ] || [ -z "$(git config user.email)" ]; then
+  echo "BLOCKED: git identity not set."
+  exit 1
+fi
+exit 0

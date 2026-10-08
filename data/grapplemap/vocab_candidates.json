@@ -1,0 +1,1784 @@
+{
+  "generated": "2026-10-07",
+  "source": "third_party/GrappleMap/GrappleMap.txt",
+  "commit": "032c8f91809786b7b784852abd07cf3e10c0ea35",
+  "graph": {
+    "nodes": 725,
+    "named_nodes": 601,
+    "edges": 1485
+  },
+  "curation_criterion": "Standing->standing or standing->ground GrappleMap transitions relevant to takedown offense (double leg, single leg, body lock), defense (sprawl, snapdown/front headlock), and recovery (stand-up from ground). Edges are identified by exact id/name as parsed by src/grapplemap/parser.py; 'mover' is the top/bottom property (player 0/player 1 of the edge's stored frames).",
+  "timing_note": "No timestamps in the database; frames are uniform keyframes (0.2 s apart, 0.1 s if 'detailed').",
+  "groups": {
+    "double_leg": {
+      "role": "attack",
+      "note": "High/low double-leg chains from staggered stance; includes level change (penetration step equivalent).",
+      "edges": [
+        {
+          "edge": "t1144",
+          "name": "drop level slightly",
+          "from_node": {
+            "index": 94,
+            "name": "symmetric staggered standing",
+            "tags": [
+              "standing"
+            ]
+          },
+          "to_node": {
+            "index": 578,
+            "name": "level dropped",
+            "tags": [
+              "standing"
+            ]
+          },
+          "tags": [
+            "double_leg_takedown"
+          ],
+          "properties": [],
+          "mover": null,
+          "frame_count": 2,
+          "bidirectional": false,
+          "detailed": false,
+          "line_nr": 30509
+        },
+        {
+          "edge": "t1147",
+          "name": "shoot for high double",
+          "from_node": {
+            "index": 578,
+            "name": "level dropped",
+            "tags": [
+              "standing"
+            ]
+          },
+          "to_node": {
+            "index": 489,
+            "name": "high double leg",
+            "tags": [
+              "double_leg_takedown",
+              "standing"
+            ]
+          },
+          "tags": [
+            "double_leg_takedown"
+          ],
+          "properties": [],
+          "mover": null,
+          "frame_count": 3,
+          "bidirectional": false,
+          "detailed": false,
+          "line_nr": 30557
+        },
+        {
+          "edge": "t1142",
+          "name": "to double leg",
+          "from_node": {
+            "index": 454,
+            "name": "incoming roundhouse",
+            "tags": [
+              "kick",
+              "standing"
+            ]
+          },
+          "to_node": {
+            "index": 489,
+            "name": "high double leg",
+            "tags": [
+              "double_leg_takedown",
+              "standing"
+            ]
+          },
+          "tags": [
+            "double_leg_takedown"
+          ],
+          "properties": [],
+          "mover": null,
+          "frame_count": 4,
+          "bidirectional": false,
+          "detailed": false,
+          "line_nr": 30478
+        },
+        {
+          "edge": "t1138",
+          "name": "to high",
+          "from_node": {
+            "index": 96,
+            "name": "low double leg",
+            "tags": [
+              "double_leg_takedown",
+              "standing"
+            ]
+          },
+          "to_node": {
+            "index": 489,
+            "name": "high double leg",
+            "tags": [
+              "double_leg_takedown",
+              "standing"
+            ]
+          },
+          "tags": [
+            "double_leg_takedown"
+          ],
+          "properties": [],
+          "mover": null,
+          "frame_count": 2,
+          "bidirectional": false,
+          "detailed": false,
+          "line_nr": 30427
+        },
+        {
+          "edge": "t1141",
+          "name": "drive forward",
+          "from_node": {
+            "index": 489,
+            "name": "high double leg",
+            "tags": [
+              "double_leg_takedown",
+              "standing"
+            ]
+          },
+          "to_node": {
+            "index": 490,
+            "name": "low flying double leg",
+            "tags": [
+              "double_leg_takedown"
+            ]
+          },
+          "tags": [
+            "double_leg_takedown"
+          ],
+          "properties": [],
+          "mover": null,
+          "frame_count": 3,
+          "bidirectional": false,
+          "detailed": false,
+          "line_nr": 30464
+        },
+        {
+          "edge": "t337",
+          "name": "drive through",
+          "from_node": {
+            "index": 96,
+            "name": "low double leg",
+            "tags": [
+              "double_leg_takedown",
+              "standing"
+            ]
+          },
+          "to_node": {
+            "index": 490,
+            "name": "low flying double leg",
+            "tags": [
+              "double_leg_takedown"
+            ]
+          },
+          "tags": [
+            "double_leg_takedown"
+          ],
+          "properties": [
+            "top"
+          ],
+          "mover": "top",
+          "frame_count": 3,
+          "bidirectional": false,
+          "detailed": false,
+          "line_nr": 11441
+        },
+        {
+          "edge": "t1140",
+          "name": "land",
+          "from_node": {
+            "index": 490,
+            "name": "low flying double leg",
+            "tags": [
+              "double_leg_takedown"
+            ]
+          },
+          "to_node": {
+            "index": 668,
+            "name": "Position 668",
+            "tags": []
+          },
+          "tags": [
+            "double_leg_takedown"
+          ],
+          "properties": [
+            "top"
+          ],
+          "mover": "top",
+          "frame_count": 3,
+          "bidirectional": false,
+          "detailed": false,
+          "line_nr": 30447
+        },
+        {
+          "edge": "t437",
+          "name": "takedown",
+          "from_node": {
+            "index": 96,
+            "name": "low double leg",
+            "tags": [
+              "double_leg_takedown",
+              "standing"
+            ]
+          },
+          "to_node": {
+            "index": 63,
+            "name": "double leg takedown finish",
+            "tags": [
+              "bottom_turned_in",
+              "double_leg_takedown"
+            ]
+          },
+          "tags": [
+            "double_leg_takedown"
+          ],
+          "properties": [
+            "detailed"
+          ],
+          "mover": null,
+          "frame_count": 8,
+          "bidirectional": false,
+          "detailed": true,
+          "line_nr": 13760
+        },
+        {
+          "edge": "t336",
+          "name": "wrist control to double",
+          "from_node": {
+            "index": 94,
+            "name": "symmetric staggered standing",
+            "tags": [
+              "standing"
+            ]
+          },
+          "to_node": {
+            "index": 614,
+            "name": "Position 614",
+            "tags": []
+          },
+          "tags": [
+            "double_leg_takedown"
+          ],
+          "properties": [
+            "detailed"
+          ],
+          "mover": null,
+          "frame_count": 5,
+          "bidirectional": false,
+          "detailed": true,
+          "line_nr": 11416
+        },
+        {
+          "edge": "t1473",
+          "name": "wrist control to double",
+          "from_node": {
+            "index": 614,
+            "name": "Position 614",
+            "tags": []
+          },
+          "to_node": {
+            "index": 96,
+            "name": "low double leg",
+            "tags": [
+              "double_leg_takedown",
+              "standing"
+            ]
+          },
+          "tags": [
+            "double_leg_takedown"
+          ],
+          "properties": [
+            "detailed"
+          ],
+          "mover": null,
+          "frame_count": 2,
+          "bidirectional": false,
+          "detailed": true,
+          "line_nr": 38656
+        },
+        {
+          "edge": "t1136",
+          "name": "double leg drill",
+          "from_node": {
+            "index": 665,
+            "name": "Position 665",
+            "tags": []
+          },
+          "to_node": {
+            "index": 666,
+            "name": "Position 666",
+            "tags": []
+          },
+          "tags": [
+            "double_leg_takedown",
+            "drill"
+          ],
+          "properties": [],
+          "mover": null,
+          "frame_count": 4,
+          "bidirectional": false,
+          "detailed": false,
+          "line_nr": 30369
+        },
+        {
+          "edge": "t1137",
+          "name": "double leg drill (part 2)",
+          "from_node": {
+            "index": 666,
+            "name": "Position 666",
+            "tags": []
+          },
+          "to_node": {
+            "index": 665,
+            "name": "Position 665",
+            "tags": []
+          },
+          "tags": [
+            "double_leg_takedown",
+            "drill"
+          ],
+          "properties": [],
+          "mover": null,
+          "frame_count": 9,
+          "bidirectional": false,
+          "detailed": false,
+          "line_nr": 30388
+        },
+        {
+          "edge": "t847",
+          "name": "shoot for double",
+          "from_node": {
+            "index": 402,
+            "name": "spider guard w/ wrist control",
+            "tags": [
+              "bottom_supine",
+              "spider_guard",
+              "top_kneeling",
+              "wrist_control"
+            ]
+          },
+          "to_node": {
+            "index": 63,
+            "name": "double leg takedown finish",
+            "tags": [
+              "bottom_turned_in",
+              "double_leg_takedown"
+            ]
+          },
+          "tags": [
+            "double_leg_takedown"
+          ],
+          "properties": [],
+          "mover": null,
+          "frame_count": 10,
+          "bidirectional": false,
+          "detailed": false,
+          "line_nr": 23189
+        },
+        {
+          "edge": "t889",
+          "name": "double leg",
+          "from_node": {
+            "index": 278,
+            "name": "distance seated butterfly",
+            "tags": [
+              "bottom_seated",
+              "butterfly",
+              "top_kneeling"
+            ]
+          },
+          "to_node": {
+            "index": 236,
+            "name": "chest pass",
+            "tags": [
+              "leg_smash",
+              "pass_around",
+              "passing",
+              "top_kneeling"
+            ]
+          },
+          "tags": [
+            "double_leg_takedown"
+          ],
+          "properties": [
+            "bottom"
+          ],
+          "mover": "bottom",
+          "frame_count": 5,
+          "bidirectional": false,
+          "detailed": false,
+          "line_nr": 24299
+        }
+      ]
+    },
+    "single_leg": {
+      "role": "attack",
+      "note": "High-single entries from neutral/collar-tie, head-position variants, finishes.",
+      "edges": [
+        {
+          "edge": "t978",
+          "name": "shoot for high single",
+          "from_node": {
+            "index": 61,
+            "name": "south-paw neutral standing",
+            "tags": [
+              "standing"
+            ]
+          },
+          "to_node": {
+            "index": 450,
+            "name": "shooting for single",
+            "tags": [
+              "single_leg_takedown",
+              "standing"
+            ]
+          },
+          "tags": [
+            "single_leg_takedown"
+          ],
+          "properties": [
+            "detailed"
+          ],
+          "mover": null,
+          "frame_count": 4,
+          "bidirectional": false,
+          "detailed": true,
+          "line_nr": 26600
+        },
+        {
+          "edge": "t1405",
+          "name": "shoot for single",
+          "from_node": {
+            "index": 562,
+            "name": "collar tie vs wrist+tricep control",
+            "tags": [
+              "collar_tie",
+              "standing",
+              "wrist_control"
+            ]
+          },
+          "to_node": {
+            "index": 564,
+            "name": "single leg w/\\bwrist control",
+            "tags": [
+              "single_leg_takedown",
+              "standing",
+              "wrist_control"
+            ]
+          },
+          "tags": [
+            "single_leg_takedown"
+          ],
+          "properties": [
+            "detailed"
+          ],
+          "mover": null,
+          "frame_count": 6,
+          "bidirectional": false,
+          "detailed": true,
+          "line_nr": 37091
+        },
+        {
+          "edge": "t1001",
+          "name": "head to chest",
+          "from_node": {
+            "index": 450,
+            "name": "shooting for single",
+            "tags": [
+              "single_leg_takedown",
+              "standing"
+            ]
+          },
+          "to_node": {
+            "index": 442,
+            "name": "high single w/ head on chest",
+            "tags": [
+              "single_leg_takedown",
+              "standing"
+            ]
+          },
+          "tags": [
+            "single_leg_takedown"
+          ],
+          "properties": [
+            "detailed"
+          ],
+          "mover": null,
+          "frame_count": 5,
+          "bidirectional": false,
+          "detailed": true,
+          "line_nr": 27141
+        },
+        {
+          "edge": "t1003",
+          "name": "head outside",
+          "from_node": {
+            "index": 450,
+            "name": "shooting for single",
+            "tags": [
+              "single_leg_takedown",
+              "standing"
+            ]
+          },
+          "to_node": {
+            "index": 451,
+            "name": "standing single w/ head outside",
+            "tags": [
+              "single_leg_takedown",
+              "standing"
+            ]
+          },
+          "tags": [
+            "single_leg_takedown"
+          ],
+          "properties": [
+            "detailed"
+          ],
+          "mover": null,
+          "frame_count": 4,
+          "bidirectional": false,
+          "detailed": true,
+          "line_nr": 27176
+        },
+        {
+          "edge": "t1004",
+          "name": "head inside",
+          "from_node": {
+            "index": 450,
+            "name": "shooting for single",
+            "tags": [
+              "single_leg_takedown",
+              "standing"
+            ]
+          },
+          "to_node": {
+            "index": 452,
+            "name": "high single w/ head inside",
+            "tags": [
+              "single_leg_takedown",
+              "standing"
+            ]
+          },
+          "tags": [
+            "single_leg_takedown"
+          ],
+          "properties": [],
+          "mover": null,
+          "frame_count": 3,
+          "bidirectional": false,
+          "detailed": false,
+          "line_nr": 27196
+        },
+        {
+          "edge": "t1005",
+          "name": "head drive",
+          "from_node": {
+            "index": 452,
+            "name": "high single w/ head inside",
+            "tags": [
+              "single_leg_takedown",
+              "standing"
+            ]
+          },
+          "to_node": {
+            "index": 51,
+            "name": "approaching turned away t-rex",
+            "tags": [
+              "bottom_on_side",
+              "bottom_turned_away",
+              "fetal",
+              "side_control",
+              "t_rex",
+              "top_kneeling"
+            ]
+          },
+          "tags": [
+            "single_leg_takedown"
+          ],
+          "properties": [
+            "detailed"
+          ],
+          "mover": null,
+          "frame_count": 10,
+          "bidirectional": false,
+          "detailed": true,
+          "line_nr": 27211
+        },
+        {
+          "edge": "t1000",
+          "name": "drive and dump",
+          "from_node": {
+            "index": 451,
+            "name": "standing single w/ head outside",
+            "tags": [
+              "single_leg_takedown",
+              "standing"
+            ]
+          },
+          "to_node": {
+            "index": 63,
+            "name": "double leg takedown finish",
+            "tags": [
+              "bottom_turned_in",
+              "double_leg_takedown"
+            ]
+          },
+          "tags": [
+            "single_leg_takedown"
+          ],
+          "properties": [
+            "top"
+          ],
+          "mover": "top",
+          "frame_count": 6,
+          "bidirectional": false,
+          "detailed": false,
+          "line_nr": 27112
+        },
+        {
+          "edge": "t1094",
+          "name": "finish",
+          "from_node": {
+            "index": 442,
+            "name": "high single w/ head on chest",
+            "tags": [
+              "single_leg_takedown",
+              "standing"
+            ]
+          },
+          "to_node": {
+            "index": 663,
+            "name": "Position 663",
+            "tags": []
+          },
+          "tags": [
+            "single_leg_takedown"
+          ],
+          "properties": [],
+          "mover": null,
+          "frame_count": 6,
+          "bidirectional": false,
+          "detailed": false,
+          "line_nr": 29341
+        },
+        {
+          "edge": "t1453",
+          "name": "drive down",
+          "from_node": {
+            "index": 621,
+            "name": "Position 621",
+            "tags": []
+          },
+          "to_node": {
+            "index": 65,
+            "name": "standing single-leg turned away",
+            "tags": [
+              "single_leg_takedown",
+              "standing"
+            ]
+          },
+          "tags": [
+            "single_leg_takedown"
+          ],
+          "properties": [],
+          "mover": null,
+          "frame_count": 5,
+          "bidirectional": false,
+          "detailed": false,
+          "line_nr": 38144
+        },
+        {
+          "edge": "t1159",
+          "name": "parry to single",
+          "from_node": {
+            "index": 94,
+            "name": "symmetric staggered standing",
+            "tags": [
+              "standing"
+            ]
+          },
+          "to_node": {
+            "index": 451,
+            "name": "standing single w/ head outside",
+            "tags": [
+              "single_leg_takedown",
+              "standing"
+            ]
+          },
+          "tags": [],
+          "properties": [],
+          "mover": null,
+          "frame_count": 6,
+          "bidirectional": false,
+          "detailed": false,
+          "line_nr": 30756
+        },
+        {
+          "edge": "t1021",
+          "name": "ankle pick",
+          "from_node": {
+            "index": 61,
+            "name": "south-paw neutral standing",
+            "tags": [
+              "standing"
+            ]
+          },
+          "to_node": {
+            "index": 459,
+            "name": "collar tie ankle pick from knee",
+            "tags": [
+              "ankle_pick",
+              "collar_tie",
+              "standing"
+            ]
+          },
+          "tags": [
+            "ankle_pick"
+          ],
+          "properties": [],
+          "mover": null,
+          "frame_count": 3,
+          "bidirectional": false,
+          "detailed": false,
+          "line_nr": 27625
+        }
+      ]
+    },
+    "body_lock": {
+      "role": "attack",
+      "note": "Standing body-lock takedowns; entry node 'standing w/ body lock'.",
+      "edges": [
+        {
+          "edge": "t1133",
+          "name": "flank and takedown",
+          "from_node": {
+            "index": 488,
+            "name": "standing body lock vs kimura",
+            "tags": [
+              "body_lock",
+              "kimura",
+              "standing"
+            ]
+          },
+          "to_node": {
+            "index": 89,
+            "name": "standing in half w/ hip pinned",
+            "tags": [
+              "bottom_supine",
+              "half_guard",
+              "hip_pin",
+              "standing"
+            ]
+          },
+          "tags": [
+            "double_leg_takedown"
+          ],
+          "properties": [
+            "top"
+          ],
+          "mover": "top",
+          "frame_count": 10,
+          "bidirectional": false,
+          "detailed": false,
+          "line_nr": 30246
+        },
+        {
+          "edge": "t1150",
+          "name": "throw",
+          "from_node": {
+            "index": 583,
+            "name": "body lock from side w/ arm trapped",
+            "tags": [
+              "body_lock",
+              "standing"
+            ]
+          },
+          "to_node": {
+            "index": 143,
+            "name": "side control w/ head&arm vs hip block and overhook",
+            "tags": [
+              "bottom_overhook",
+              "bottom_supine",
+              "crossface",
+              "side_control",
+              "top_kneeling",
+              "top_underhook"
+            ]
+          },
+          "tags": [
+            "body_lock",
+            "sacrifice_throw",
+            "sutemi_waza",
+            "throw"
+          ],
+          "properties": [],
+          "mover": null,
+          "frame_count": 8,
+          "bidirectional": false,
+          "detailed": false,
+          "line_nr": 30601
+        },
+        {
+          "edge": "t68",
+          "name": "flank",
+          "from_node": {
+            "index": 80,
+            "name": "standing w/ body lock",
+            "tags": [
+              "body_lock",
+              "standing",
+              "underhook"
+            ]
+          },
+          "to_node": {
+            "index": 583,
+            "name": "body lock from side w/ arm trapped",
+            "tags": [
+              "body_lock",
+              "standing"
+            ]
+          },
+          "tags": [],
+          "properties": [],
+          "mover": null,
+          "frame_count": 3,
+          "bidirectional": false,
+          "detailed": false,
+          "line_nr": 5124
+        }
+      ]
+    },
+    "sprawl": {
+      "role": "defense",
+      "note": "Sprawl reactions to low double leg / shot; t895 is sprawl->single counter (reattack).",
+      "edges": [
+        {
+          "edge": "t381",
+          "name": "sprawl",
+          "from_node": {
+            "index": 96,
+            "name": "low double leg",
+            "tags": [
+              "double_leg_takedown",
+              "standing"
+            ]
+          },
+          "to_node": {
+            "index": 154,
+            "name": "sprawled front chestlock vs turtle",
+            "tags": [
+              "sprawl",
+              "turtle"
+            ]
+          },
+          "tags": [
+            "sprawl"
+          ],
+          "properties": [
+            "top"
+          ],
+          "mover": "top",
+          "frame_count": 3,
+          "bidirectional": false,
+          "detailed": false,
+          "line_nr": 12408
+        },
+        {
+          "edge": "t382",
+          "name": "sprawl to head&arm",
+          "from_node": {
+            "index": 96,
+            "name": "low double leg",
+            "tags": [
+              "double_leg_takedown",
+              "standing"
+            ]
+          },
+          "to_node": {
+            "index": 368,
+            "name": "sprawl w/ head&arm vs double-leg",
+            "tags": [
+              "double_leg_takedown",
+              "sprawl",
+              "turtle"
+            ]
+          },
+          "tags": [
+            "sprawl"
+          ],
+          "properties": [
+            "top"
+          ],
+          "mover": "top",
+          "frame_count": 3,
+          "bidirectional": false,
+          "detailed": false,
+          "line_nr": 12424
+        },
+        {
+          "edge": "t383",
+          "name": "sprawl",
+          "from_node": {
+            "index": 96,
+            "name": "low double leg",
+            "tags": [
+              "double_leg_takedown",
+              "standing"
+            ]
+          },
+          "to_node": {
+            "index": 152,
+            "name": "sprawl w/ head&arm vs turtle",
+            "tags": [
+              "sprawl",
+              "turtle"
+            ]
+          },
+          "tags": [
+            "sprawl"
+          ],
+          "properties": [
+            "top"
+          ],
+          "mover": "top",
+          "frame_count": 3,
+          "bidirectional": false,
+          "detailed": false,
+          "line_nr": 12440
+        },
+        {
+          "edge": "t895",
+          "name": "sprawl to single",
+          "from_node": {
+            "index": 96,
+            "name": "low double leg",
+            "tags": [
+              "double_leg_takedown",
+              "standing"
+            ]
+          },
+          "to_node": {
+            "index": 288,
+            "name": "sprawl vs turtle w/ single",
+            "tags": [
+              "single_leg_takedown",
+              "sprawl",
+              "turtle"
+            ]
+          },
+          "tags": [],
+          "properties": [
+            "detailed",
+            "top"
+          ],
+          "mover": "top",
+          "frame_count": 6,
+          "bidirectional": false,
+          "detailed": true,
+          "line_nr": 24460
+        },
+        {
+          "edge": "t413",
+          "name": "sprawl",
+          "from_node": {
+            "index": 22,
+            "name": "double leg from knees vs sprawl",
+            "tags": [
+              "double_leg_takedown",
+              "sprawl"
+            ]
+          },
+          "to_node": {
+            "index": 154,
+            "name": "sprawled front chestlock vs turtle",
+            "tags": [
+              "sprawl",
+              "turtle"
+            ]
+          },
+          "tags": [],
+          "properties": [
+            "top"
+          ],
+          "mover": "top",
+          "frame_count": 3,
+          "bidirectional": false,
+          "detailed": false,
+          "line_nr": 13184
+        },
+        {
+          "edge": "t327",
+          "name": "sprawl",
+          "from_node": {
+            "index": 288,
+            "name": "sprawl vs turtle w/ single",
+            "tags": [
+              "single_leg_takedown",
+              "sprawl",
+              "turtle"
+            ]
+          },
+          "to_node": {
+            "index": 154,
+            "name": "sprawled front chestlock vs turtle",
+            "tags": [
+              "sprawl",
+              "turtle"
+            ]
+          },
+          "tags": [
+            "sprawl"
+          ],
+          "properties": [
+            "top"
+          ],
+          "mover": "top",
+          "frame_count": 4,
+          "bidirectional": false,
+          "detailed": false,
+          "line_nr": 11179
+        },
+        {
+          "edge": "t752",
+          "name": "sprawl and circle to back",
+          "from_node": {
+            "index": 164,
+            "name": "coming up on distant single",
+            "tags": [
+              "bottom_turned_in",
+              "fetal",
+              "single_leg_takedown"
+            ]
+          },
+          "to_node": {
+            "index": 641,
+            "name": "Position 641",
+            "tags": []
+          },
+          "tags": [],
+          "properties": [
+            "top"
+          ],
+          "mover": "top",
+          "frame_count": 7,
+          "bidirectional": false,
+          "detailed": false,
+          "line_nr": 20987
+        },
+        {
+          "edge": "t769",
+          "name": "sprawl",
+          "from_node": {
+            "index": 13,
+            "name": "turtle w/ single-leg vs vice grip",
+            "tags": [
+              "single_leg_takedown",
+              "sprawl",
+              "top_kneeling",
+              "turtle",
+              "vice_grip"
+            ]
+          },
+          "to_node": {
+            "index": 381,
+            "name": "turtle w/ open elbow vs vice",
+            "tags": [
+              "turtle",
+              "vice_grip"
+            ]
+          },
+          "tags": [],
+          "properties": [
+            "top"
+          ],
+          "mover": "top",
+          "frame_count": 4,
+          "bidirectional": false,
+          "detailed": false,
+          "line_nr": 21496
+        }
+      ]
+    },
+    "snapdown": {
+      "role": "adjacent",
+      "note": "Snapdowns from collar+tricep; sets up front-headlock sprawl. Drilling partner for reshots/reattacks; no explicit 'reshot' edges exist in the database.",
+      "edges": [
+        {
+          "edge": "t385",
+          "name": "snapdown",
+          "from_node": {
+            "index": 449,
+            "name": "standing w/ collar tie and underhook",
+            "tags": [
+              "collar_tie",
+              "standing",
+              "underhook"
+            ]
+          },
+          "to_node": {
+            "index": 152,
+            "name": "sprawl w/ head&arm vs turtle",
+            "tags": [
+              "sprawl",
+              "turtle"
+            ]
+          },
+          "tags": [],
+          "properties": [
+            "top"
+          ],
+          "mover": "top",
+          "frame_count": 6,
+          "bidirectional": false,
+          "detailed": false,
+          "line_nr": 12491
+        },
+        {
+          "edge": "t989",
+          "name": "snapdown",
+          "from_node": {
+            "index": 407,
+            "name": "standing collar+tricep",
+            "tags": [
+              "collar_tie",
+              "standing"
+            ]
+          },
+          "to_node": {
+            "index": 448,
+            "name": "snapping down w/ collar and tricep",
+            "tags": [
+              "collar_tie",
+              "standing"
+            ]
+          },
+          "tags": [],
+          "properties": [],
+          "mover": null,
+          "frame_count": 3,
+          "bidirectional": false,
+          "detailed": false,
+          "line_nr": 26887
+        },
+        {
+          "edge": "t996",
+          "name": "snapdown",
+          "from_node": {
+            "index": 448,
+            "name": "snapping down w/ collar and tricep",
+            "tags": [
+              "collar_tie",
+              "standing"
+            ]
+          },
+          "to_node": {
+            "index": 445,
+            "name": "snapped down",
+            "tags": [
+              "standing"
+            ]
+          },
+          "tags": [],
+          "properties": [],
+          "mover": null,
+          "frame_count": 3,
+          "bidirectional": false,
+          "detailed": false,
+          "line_nr": 27052
+        },
+        {
+          "edge": "t997",
+          "name": "snapdown2",
+          "from_node": {
+            "index": 448,
+            "name": "snapping down w/ collar and tricep",
+            "tags": [
+              "collar_tie",
+              "standing"
+            ]
+          },
+          "to_node": {
+            "index": 533,
+            "name": "snapped down vs standing head stuff",
+            "tags": [
+              "all_fours",
+              "standing"
+            ]
+          },
+          "tags": [],
+          "properties": [],
+          "mover": null,
+          "frame_count": 3,
+          "bidirectional": false,
+          "detailed": false,
+          "line_nr": 27066
+        }
+      ]
+    },
+    "stand_up_recovery": {
+      "role": "recovery",
+      "note": "Stand-ups from knees/ground back to neutral standing (wrestling stand-up / technical stand-up).",
+      "edges": [
+        {
+          "edge": "t1125",
+          "name": "bottom gets to knees",
+          "from_node": {
+            "index": 486,
+            "name": "elbow half w/ deep underhook vs whizzer",
+            "tags": [
+              "bottom_post_elbow",
+              "bottom_turned_in",
+              "bottom_underhook",
+              "half_guard",
+              "top_kneeling",
+              "top_overhook",
+              "whizzer"
+            ]
+          },
+          "to_node": {
+            "index": 88,
+            "name": "dogfight w/o leg control",
+            "tags": [
+              "dogfight",
+              "top_kneeling",
+              "whizzer"
+            ]
+          },
+          "tags": [
+            "technical_standup"
+          ],
+          "properties": [
+            "bottom"
+          ],
+          "mover": "bottom",
+          "frame_count": 6,
+          "bidirectional": false,
+          "detailed": false,
+          "line_nr": 30081
+        },
+        {
+          "edge": "t444",
+          "name": "stand up",
+          "from_node": {
+            "index": 67,
+            "name": "single-leg from knees",
+            "tags": [
+              "single_leg_takedown",
+              "standing"
+            ]
+          },
+          "to_node": {
+            "index": 621,
+            "name": "Position 621",
+            "tags": []
+          },
+          "tags": [
+            "single_leg_takedown",
+            "stand_up"
+          ],
+          "properties": [],
+          "mover": null,
+          "frame_count": 3,
+          "bidirectional": false,
+          "detailed": false,
+          "line_nr": 13917
+        },
+        {
+          "edge": "t446",
+          "name": "stand up and turn in",
+          "from_node": {
+            "index": 67,
+            "name": "single-leg from knees",
+            "tags": [
+              "single_leg_takedown",
+              "standing"
+            ]
+          },
+          "to_node": {
+            "index": 442,
+            "name": "high single w/ head on chest",
+            "tags": [
+              "single_leg_takedown",
+              "standing"
+            ]
+          },
+          "tags": [
+            "single_leg_takedown",
+            "stand_up"
+          ],
+          "properties": [
+            "detailed"
+          ],
+          "mover": null,
+          "frame_count": 7,
+          "bidirectional": false,
+          "detailed": true,
+          "line_nr": 13961
+        },
+        {
+          "edge": "t445",
+          "name": "stand up and turn away",
+          "from_node": {
+            "index": 70,
+            "name": "kneeling single-leg",
+            "tags": [
+              "single_leg_takedown"
+            ]
+          },
+          "to_node": {
+            "index": 67,
+            "name": "single-leg from knees",
+            "tags": [
+              "single_leg_takedown",
+              "standing"
+            ]
+          },
+          "tags": [
+            "single_leg_takedown",
+            "stand_up"
+          ],
+          "properties": [
+            "detailed"
+          ],
+          "mover": null,
+          "frame_count": 6,
+          "bidirectional": false,
+          "detailed": true,
+          "line_nr": 13933
+        },
+        {
+          "edge": "t1407",
+          "name": "stand up",
+          "from_node": {
+            "index": 564,
+            "name": "single leg w/\\bwrist control",
+            "tags": [
+              "single_leg_takedown",
+              "standing",
+              "wrist_control"
+            ]
+          },
+          "to_node": {
+            "index": 442,
+            "name": "high single w/ head on chest",
+            "tags": [
+              "single_leg_takedown",
+              "standing"
+            ]
+          },
+          "tags": [
+            "single_leg_takedown",
+            "stand_up"
+          ],
+          "properties": [
+            "detailed"
+          ],
+          "mover": null,
+          "frame_count": 3,
+          "bidirectional": false,
+          "detailed": true,
+          "line_nr": 37138
+        },
+        {
+          "edge": "t952",
+          "name": "stand-up",
+          "from_node": {
+            "index": 629,
+            "name": "Position 629",
+            "tags": []
+          },
+          "to_node": {
+            "index": 61,
+            "name": "south-paw neutral standing",
+            "tags": [
+              "standing"
+            ]
+          },
+          "tags": [],
+          "properties": [],
+          "mover": null,
+          "frame_count": 6,
+          "bidirectional": false,
+          "detailed": false,
+          "line_nr": 25856
+        },
+        {
+          "edge": "t1110",
+          "name": "bottom stands up",
+          "from_node": {
+            "index": 627,
+            "name": "Position 627",
+            "tags": []
+          },
+          "to_node": {
+            "index": 61,
+            "name": "south-paw neutral standing",
+            "tags": [
+              "standing"
+            ]
+          },
+          "tags": [],
+          "properties": [
+            "bottom"
+          ],
+          "mover": "bottom",
+          "frame_count": 4,
+          "bidirectional": false,
+          "detailed": false,
+          "line_nr": 29732
+        },
+        {
+          "edge": "t878",
+          "name": "get up",
+          "from_node": {
+            "index": 619,
+            "name": "Position 619",
+            "tags": []
+          },
+          "to_node": {
+            "index": 582,
+            "name": "standing up w/ collar tie",
+            "tags": [
+              "collar_tie",
+              "standing"
+            ]
+          },
+          "tags": [
+            "stand_up"
+          ],
+          "properties": [
+            "bottom"
+          ],
+          "mover": "bottom",
+          "frame_count": 4,
+          "bidirectional": false,
+          "detailed": false,
+          "line_nr": 24037
+        },
+        {
+          "edge": "t380",
+          "name": "stand up",
+          "from_node": {
+            "index": 88,
+            "name": "dogfight w/o leg control",
+            "tags": [
+              "dogfight",
+              "top_kneeling",
+              "whizzer"
+            ]
+          },
+          "to_node": {
+            "index": 78,
+            "name": "standing w/ whizzer",
+            "tags": [
+              "overhook",
+              "standing",
+              "underhook",
+              "whizzer"
+            ]
+          },
+          "tags": [
+            "stand_up"
+          ],
+          "properties": [],
+          "mover": null,
+          "frame_count": 4,
+          "bidirectional": false,
+          "detailed": false,
+          "line_nr": 12389
+        },
+        {
+          "edge": "t338",
+          "name": "stand up",
+          "from_node": {
+            "index": 122,
+            "name": "distance standing vs seated",
+            "tags": [
+              "bottom_seated",
+              "standing"
+            ]
+          },
+          "to_node": {
+            "index": 94,
+            "name": "symmetric staggered standing",
+            "tags": [
+              "standing"
+            ]
+          },
+          "tags": [
+            "stand_up"
+          ],
+          "properties": [],
+          "mover": null,
+          "frame_count": 4,
+          "bidirectional": false,
+          "detailed": false,
+          "line_nr": 11458
+        },
+        {
+          "edge": "t339",
+          "name": "stand up",
+          "from_node": {
+            "index": 278,
+            "name": "distance seated butterfly",
+            "tags": [
+              "bottom_seated",
+              "butterfly",
+              "top_kneeling"
+            ]
+          },
+          "to_node": {
+            "index": 94,
+            "name": "symmetric staggered standing",
+            "tags": [
+              "standing"
+            ]
+          },
+          "tags": [
+            "stand_up"
+          ],
+          "properties": [],
+          "mover": null,
+          "frame_count": 4,
+          "bidirectional": false,
+          "detailed": false,
+          "line_nr": 11476
+        }
+      ]
+    },
+    "stance_clinch_entries": {
+      "role": "adjacent",
+      "note": "Stance management and standing engagements: staredown->stance, stance switch, collar ties, over+under clinch.",
+      "edges": [
+        {
+          "edge": "t838",
+          "name": "begin",
+          "from_node": {
+            "index": 401,
+            "name": "staredown",
+            "tags": []
+          },
+          "to_node": {
+            "index": 94,
+            "name": "symmetric staggered standing",
+            "tags": [
+              "standing"
+            ]
+          },
+          "tags": [],
+          "properties": [],
+          "mover": null,
+          "frame_count": 9,
+          "bidirectional": false,
+          "detailed": false,
+          "line_nr": 22970
+        },
+        {
+          "edge": "t447",
+          "name": "switch stance",
+          "from_node": {
+            "index": 94,
+            "name": "symmetric staggered standing",
+            "tags": [
+              "standing"
+            ]
+          },
+          "to_node": {
+            "index": 61,
+            "name": "south-paw neutral standing",
+            "tags": [
+              "standing"
+            ]
+          },
+          "tags": [],
+          "properties": [
+            "bidirectional"
+          ],
+          "mover": null,
+          "frame_count": 3,
+          "bidirectional": true,
+          "detailed": false,
+          "line_nr": 13993
+        },
+        {
+          "edge": "t335",
+          "name": "grab neck",
+          "from_node": {
+            "index": 94,
+            "name": "symmetric staggered standing",
+            "tags": [
+              "standing"
+            ]
+          },
+          "to_node": {
+            "index": 97,
+            "name": "lead leg collar tie vs south paw",
+            "tags": [
+              "collar_tie",
+              "standing"
+            ]
+          },
+          "tags": [],
+          "properties": [],
+          "mover": null,
+          "frame_count": 3,
+          "bidirectional": false,
+          "detailed": false,
+          "line_nr": 11403
+        },
+        {
+          "edge": "t587",
+          "name": "get collar tie",
+          "from_node": {
+            "index": 94,
+            "name": "symmetric staggered standing",
+            "tags": [
+              "standing"
+            ]
+          },
+          "to_node": {
+            "index": 11,
+            "name": "distant standing collar-tie",
+            "tags": [
+              "collar_tie",
+              "standing"
+            ]
+          },
+          "tags": [],
+          "properties": [],
+          "mover": null,
+          "frame_count": 3,
+          "bidirectional": false,
+          "detailed": false,
+          "line_nr": 17111
+        },
+        {
+          "edge": "t451",
+          "name": "clinch",
+          "from_node": {
+            "index": 94,
+            "name": "symmetric staggered standing",
+            "tags": [
+              "standing"
+            ]
+          },
+          "to_node": {
+            "index": 54,
+            "name": "standing over+under vs tricep+under",
+            "tags": [
+              "overhook",
+              "standing",
+              "underhook"
+            ]
+          },
+          "tags": [],
+          "properties": [
+            "detailed"
+          ],
+          "mover": null,
+          "frame_count": 4,
+          "bidirectional": false,
+          "detailed": true,
+          "line_nr": 14056
+        },
+        {
+          "edge": "t344",
+          "name": "arm drag",
+          "from_node": {
+            "index": 94,
+            "name": "symmetric staggered standing",
+            "tags": [
+              "standing"
+            ]
+          },
+          "to_node": {
+            "index": 93,
+            "name": "standing arm drag on front leg side",
+            "tags": [
+              "arm_drag",
+              "standing",
+              "two_on_one"
+            ]
+          },
+          "tags": [
+            "arm_drag"
+          ],
+          "properties": [],
+          "mover": null,
+          "frame_count": 3,
+          "bidirectional": false,
+          "detailed": false,
+          "line_nr": 11588
+        },
+        {
+          "edge": "t346",
+          "name": "arm drag",
+          "from_node": {
+            "index": 94,
+            "name": "symmetric staggered standing",
+            "tags": [
+              "standing"
+            ]
+          },
+          "to_node": {
+            "index": 44,
+            "name": "standing arm drag on back leg side",
+            "tags": [
+              "arm_drag",
+              "standing",
+              "two_on_one"
+            ]
+          },
+          "tags": [
+            "arm_drag"
+          ],
+          "properties": [],
+          "mover": null,
+          "frame_count": 3,
+          "bidirectional": false,
+          "detailed": false,
+          "line_nr": 11626
+        }
+      ]
+    }
+  },
+  "proposed_vocabulary": {
+    "double_leg_attack": [
+      "t1144",
+      "t1147",
+      "t1141",
+      "t1140"
+    ],
+    "double_leg_finish_alt": [
+      "t437"
+    ],
+    "single_leg_attack": [
+      "t978",
+      "t1001",
+      "t1094"
+    ],
+    "body_lock_attack": [
+      "t1133"
+    ],
+    "sprawl_defense": [
+      "t381",
+      "t382",
+      "t383"
+    ],
+    "sprawl_to_single_reattack": [
+      "t895"
+    ],
+    "stand_up_recovery": [
+      "t952",
+      "t1110",
+      "t446"
+    ],
+    "stance_entries": [
+      "t838",
+      "t587",
+      "t451"
+    ]
+  }
+}

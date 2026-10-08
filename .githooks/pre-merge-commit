@@ -1,0 +1,4 @@
+#!/bin/bash
+exec 1>&2
+[ "$(git config user.email)" = "forgetheworlds@users.noreply.github.com" ] || { echo "BLOCKED: wrong committer email."; exit 1; }
+exit 0

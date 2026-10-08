@@ -1,0 +1,21 @@
+# Python
+.venv/
+__pycache__/
+*.pyc
+.pytest_cache/
+*.egg-info/
+
+# Vendored third-party (re-fetch: see docs/SETUP.md + reports; never edit)
+third_party/
+
+# OS/editor
+.DS_Store
+*~
+
+# Large generated artifacts (regenerable; kept on disk, not in git)
+checkpoints/*.pt
+data/datasets/
+
+# Scratch
+/tmp/
+*.log
