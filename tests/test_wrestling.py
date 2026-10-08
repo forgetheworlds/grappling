@@ -490,11 +490,18 @@ def test_backdet_limb_contact_side_infixed_bodies(model):
         mujoco.mj_forward(model, data)
         return data
 
-    # positive: STAND_UP ground-start frame 6 (measured: ncon=40, 23 floor
-    # contacts incl. a_left_wrist_yaw_link and b_left_knee_link)
+    # positive: STAND_UP ground-start frame 6. STAND_UP.npz was rebuilt on the
+    # shared-node chain t1125->t380->t540 (grounded, 244 frames; the airborne
+    # montage it replaced is kept as STAND_UP.airborne.npz) and now plants the
+    # RIGHT wrist at the ground start (the airborne reference planted the
+    # left). The side is incidental to this regression -- the resolution
+    # assertions above already pin both sides -- so require a *resolved*
+    # executor wrist body, not a hardcoded side, and keep the knee on the mat.
     data = frame_data(reference_trace("STAND_UP"), 6)
     on_mat = floor_bodies(data)
-    assert {"a_left_wrist_yaw_link", "b_left_knee_link"} <= on_mat
+    assert any(n.startswith("a_") and n.endswith("wrist_yaw_link")
+               for n in on_mat), sorted(on_mat)
+    assert "b_left_knee_link" in on_mat, sorted(on_mat)
     det = BackToMatDetector(BackDetConfig())
     for robot in ROBOTS:
         f = back_features(model, data, robot)

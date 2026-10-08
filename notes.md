@@ -198,6 +198,35 @@ Entries appended as experiments run (Phase 2 onward).
   (v3, launched), (3) TERMINATION-PENALTY MAGNITUDE if v3 still collapses — reducing the −100 is the
   named next lever rather than "adding reward signal", which is already dense.
 
+### E25 (2026-10-08) — the 7 test failures: STALE DERIVED ARTIFACT (not a code bug); suite green again
+- RESOLVED (TestRegress; verified by the orchestrator: `pytest tests/ -q` -> 175 passed, 0 failed).
+- SCORER (6 failures): root cause was a STALE DERIVED FILE, not the scorer or the test premise.
+  `data/scorer_calibration.json` was generated at 03:30; `data/refs/STAND_UP.npz` was REPLACED at 06:24
+  (the grounded rebuild, commit 3a7ce45). The on-disk STAND_UP parameters reproduce a refit from the
+  OLD airborne reference 22/22, and a refit from the current reference changes exactly those 22
+  parameters. The rebuilt reference is NOT degenerate (per-phase knee_z_s 0.040 -> 0.343). FIX:
+  regenerated the calibration via `scripts/calibrate_scorer.py --write` (the documented remedy) — no
+  source change, no threshold relaxed. Evidence: STAND_UP own-trace mean 0.569 -> 0.995; root-tilt
+  monotonicity restored (0.569/0.572/0.496 non-monotone -> 0.995/0.484 monotone); phase-shift
+  non-monotone -> 0.995/0.848; self-vs-cross 0.569/0.602 -> 0.995/<=0.795.
+- BACKDET (1 failure): the test hardcoded `a_left_wrist_yaw_link` at STAND_UP frame 6 (written 03:53);
+  the grounded rebuild plants `a_right_wrist_yaw_link` there. Resolution was correct on both sides
+  (limb_contact True for both robots). FIX: the frame-6 expectation now requires "a resolved executor
+  wrist (`a_*_wrist_yaw_link`) + `b_left_knee_link`", with a provenance comment — a deliberate
+  contract update, not a weakening.
+- PROCESS LESSON (new rule): any GENERATED calibration/config that depends on a data file must record
+  that file's hash and be regenerated when the input changes; otherwise a legitimate upstream data
+  change silently invalidates downstream thresholds. (Earlier in the night the feasibility audit had
+  already switched to hash-anchoring for the same reason; this makes it a standing rule.)
+- KNOWN RESIDUAL (not a failure, documented in reports/2026-10-08/test_regressions.md): the scorer
+  calibration now flags 3 STAND_UP band-provenance deviations (<=0.114 s) because the rebuilt reference
+  meta dropped `time_stretch_requested` while `build_technique_targets` still models the old
+  t952/t1110/t1125 schedule — re-deriving needs src/retarget + the reference meta (outside that agent's
+  ownership). Carried as a known gap for the final report.
+- V3 healthy so far (context): 157k steps at 322 steps/s, entropy flat ~12.13 (was climbing to 26 in
+  v1), mean_return_50 rising to +90 (v2 never exceeded -85) — the alive-weight change is doing what it
+  was intended to do; the gate read at ~1.1M is what will decide.
+
 ### E24 (2026-10-08) — T1 v2 and v3: one change at a time, measured
 - v2 (entropy_coef 0.01 -> 0.001, plus a ramped training push curriculum ≤12 N*s so the gate's
   held-out 16/20/25 N*s stay unseen; gate battery untouched): the entropy fix WORKED — entropy rose
