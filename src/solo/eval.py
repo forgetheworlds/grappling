@@ -23,8 +23,9 @@ import numpy as np
 
 from .commands import CommandSchedule
 from .env import SoloEnv
-from .metrics import METRICS_DIR, METRIC_FIELDS, recovery_time, summarize_rows
-from .pushes import PushSchedule, PushSpec
+from .metrics import (METRICS_DIR, METRIC_FIELDS, com_offset_max,
+                      recovery_time, summarize_rows)
+from .pushes import TRAIN_MAX_IMPULSE, PushSchedule, PushSpec
 from .scene import STEP_DT, load_solo_model
 
 #: all metrics a gate may reference (aggregate keys produced by :func:`evaluate`)
@@ -35,7 +36,11 @@ GATE_METRICS: tuple[str, ...] = (
     "stance_err_mean", "slip_mean", "slip_p95",
     "act_delta_mean", "sat_frac_mean", "limit_prox_max",
     "reward_mean", "reward_sum_mean",
-    "max_recoverable_impulse", "recovery_success_rate", "recovery_time_mean",
+    "max_recoverable_impulse", "max_recoverable_impulse_heldout",
+    "fall_rate_heldout",
+    "recovery_success_rate", "recovery_time_mean",
+    "time_to_stability_mean", "time_to_stability_rate",
+    "com_offset_max", "steps_after_push_mean", "steps_total_mean",
     "steps_per_s", "n_episodes", "n_steps",
     "hand_err_mean", "shot_depth_max", "shot_exit_rate",
 )
@@ -103,12 +108,24 @@ class TaskGate:
 GATES: dict[str, TaskGate] = {
     "balance": TaskGate(
         "T1_balance",
-        (Criterion("fall_rate", "<=", 0.05, "falls across the push battery"),
-         Criterion("mean_upright", ">=", 0.95, "uprightness while standing"),
-         Criterion("max_recoverable_impulse", ">=", 10.0,
-                   "highest impulse survived (N*s); 12 N*s = unseen in training"),
-         Criterion("recovery_success_rate", ">=", 0.9, "pushes recovered")),
-        note="max magnitude in the battery (12 N*s) is unseen in training"),
+        (Criterion("fall_rate", "<=", 0.05, "falls across the full battery"),
+         Criterion("max_recoverable_impulse_heldout", ">=", 16.0,
+                   "N*s; recovered = stable to stance (not merely non-terminated); "
+                   "provenance: StandHold measured 0.0 held-out, and 16 N*s is beyond "
+                   "the analytic non-stepping ceiling (~13 N*s)"),
+         Criterion("mean_upright", ">=", 0.95,
+                   "provenance: StandHold measured 0.923"),
+         Criterion("time_to_stability_mean", "<=", 1.0,
+                   "s; upright+stance+speed<0.15 m/s held 0.2 s; provenance: baseline table"),
+         Criterion("com_offset_max", "<=", 0.20,
+                   "m; CoM-to-support-centre proxy (NOT a hull margin); "
+                   "provenance: baseline table"),
+         Criterion("recovery_success_rate", ">=", 0.9,
+                   "stabilised to stance after each push"),
+         Criterion("fall_rate_heldout", "<=", 0.10,
+                   "held-out magnitudes only")),
+        note="provisional; thresholds set from the measured baseline table "
+             "(reports/2026-10-08/solo_env.md section 5)"),
     "locomotion": TaskGate(
         "T2_locomotion",
         (Criterion("vel_err_mean", "<=", 0.15, "m/s"),
@@ -138,13 +155,36 @@ GATES: dict[str, TaskGate] = {
 }
 
 
-def battery_pushes(*, magnitudes: Sequence[float] = (4.0, 6.0, 8.0, 10.0, 12.0),
-                   directions: int = 16, seed: int = 0, t: float = 1.0,
-                   jitter: float = 0.25, height: float = 0.95) -> list[PushSpec]:
-    """Seeded held-out push battery (one push per episode, deterministic)."""
-    return list(PushSchedule.battery(magnitudes=magnitudes, directions=directions,
-                                     seed=seed, t=t, jitter=jitter,
-                                     height=height).pushes)
+#: held-out training cap, owned by :mod:`solo.pushes` (see there)
+
+
+def battery_pushes(*, magnitudes: Sequence[float] = (4.0, 8.0, 12.0, 16.0, 20.0, 25.0),
+                   directions: int = 8, heights: Sequence[float] = (0.79, 0.95, 1.10),
+                   seed: int = 0, t: float = 1.0, jitter: float = 0.25,
+                   train_max_impulse: float = TRAIN_MAX_IMPULSE) -> list[PushSpec]:
+    """Seeded held-out push battery (one push per episode, deterministic).
+
+    Design (2026-10-08, R2): magnitudes span the stiff-stand-survivable range
+    and go **beyond the analytic non-stepping ceiling** (16/20/25 N*s, labelled
+    ``_heldout``); application heights cycle over pelvis/chest/upper-chest
+    (0.79/0.95/1.10 m) and directions cover 8 evenly spaced world yaws, so the
+    battery contains pushes that a rigid stand cannot absorb.  Training
+    schedules must stay at or below ``train_max_impulse``.
+    """
+    rng = np.random.default_rng(int(seed))
+    slots = max(1, int(round(float(jitter) / STEP_DT)))
+    out: list[PushSpec] = []
+    for i, m in enumerate(magnitudes):
+        for j in range(int(directions)):
+            ang = 2.0 * np.pi * j / int(directions)
+            h = float(heights[(i + j) % len(heights)])
+            t0 = float(t) + STEP_DT * int(rng.integers(0, slots + 1))
+            held = float(m) > float(train_max_impulse) + 1e-9
+            label = (f"battery_m{round(float(m), 1)}_d{j}_h{h:.2f}"
+                     + ("_heldout" if held else ""))
+            out.append(PushSpec(t=t0, impulse=float(m), direction=ang, height=h,
+                                duration=STEP_DT, label=label))
+    return out
 
 
 def run_episode(env: SoloEnv, controller: Callable, seed: int, *,
@@ -182,10 +222,19 @@ def run_episode(env: SoloEnv, controller: Callable, seed: int, *,
     pushes = list(push.pushes) if push is not None else []
     if len(pushes) == 1:
         p = pushes[0]
-        rec = recovery_time(rows, p.t + p.n_steps * STEP_DT,
-                            pelvis_nominal=float(env._q_stand[2]))
+        push_end = p.t + p.n_steps * STEP_DT
+        rec = recovery_time(rows, push_end, pelvis_nominal=float(env._q_stand[2]))
+        com_max = com_offset_max(rows, push_end)
+        after = [r for r in rows if float(r["t"]) >= push_end - 1e-9]
+        steps_after = (int(after[-1]["steps_taken"]) - int(after[0]["steps_taken"])
+                       if after else 0)
+        heldout = p.label.endswith("_heldout")
+        impulse = float(p.impulse)
     else:
-        rec = None
+        rec = com_max = None
+        steps_after = 0
+        heldout = False
+        impulse = None
     summary = env.recorder.summary(extra={
         "termination": cause,
         "truncated": bool(truncated),
@@ -194,8 +243,15 @@ def run_episode(env: SoloEnv, controller: Callable, seed: int, *,
         "wall_s": round(wall, 4),
         "steps_per_s": round(steps / wall, 2) if wall > 0 else None,
         "pushes": [p.as_dict() for p in pushes],
+        "impulse": impulse,
+        "heldout": bool(heldout),
         "recovery_time_s": None if rec is None else round(rec, 4),
         "recovered": bool(rec is not None),
+        "time_to_stability_s": None if rec is None else round(rec, 4),
+        "stable": bool(rec is not None),
+        "com_offset_max_m": None if com_max is None else round(com_max, 4),
+        "steps_after_push": int(steps_after),
+        "steps_total": int(rows[-1]["steps_taken"]) if rows else 0,
         "reward_sum": round(reward_sum, 6),
         "final_pelvis_z": round(float(env.data.qpos[2]), 4),
         "final_upright": round(float(env.data.xmat[
@@ -206,6 +262,17 @@ def run_episode(env: SoloEnv, controller: Callable, seed: int, *,
     })
     summary["__rows"] = rows
     return summary
+
+
+def _recovered_episode(e: dict) -> bool:
+    """A push episode counts as *recovered* iff it did not terminate and reached
+    a *stable* stance afterwards (upright + stance height + base speed below
+    0.15 m/s, held 0.2 s; see ``metrics.recovery_time``).  This pairs survival
+    with actually being on the feet again -- without it, "survived" would count a
+    knocked-over robot that merely failed to terminate (e.g. lying on an arm)."""
+    if e.get("termination") is not None:
+        return False
+    return bool(e.get("stable"))
 
 
 def _episode_metric(summary: dict, metric: str) -> float | None:
@@ -270,10 +337,18 @@ def aggregate(episodes: list[dict], *, steps_total: int, wall_total: float,
     dorsals = sum(1 for e in episodes if e.get("termination") == "dorsal")
     terms = sum(1 for e in episodes if e.get("termination") is not None)
     rec_ok = [e for e in episodes if e.get("recovered")]
+    push_eps = [e for e in episodes if e.get("pushes")]
+    heldout_eps = [e for e in episodes if e.get("heldout")]
     impulses = [(e.get("pushes") or [{}])[0].get("impulse") if e.get("pushes") else None
                 for e in episodes]
     survived = [imp for e, imp in zip(episodes, impulses)
-                if imp is not None and e.get("termination") is None]
+                if imp is not None and _recovered_episode(e)]
+    survived_heldout = [float(e["impulse"]) for e in heldout_eps
+                        if e.get("impulse") is not None and _recovered_episode(e)]
+    com_vals = [float(e["com_offset_max_m"]) for e in push_eps
+                if e.get("com_offset_max_m") is not None]
+    stab_vals = [float(e["time_to_stability_s"]) for e in episodes
+                 if e.get("time_to_stability_s") is not None]
     out = {
         "n_episodes": n,
         "n_steps": int(steps_total),
@@ -302,10 +377,22 @@ def aggregate(episodes: list[dict], *, steps_total: int, wall_total: float,
         "reward_mean": mean_metric("reward_mean"),
         "reward_sum_mean": mean_of("reward_sum"),
         "max_recoverable_impulse": round(max(survived), 4) if survived else 0.0,
-        "recovery_success_rate": round(len(rec_ok) / max(1, sum(
-            1 for e in episodes if e.get("pushes"))), 6),
+        "max_recoverable_impulse_heldout": (round(max(survived_heldout), 4)
+                                            if survived_heldout else 0.0),
+        "fall_rate_heldout": round(sum(1 for e in heldout_eps
+                                       if e.get("termination") is not None)
+                                   / max(1, len(heldout_eps)), 6),
+        "recovery_success_rate": round(
+            sum(1 for e in push_eps if _recovered_episode(e)) / max(1, len(push_eps)), 6),
         "recovery_time_mean": round(float(np.mean(
             [e["recovery_time_s"] for e in rec_ok])), 4) if rec_ok else None,
+        "time_to_stability_mean": round(float(np.mean(stab_vals)), 4) if stab_vals else None,
+        "time_to_stability_rate": round(len(stab_vals) / max(1, len(push_eps)), 6),
+        "com_offset_max": round(max(com_vals), 4) if com_vals else None,
+        "steps_after_push_mean": round(float(np.mean(
+            [e.get("steps_after_push", 0) for e in push_eps])), 3) if push_eps else None,
+        "steps_total_mean": round(float(np.mean(
+            [e.get("steps_total", 0) for e in episodes])), 3),
         "shot_depth_max": max((e.get("shot_depth_max") or 0.0) for e in episodes),
         "shot_exit_rate": round(sum(1 for e in episodes if e.get("shot_exited")) / n, 6),
         "hand_err_mean": mean_metric("hand_err"),

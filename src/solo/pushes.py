@@ -35,6 +35,12 @@ from .scene import STEP_DT, TORSO_BODY, body_id
 _EPS = 1e-12
 
 
+#: impulses above this are **held out of training** (the T1 gate's held-out
+#: magnitudes stay unseen; 12 N*s is just under the ~13 N*s analytic non-stepping
+#: ceiling for the 33.3 kg G1)
+TRAIN_MAX_IMPULSE = 12.0
+
+
 @dataclass(frozen=True)
 class PushSpec:
     """One scheduled push: impulse magnitude (N*s) at a world point.

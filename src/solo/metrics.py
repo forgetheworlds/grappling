@@ -48,7 +48,8 @@ METRICS_DIR = Path(__file__).resolve().parents[2] / "data" / "solo" / "metrics"
 #: per-step fields written to JSONL (order fixed for readability)
 METRIC_FIELDS: tuple[str, ...] = (
     "t", "vel_err", "yaw_err", "upright", "tilt_deg", "pelvis_z", "stance_err",
-    "slip", "contact_l", "contact_r", "knee_contact", "hand_contact",
+    "slip", "speed", "com_offset", "steps_taken",
+    "contact_l", "contact_r", "knee_contact", "hand_contact",
     "torso_contact", "dorsal_contact", "act_delta", "sat_frac", "limit_prox",
     "hand_err", "reward",
 )
@@ -123,9 +124,10 @@ def joint_limit_proximity(model: mujoco.MjModel, data: mujoco.MjData,
 
 def recovery_time(rows: list[dict], push_end_t: float, *, upright_min: float = 0.97,
                   pelvis_tol: float = 0.06, pelvis_nominal: float = 0.79,
-                  hold_s: float = 0.2) -> float | None:
-    """Seconds from ``push_end_t`` until the robot is upright and at stance
-    height for ``hold_s`` continuously (None if it never recovers)."""
+                  hold_s: float = 0.2, vel_max: float | None = 0.15) -> float | None:
+    """Seconds from ``push_end_t`` until the robot is *stable*: upright, at
+    stance height and (when ``vel_max`` is given) with base speed below it,
+    held for ``hold_s`` continuously (None if it never stabilises)."""
     need = max(1, int(round(hold_s / STEP_DT)))
     run = 0
     for row in rows:
@@ -134,10 +136,23 @@ def recovery_time(rows: list[dict], push_end_t: float, *, upright_min: float = 0
             continue
         ok = (float(row.get("upright", 0.0)) >= upright_min
               and abs(float(row.get("pelvis_z", 0.0)) - pelvis_nominal) <= pelvis_tol)
+        if ok and vel_max is not None:
+            ok = float(row.get("speed", 0.0)) <= float(vel_max)
         run = run + 1 if ok else 0
         if run >= need:
             return float(t - push_end_t - (need - 1) * STEP_DT)
     return None
+
+
+def com_offset_max(rows: list[dict], start_t: float) -> float | None:
+    """Max CoM-to-support-centre offset (m) at/after ``start_t``.
+
+    Honest proxy: ``||CoM_xy - mean(loaded foot sites)_xy||`` in the pelvis
+    frame -- *not* a convex-hull support margin (no hull is implemented yet).
+    """
+    vals = [float(r["com_offset"]) for r in rows
+            if float(r.get("t", 0.0)) >= start_t and r.get("com_offset") is not None]
+    return max(vals) if vals else None
 
 
 # ----------------------------------------------------------------- aggregation

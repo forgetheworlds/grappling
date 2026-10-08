@@ -184,6 +184,43 @@ Entries appended as experiments run (Phase 2 onward).
   needed a reset or a fall. All motion-producing agents (teacher, drill, mocap reference) are bound
   to the rubric.
 
+### E23b (2026-10-08) — CORRECTION to E23's mechanism (the 'constant reward' claim was wrong)
+- DIAGNOSIS — CORRECTED (the first version of this entry, taken from the probe's summary, was
+  WRONG): the balance reward is NOT constant. `t_alive = clamp01(torso_up_z) · clamp01(pelvis_z/ref)`
+  is a DENSE uprightness × stance-height signal (≈0 collapsed, ≈1 upright; src/solo/reward.py:168-171),
+  and reward.py asserts at construction that `alive_weight > sum(per-step penalty weights)`
+  (reward.py:329-333). The correct mechanism for the collapse is therefore *termination-risk +
+  exploration failure*, not a flat reward: the −100 terminal penalty makes any attempt to stand
+  risky while the policy is still high-entropy and its value estimate is poor, so a low-variance
+  collapsed pose (low fall rate, uprightness ≈0) is the better-returned behaviour in practice. Note
+  the invariant is asserted on WEIGHTS, not on realized values — which is why it did not prevent a
+  degenerate solution. Corrected lever order: (1) entropy_coef (v2, done, helped), (2) alive_weight
+  (v3, launched), (3) TERMINATION-PENALTY MAGNITUDE if v3 still collapses — reducing the −100 is the
+  named next lever rather than "adding reward signal", which is already dense.
+
+### E24 (2026-10-08) — T1 v2 and v3: one change at a time, measured
+- v2 (entropy_coef 0.01 -> 0.001, plus a ramped training push curriculum ≤12 N*s so the gate's
+  held-out 16/20/25 N*s stay unseen; gate battery untouched): the entropy fix WORKED — entropy rose
+  to a peak 12.37 (~280k steps) then fell (12.22 at 739k, 12.31 at 1.10M) instead of climbing to 26;
+  mean_return_50 rose from −102 to −85. GATE at 1,101,824 steps (48-push battery, vs StandHold):
+  fall_rate 0.042 (0.292) PASS, fall_rate_heldout 0.000 (0.958) PASS, mean_upright 0.0415 (0.849)
+  FAIL, max_recoverable_impulse_heldout 0.0 (16.0) FAIL, time_to_stability none (0.133 s) FAIL,
+  com_offset_max 0.796 (0.135) FAIL, recovery_success 0.0 (0.25) FAIL → 2/7, not certified. It still
+  dodges the −100 termination by collapsing (low fall rate, uprightness ≈0).
+- DECISION: stopped v2 exactly at the pre-declared stop condition (mean_upright ≈ 0 beyond 800k) —
+  one change, one measurement, no stacking. Caveat recorded by the agent: with a single-checkpoint
+  path the 400k/800k snapshots were overwritten, so those reads come from the log, not artifacts;
+  v3 uses `--save-every 100000` to avoid that.
+- v3 LAUNCHED (first iteration 1, mean_return_50 +56.5 vs −102 at v2's start — the alive weight
+  flips the sign immediately): `--entropy-coef 0.001 --alive-weight 10`, service `solo_t1_v3`,
+  2M steps, `--save-every 100000`, `--lock off`. The alive-weight change was hand-checked first
+  (upright +10.0/step vs collapsed −0.05/step with the termination still −100, invariant holds).
+- ALSO FOUND AND DISPATCHED: `pytest tests/ -q` is 7 failed / 168 passed — 6 scorer monotonicity
+  failures on the REBUILT STAND_UP reference and 1 backdet limb-set mismatch, both introduced by other
+  agents' changes. Dispatched to a dedicated agent with instructions to resolve on evidence (fix the
+  scorer if the property is genuinely violated; adjust the test premise only if the rebuilt reference
+  legitimately lacks the structure the property needs) — never by weakening thresholds.
+
 ### E23 (2026-10-08) — T1 mid-run read: policy DEGENERATE (below baselines) — run stopped, two causes named
 - VERDICT (T1Midrun, independent, reports/2026-10-08/t1_midrun_read.md): the 1.4M-step checkpoint
   fails ALL SEVEN T1 criteria and sits BELOW the baselines. Protocol: full 48-push battery, 48

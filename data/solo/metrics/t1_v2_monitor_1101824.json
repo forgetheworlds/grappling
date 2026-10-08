@@ -1,0 +1,79 @@
+{
+  "aggregate": {
+    "act_delta_mean": 0.507766,
+    "com_offset_max": 0.7964,
+    "dorsal_rate": 0.0,
+    "fall_rate": 0.041667,
+    "fall_rate_heldout": 0.0,
+    "hand_err_mean": 1.464584,
+    "limit_prox_max": 1.0,
+    "max_recoverable_impulse": 0.0,
+    "max_recoverable_impulse_heldout": 0.0,
+    "mean_pelvis_z": 0.461645,
+    "mean_tilt_deg": 86.496052,
+    "mean_upright": 0.041497,
+    "min_upright": -0.998673,
+    "n_episodes": 48,
+    "n_steps": 9420,
+    "recovery_success_rate": 0.0,
+    "recovery_time_mean": null,
+    "reward_mean": -0.150482,
+    "reward_sum_mean": -26.619131,
+    "sat_frac_mean": 0.716111,
+    "shot_depth_max": 0.2829,
+    "shot_exit_rate": 0.020833,
+    "slip_mean": 0.639903,
+    "slip_p95": 4.483955,
+    "stance_err_mean": -0.328355,
+    "steps_after_push_mean": 10.083,
+    "steps_per_s": 350.96,
+    "steps_total_mean": 13.938,
+    "termination_rate": 0.041667,
+    "time_to_stability_mean": null,
+    "time_to_stability_rate": 0.0,
+    "vel_err_mean": 1.875926,
+    "vel_err_p95": 3.749035,
+    "yaw_err_mean": 8.080626,
+    "yaw_err_p95": 20.411661
+  },
+  "baselines": {
+    "random_init_policy": {
+      "com_offset_max": 0.6769,
+      "fall_rate": 0.8125,
+      "fall_rate_heldout": 0.875,
+      "max_recoverable_impulse_heldout": 0.0,
+      "mean_upright": 0.176118,
+      "recovery_success_rate": 0.0,
+      "time_to_stability_mean": null
+    },
+    "stand_hold": {
+      "com_offset_max": 0.1352,
+      "fall_rate": 0.291667,
+      "fall_rate_heldout": 0.958333,
+      "max_recoverable_impulse_heldout": 16.0,
+      "mean_upright": 0.849118,
+      "recovery_success_rate": 0.25,
+      "time_to_stability_mean": 0.1326
+    },
+    "zero_action": {
+      "com_offset_max": 0.5615,
+      "fall_rate": 0.354167,
+      "fall_rate_heldout": 0.875,
+      "max_recoverable_impulse_heldout": 0.0,
+      "mean_upright": 0.191578,
+      "recovery_success_rate": 0.0,
+      "time_to_stability_mean": null
+    }
+  },
+  "reasons": [
+    "PASS fall_rate <= 0.05 (falls across the full battery) (measured 0.041667)",
+    "FAIL max_recoverable_impulse_heldout >= 16 (N*s; recovered = stable to stance (not merely non-terminated); provenance: StandHold measured 0.0 held-out, and 16 N*s is beyond the analytic non-stepping ceiling (~13 N*s)) (measured 0.0)",
+    "FAIL mean_upright >= 0.95 (provenance: StandHold measured 0.923) (measured 0.041497)",
+    "FAIL time_to_stability_mean <= 1 (s; upright+stance+speed<0.15 m/s held 0.2 s; provenance: baseline table) (measured None)",
+    "FAIL com_offset_max <= 0.2 (m; CoM-to-support-centre proxy (NOT a hull margin); provenance: baseline table) (measured 0.7964)",
+    "FAIL recovery_success_rate >= 0.9 (stabilised to stance after each push) (measured 0.0)",
+    "PASS fall_rate_heldout <= 0.1 (held-out magnitudes only) (measured 0.0)"
+  ],
+  "steps": 1101824,
+  "verdict": "not_certified"
+}

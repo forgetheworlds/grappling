@@ -46,6 +46,7 @@ import mujoco
 import numpy as np
 
 from . import markers as markers_mod
+from .curriculum import DEFAULT_CURRICULUM, PushCurriculum
 from .commands import (DEFAULT_COMMAND, N_SKILLS, Command, CommandFilter,
                        CommandRanges, CommandSampler, CommandSchedule, Skill)
 from .fall import (ContactState, DorsalDetector, FallDetConfig, FallDetector,
@@ -73,6 +74,8 @@ RESET_TILT_DEG = 2.0          # deg (root pitch/roll)
 RECOVERY_PELVIS_Z = 0.50      # below this the robot counts as "down"
 RECOVERY_HOLD_S = 0.3         # stance kept this long -> recovered
 RECOVERY_TOL = 0.06           # m tolerance vs stand height
+#: a foot landing after at least this much air time counts as a *step* event
+STEP_EVENT_MIN_AIR = 0.06     # s
 
 #: shot bookkeeping
 SHOT_PHASE_RATE = 1.0 / 1.2   # phase units per second (1.2 s to full entry)
@@ -95,10 +98,13 @@ class TaskSpec:
     terminate_on_dorsal: bool = True
     start: str = "stand"          # "stand" | "crouch" | "kneel"
     shot_budget_s: float = 2.5
+    push_curriculum: PushCurriculum | None = None   # training-time push ramp
 
     def as_dict(self) -> dict:
         return {
             "name": self.name, "horizon": self.horizon,
+            "push_curriculum": (None if self.push_curriculum is None
+                                else self.push_curriculum.as_dict()),
             "command_hold_s": self.command_hold_s,
             "start": self.start, "shot_budget_s": self.shot_budget_s,
             "command_schedule": None if self.command is None else self.command.as_list(),
@@ -109,6 +115,8 @@ class TaskSpec:
                 else [s.name for s in self.command_sampler.skills],
             },
             "push": None if self.push is None else self.push.as_list(),
+            "push_curriculum": (None if self.push_curriculum is None
+                                else self.push_curriculum.as_dict()),
             "marker_plan": None if self.marker_plan is None
             else self.marker_plan.as_dict(),
             "terminate_on_fall": self.terminate_on_fall,
@@ -124,7 +132,8 @@ _LOCOMOTION_SKILLS = (Skill.STANCE, Skill.SHUFFLE_F, Skill.SHUFFLE_B,
 def _preset_tasks() -> dict[str, TaskSpec]:
     return {
         "balance": TaskSpec(name="balance", horizon=8.0,
-                            command=CommandSchedule.steady(DEFAULT_COMMAND)),
+                            command=CommandSchedule.steady(DEFAULT_COMMAND),
+                            push_curriculum=DEFAULT_CURRICULUM),
         "locomotion": TaskSpec(
             name="locomotion", horizon=8.0,
             command_sampler=CommandSampler(skills=_LOCOMOTION_SKILLS, seed=0),
@@ -191,6 +200,7 @@ class SoloEnv:
         self.record_metrics = bool(record_metrics)
         self.jitter_reset = bool(jitter)
 
+        self.push_curriculum = spec.push_curriculum
         self.ranges = (command_sampler.ranges if command_sampler is not None
                        else (spec.command_sampler.ranges if spec.command_sampler is not None
                              else CommandRanges()))
@@ -285,6 +295,7 @@ class SoloEnv:
         self._foot_air = [0.0, 0.0]
         self._foot_landed = [False, False]
         self._foot_air_at_landing = [0.0, 0.0]
+        self._step_events = 0
         self._shot_time = 0.0
         self._shot_phase = 0.0
         self._shot_armed = False
@@ -334,6 +345,10 @@ class SoloEnv:
         mid = 0.5 * (self.lo + self.hi)
         half = 0.5 * (self.hi - self.lo)
         return np.clip(mid + half * u, self.lo, self.hi)
+
+    def set_push_schedule(self, schedule: PushSchedule | None) -> None:
+        """Install the push schedule used from the *next* reset onwards."""
+        self._push_default = schedule
 
     def set_base_action(self, ctrl: np.ndarray) -> None:
         """Base joint targets for residual mode (default: stand keyframe ctrl)."""
@@ -561,6 +576,8 @@ class SoloEnv:
                 if not self._prev_contact[i]:
                     landed[i] = True
                     air_at_landing[i] = self._foot_air[i]
+                    if self._foot_air[i] >= STEP_EVENT_MIN_AIR:
+                        self._step_events += 1  # a real step, not contact chatter
                 self._foot_air[i] = 0.0
             else:
                 self._foot_air[i] += STEP_DT
@@ -709,6 +726,9 @@ class SoloEnv:
 
     def _record_metrics(self, f, ctrl, inp, reward, terms) -> dict:
         contacts = f.contacts
+        ctx = self._last_ctx
+        com_offset = (float(np.linalg.norm(np.asarray(ctx.com_to_support_xy)))
+                      if ctx is not None else None)
         row = self.recorder.add(
             t=float(self.data.time),
             vel_err=float(np.linalg.norm(inp.vel_local
@@ -717,6 +737,9 @@ class SoloEnv:
             upright=f.torso_up_z, tilt_deg=f.tilt_deg, pelvis_z=f.pelvis_z,
             stance_err=f.pelvis_z - self.command.stance_height,
             slip=float(np.max(inp.foot_slip)),
+            speed=float(np.linalg.norm(np.asarray(inp.vel_local, np.float64))),
+            com_offset=com_offset,
+            steps_taken=int(self._step_events),
             contact_l=contacts.left_foot, contact_r=contacts.right_foot,
             knee_contact=contacts.knees, hand_contact=contacts.hands,
             torso_contact=contacts.torso or contacts.pelvis,

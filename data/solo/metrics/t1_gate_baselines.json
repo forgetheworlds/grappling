@@ -1,0 +1,114 @@
+{
+  "battery": {
+    "directions": 8,
+    "heights": [
+      0.79,
+      0.95,
+      1.1
+    ],
+    "magnitudes": [
+      4.0,
+      8.0,
+      12.0,
+      16.0,
+      20.0,
+      25.0
+    ],
+    "n_pushes": 48,
+    "seed": 0,
+    "train_max_impulse": 12.0
+  },
+  "controllers": {
+    "random_init_policy": {
+      "com_offset_max": 0.6769,
+      "fall_rate": 0.8125,
+      "fall_rate_heldout": 0.875,
+      "max_recoverable_impulse": 0.0,
+      "max_recoverable_impulse_heldout": 0.0,
+      "mean_upright": 0.176118,
+      "recovery_success_rate": 0.0,
+      "steps_after_push_mean": 2.875,
+      "steps_per_s": 257.97,
+      "time_to_stability_mean": null,
+      "time_to_stability_rate": 0.0,
+      "verdict": "not_certified"
+    },
+    "stand_hold": {
+      "com_offset_max": 0.1352,
+      "fall_rate": 0.291667,
+      "fall_rate_heldout": 0.958333,
+      "max_recoverable_impulse": 16.0,
+      "max_recoverable_impulse_heldout": 16.0,
+      "mean_upright": 0.849118,
+      "recovery_success_rate": 0.25,
+      "steps_after_push_mean": 1.312,
+      "steps_per_s": 405.34,
+      "time_to_stability_mean": 0.1326,
+      "time_to_stability_rate": 0.395833,
+      "verdict": "not_certified"
+    },
+    "zero_action": {
+      "com_offset_max": 0.5615,
+      "fall_rate": 0.354167,
+      "fall_rate_heldout": 0.875,
+      "max_recoverable_impulse": 0.0,
+      "max_recoverable_impulse_heldout": 0.0,
+      "mean_upright": 0.191578,
+      "recovery_success_rate": 0.0,
+      "steps_after_push_mean": 0.375,
+      "steps_per_s": 387.05,
+      "time_to_stability_mean": null,
+      "time_to_stability_rate": 0.0,
+      "verdict": "not_certified"
+    }
+  },
+  "gate": {
+    "criteria": [
+      {
+        "metric": "fall_rate",
+        "note": "falls across the full battery",
+        "op": "<=",
+        "threshold": 0.05
+      },
+      {
+        "metric": "max_recoverable_impulse_heldout",
+        "note": "N*s; recovered = stable to stance (not merely non-terminated); provenance: StandHold measured 0.0 held-out, and 16 N*s is beyond the analytic non-stepping ceiling (~13 N*s)",
+        "op": ">=",
+        "threshold": 16.0
+      },
+      {
+        "metric": "mean_upright",
+        "note": "provenance: StandHold measured 0.923",
+        "op": ">=",
+        "threshold": 0.95
+      },
+      {
+        "metric": "time_to_stability_mean",
+        "note": "s; upright+stance+speed<0.15 m/s held 0.2 s; provenance: baseline table",
+        "op": "<=",
+        "threshold": 1.0
+      },
+      {
+        "metric": "com_offset_max",
+        "note": "m; CoM-to-support-centre proxy (NOT a hull margin); provenance: baseline table",
+        "op": "<=",
+        "threshold": 0.2
+      },
+      {
+        "metric": "recovery_success_rate",
+        "note": "stabilised to stance after each push",
+        "op": ">=",
+        "threshold": 0.9
+      },
+      {
+        "metric": "fall_rate_heldout",
+        "note": "held-out magnitudes only",
+        "op": "<=",
+        "threshold": 0.1
+      }
+    ],
+    "name": "T1_balance",
+    "note": "provisional; thresholds set from the measured baseline table (reports/2026-10-08/solo_env.md section 5)",
+    "provisional": true
+  }
+}

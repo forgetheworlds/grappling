@@ -38,8 +38,8 @@ from solo.baselines import (FallForwardController, RandomInitPolicyController,  
 from solo.commands import (Command, CommandFilter, CommandRanges,  # noqa: E402
                            CommandSampler, CommandSchedule, Skill, N_SKILLS)
 from solo.env import TASKS, SoloEnv  # noqa: E402
-from solo.eval import (GATES, Criterion, TaskGate, battery_pushes,  # noqa: E402
-                       evaluate, run_episode, take_clips)
+from solo.eval import (GATES, TRAIN_MAX_IMPULSE, Criterion, TaskGate,  # noqa: E402
+                       battery_pushes, evaluate, run_episode, take_clips)
 from solo.fall import (ContactState, DorsalDetector, FallDetConfig,  # noqa: E402
                        FallDetector, FallFeatures, contact_state, fall_features)
 from solo.markers import (MarkerPlan, SHOT_PLAN, active_target,  # noqa: E402
@@ -352,7 +352,15 @@ def test_push_schedule_battery_deterministic():
     b = battery_pushes(seed=3)
     assert [p.as_dict() for p in a] == [p.as_dict() for p in b]
     mags = sorted({round(p.impulse, 6) for p in a})
-    assert len(mags) >= 5 and max(mags) == 12.0  # the unseen point of the gate
+    assert len(mags) >= 5 and max(mags) == 25.0
+    assert min(mags) == 4.0
+    # held-out magnitudes are labelled and strictly above the training cap
+    held = [p for p in a if p.label.endswith("_heldout")]
+    assert held and all(p.impulse > TRAIN_MAX_IMPULSE for p in held)
+    assert not any(p.impulse > TRAIN_MAX_IMPULSE for p in a
+                   if not p.label.endswith("_heldout"))
+    # the battery varies application height (breaking the stiff-stand case)
+    assert {p.height for p in a} == {0.79, 0.95, 1.10}
     assert all(0.0 < p.duration <= 0.1 for p in a)
 
 
@@ -799,7 +807,13 @@ def test_trainer_checkpoint_roundtrip(model):
     """The S2 entry point must start, stop and resume (short burst only)."""
     import tempfile
 
-    from solo.train import SoloTrainer, TrainConfig
+    from solo.train import SoloTrainer, TrainConfig, use_lock_for
+
+    # lock policy: long runs never hold the shared sim lock (R1)
+    assert use_lock_for("off", 10_000_000) is False
+    assert use_lock_for("on", 10_000_000) is True
+    assert use_lock_for("auto", 256) is True       # ~1.3 s estimated
+    assert use_lock_for("auto", 2_000_000) is False  # ~2.8 h estimated
 
     with tempfile.TemporaryDirectory() as td:
         ckpt = Path(td) / "t1.pt"
@@ -816,3 +830,32 @@ def test_trainer_checkpoint_roundtrip(model):
         tr2.cfg.steps = 384
         stats2 = tr2.run()
         assert stats2["steps"] == 384
+
+def test_push_curriculum_ramp_and_held_out_boundary():
+    """FIX 2: training pushes ramp with progress and stay inside the cap."""
+    from solo.curriculum import PushCurriculum
+    from solo.pushes import TRAIN_MAX_IMPULSE
+
+    c = PushCurriculum(start_steps=100, warmup_steps=1000)
+    assert c.schedule_for(50, 1).pushes == ()
+    a = c.schedule_for(100, 1)
+    mid = c.schedule_for(600, 1)
+    b = c.schedule_for(1100, 1)
+    assert len(a.pushes) == 1 and len(mid.pushes) == 2 and len(b.pushes) == 2
+    assert (len(c.unlocked(100)[0]) < len(c.unlocked(600)[0])
+            < len(c.unlocked(1100)[0]) == len(c.magnitudes))
+    assert c.unlocked(100)[1] < c.unlocked(600)[1] < c.unlocked(1100)[1]
+    assert all(p.impulse <= TRAIN_MAX_IMPULSE for p in b.pushes)
+    assert all(p.impulse <= TRAIN_MAX_IMPULSE for p in a.pushes)
+    with pytest.raises(ValueError):
+        PushCurriculum(magnitudes=(2.0, 20.0), max_impulse=12.0)
+    # the held-out evaluation magnitudes stay strictly above the training cap
+    held = [p for p in battery_pushes() if p.label.endswith("_heldout")]
+    assert min(p.impulse for p in held) > TRAIN_MAX_IMPULSE
+    # env wiring: balance ships a curriculum; the setter feeds the next reset
+    env = SoloEnv(seed=0, task="balance")
+    assert env.push_curriculum is not None
+    env.set_push_schedule(env.push_curriculum.schedule_for(500_000, 3))
+    env.reset(seed=3)
+    assert env.push_schedule is not None and len(env.push_schedule.pushes) >= 1
+    assert all(p.impulse <= TRAIN_MAX_IMPULSE for p in env.push_schedule.pushes)

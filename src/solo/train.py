@@ -70,6 +70,18 @@ class TrainConfig:
     save_every: int = 50_000
     log_every: int = 2048
     torch_threads: int = 1
+    # push curriculum (T1 v2 fix): training-time pushes ramped with progress,
+    # always <= TRAIN_MAX_IMPULSE so the gate's held-out magnitudes stay unseen
+    push_curriculum: bool = True
+    push_start_steps: int = 20_000
+    push_warmup_steps: int = 400_000
+    push_seed: int = 0
+    #: weight of the positive survival term (`alive`).  Measured v1/v2 pathology:
+    #: the policy dodges the one-off -100 termination by collapsing into a
+    #: non-terminating limb-supported pose (mean_upright 0.006 / 0.041 while
+    #: fall_rate stays low).  Scaling the per-step survival signal up makes the
+    #: standing-vs-collapsed gap dominate that one-off penalty.
+    alive_weight: float = 1.0
 
     def ppo_config(self):
         from rl.ppo import PPOConfig
@@ -91,7 +103,11 @@ class SoloTrainer:
         self.cfg = cfg
         torch.set_num_threads(int(cfg.torch_threads))
         self.model = model if model is not None else load_solo_model()
-        self.env = SoloEnv(self.model, task=cfg.task, seed=cfg.seed)
+        from .reward import RewardWeights
+
+        weights = (RewardWeights(alive=float(cfg.alive_weight))
+                   if abs(float(cfg.alive_weight) - 1.0) > 1e-9 else None)
+        self.env = SoloEnv(self.model, task=cfg.task, seed=cfg.seed, weights=weights)
         self.net = ActorCritic(ACTOR_DIM, CRITIC_DIM, act_dim=N_JOINTS,
                                cfg=cfg.ppo_config().net_config())
         self.optimizer = torch.optim.Adam(self.net.parameters(), lr=cfg.lr)
@@ -104,8 +120,24 @@ class SoloTrainer:
         self._ep_return = 0.0
         self._stop = False
         self.last_stats: dict = {}
+        self.push_curriculum = None
+        if cfg.push_curriculum and self.env.push_curriculum is not None:
+            from dataclasses import replace
+
+            self.push_curriculum = replace(self.env.push_curriculum,
+                                           start_steps=int(cfg.push_start_steps),
+                                           warmup_steps=int(cfg.push_warmup_steps),
+                                           seed=int(cfg.push_seed))
+        self._apply_push_curriculum()
         obs = self.env.reset(seed=self.episode_seed)
         self._obs = obs
+
+    def _apply_push_curriculum(self) -> None:
+        """Install the progress-ramped training push schedule (before reset)."""
+        if self.push_curriculum is None:
+            return
+        self.env.set_push_schedule(self.push_curriculum.schedule_for(
+            self.steps_done, self.episode_seed))
 
     # ------------------------------------------------------------------ data
     def collect(self) -> "object":
@@ -145,6 +177,7 @@ class SoloTrainer:
                 self.recent_returns = self.recent_returns[-50:]
                 self._ep_return = 0.0
                 self.episode_seed += 1
+                self._apply_push_curriculum()
                 self._obs = self.env.reset(seed=self.episode_seed)
             else:
                 self._obs = next_obs
@@ -221,6 +254,7 @@ class SoloTrainer:
             restore_rng(extra["rng"])
         if extra.get("torch_generator") is not None:
             self.generator.set_state(extra["torch_generator"])
+        self._apply_push_curriculum()
         self._obs = self.env.reset(seed=self.episode_seed)
 
 
@@ -242,6 +276,23 @@ def train(cfg: TrainConfig, *, model=None, on_sigint_save: bool = True) -> dict:
     return stats
 
 
+def use_lock_for(lock: str, steps: int, rate: float = 200.0,
+                 short_run_s: float = 60.0) -> bool:
+    """Whether the trainer should hold the advisory sim lock.
+
+    ``off`` never locks (multi-hour runs must not starve other sims),
+    ``on`` always locks, ``auto`` locks only for short runs
+    (estimated ``steps / rate`` below ``short_run_s``).
+    """
+    if lock == "on":
+        return True
+    if lock == "off":
+        return False
+    if lock != "auto":
+        raise ValueError(f"unknown lock mode {lock!r}")
+    return (float(steps) / max(1.0, float(rate))) < float(short_run_s)
+
+
 def main(argv=None) -> int:
     ap = argparse.ArgumentParser(description=__doc__,
                                  formatter_class=argparse.RawDescriptionHelpFormatter)
@@ -251,19 +302,68 @@ def main(argv=None) -> int:
     ap.add_argument("--rollout-steps", type=int, default=2048)
     ap.add_argument("--seed", type=int, default=0)
     ap.add_argument("--gamma", type=float, default=0.995)
+    ap.add_argument("--lam", type=float, default=0.95)
     ap.add_argument("--lr", type=float, default=3e-4)
+    ap.add_argument("--entropy-coef", type=float, default=0.01,
+                    help="PPO entropy bonus (0.001 recommended when the balance "
+                         "reward is nearly constant: the outward log-std gradient "
+                         "has nothing opposing it otherwise)")
+    ap.add_argument("--value-coef", type=float, default=0.5)
+    ap.add_argument("--clip", type=float, default=0.2)
+    ap.add_argument("--epochs", type=int, default=4)
+    ap.add_argument("--minibatches", type=int, default=4)
+    ap.add_argument("--hidden", default="256,256",
+                    help="comma-separated MLP widths, e.g. 256,256")
+    ap.add_argument("--action-mode", choices=("absolute", "residual"), default="absolute")
+    ap.add_argument("--log-every", type=int, default=2048)
+    ap.add_argument("--alive-weight", type=float, default=1.0,
+                    help="weight of the positive survival term; raise it (e.g. 10) "
+                         "when the policy dodges the one-off termination penalty by "
+                         "collapsing into a non-terminating pose")
+    ap.add_argument("--push-curriculum", choices=("on", "off"), default="on",
+                    help="ramped training pushes (<= TRAIN_MAX_IMPULSE=12 N*s; the "
+                         "gate's held-out magnitudes stay unseen)")
+    ap.add_argument("--push-start-steps", type=int, default=20_000)
+    ap.add_argument("--push-warmup-steps", type=int, default=400_000)
     ap.add_argument("--out", default="")
     ap.add_argument("--save-every", type=int, default=50_000)
     ap.add_argument("--resume", default="", help="checkpoint to resume from")
     ap.add_argument("--no-sigint-save", action="store_true")
+    ap.add_argument("--lock", choices=("off", "on", "auto"), default="auto",
+                    help="advisory data/locks/sim.lock: off = never take it "
+                         "(use this for multi-hour runs so other sims are not "
+                         "starved); on = always; auto = only when the estimated "
+                         "runtime is under 60 s (short smoke runs)")
+    ap.add_argument("--lock-wait", type=float, default=900.0)
     args = ap.parse_args(argv)
+    hidden = tuple(int(x) for x in str(args.hidden).split(",") if x.strip())
     cfg = TrainConfig(task=args.task, steps=args.steps,
                       rollout_steps=args.rollout_steps, seed=args.seed,
-                      gamma=args.gamma, lr=args.lr, out=args.out,
-                      save_every=args.save_every)
-    if args.resume:
-        from rl.checkpoint import apply_checkpoint, load_checkpoint
+                      gamma=args.gamma, lam=args.lam, lr=args.lr,
+                      entropy_coef=args.entropy_coef, value_coef=args.value_coef,
+                      clip=args.clip, epochs=args.epochs,
+                      minibatches=args.minibatches, hidden=hidden,
+                      action_mode=args.action_mode, log_every=args.log_every,
+                      out=args.out, save_every=args.save_every,
+                      push_curriculum=(args.push_curriculum == "on"),
+                      push_start_steps=args.push_start_steps,
+                      push_warmup_steps=args.push_warmup_steps,
+                      alive_weight=args.alive_weight)
+    use_lock = use_lock_for(args.lock, args.steps)
+    if use_lock:
+        from .lock import SimLock
 
+        with SimLock(owner=f"solo.train {args.task}", wait_s=args.lock_wait):
+            print(f"[solo.train] holding the sim lock (--lock={args.lock})")
+            return _run_train(cfg, args)
+    if args.lock == "auto":
+        print("[solo.train] long run: NOT taking the sim lock (--lock=auto); "
+              "other agents' sims share the box")
+    return _run_train(cfg, args)
+
+
+def _run_train(cfg: TrainConfig, args) -> int:
+    if args.resume:
         trainer = SoloTrainer(cfg)
         trainer.load(args.resume)
         stats = trainer.run()

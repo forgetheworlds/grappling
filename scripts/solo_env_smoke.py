@@ -44,10 +44,11 @@ from solo.baselines import (FallForwardController, RandomInitPolicyController,  
                             ZeroActionController, probe_specs)
 from solo.commands import Command, CommandSchedule, Skill  # noqa: E402
 from solo.env import RESET_TILT_DEG, SoloEnv  # noqa: E402
-from solo.eval import GATES, battery_pushes, evaluate, take_clips  # noqa: E402
+from solo.eval import (GATES, TRAIN_MAX_IMPULSE, battery_pushes,  # noqa: E402
+                       evaluate, take_clips)
 from solo.lock import SimLock  # noqa: E402
 from solo.metrics import METRICS_DIR, write_json  # noqa: E402
-from solo.scene import load_solo_model, stand_frame  # noqa: E402
+from solo.scene import N_JOINTS, load_solo_model, stand_frame  # noqa: E402
 from solo.stance import stance_qpos, stance_targets  # noqa: E402
 from solo.video import ClipRecorder, probe_media  # noqa: E402
 
@@ -218,7 +219,8 @@ def _run_probe(spec, *, video: bool, out_dir: Path, clip_seconds: float) -> dict
     model = load_solo_model()
     gate = GATES[spec.task]
     if spec.task == "balance":
-        pushes = battery_pushes(magnitudes=(4.0, 8.0, 12.0), directions=8, seed=11)
+        pushes = battery_pushes(magnitudes=(4.0, 8.0, 12.0), directions=8, seed=11,
+                                heights=(0.95,))
         clip_ep = len(pushes) - 1
         kwargs = dict(push_plan=pushes, name=f"probe_{spec.name}")
         title = f"S1 exploit probe - {spec.name}"
@@ -275,7 +277,7 @@ def cmd_baselines(args) -> int:
     out_dir = METRICS_DIR
     summary = {}
     t1_pushes = battery_pushes(magnitudes=(4.0, 6.0, 8.0, 10.0, 12.0), directions=8,
-                               seed=7)
+                               seed=7, heights=(0.95,))
     # --- T1 balance battery
     for name in ("stand_hold", "random_init_policy"):
         clip_ep = len(t1_pushes) - 1
@@ -347,7 +349,122 @@ def cmd_battery(args) -> int:
     return 0
 
 
+
+# ------------------------------------------------------------------- monitor
+def cmd_monitor(args) -> int:
+    """Evaluate a training checkpoint on the T1 gate battery (never race the writer).
+
+    Copies the checkpoint first, builds the policy from its own config, runs the
+    same 48-push battery the gate uses, and writes a comparison row against the
+    baseline table (data/solo/metrics/t1_gate_baselines.json).
+    """
+    import shutil
+    import torch
+
+    from rl.checkpoint import apply_checkpoint, load_checkpoint
+    from rl.net import ActorCritic, NetConfig
+    from solo.baselines import PolicyController
+    from solo.obs import ACTOR_DIM, CRITIC_DIM
+
+    src = Path(args.checkpoint)
+    if not src.exists():
+        raise SystemExit(f"checkpoint {src} does not exist yet")
+    tmp = Path("/tmp") / f"monitor_{src.name}"
+    shutil.copy2(src, tmp)                      # never read the live file
+    ckpt = load_checkpoint(str(tmp))
+    steps = int((ckpt.get("state") or {}).get("steps_done", -1))
+    tc = (ckpt.get("cfg") or {}).get("train", {})
+    hidden = tuple(tc.get("hidden", (256, 256)))
+    net = ActorCritic(ACTOR_DIM, CRITIC_DIM, act_dim=N_JOINTS,
+                      cfg=NetConfig(hidden=hidden))
+    apply_checkpoint(ckpt, policy=net)
+    net.eval()
+
+    pushes = battery_pushes(magnitudes=tuple(args.magnitudes), directions=args.directions,
+                            heights=(0.79, 0.95, 1.10), seed=0)
+    rep = evaluate(lambda env, seed: PolicyController(net, name=f"t1_v2_{steps}",
+                                                      stochastic=False),
+                   task="balance", seed0=0, push_plan=pushes,
+                   gate=GATES["balance"], out_dir=METRICS_DIR, verbose=False,
+                   max_episode_s=4.0, name=f"t1_v2_monitor_{steps}")
+    take_clips(rep)
+    agg = rep["aggregate"]
+    base = {}
+    bpath = METRICS_DIR / "t1_gate_baselines.json"
+    if bpath.exists():
+        base = json.loads(bpath.read_text()).get("controllers", {})
+    row = {"steps": steps, "verdict": rep["verdict"],
+           "reasons": rep["reasons"], "aggregate": agg,
+           "baselines": {k: {m: v.get(m) for m in
+                             ("fall_rate", "fall_rate_heldout",
+                              "max_recoverable_impulse_heldout", "mean_upright",
+                              "time_to_stability_mean", "com_offset_max",
+                              "recovery_success_rate")}
+                         for k, v in base.items()}}
+    write_json(METRICS_DIR / f"t1_v2_monitor_{steps}.json", row)
+    print(f"monitor steps={steps} verdict={rep['verdict']} "
+          f"fall={agg['fall_rate']:.3f}/{agg['fall_rate_heldout']:.3f}(held) "
+          f"upright={agg['mean_upright']} recovery={agg['recovery_success_rate']} "
+          f"maxJ_held={agg['max_recoverable_impulse_heldout']} "
+          f"t_stab={agg['time_to_stability_mean']} com_max={agg['com_offset_max']}")
+    for b_name, b_row in base.items():
+        print(f"  baseline {b_name:20s} fall={b_row['fall_rate']:.3f}/"
+              f"{b_row['fall_rate_heldout']:.3f}(held) upright={b_row['mean_upright']} "
+              f"recovery={b_row['recovery_success_rate']} "
+              f"maxJ_held={b_row['max_recoverable_impulse_heldout']}")
+    return 0
+
 # ------------------------------------------------------------------- dispatch
+def cmd_t1gate(args) -> int:
+    """Extended T1 battery on the baseline trio -> the gate provenance table."""
+    pushes = battery_pushes(magnitudes=tuple(args.magnitudes), directions=args.directions,
+                            heights=(0.79, 0.95, 1.10), seed=args.seed)
+    print(f"T1 gate battery: {len(pushes)} pushes = {len(args.magnitudes)} magnitudes "
+          f"x {args.directions} directions x 3 heights "
+          f"(held-out: impulses > {TRAIN_MAX_IMPULSE} N*s)")
+    table = {}
+    for name in ("zero_action", "stand_hold", "random_init_policy"):
+        rep = evaluate(_controller_factory(name), task="balance", seed0=0,
+                       push_plan=pushes, gate=GATES["balance"], out_dir=METRICS_DIR,
+                       verbose=False, max_episode_s=4.0, name=f"t1gate_{name}")
+        take_clips(rep)
+        agg = rep["aggregate"]
+        table[name] = {
+            "verdict": rep["verdict"],
+            "fall_rate": agg["fall_rate"],
+            "fall_rate_heldout": agg["fall_rate_heldout"],
+            "max_recoverable_impulse": agg["max_recoverable_impulse"],
+            "max_recoverable_impulse_heldout": agg["max_recoverable_impulse_heldout"],
+            "mean_upright": agg["mean_upright"],
+            "time_to_stability_mean": agg["time_to_stability_mean"],
+            "time_to_stability_rate": agg["time_to_stability_rate"],
+            "com_offset_max": agg["com_offset_max"],
+            "steps_after_push_mean": agg["steps_after_push_mean"],
+            "recovery_success_rate": agg["recovery_success_rate"],
+            "steps_per_s": agg["steps_per_s"],
+        }
+        print(f"T1gate {name:20s} verdict={rep['verdict']:14s} "
+              f"falls={agg['fall_rate']:.2f}/{agg['fall_rate_heldout']:.2f}(held) "
+              f"maxJ={agg['max_recoverable_impulse']:.1f}"
+              f"/{agg['max_recoverable_impulse_heldout']:.1f}(held) "
+              f"upright={agg['mean_upright']} "
+              f"t_stab={agg['time_to_stability_mean']} "
+              f"com_max={agg['com_offset_max']} steps={agg['steps_after_push_mean']}")
+    write_json(METRICS_DIR / "t1_gate_baselines.json",
+               {"battery": {"n_pushes": len(pushes),
+                            "magnitudes": list(args.magnitudes),
+                            "directions": args.directions,
+                            "heights": [0.79, 0.95, 1.10],
+                            "train_max_impulse": TRAIN_MAX_IMPULSE,
+                            "seed": args.seed},
+                "gate": GATES["balance"].as_dict(),
+                "controllers": table})
+    for name, row in table.items():
+        assert row["verdict"] == "not_certified", (name, row["verdict"])
+    print("VERIFIED: baseline trio is not certified by the extended T1 gate")
+    return 0
+
+
 def cmd_all(args) -> int:
     rc = cmd_smoke(args)
     rc |= cmd_holdability(args)
@@ -360,7 +477,8 @@ def main() -> int:
     ap = argparse.ArgumentParser(description=__doc__,
                                  formatter_class=argparse.RawDescriptionHelpFormatter)
     ap.add_argument("command", choices=("smoke", "holdability", "throughput",
-                                        "probes", "baselines", "battery", "all"))
+                                        "probes", "baselines", "battery", "t1gate",
+                                        "monitor", "all"))
     ap.add_argument("--seed", type=int, default=0)
     ap.add_argument("--seeds", type=int, default=16, help="holdability seeds")
     ap.add_argument("--steps", type=int, default=1000, help="throughput steps")
@@ -369,8 +487,10 @@ def main() -> int:
     ap.add_argument("--no-video", action="store_true")
     ap.add_argument("--controller", default="stand_hold",
                     help="battery subcommand: stand_hold|zero_action|random_init_policy|...")
-    ap.add_argument("--magnitudes", type=float, nargs="+", default=(4.0, 8.0, 12.0))
+    ap.add_argument("--magnitudes", type=float, nargs="+",
+                    default=(4.0, 8.0, 12.0, 16.0, 20.0, 25.0))
     ap.add_argument("--directions", type=int, default=8)
+    ap.add_argument("--checkpoint", default="checkpoints/solo/t1_balance_v2.pt")
     ap.add_argument("--lock-wait", type=float, default=900.0)
     ap.add_argument("--no-lock", action="store_true",
                     help="skip the advisory sim lock (only for short runs)")
@@ -379,8 +499,9 @@ def main() -> int:
     METRICS_DIR.mkdir(parents=True, exist_ok=True)
     fn = {"smoke": cmd_smoke, "holdability": cmd_holdability,
           "throughput": cmd_throughput, "probes": cmd_probes,
-          "baselines": cmd_baselines, "battery": cmd_battery, "all": cmd_all}[args.command]
-    needs_lock = args.command in ("probes", "baselines", "battery", "all") \
+          "baselines": cmd_baselines, "battery": cmd_battery, "t1gate": cmd_t1gate,
+          "monitor": cmd_monitor, "all": cmd_all}[args.command]
+    needs_lock = args.command in ("probes", "baselines", "battery", "t1gate") \
         and not args.no_lock
     if needs_lock:
         with SimLock(owner=f"solo_env_smoke {args.command}", wait_s=args.lock_wait):
