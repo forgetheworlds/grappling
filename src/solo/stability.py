@@ -595,15 +595,24 @@ def capturability_reward(state: StabilityState,
                          band: float = CAPTURABILITY_BAND_M) -> float:
     """The doc's reward term, evaluated on a measured state: ``[0, 1]``.
 
-    ``clip(band - dist(cp, hull), 0, band) / band`` -- 1 when the CP is at least
-    ``band`` inside the hull, 0 when it reaches/exits the boundary.
+    ``clip(band - d, 0, band) / band`` with ``d`` the (unsigned) distance from
+    the capture point to the support hull -- 1 while the CP is inside the
+    support, decaying to 0 once it is ``band`` outside (``prior_art`` §5.1:
+    "1 when the capture point is >= 5 cm inside, 0 when it exits"; the formula
+    is flat-1 inside, which is what is implemented here).
+
+    The previous implementation added ``+margin_cp`` instead of subtracting the
+    outward distance, i.e. it paid **1.0 exactly when the capture point was
+    outside the hull** -- the crouch exploit it exists to kill.  Pinned by
+    ``tests/solo/test_stability.py::test_capturability_reward_band_endpoints``.
     """
     b = float(band)
     if b <= 0.0:
         raise ValueError("band must be positive")
     if not math.isfinite(state.margin_cp):
         return 0.0
-    return float(np.clip(b - state.margin_cp, 0.0, b) / b)
+    outside = max(0.0, -float(state.margin_cp))
+    return float(np.clip(b - outside, 0.0, b) / b)
 
 
 __all__ = [
@@ -614,3 +623,25 @@ __all__ = [
     "foot_lead_offset", "foot_center_travel", "support_function", "dcm_test",
     "capture_point_unsafe", "capturability_reward",
 ]
+
+
+if __name__ == "__main__":                              # self-check
+    import mujoco
+
+    from .scene import load_solo_model, stand_frame
+
+    m = load_solo_model()
+    d = mujoco.MjData(m)
+    d.qpos[:] = stand_frame(m)[0]
+    mujoco.mj_forward(m, d)
+    st = StabilityMonitor(m).measure(d)
+    print("stand keyframe:", st.as_dict())
+    assert not st.unsafe and st.converging
+    assert st.margin_cp > 0.0 and st.brace_step_length == 0.0
+    # the crouch case: CoM inside, capture point outside -> UNSAFE
+    crouch = capture_point([0.5, 0.5], [3.0, 0.0], 0.9)
+    assert signed_margin([0.5, 0.5], np.array([[0.0, 0.0], [1.0, 0.0],
+                                               [1.0, 1.0], [0.0, 1.0]])) > 0.0
+    assert capture_point_unsafe(crouch, np.array([[0.0, 0.0], [1.0, 0.0],
+                                                  [1.0, 1.0], [0.0, 1.0]]))
+    print("self-check OK: stand safe; CoM-inside/CP-outside state unsafe")
