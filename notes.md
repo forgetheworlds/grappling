@@ -184,6 +184,36 @@ Entries appended as experiments run (Phase 2 onward).
   needed a reset or a fall. All motion-producing agents (teacher, drill, mocap reference) are bound
   to the rubric.
 
+### E17 (2026-10-08) — L1 clip visual verdict: CLEAN but NEARLY STATIC; the "18 cycles" claim is NOT in the artifact
+- INDEPENDENT FRAME-LEVEL VERDICT (L1VisualCheck, reports/2026-10-08/l1_clip_visual_check.md):
+  **PARTIALLY MATCHES**. CLEAN: 0 black/flat/pop frames over 2700, no cuts, feet pixel-stationary
+  (±3 px = no slide), whole robot always in frame. STANCE-MOTION: only PARTIAL.
+- CRITICAL: the clip contains exactly ONE crouch/rise in t=0-8 s; for the following 82 s the head
+  top moves <= 1 px (<= 0.8 cm) and the HUD's skill/phase labels (RECOVER, l1_crouch_2) never
+  advance. The claimed "repeated level changes / 18 cycles" (drill.md §0, VISUALS row 10b) is NOT in
+  this clip — the artifact does not support the claim. There is a ±5% body-weight foot-load
+  oscillation (142-179 N) and <= 4 px sway; that is all.
+- STANCE vs the operator's reference: width MATCHES (0.495-0.519 vs 0.491 m); depth APPROXIMATES
+  (0.24 vs 0.062 m); crouch DIFFERS (4.3 cm drop; 0.644 m was reachable but "kept shallow for
+  margin"); torso pitch DIFFERS (14-15.5 deg vs the operator's ~35-45 deg) though the controller has
+  torso-upright rows; hands DIFFERS (drill.md self-contradicts: hip height in §0/§3/VISUALS vs chest
+  height in §6.2); head APPROXIMATES. The render shows articulated fingers, contradicting §6.2's
+  "no articulated fingers" claim.
+- EVIDENCE DEFECTS to fix: (a) the rubric-H side-by-side (03_side_by_side_reference.png) is
+  MISLEADING — its panels are byte-identical to frames whose HUDs contradict the clip (phase/time
+  labels inverted), different viewpoints/scales, illegible labels, captions cut at the right edge;
+  (b) the HUD status line is clipped at x=958; (c) NO floor/mat is rendered, so foot-floor contact
+  is unjudgeable from the frames; (d) cannot be determined from one camera: true 3-D width/depth/CoM,
+  finger articulation, <=2 cm interpenetration, whether the metrics JSON/rubric scores describe this
+  mp4.
+- CONSEQUENCES (dispatched): the deliverable clip must contain GENUINELY VISIBLE motion (the whole
+  point of the L2 motion work); the frozen skill/phase labels must be investigated (scheduler stuck
+  or labels not updated?) since that is what made a static clip look like 18 cycles; the side-by-side
+  must be rebuilt from the correct frames at the same scale/viewpoint with legible captions; a floor
+  must be visible; HUD clipping fixed; and every claim in drill.md/VISUALS must be corrected to match
+  the artifact. Doc-vs-artifact mismatch is exactly the failure mode the Codex review warned about
+  ("a scheduler label is never the acceptance observation").
+
 ### E16 (2026-10-08) — CoM-gated lift works, but the WIDE stance cannot be stepped in (authority 0.14 m < required 0.25-0.28 m)
 - FIXED AND MEASURED (DrillStep2, reports/2026-10-08/drill_l2.md): the lift gate now fires on the
   measured CoM margin inside the SUPPORT foot's own footprint hull (>= +0.02 m) with a 2-tick dwell
