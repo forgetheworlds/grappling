@@ -34,7 +34,7 @@ from solo.lit import (LIT_ACTIVE_JOINTS, LitPushConfig, ceiling_from_hull,  # no
                       mirror_index_sign, support_centre, support_hull)
 from solo.obs import ACTOR_DIM  # noqa: E402
 from solo.reward import (LIT_AIRTIME_PENALTY, LIT_BALANCE_TERMS,  # noqa: E402
-                         LIT_SIGMA_COM, TASK_TERMS, PENALTY_MARGIN,
+                         LIT_SIGMA_COM, STANCE_COM_OFFSET_XY, TASK_TERMS, PENALTY_MARGIN,
                          PENALTY_TERMS, RewardInputs, RewardWeights, TaskReward,
                          TERM_FUNCS)
 from solo.scene import N_JOINTS, load_solo_model, stand_frame  # noqa: E402
@@ -155,68 +155,90 @@ def test_hull_of_a_known_stance_is_the_footprint_rectangle():
 
 
 # ------------------------------------------------------------- reward terms
-def test_com_support_is_maximal_at_the_hull_centre_and_decays_outward():
-    """B: CoM at the support centre = maximum disturbance compensation."""
+def test_com_support_is_maximal_at_the_certified_stance_com():
+    """B: CoM at the support centre -- calibrated to the CERTIFIED stance.
+
+    The raw footprint centroid is not the certified stance's CoM (it sits
+    3.2 cm heel-ward of it: measured, ``reward_critic_audit.md`` §3), so the
+    target is ``centre + STANCE_COM_OFFSET_XY`` and the term is exactly 1.0 at
+    the certified stance.
+    """
     tr = TaskReward("balance", term_set="balance_lit")
     centre = support_centre(SOLE_STAND, BOTH)
+    target = centre + np.asarray(STANCE_COM_OFFSET_XY)
+    at_target = tr.term_value("com_support", _inp(com_xy=target))
+    assert at_target == pytest.approx(1.0, rel=1e-12)
+    # the raw centroid is NOT the maximum (documented: it would pull the policy
+    # ~3.2 cm forward, i.e. off the certified stance)
     at_centre = tr.term_value("com_support", _inp(com_xy=centre))
-    assert at_centre == pytest.approx(1.0, rel=1e-12)
+    assert at_centre == pytest.approx(0.850436700758, abs=1e-9)
+    assert at_centre < at_target
+    # the body-fixed offset rotates with the heading
+    th = math.pi / 2.0
+    rot = np.array([math.cos(th) * STANCE_COM_OFFSET_XY[0]
+                    - math.sin(th) * STANCE_COM_OFFSET_XY[1],
+                    math.sin(th) * STANCE_COM_OFFSET_XY[0]
+                    + math.cos(th) * STANCE_COM_OFFSET_XY[1]])
+    assert tr.term_value("com_support",
+                         _inp(com_xy=centre + rot, heading_rad=th)) \
+        == pytest.approx(1.0, rel=1e-12)
     # falls off toward the border in the direction of the offset
     vals = [tr.term_value("com_support",
-                          _inp(com_xy=centre + np.array([d, 0.0])))
+                          _inp(com_xy=target + np.array([d, 0.0])))
             for d in (0.02, 0.04, 0.06)]
     assert vals[0] > vals[1] > vals[2] > 0.0
     assert tr.term_value("com_support",
-                         _inp(com_xy=centre + np.array([LIT_SIGMA_COM, 0.0]))) \
+                         _inp(com_xy=target + np.array([LIT_SIGMA_COM, 0.0]))) \
         == pytest.approx(math.exp(-1.0), rel=1e-12)
     # same offset to the left and to the right is worth the same (symmetric shape)
-    assert tr.term_value("com_support", _inp(com_xy=centre + np.array([0.0, 0.04]))) \
+    assert tr.term_value("com_support", _inp(com_xy=target + np.array([0.0, 0.04]))) \
         == pytest.approx(tr.term_value("com_support",
-                                       _inp(com_xy=centre - np.array([0.0, 0.04]))),
+                                       _inp(com_xy=target - np.array([0.0, 0.04]))),
                          rel=1e-12)
     # house rule 2: the term is gated by uprightness (a lying CoM cannot farm it)
-    assert tr.term_value("com_support", _inp(com_xy=centre, torso_up_z=0.5)) \
+    assert tr.term_value("com_support", _inp(com_xy=target, torso_up_z=0.5)) \
         == pytest.approx(0.5, rel=1e-12)
     # no loaded foot -> no support centre -> 0, not 1
-    assert tr.term_value("com_support", _inp(com_xy=centre, foot_contact=(False, False))) \
+    assert tr.term_value("com_support", _inp(com_xy=target, foot_contact=(False, False))) \
         == 0.0
 
 
 def test_capture_point_matches_the_cp_implied_velocity():
-    """B eq. 5: x_CP = x_CoM + x_dot sqrt(z_c/g); target x_CP = support centre."""
+    """B eq. 5: x_CP = x_CoM + x_dot sqrt(z_c/g); target = the certified stance."""
     tr = TaskReward("balance", term_set="balance_lit")
     com = np.array([0.0, 0.0])
     sc = support_centre(SOLE_STAND, BOTH)          # (0.0354852, 0.0)
+    target = sc + np.asarray(STANCE_COM_OFFSET_XY)
     z = 0.6919
     tau = math.sqrt(z / 9.81)
-    v_target = (sc - com) / tau                    # == 0.133618... m/s
+    v_target = (target - com) / tau                # == 0.0123707... m/s
     assert tau == pytest.approx(0.2655750, abs=1e-6)
     assert sc[0] == pytest.approx(0.0354852, abs=1e-6)
-    assert v_target[0] == pytest.approx(0.1336166, abs=1e-6)
+    assert v_target[0] == pytest.approx(0.0123707, abs=1e-6)
 
     st = dict(com_xy=com, sole_points=SOLE_STAND, com_z=z)
     matching = tr.term_value("capture_point", _inp(com_vel_xy=v_target, **st))
     assert matching == pytest.approx(1.0, rel=1e-9)   # error is exactly zero
 
-    # the CP of the matching velocity *is* the support centre
+    # the CP of the matching velocity *is* the target
     x_cp = com + v_target * tau
-    assert x_cp == pytest.approx(sc, rel=1e-12)
+    assert x_cp == pytest.approx(target, rel=1e-12)
 
     stopped = tr.term_value("capture_point", _inp(com_vel_xy=np.zeros(2), **st))
-    assert stopped == pytest.approx(math.exp(-(0.1336166 / 0.30) ** 2), rel=1e-6)
-    assert stopped == pytest.approx(0.8200661, abs=1e-6)
+    assert stopped == pytest.approx(math.exp(-(v_target @ v_target) / 0.30 ** 2),
+                                    rel=1e-6)
     assert stopped < matching
     # a velocity of the right size but the wrong sign is not the target
     wrong = tr.term_value("capture_point", _inp(com_vel_xy=-v_target, **st))
-    assert wrong == pytest.approx(math.exp(-((2.0 * v_target[0]) / 0.30) ** 2),
-                                  rel=1e-9)
-    assert wrong == pytest.approx(0.4522676, abs=1e-5)
+    assert wrong == pytest.approx(
+        math.exp(-((2.0 * v_target) @ (2.0 * v_target)) / 0.30 ** 2), rel=1e-5)
+    assert wrong == pytest.approx(0.9932173, abs=1e-6)
     assert wrong < stopped < matching      # running away from the centre is worst
     # the implied velocity scales as sqrt(z_c): a taller CoM needs less speed
-    # v_target(z) = (sc - com) * sqrt(g/z)  ->  v_target(1) / v_target(z) = sqrt(z)
-    v_at_unit_z = (sc - com) / math.sqrt(1.0 / 9.81)
+    # v_target(z) = (target - com) * sqrt(g/z)  ->  v_target(1) / v_target(z) = sqrt(z)
+    v_at_unit_z = (target - com) / math.sqrt(1.0 / 9.81)
     assert v_at_unit_z == pytest.approx(v_target * math.sqrt(z), rel=1e-12)
-    assert v_at_unit_z[0] == pytest.approx(0.1111428, abs=1e-6)
+    assert v_at_unit_z[0] == pytest.approx(0.0102905, abs=1e-6)
     # no load / no CoM height -> 0, not 1
     assert tr.term_value("capture_point", _inp(com_vel_xy=v_target,
                                                foot_contact=(False, False), **st)) == 0.0
@@ -330,12 +352,13 @@ def test_every_lit_term_is_logged_and_the_total_is_the_weighted_sum():
     assert all(name in TERM_FUNCS for name in terms)
     assert sum(tr.weights.as_dict()[k] * v for k, v in terms.items()) \
         == pytest.approx(total, rel=1e-12)
-    # exact totals for hand states: 11 terms x their source weights
-    assert total == pytest.approx(1.9162859, abs=1e-6)
-    # with the CoM on the hull centre and the CP matched, the same state scores
-    # the full 1.97/step (source A's own standing total is ~2.0/step)
-    best, _ = tr.step(_inp(com_xy=support_centre(SOLE_STAND, BOTH),
-                           com_vel_xy=np.zeros(2)))
+    # exact totals for hand states: 12 terms x their source weights
+    assert total == pytest.approx(1.9694927721, abs=1e-6)
+    # with the CoM at the certified target (support centre + the stance offset)
+    # and the CP matched, the same state scores the full 1.97/step (source A's
+    # own standing total is ~2.0/step)
+    target = support_centre(SOLE_STAND, BOTH) + np.asarray(STANCE_COM_OFFSET_XY)
+    best, _ = tr.step(_inp(com_xy=target, com_vel_xy=np.zeros(2)))
     assert best == pytest.approx(1.97, abs=1e-9)
     assert best > total
 
@@ -361,13 +384,13 @@ def test_lit_set_has_no_double_foot_contact_requirement():
     assert double - unloaded == pytest.approx(0.0490842, abs=1e-6)
 
     # the *whole* single-support change (the support hull shrinks to the stance
-    # foot, so the CoM must move over it) is worth 0.27/step -- a real geometric
+    # foot, so the CoM must move over it) is worth 0.32/step -- a real geometric
     # requirement of the recovery step, not a double-contact requirement, and
     # two orders of magnitude cheaper than a fall (-100).
     single, _ = tr.step(_inp(foot_contact=(True, False), foot_load=(326.0, 0.0)))
     assert single < unloaded < double
-    assert double - single == pytest.approx(0.2687284, abs=1e-6)
-    assert double - single < 0.3
+    assert double - single == pytest.approx(0.3155902, abs=1e-6)
+    assert double - single < 0.35
     assert (double - single) * 300 < tr.termination_penalty
 
 

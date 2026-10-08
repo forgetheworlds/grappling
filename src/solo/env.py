@@ -777,6 +777,7 @@ class SoloEnv:
         inp = RewardInputs(
             dt=STEP_DT, cmd=self.command,
             vel_local=vel_local, yaw_rate=wz_local,
+            heading_rad=yaw,
             torso_up_z=f.torso_up_z, pelvis_z=f.pelvis_z,
             pelvis_z_prev=self._prev_pelvis_z, stand_height=STAND_HEIGHT,
             stance_width_meas=self._stance_width_meas(),

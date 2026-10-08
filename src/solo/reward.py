@@ -101,6 +101,32 @@ TORQUE_REF = 50.0
 #: CoM is a heel-margin inside the hull and 1 when it has left it.
 LIT_RETURN_K = 0.05
 
+#: The certified stance's own CoM projection minus its support-polygon centre
+#: (measured on the stand keyframe with the term's own helpers:
+#: ``sole_points_world`` + ``support_centre`` -> centre (0.0354828, 0.0),
+#: CoM (0.0032830, 0.0000823)).  Source B's CoM-support term targets "the centre
+#: of the support polygon", but the certified stance's CoM sits this far
+#: heel-ward of the footprint centroid, so the raw term's optimum is ~3.2 cm
+#: ahead of the certified stance: measured, moving the CoM to the centroid
+#: raises the lit total by +2.34%, and the best ankle-pitch perturbation by
+#: +4.1% (``reports/2026-10-08/reward_critic_audit.md`` §3).  The target is
+#: therefore the centre PLUS this offset, rotated into the world by the heading,
+#: which makes the certified stance the term's maximum.
+STANCE_COM_OFFSET_XY: tuple[float, float] = (-0.0321998, 0.0000823)
+
+
+def stance_com_target(centre_xy, heading_rad: float = 0.0) -> np.ndarray:
+    """The lit CoM/CP target: support centre + the certified stance's offset.
+
+    The offset is body-fixed (x forward), so it is rotated by the robot's world
+    heading before it is applied.  At the certified stance (heading 0) the
+    target is the stance's own CoM projection.
+    """
+    c, s = math.cos(float(heading_rad)), math.sin(float(heading_rad))
+    ox, oy = STANCE_COM_OFFSET_XY
+    return (np.asarray(centre_xy, np.float64).reshape(2)
+            + np.array([c * ox - s * oy, s * ox + c * oy]))
+
 
 @dataclass(frozen=True)
 class RewardWeights:
@@ -259,6 +285,9 @@ class RewardInputs:
     com_xy: np.ndarray | None = None           # (2,) world CoM ground position
     com_vel_xy: np.ndarray | None = None       # (2,) world CoM horizontal velocity
     com_z: float = 0.0                         # world CoM height (CP scale)
+    #: world yaw of the robot (rad): rotates the body-fixed stance CoM offset
+    #: into the world for the com_support / capture_point targets
+    heading_rad: float = 0.0
     sole_points: np.ndarray | None = None      # (2, 4, 3) world sole spheres
     foot_load: tuple[float, float] = (0.0, 0.0)   # per-foot vertical GRF (N)
     torque: np.ndarray | None = None           # (29,) actuator force (N*m)
@@ -450,27 +479,33 @@ def _support_centre(inp: RewardInputs) -> np.ndarray:
 
 
 def t_com_support(inp: RewardInputs, sigma: float = LIT_SIGMA_COM) -> float:
-    """Source B: CoM horizontal position -> centre of the support polygon.
+    """Source B: CoM horizontal position -> the support centre (+ the certified
+    stance's own offset; see :data:`STANCE_COM_OFFSET_XY`).
 
     "to provide maximum disturbance compensation": with the CoM over the hull
-    centre the minimum distance to any support edge is maximal.  Zero when no
-    foot is loaded (an airborne CoM has no support centre to sit over).
+    centre the minimum distance to any support edge is maximal.  The target is
+    the *certified stance's* CoM projection, not the raw centroid, so the
+    certified stance is the term's maximum (the raw centroid would pull the
+    policy ~3.2 cm forward).  Zero when no foot is loaded (an airborne CoM has
+    no support centre to sit over).
     """
     if inp.com_xy is None:
         return 0.0
     sc = _support_centre(inp)
     if not np.all(np.isfinite(sc)):
         return 0.0
-    d = np.asarray(inp.com_xy, np.float64).reshape(2) - sc
+    target = stance_com_target(sc, inp.heading_rad)
+    d = np.asarray(inp.com_xy, np.float64).reshape(2) - target
     return math.exp(-float(d @ d) / (float(sigma) ** 2)) * _gate(inp)
 
 
 def t_capture_point(inp: RewardInputs, sigma: float = LIT_SIGMA_CP) -> float:
-    """Source B: CoM velocity -> the capture point implied by the support centre.
+    """Source B: CoM velocity -> the capture point implied by the support centre
+    (+ the certified stance's offset; see :data:`STANCE_COM_OFFSET_XY`).
 
     ``x_CP = x_CoM + x_dot_CoM sqrt(z_c / g)`` (their eq. 5); the term is maximal
-    when the CoM velocity already equals ``(x_SC - x_CoM) / sqrt(z_c/g)``, i.e.
-    when the CoM's capture point sits exactly on the support centre.  Vertical
+    when the CoM velocity already equals ``(x_target - x_CoM) / sqrt(z_c/g)``,
+    i.e. when the CoM's capture point sits exactly on the target.  Vertical
     target is 0 (this term reads only the horizontal components).
     """
     if inp.com_xy is None or inp.com_vel_xy is None:
@@ -480,7 +515,8 @@ def t_capture_point(inp: RewardInputs, sigma: float = LIT_SIGMA_CP) -> float:
     if not np.all(np.isfinite(sc)) or z <= 1e-9:
         return 0.0
     tau = math.sqrt(z / float(inp.gravity))
-    v_target = (sc - np.asarray(inp.com_xy, np.float64).reshape(2)) / tau
+    target = stance_com_target(sc, inp.heading_rad)
+    v_target = (target - np.asarray(inp.com_xy, np.float64).reshape(2)) / tau
     dv = np.asarray(inp.com_vel_xy, np.float64).reshape(2) - v_target
     return math.exp(-float(dv @ dv) / (float(sigma) ** 2)) * _gate(inp)
 

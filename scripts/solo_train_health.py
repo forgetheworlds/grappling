@@ -192,6 +192,9 @@ class TraceRecorder:
     def terminal(self, cause):
         return self._reward.terminal(cause)
 
+    def final(self, inp, cause):
+        return self._reward.final(inp, cause)
+
     def as_dict(self):
         return self._reward.as_dict()
 
