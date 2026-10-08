@@ -137,6 +137,23 @@ this before working and MUST append their verified facts.
 Format per entry: id | question | prediction | result | conclusion.
 Entries appended as experiments run (Phase 2 onward).
 
+### 2026-10-08 — Phase 5 infra (RLTrainer, verified by orchestrator)
+- FACT: PPO/resistance infra in src/rl (obs, privileged, net, ppo, rollout, checkpoint,
+  trainer, curriculum, reward, scripted, vec). Actor obs 92-dim (84 env obs + 7 technique
+  one-hot + phase); critic 254-dim = actor + 162 privileged; actor cannot read privileged
+  (structurally tested). Actions 29/robot, absolute or residual, ctrlrange-clipped.
+- FACT: measured 222.7 steps/s (30k-step stage-C smoke vs STANCE replay, 134.7 s wall);
+  subprocess vectorization 1.6-2x sequential for >=3 envs (421-437 vs 172-231 steps/s).
+- FACT: SIGINT resume verified (partial rollout discarded, state/RNG/stage restored);
+  eval deterministic for fixed seed (re-run asserts identical records).
+- FACT: BC warm-start hook exists (StageConfig.bc_checkpoint -> warm_start_from_bc, key/shape
+  matched, mismatches reported) — Phase 3B plugs the BC policy in here.
+- SUITE: 89 tests pass on this host (orchestrator rerun).
+- KNOWN BUG (RLTrainer report, fix in flight): src/wrestling/backdet.py limb_contact
+  diagnostics never fired — body ids built as "a_knee_link" but scene bodies are
+  "a_left_knee_link" (left/right infix). Diagnostic-only; detector rule unaffected.
+
+
 ## Technique vocabulary (DECIDED 2026-10-07 — see docs/CURRICULUM.md)
 
 Attacks: double leg, single leg, body lock. Defense: sprawl, hips-back, recover

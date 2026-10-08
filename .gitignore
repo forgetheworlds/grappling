@@ -13,7 +13,7 @@ third_party/
 *~
 
 # Large generated artifacts (regenerable; kept on disk, not in git)
-checkpoints/*.pt
+checkpoints/**/*.pt
 data/datasets/
 
 # Scratch
