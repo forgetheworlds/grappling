@@ -184,6 +184,34 @@ Entries appended as experiments run (Phase 2 onward).
   needed a reset or a fall. All motion-producing agents (teacher, drill, mocap reference) are bound
   to the rubric.
 
+### E21 (2026-10-08) — L2 discrepancies resolved: safety flash benign/inert, B1 holds, evidence fixed
+- EMERGENCY HUD FLASH — BENIGN AND INERT, and the HUD was misleading: safety_alpha > 0.02 for only
+  18 ticks (0.36 s) in exactly 2 episodes (0.16 s at t=15.76, 0.20 s at t=45.74), peaking 0.09/0.11,
+  each starting the instant the swing foot leaves the mat (swing load 0 N, clearance 9-16 mm). The
+  pose blend is STRUCTURALLY DISABLED while a foot is airborne, so it could not act: 0 emergency
+  plants, 0 step aborts, all 5 steps completed on the normal path. Fix: the HUD now prints the numeric
+  alpha and flashes the red warning only when the blend can actually act.
+- SUPPORT-FOOT CREEP vs SLIP CLAIM — the physics measurement wins: loaded-foot sole-centre
+  displacement between the swing foot's lift and landing is 3.1 / 3.5 / 4.4 / 5.6 / 2.6 mm per step
+  (mean load 263-285 N), so rubric B1 (20 mm bar) HOLDS and the bundle's max_load_drift 6.5 mm is
+  consistent. Reconciliation: the visual checker's 8 px mask shift / IoU 0.81 -> 0.34 tracked the
+  SWING foot (which legitimately moves 55-90 mm) or a rolling sole mask, and its "+34/+38 px over the
+  clip" was the shuffle's net travel (the stance walks 8-11 cm per block), not slip.
+  METHODOLOGY LESSON: a mask-overlap proxy cannot separate slip from a legitimate reposition — the
+  discriminator is the per-foot LOAD in the physics trace; visual slip claims must be validated
+  against the trace before being reported.
+- EVIDENCE FIXES: HUD now carries phase (advancing via the scheduler's element_done events), a
+  "step N/M" counter, a "(swing)" marker and the stance width; the "0.25x" slow-motion was a writer
+  fps/speed bug and is re-rendered as a true quarter-speed clip (409 frames, 13.633 s, 480x360 —
+  labelled diagnostic) centred on one step cycle; the clip's stance value (0.28, not 0.30), step count
+  (5, not 6) and margin readings (HUD resamples the trace at frame times; the trace minimum is
+  -0.0257 m at 45.76 s) are now consistent, with the trace as the single source of truth.
+- STATE: the 960x720 re-render with the corrected HUD is in flight; the L2 motion artifact is now
+  internally consistent and independently verified as real motion (5 steps, 12.15 s mean interval,
+  0 falls/resets) in a 0.28 m stance — a documented deviation from the operator's 0.495 m reference,
+  justified by the measured steppability limit. Cadence remains 12.1 s/step with the measured reason
+  (the full recentre is load-bearing).
+
 ### E20 (2026-10-08) — L2 motion clip VERIFIED as real motion (5 steps) with 7 discrepancies to fix
 - INDEPENDENT VERDICT (L2VisualCheck, reports/2026-10-08/l2_clip_visual_check.md): **MATCHES** the
   claim "a 70 s continuous drill with repeated visible steps in a wrestling stance, 0 falls".
