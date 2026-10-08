@@ -1953,3 +1953,13 @@ scripts/calibrate_scorer.py, scripts/score_trace.py, tests/test_scorer.py.
   is exactly why its falls are lowest).  The gate's mean_upright >= 0.84 is measured over the whole
   battery, so it demands standing upright WHILE recovering; that is the T1 bar and v6d does not meet
   it at 200k (13% of the run).  Next pre-registered read: 400k.
+- v6d 400k BEHAVIOURAL READ -- THE FALL CRITERION PASSES FOR THE FIRST TIME:
+  fall **0.083** (gate <= 0.15 PASS; this equals v6a's best-ever in-band value at 600k), fall_heldout
+  0.125 (T1 gate bar <= 0.10, over by 0.025), upright 0.799 (gate >= 0.84 FAIL), **recovery 0.5**
+  (best of any run at any step), maxJ_held 8.0, t_stab 0.522 (bar <= 1.0 PASS), com_max 0.164
+  (bar <= 0.20 PASS).  Trend 200k -> 400k: fall 0.167 -> 0.083, upright 0.708 -> 0.799, recovery
+  0.208 -> 0.5, maxJ_held 12 -> 8 -- every headline metric moves the right way at 27% of the run.
+  So the two critic levers (normalise-returns + lr-critic) plus termination=1500 are the first
+  configuration that both keeps the policy off the floor AND recovering; the remaining gap to T1 is
+  the upright bar (0.799 vs 0.84), which is the crouch-under-push behaviour documented at 200k.
+  Next: 800k read, then the 1.5M gate.
