@@ -1839,3 +1839,17 @@ scripts/calibrate_scorer.py, scripts/score_trace.py, tests/test_scorer.py.
     grounding is one constant per take (feet hover +0.111 m / penetrate -0.067 m), so its support
     polygon -- and any CoM-margin claim built on it -- is off by up to 10 cm.  Re-ground per frame
     before spending another capture budget.
+  * FEASIBILITY MEASURED (no guessing): the reference's own crouch is STATICALLY balanced -- the CoM
+    sits inside the sole hull for the whole entry (margin +0.017..+0.22 m, +0.22 at t=0, computed
+    with our FK on the reference's qpos) -- but DYNAMICALLY infeasible for this robot:
+      - holding the crouch's OWN joint targets (position servos at the reference's angles): topples
+        in 1.24 s (max tilt 114.6 deg, pelvis 0.166 m) -- the CEM demo's `no_saturation` FAIL says
+        the posture saturates the actuators;
+      - our certified stance controller (stand_hold) dropped into the crouch pose: falls in 1.38 s;
+      - the CEM's best 45-parameter search: falls at 2.34 s.
+    The reference spends ~3.6 s in that crouch before its lead-foot plant (3.62 s), so NO policy can
+    reproduce this reference as-is.  The crouch is a T3 (level-change) capability the ladder has not
+    trained yet -- imitating it before T3 inverts the curriculum.
+  * v6b EARLY READ (200,704, not the pre-registered point): fall 0.292/0.375(held), upright 0.8127,
+    recovery 0.333 (>0 -- the falsifier's first half answers as predicted; v6a's late state was 0.0),
+    maxJ_held 4.0, t_stab 0.64, com_max 0.144.  For scale: v6a at 100k read fall 0.458.
