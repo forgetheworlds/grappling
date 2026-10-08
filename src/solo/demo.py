@@ -89,7 +89,7 @@ from pathlib import Path
 import numpy as np
 
 from .exec_check import (REFERENCE_SEGMENTS, SEG_BLEND, SEG_ENTRY, SEG_HOLD,
-                         SEG_RECOVER, ExecSpec, RefTracks, Tol,
+                         SEG_RECOVER, SEG_STAND, ExecSpec, RefTracks, Tol,
                          check_executability, hull2d, polygon_margin)
 
 REPO = Path(__file__).resolve().parents[2]
