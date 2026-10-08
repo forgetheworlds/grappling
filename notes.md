@@ -1756,3 +1756,10 @@ scripts/calibrate_scorer.py, scripts/score_trace.py, tests/test_scorer.py.
   --lit-weight termination=400 --push-curriculum on --save-every 100000 --lock off`; startup
   max|ctrl-base| 0.002653 rad. Pre-registered reads: 100k (EV/sigma acceptance), 400k (the T1 gate
   + health), 800k (kill if in-band upright ~ 0); 1.5M total (~80 min at the measured ~300 steps/s).
+- v6a MONITOR READS (in-band battery, `solo_env_smoke.py monitor --magnitudes 4 8 12`):
+  * 501760 steps: fall 0.167 / held 0.188, upright 0.856, recovery 0.542, t_stab 0.24, com_max 0.142
+    -> gate 3/6 (upright PASS, tts PASS, com PASS; fall/heldout/survivor-stance FAIL).
+  * 600064 steps: fall 0.083 / held 0.125, upright 0.833, recovery 0.583, t_stab 0.336 -> both
+    headline bars within 0.007-0.033 (v5@301k was fall 0.708 / upright 0.583). The learned policy's
+    artifact clip rendered: `videos/solo_drill/baselines/t1_monitor_600064.mp4` (960x720 h264).
+  * sigma 0.0821 (acceptance <= 0.15) from the 100k anneal onward; approx_kl ~0.02 (v5: 0.057).
