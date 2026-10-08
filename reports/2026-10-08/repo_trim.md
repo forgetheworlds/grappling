@@ -26,7 +26,7 @@ exactly one bucket. Nothing was deleted on the strength of a name.
 |---|---|---|
 | **MANDATE-CRITICAL** | keep | `src/solo` 0.28 MB · `src/drill` 0.27 MB · `src/teacher` 0.14 MB · `src/retarget` 0.06 MB · `src/grapplemap` 0.02 MB · `src/rl/{ppo,net,checkpoint}` 0.03 MB · `robots/**` 35 MB (untouched) · `scripts/solo_*` + `scripts/run_solo_drill.py` · `tests/{test_solo,test_drill,test_retarget,test_grapplemap,test_teacher}.py` · `videos/solo_drill/**` 43 MB · `data/drill/{FINAL_*,L2_*,BASE_PD_*,SLOWMO_*,FAIL_*,M_D28c,M_E28f}*` + summaries · `data/solo_drill/**` · `data/refs_video/**` · `data/grapplemap/**` · `data/support_envelope.json` · `data/{backdet,scorer}_calibration.json` · `docs/SOLO_DRILL.md`, `docs/VISUALS.md`, … |
 | **DEFERRED-BUT-WORKING → now a DELETION bucket** (operator decision, §3) | **could not be deleted this pass** — it is an import-level prerequisite of the mandate path; see §3 | `src/wrestling` 0.11 MB · `src/scorer` 0.07 MB · `src/rl/{obs,privileged,reward,scripted,curriculum}` 0.06 MB · `tests/{test_wrestling,test_rl,test_scorer}.py` 0.08 MB · `videos/env/**` 7.9 MB · `videos/refs/**` 11.7 MB · `data/refs/**` 0.8 MB · 16 non-solo `scripts/*.py` 0.23 MB |
-| **DEAD** | delete | `workflows/phase3_teacher.mjs` (6.7 KB), `workflows/wave1_assets.mjs` (7.8 KB), `data/references/…/tools/bench_pose.py` (1.8 KB), `videos/solo_drill/l2_stills/*.png` (131 KB) |
+| **DEAD** | delete | `workflows/phase3_teacher.mjs` (6.7 KB), `workflows/wave1_assets.mjs` (7.8 KB), `videos/solo_drill/l2_stills/*.png` (131 KB) |
 | **GENERATED-BLOAT** | delete | `data/drill/M_*_feasible_L3_seed0.npz` × 41 (73.9 MB), `data/solo/metrics/*.jsonl` × 12 (31.5 MB), `videos/solo_drill/l2_stills/*.png` (131 KB), `__pycache__/` + `.pytest_cache/` × 101 (3.0 MB, untracked/ignored) |
 
 ### Why `src/wrestling` is not in the DEAD or deletable bucket
@@ -48,7 +48,7 @@ Deleting `src/wrestling/env.py` breaks `import src.rl.ppo` (the acceptance smoke
 
 ---
 
-## 2. Deletion manifest (58 files, 105.55 MB tracked + 3.0 MB untracked caches)
+## 2. Deletion manifest (57 files, 105.55 MB tracked + 3.0 MB untracked caches)
 
 All entries are **tracked** (recoverable from `72956f3`) unless marked otherwise.
 Commit: `46fb84f`.
@@ -58,18 +58,32 @@ Commit: `46fb84f`.
 | 1 | `data/drill/M_{B24,B24f,B28,B30,D26d,D28a,D28b,E24,E24n,E28,E28n,F24,F28,F30,P28,P30,Q28,Q30,S21,S28,S28b,S30,T28,T30,T35,V28,V28b,V28c,g1,j21,k1,ns,r3,v21,v24,v24r,v26,v26r,w21v,w24v,w28v}_feasible_L3_seed0.npz` (41) | 73.94 MB | GENERATED-BLOAT | raw per-run traces of the D1 width sweep. **No** individual name reference in src/scripts/tests/docs. The measured results survive in the retained `M_*.json` (config/metrics/events/provenance), `data/drill/motion_widths.json`, `data/drill/motion_singles.json` and `reports/2026-10-08/drill_motion.md` §1 table. Only collective mention: `drill_motion.md:50` “`M_*` traces carry the single-width runs” (historical report — see §7). **Kept:** `M_D28c_*.npz` (source trace of the delivered clip `videos/solo_drill/final_L2_motion.mp4`) and `M_E28f_*.npz` (cited by `data/solo_drill/final_L2_motion.json`). | ✅ |
 | 2 | `data/solo/metrics/{balance_random_init_policy_s0,balance_stand_hold_s0,balance_t1_v2_monitor_1101824_s0,balance_t1_v2_monitor_2000896_s0,balance_t1gate_random_init_policy_s0,balance_t1gate_stand_hold_s0,balance_t1gate_zero_action_s0,balance_zero_action_s0,locomotion_fall_forward_s0,locomotion_random_init_policy_s0,locomotion_stand_hold_s0,stance_squat_repeat_s0}.jsonl` (12) | 31.47 MB | GENERATED-BLOAT | zero references to any of these 12 basenames anywhere in src/scripts/tests/docs/reports. They are the per-step traces behind the retained aggregate `.summary.json` + `t1_gate_baselines.json` + `{probes,baselines}_summary.json`; `reports/2026-10-08/solo_env.md` §7 states the producing command is “deterministic and re-runnable (`--no-video` for metrics only)”. All were ≥44 min stale (v2 run stopped); the live service does not write these names. | ✅ |
 | 3 | `videos/solo_drill/l2_stills/frame_t002.00.png`, `frame_t030.00.png` | 131 KB | DEAD + GENERATED-BLOAT | zero references; the two L2 stills have “no index entry” (`reports/2026-10-08/clip_wiring_audit.md:119`). | ✅ |
-| 4 | `data/references/yt_gBAhX5t-GW4/derived/tools/bench_pose.py` | 1.8 KB | DEAD | zero references; the only reference-pipeline tool absent from the index `docs/references/yt_gBAhX5t-GW4_index.md` (every sibling tool is indexed there). | ✅ |
+| 4 | *(reversed — see below)* `data/references/yt_gBAhX5t-GW4/derived/tools/bench_pose.py` | 1.8 KB | — | zero *static* references and the only reference-pipeline tool not named in `docs/references/yt_gBAhX5t-GW4_index.md`, **but** it is part of the now-critical video-imitation pipeline (`data/references/yt_gBAhX5t-GW4/derived/tools/*.py`, §5b) — hand-run entry points count as referenced. Restored. | ✅ restored |
 | 5 | `workflows/phase3_teacher.mjs` | 6.7 KB | DEAD (two-robot teacher orchestration) | one reference: `notes.md:119`, a generic lesson about workflow-script syntax. The phase-3 two-robot teacher composition it launched is off-mandate. | ✅ |
 | 6 | `workflows/wave1_assets.mjs` | 7.8 KB | DEAD | **zero** references. One-off Phase-0/1 bring-up campaign (venv + MuJoCo + GrappleMap + G1 model) from 2026-10-07; its outputs (`data/refs/`, `data/grapplemap/`) are tracked and retained. | ✅ |
 | 7 | `__pycache__/`, `.pytest_cache/` (101 files) | 3.0 MB | GENERATED-BLOAT | regenerable caches, gitignored/untracked. | ❌ untracked |
 
-**Reversed after measurement (do not treat as deleted):** `data/drill/BASELINE_PD_stance_pd_L1_seed0.{json,npz}`
-were first staged for deletion as a “superseded duplicate” of `BASE_PD_*`. A re-grep after staging showed
-they are **ledger-cited**: `notes.md:214` names the run as the toppling PD baseline (`falls=1 @ 8.38 s`), and
-`data/solo_drill/01_baseline_pd_topples.json:4-5` (a bundle written concurrently by the claim-audit peer) uses
-them as its `trace_npz`/`run_json` for `videos/solo_drill/01_baseline_pd_topples.mp4`. Both files were
-restored from `72956f3` and are present in HEAD. **Lesson: a concurrent peer can cite a file mid-trim; re-grep
-immediately before the commit, not only before staging.**
+**Reversed after measurement (do not treat as deleted):**
+
+1. `data/drill/BASELINE_PD_stance_pd_L1_seed0.{json,npz}` were first staged for deletion as a “superseded
+   duplicate” of `BASE_PD_*`. A re-grep after staging showed they are **ledger-cited**: `notes.md:214` names
+   the run as the toppling PD baseline (`falls=1 @ 8.38 s`), and `data/solo_drill/01_baseline_pd_topples.json:4-5`
+   (a bundle written concurrently by the claim-audit peer) uses them as its `trace_npz`/`run_json` for
+   `videos/solo_drill/01_baseline_pd_topples.mp4`. Both files were restored from `72956f3` and are present in HEAD.
+   **Lesson: a concurrent peer can cite a file mid-trim; re-grep immediately before the commit, not only before staging.**
+2. `data/references/yt_gBAhX5t-GW4/derived/tools/bench_pose.py` was classified DEAD on static evidence (zero
+   references; the only reference-pipeline tool not named in `docs/references/yt_gBAhX5t-GW4_index.md`). The
+   operator's **video-imitation keep-list** (received after the deletion commit) makes the whole
+   `data/references/yt_gBAhX5t-GW4/**` tree — including every `derived/tools/*.py` — the milestone's critical
+   path, with hand-run entry points counting as referenced. It was **re-bucketed** from DEAD to
+   MANDATE-CRITICAL and restored from `72956f3`.
+
+**Re-bucketing check against the video-imitation keep-list (all other items):** `data/refs_video/*.npz`,
+`data/refs/*.npz`, `src/retarget/**` (incl. `landmarks.py`), `data/references/yt_gBAhX5t-GW4/**`
+(`derived/tools/*.py`, `derived/analysis/**`, `derived/{transitions,stance_spec,refs_crosscheck}.json`) were
+already bucketed MANDATE-CRITICAL / kept and were **not** deleted. `videos/refs_video/**` does not exist on
+this checkout (`ls videos/` → `env refs solo_drill teacher`), so there was nothing to protect; the G1-side
+reference renders that do exist are `videos/refs/**` (tracked, kept).
 
 ---
 
@@ -162,7 +176,24 @@ Each row is deferred-but-working work that survived this pass, with its size and
 
 ---
 
-## 6. UNTRACKED inventory (listed, **not** deleted)
+## 5b. Operator keep-list (received after the deletion commit): the video-imitation critical path
+
+The milestone's primary path changed to **“imitate the operator's video reference”**. These paths are
+load-bearing machinery and must not be deleted, however orphaned they look; **hand-run entry points count as
+referenced** (they are documented as run-by-hand in `docs/references/yt_gBAhX5t-GW4_index.md`).
+
+| protected path | size | state after this trim |
+|---|---|---|
+| `data/references/yt_gBAhX5t-GW4/**` — `pose/` (+`landmarks.npz`), `pose_pass2/`, `derived/tools/*.py` (14 tools incl. `run_pose.py`, `analyze_pose.py`, `take_inventory.py`, `measure_takes.py`, `metrics_spec.py`, `retarget_video.py`, `compare_refs.py`, `draw_pose_overlay.py`, `render_refs_video.py`, `bench_pose.py`, `compose_compare.py`, `step_stats.py`, `trace_take.py`, `vidframe.py`), `derived/analysis/**`, `derived/transitions.json`, `derived/stance_spec.json`, `derived/refs_crosscheck.json` | 18 tracked files 0.25 MB + untracked media/frames | **intact**; `bench_pose.py` was deleted then **restored** (§2, reversal 2) |
+| `data/refs_video/*.npz` (12 retargeted single-G1 tracks @50 Hz: `stance_hold`, `stalk_shuffle`, `circle_step`, `stance_widen_step`, `level_change_{full,fast}`, `shot_entry_full`, `shot_recover`, `knee_sprawl_{entry,entry2,hold,recover}`) + `retarget_summary.json` | 0.99 MB | **intact** — never a deletion candidate |
+| `videos/refs_video/**` | — | **does not exist** on this checkout (`ls videos/` → `env refs solo_drill teacher`); the G1-side reference renders that do exist are `videos/refs/**` (tracked, kept) |
+| `data/refs/*.npz` (GrappleMap-sourced references, incl. `STAND_UP.airborne.npz`) | 0.82 MB | **intact** |
+| `src/retarget/**` (incl. `landmarks.py`, the G1 landmark-site mapping shared by the video retarget and the site-based imitation objective) | 0.06 MB | **intact** |
+| reference video itself | ignored media under `data/references/` | untouched (untracked; never deleted) |
+
+No other item in this keep-list was ever bucketed DEAD or GENERATED-BLOAT.
+
+---
 
 | group | entries | size | note |
 |---|---|---|---|
@@ -206,9 +237,9 @@ No untracked file was deleted. The only untracked things removed are regenerable
 |---|---|---|---|
 | `du -sh .` | 4.2 G | 4.2 G | −105.5 MB tracked + 3.0 MB caches (below `du`/`df` rounding: `.git` 214 MB, `.venv` 1.3 GB and `third_party` 2.3 GB dominate and are untouched) |
 | `df -h /` | 104 G used, 90 G avail, 54 % | 104 G used, 89 G avail, 54 % | concurrent peers wrote >100 MB during the trim, masking the gain |
-| `git ls-files \| wc -l` | **497** | **437** | −60 |
-| on-disk files (excl. `.git`, `.venv`, `third_party`) | not captured — the session-start `find` was refused by tool policy | **664** | lower bound of the pre-trim count: 664 + 58 + 101 = 823 (peers added files concurrently) |
-| bytes freed (from blob sizes at `72956f3`) | — | — | **105.55 MB** over 58 tracked files + **3.01 MB** caches |
+| `git ls-files \| wc -l` | **497** (at PIN) | **437** immediately after the trim commit `46fb84f` | −60; now **458** at `d693c39` because peers committed ~21 further files during/after the trim |
+| on-disk files (excl. `.git`, `.venv`, `third_party`) | not captured — the session-start `find` was refused by tool policy | **664** right after the trim, **724** at `d693c39` | lower bound of the pre-trim count: 664 + 57 + 101 = 822 (peers added files concurrently) |
+| bytes freed (from blob sizes at `72956f3`) | — | — | **105.55 MB** over 57 tracked files + **3.01 MB** caches |
 | `data/` | 327 MB | 268 MB | −59 MB (plus peer additions) |
 | `videos/` | 64 MB | 65 MB | peer-added teacher clips |
 
@@ -223,6 +254,17 @@ No untracked file was deleted. The only untracked things removed are regenerable
   Delta = **+7**, exactly the 7 tests of `tests/solo/test_locomotion_gate.py` (added by the T2-gate commit
   `377009c`, `git log 61e8bd1..HEAD -- tests/solo/test_locomotion_gate.py`). **Zero test files were deleted,
   so zero tests were lost; no failure is attributable to the trim.**
+- **Peer WIP excluded:** `tests/solo/test_vec_solo.py` (untracked, SoloVec's vec-port WIP) and
+  `tests/solo/test_lit_reward.py` (untracked) are **not** in any committed tree, so they are absent from both
+  worktrees and from both counts. `test_vec_solo.py` is currently red by design (~7 failures:
+  `TrainConfig(n_envs=…)`, `SoloTrainer.close`) — **peer WIP, red for reasons unrelated to the trim, excluded
+  from the comparison.** Running the suite on the live working tree would pick it up; that is exactly why the
+  counts were taken in worktrees of committed trees.
+- **The tree moved after PIN for unrelated reasons:** `E30`/`E31`/`E33` (T1 ledger: unattainable gate,
+  literature check, v5 negative), the T2 gate (`377009c`, `51949d7`) and the T1 gate calibration (`d693c39`)
+  all landed after `61e8bd1`. None of them touches a file this trim deleted, and none is counted against the
+  trim; they are the reason the tracked file count is *higher* than 437 by the time of writing (peers added
+  `tests/solo/test_{config_plumbing,t1_gate_discrimination}.py`, `scripts/solo_t2_gate.py`, `src/rl/vec_solo.py`, …).
 - Attribution rule applied: for any failure, `git log --oneline <PIN>..HEAD -- <path>` is checked before
   blaming the trim; a peer's commit touching the failing file is named and the failure is not counted as trim-caused.
 - The live working tree is **not** used for the after-count: peers still hold uncommitted edits in

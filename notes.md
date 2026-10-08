@@ -1560,3 +1560,21 @@ scripts/calibrate_scorer.py, scripts/score_trace.py, tests/test_scorer.py.
   before this verification — the trim did not touch it, its checkpoint, or the sim lock.
 - `docs/MISSION.md` now carries a header note: its two-robot implementation is scheduled for
   removal and the ACTIVE milestone is `docs/SOLO_DRILL.md`.
+- CORRECTION/ADDENDUM (same session, after the deletion commit): the net deletion set is
+  **57 files / 105.55 MB**, not 58. `data/references/yt_gBAhX5t-GW4/derived/tools/bench_pose.py`
+  was classified DEAD on static evidence (zero refs; the only reference tool not named in
+  `docs/references/yt_gBAhX5t-GW4_index.md`) and then RESTORED from 72956f3 when the operator's
+  video-imitation keep-list arrived: the milestone's primary path is now "imitate the operator's
+  video reference", which makes the whole `data/references/yt_gBAhX5t-GW4/**` tree (all
+  `derived/tools/*.py`, `pose/`, `derived/analysis/**`, `transitions.json`, `stance_spec.json`,
+  `refs_crosscheck.json`), `data/refs_video/*.npz` (12 retargeted 50 Hz single-G1 tracks),
+  `data/refs/*.npz` and `src/retarget/**` load-bearing machinery — and hand-run entry points
+  count as referenced. None of the others was ever a deletion candidate. `videos/refs_video/**`
+  does not exist on this checkout (nothing to protect); `videos/refs/**` is intact.
+- ACCEPTANCE (final): PIN `61e8bd1` worktree = 178 passed / 0 failed; post-trim worktree at
+  `96478e1` = 185 passed / 0 failed (delta = exactly the 7 tests of the peer T2-gate
+  `tests/solo/test_locomotion_gate.py`); **0 test files deleted**. `tests/solo/test_vec_solo.py`
+  and `tests/solo/test_lit_reward.py` are UNTRACKED peer WIP and are excluded from both counts
+  (test_vec_solo.py is red by design, ~7 failures, unrelated to the trim). solo-t1-v5 was already
+  stopped by its owner (E33) before the verification; its checkpoint, `data/locks/sim.lock` and
+  `checkpoints/**` are untouched.
