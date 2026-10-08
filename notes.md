@@ -1519,3 +1519,44 @@ scripts/calibrate_scorer.py, scripts/score_trace.py, tests/test_scorer.py.
   0.517; adding it (plus `leg_back_s`) gives 0.464.
 - All 144 threshold numbers now come from the calibration rule and are
   re-verified against the refs by test_scorer.py (no hand-edited drift).
+
+## 2026-10-08 (RepoTrim) — REPO TRIM to the drill mandate (operator decision)
+
+- OPERATOR DECISION (2026-10-08): trim the repo to `docs/SOLO_DRILL.md`; the two-robot
+  wrestling pipeline is superseded for this milestone and was approved for deletion
+  (two-robot scene, exchange loop, self-play league, opponent pools, two-robot teacher
+  composition, their tests/scripts/metrics).
+- DELETED (commit `46fb84f`, 58 files, 105.55 MB tracked; recover any path with
+  `git show 72956f3:<path>` — 72956f3 is the ref immediately BEFORE the deletions):
+  - GENERATED-BLOAT 105.4 MB: 41 `data/drill/M_*_feasible_L3_seed0.npz` width-sweep raw
+    traces (73.9 MB; the per-run metrics JSONs, `motion_widths.json`, `motion_singles.json`
+    and the drill_motion.md table are kept, as are `M_D28c.npz` — the delivered-clip trace —
+    and `M_E28f.npz`, cited by data/solo_drill/final_L2_motion.json); 12
+    `data/solo/metrics/*.jsonl` per-step traces (31.5 MB; the aggregate `.summary.json`,
+    `t1_gate_baselines.json` and `{probes,baselines}_summary.json` are kept and the runs are
+    re-runnable via scripts/solo_env_smoke.py); 2 `videos/solo_drill/l2_stills/*.png`;
+    `data/references/.../tools/bench_pose.py` (only unindexed reference tool).
+  - DEAD: `workflows/phase3_teacher.mjs`, `workflows/wave1_assets.mjs` (one-off orchestration).
+  - untracked caches: `__pycache__`/`.pytest_cache` (3.0 MB, regenerable).
+- NOT DELETED, and why (dependency finding): the two-robot code is an IMPORT-LEVEL
+  prerequisite of the mandate path — `src/rl/net.py` imports `wrestling.env` (so `import
+  src.rl.ppo` breaks without it) and `src/solo/fall.py` imports `wrestling.backdet` for the
+  back-to-mat termination of SOLO_DRILL 4. `src/rl/{vec,trainer,rollout}.py` are held as
+  PATTERN-SOURCE (the only parallel-env-worker implementation; `src/rl/vec_solo.py` is being
+  built from it). Ordered excision plan + the full kept-off-mandate list with sizes:
+  `reports/2026-10-08/repo_trim.md` 3/5.
+- LEDGER EVIDENCE PRESERVED: `data/drill/BASELINE_PD_stance_pd_L1_seed0.{json,npz}` were
+  staged for deletion as a "superseded duplicate" and REVERSED after a re-grep showed
+  notes.md:214 and `data/solo_drill/01_baseline_pd_topples.json` cite them as the toppling PD
+  baseline trace; restored from 72956f3. `videos/env/*` (E4), `scripts/eval_ppo.py` +
+  `checkpoints/rl/smoke_stage_c.pt` (the 13.1% standing result), `checkpoints/solo/t1_balance_v*.pt`
+  and every `data/solo/metrics/*_summary.json` are untouched.
+- VERIFIED: PIN `61e8bd1` worktree baseline = 178 passed / 0 failed; HEAD worktree after the
+  trim = 185 passed / 0 failed (= 178 + the 7 tests of the peer T2-gate
+  `tests/solo/test_locomotion_gate.py`); 0 test files deleted. Import smoke of
+  `src.solo.{train,env,eval}`, `src.drill.scheduler`, `src.teacher.solo_scene`, `src.rl.ppo`
+  passes in both import styles; `scripts/solo_env_smoke.py --help` and
+  `scripts/solo_drill_render.py --help` OK. solo-t1-v5 was already stopped by its owner (E33)
+  before this verification — the trim did not touch it, its checkpoint, or the sim lock.
+- `docs/MISSION.md` now carries a header note: its two-robot implementation is scheduled for
+  removal and the ACTIVE milestone is `docs/SOLO_DRILL.md`.

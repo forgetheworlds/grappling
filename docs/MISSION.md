@@ -1,5 +1,17 @@
 # MISSION.md — Full Operator Brief (verbatim record, 2026-10-07)
 
+> **STATUS NOTE (2026-10-08, RepoTrim) — the ACTIVE milestone is `docs/SOLO_DRILL.md`.**
+> The two-robot wrestling pipeline described below is **superseded for the current milestone**
+> and was approved by the operator for deletion. It is *scheduled* for removal, not yet removed:
+> the two-robot code is currently an import-level prerequisite of the active path
+> (`src/rl/net.py` imports `wrestling.env`; `src/solo/fall.py` imports `wrestling.backdet` for the
+> back-to-mat termination of SOLO_DRILL §4), and `src/rl/{vec,trainer,rollout}.py` are held as
+> pattern-source until the solo vec backend lands. **When it is removed it will live only in git
+> history, recoverable with `git show 72956f3:<path>`** (`72956f3` is the ref immediately before the
+> 2026-10-08 trim; the first trim commit is `46fb84f`). The ordered excision plan, the deleted-file
+> manifest and the kept-off-mandate list are in `reports/2026-10-08/repo_trim.md`. Read this file as
+> the long-term intent record; read `docs/SOLO_DRILL.md` for what is being built now.
+
 Transport artifacts (doubled line-break corruption) repaired; wording otherwise unchanged.
 This file is the AUTHORITATIVE record of intent. `goal.md` is the working distillation;
 if they ever conflict on detail, this file wins and `goal.md` gets updated.
