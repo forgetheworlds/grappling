@@ -22,8 +22,9 @@ sys.path.insert(0, str(Path(__file__).resolve().parents[1] / "src"))
 
 import mujoco  # noqa: E402
 
-from wrestling.backdet import (ROBOTS, BackDetConfig, BackFeatures,  # noqa: E402
-                               BackToMatDetector, confirmed_mask,
+from wrestling.backdet import (FLOOR_GEOM, ROBOTS, BackDetConfig,  # noqa: E402
+                               BackFeatures, BackToMatDetector,
+                               back_features, body_maps, confirmed_mask,
                                first_confirmed_index)
 from wrestling.env import (OBS_DIM, QPOS_SLICE,  # noqa: E402
                            START_ANGLE_JITTER_DEG, START_DISTANCE_JITTER,
@@ -362,6 +363,65 @@ def test_backdet_persistence_and_negatives():
                              for r in ROBOTS}, i * STEP_DT)
     det.update_features({r: _feat(t=1.0, dorsal=False, tilt=10.0, pelz=0.8) for r in ROBOTS}, 1.0)
     assert det.triggers == {"a": None, "b": None}
+
+
+def test_backdet_limb_contact_side_infixed_bodies(model):
+    """limb_contact diagnostic must see the scene's real limb bodies.
+
+    Regression: limb ids were built by prefix concatenation (``a_knee_link``),
+    but the scene infixes left/right (``a_left_knee_link`` …), so ``limb_bids``
+    was always empty and ``limb_contact`` always False even with limbs on the
+    mat. The flag is diagnostic-only: it never gates the back-to-mat rule.
+    """
+    from wrestling.backdet import LIMB_BODIES
+    for robot in ROBOTS:
+        limb_names = {mujoco.mj_id2name(model, mujoco.mjtObj.mjOBJ_BODY, b)
+                      for b in body_maps(model, robot).limb_bids}
+        assert limb_names, robot
+        assert all(n.startswith(f"{robot}_") for n in limb_names)
+        assert all(n.endswith(LIMB_BODIES) for n in limb_names)
+        # both sides of every limb resolved (knee + both wrists + elbow, L/R)
+        assert len(limb_names) == 2 * len(LIMB_BODIES)
+
+    def floor_bodies(data):
+        floor = mujoco.mj_name2id(model, mujoco.mjtObj.mjOBJ_GEOM, FLOOR_GEOM)
+        out = set()
+        for c in range(data.ncon):
+            con = data.contact[c]
+            g1, g2 = int(con.geom1), int(con.geom2)
+            if g1 == floor or g2 == floor:
+                other = g2 if g1 == floor else g1
+                out.add(mujoco.mj_id2name(
+                    model, mujoco.mjtObj.mjOBJ_BODY, int(model.geom_bodyid[other])))
+        return out
+
+    def frame_data(trace, i):
+        data = mujoco.MjData(model)
+        data.qpos[QPOS_SLICE["a"]] = trace["qpos_a"][i]
+        data.qpos[QPOS_SLICE["b"]] = trace["qpos_b"][i]
+        mujoco.mj_forward(model, data)
+        return data
+
+    # positive: STAND_UP ground-start frame 6 (measured: ncon=40, 23 floor
+    # contacts incl. a_left_wrist_yaw_link and b_left_knee_link)
+    data = frame_data(reference_trace("STAND_UP"), 6)
+    on_mat = floor_bodies(data)
+    assert {"a_left_wrist_yaw_link", "b_left_knee_link"} <= on_mat
+    det = BackToMatDetector(BackDetConfig())
+    for robot in ROBOTS:
+        f = back_features(model, data, robot)
+        assert f.limb_contact is True, robot
+        # diagnostic-only: limb contact never satisfies the rule
+        assert not det.condition(f), robot
+
+    # negative: standing frame — an ankle may touch the mat, no limb does
+    data = frame_data(reference_trace("STANCE"), 0)
+    on_mat = floor_bodies(data)
+    assert on_mat and not any(n.endswith(LIMB_BODIES) for n in on_mat)
+    for robot in ROBOTS:
+        f = back_features(model, data, robot)
+        assert f.limb_contact is False, robot
+        assert f.pelvis_z > 0.55, robot  # clearly standing
 
 
 def test_backdet_batch_matches_streaming():

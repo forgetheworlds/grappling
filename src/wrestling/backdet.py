@@ -149,8 +149,15 @@ def body_maps(model: mujoco.MjModel, robot: str) -> _BodyMaps:
         g for g in range(model.ngeom)
         if int(model.geom_bodyid[g]) in (torso_bid, pelvis_bid)
     )
-    limb = {bid(n) for n in LIMB_BODIES if
-            mujoco.mj_name2id(model, mujoco.mjtObj.mjOBJ_BODY, f"{prefix}{n}") >= 0}
+    # limb bodies are side-infixed (``a_left_knee_link``, ``b_right_elbow_link``
+    # …), so prefix concatenation never matches: resolve by suffix against the
+    # model's body names, keeping the robot prefix so each robot resolves only
+    # its own limbs.
+    limb = {
+        b for b in range(model.nbody)
+        if (name := mujoco.mj_id2name(model, mujoco.mjtObj.mjOBJ_BODY, b)) is not None
+        and name.startswith(prefix) and name.endswith(LIMB_BODIES)
+    }
     return _BodyMaps(torso_bid, pelvis_bid, torso_geoms, frozenset(limb))
 
 
