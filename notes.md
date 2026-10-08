@@ -1980,3 +1980,30 @@ scripts/calibrate_scorer.py, scripts/score_trace.py, tests/test_scorer.py.
   cannot be cheaper than falling.  Read: upright >= 0.84 AND fall <= 0.05 at 400k; falsifier: if the
   crouch persists, the drift is a value-error artefact and the lever is critic capacity, not the
   termination structure.
+- v6d FINAL (1,501,184 steps, `steps_done` verified in the checkpoint): fall 0.083 / held 0.125,
+  upright **0.551**, recovery **0.0**, maxJ_held 0.0, t_stab None, com_max 0.186 -> not_certified.
+  Series: 200k 0.167/0.708/0.208/12 -> **400k 0.083/0.799/0.5/8 (the peak)** -> 600k (read in flight)
+  -> 800k 0.125/0.516/0.0/0 -> 1.5M 0.083/0.551/0.0/0.  Every snapshot 100k..1.5M is preserved.
+- T1 STATUS, stated precisely (the run gate and the T1 gate are different bars):
+  * The PRE-REGISTERED run gate (fall <= 0.15 AND upright >= 0.85) was met on falls at 400k (0.083)
+    but never on upright (peak 0.799).
+  * The T1 GATE itself (in-band fall <= 0.05, mean_upright >= 0.84, held-out fall <= 0.10,
+    t_stab <= 1.0, com_offset_max <= 0.20, survivor_valid_stance_rate >= 1.0) is NOT met by any
+    v6 run.  Best candidate v6d@400k fails 4 of 6: fall 0.083 (bar 0.05), upright 0.799 (0.84),
+    held-out 0.125 (0.10), survivor_valid_stance_rate 0.0 (1.0); passes t_stab 0.522 and com 0.164.
+  * The binding structural failure is `survivor_valid_stance_rate` 0.0 -- NO episode ends in a valid
+    stance, which is the crouch escape stated as a gate criterion.  This is why the pre-registered
+    next lever (an invalid stance terminates the episode, same penalty as a fall) targets it.
+  * ARTIFACT STATUS: videos/solo_drill/01_stance_maintenance.mp4 is still owed and MUST NOT be
+    shipped from an uncertified checkpoint; the monitor's clips for 400k/600k/1.5M exist under
+    videos/solo_drill/baselines/ as diagnostics only.
+- v6d SNAPSHOT SCAN COMPLETE (in-band fall / held-out / upright / recovery / maxJ_held / com_max):
+  200k 0.167/0.250/0.708/0.208/12.0/0.159;  **400k 0.083/0.125/0.799/0.5/8.0/0.164 (THE PEAK)**;
+  600k 0.083/0.125/0.624/0.125/12.0/**0.205** (com over the 0.20 bar);  800k 0.125/0.188/0.516/0.0/
+  0.0/0.160;  1.5M 0.083/0.125/0.551/0.0/0.0/0.186.  The scan is the first one this project has been
+  able to run (the v6a run's snapshots did not exist); it confirms the peak is mid-run and that the
+  late drift is monotone in posture (upright 0.799 -> 0.624 -> 0.516 -> 0.551) while the fall rate
+  stays flat near 0.083-0.125 -- i.e. the policy trades posture for nothing late in training.
+  SELECTED T1 CANDIDATE: checkpoints/solo/t1_balance_v6d_401408.pt (the exact stem the monitor read
+  used; the save landed at steps_done 401408), failing 4 of 6 T1 criteria, preserved and
+  reproducible via `scripts/solo_env_smoke.py monitor --checkpoint <that path> --magnitudes 4 8 12`.
