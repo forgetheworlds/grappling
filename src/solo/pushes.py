@@ -15,8 +15,14 @@ on this host (2026-10-08, solo scene):
   left "unset".
 * Application height is physical: the same J = 12 N*s at z = 0.95 m topples the
   robot (tilt 91.7 deg after 1.5 s), at z = 0.79 m it does not (tilt 12.5 deg).
-* The analytic non-stepping ceiling for a 33.3 kg G1 is ~13 N*s
-  (J = m*sqrt(g/z)*dCOP), consistent with the measured 12 N*s chest push.
+* The analytic non-stepping ceiling for the G1 is **direction-dependent**, not a
+  single number.  Derived from this model (m = 33.3411 kg, CoM height
+  z_c = 0.6919 m) and the measured sole hull via the capture-point result
+  ``J = m*sqrt(g/z_c)*dCOP`` (Yang et al. 2020, eq. 6), it spans **6.7 .. 20.7
+  N*s** across the 8 push yaws: ~18-21 N*s laterally/toward the toes, only
+  ~6.7 N*s for a sagittal push that drives the CoM back over the heels (the CoM
+  sits heel-ward of the foot midpoint).  The previously stated "~13 N*s" scalar
+  was wrong; see ``reports/2026-10-08/t1_gate_calibration.md`` section 2.2.
 
 Force magnitude is ``impulse / duration``; the realized impulse is reported
 with ``PushSpec.realized_impulse``.  No force ramps: discrete constant-force
@@ -35,9 +41,10 @@ from .scene import STEP_DT, TORSO_BODY, body_id
 _EPS = 1e-12
 
 
-#: impulses above this are **held out of training** (the T1 gate's held-out
-#: magnitudes stay unseen; 12 N*s is just under the ~13 N*s analytic non-stepping
-#: ceiling for the 33.3 kg G1)
+#: impulses above this are **held out of training**.  The cap is set to the top
+#: of the training curriculum, NOT a physics bound: the derived non-stepping
+#: ceiling is direction-dependent (6.7-20.7 N*s, see the module docstring), so
+#: 12 N*s already exceeds it in the weakest (sagittal) directions.
 TRAIN_MAX_IMPULSE = 12.0
 
 
