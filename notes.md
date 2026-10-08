@@ -149,9 +149,23 @@ Entries appended as experiments run (Phase 2 onward).
 - FACT: BC warm-start hook exists (StageConfig.bc_checkpoint -> warm_start_from_bc, key/shape
   matched, mismatches reported) — Phase 3B plugs the BC policy in here.
 - SUITE: 89 tests pass on this host (orchestrator rerun).
-- KNOWN BUG (RLTrainer report, fix in flight): src/wrestling/backdet.py limb_contact
-  diagnostics never fired — body ids built as "a_knee_link" but scene bodies are
-  "a_left_knee_link" (left/right infix). Diagnostic-only; detector rule unaffected.
+- FIXED (BackdetFix, verified): src/wrestling/backdet.py limb_contact now resolves limb
+  bodies by per-robot suffix match (a_left_knee_link etc.). Differential replay over all
+  7 refs x 2 robots: detector outputs bit-identical, limb_contact flips False->True as
+  intended; regression test added; suite 89 passed. Diagnostic-only path.
+
+### E1 (2026-10-08) — random-init PPO baseline (no imitation) | ABLATION ARM 1 of MISSION
+- Question: what does PPO alone learn before any GrappleMap imitation? (MISSION wants
+  "random-init PPO" vs "imitation -> PPO": samples to first successful takedown.)
+- Setup: 30k steps, stage C vs STANCE reference replay, checkpoint smoke_stage_c.pt.
+- Result (orchestrator rerun of scripts/eval_ppo.py, deterministic): standing fraction
+  0.131 (pelvis z >= 0.5 m); ground fraction 0.830 (z < 0.35 m); mean pelvis z 0.267 m;
+  knee/hand contact 0.413; dorsal contact 0.000; learner W/L/D 48/0/3 over 51 exchanges;
+  48/51 cases the opponent's back hit the mat (scripted opponent also collapses).
+- Conclusion: without imitation the policy degenerates to ground-hugging and wins only
+  because the scripted opponent falls; it does not wrestle standing. This is the measured
+  motivation for the teacher/BC stage (Phase 3B) and the reference point for the ablation.
+
 
 
 ## Technique vocabulary (DECIDED 2026-10-07 — see docs/CURRICULUM.md)
