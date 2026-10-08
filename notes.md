@@ -127,6 +127,11 @@ this before working and MUST append their verified facts.
   error 1308 and paused. RULE: every workflow agent() passes an explicit model
   (`opencode-go/deepseek-v4.1-flash` for heavy work, `opencode-go/mimo-v2.6-flash` for
   mechanical). Same rule applies to any future workflow script.
+- DIRECTIVE (operator, 2026-10-08 night, overnight autonomy): current milestone is the SINGLE-G1
+  CONTINUOUS SOLO DRILL (docs/SOLO_DRILL.md); no second active robot. Work autonomously overnight.
+  ONE codex model (gpt-6.1-sol) may be requested for debugging/architecture help ONLY — no more
+  than that, and only for a concrete blocker with a clear question. Do not claim success without
+  video + numbers; preserve best verified checkpoint/footage and name precise blockers.
 - DIRECTIVE (operator, 2026-10-08): workflows ONLY when structure needs them
   (multi-stage pipelines/DAGs, Phases 5+); independent one-shot agents via `task` batches.
   This SUPERSEDES the earlier line "Workflows are the preferred fan-out again".
