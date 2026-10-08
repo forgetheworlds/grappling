@@ -198,6 +198,34 @@ Entries appended as experiments run (Phase 2 onward).
   (v3, launched), (3) TERMINATION-PENALTY MAGNITUDE if v3 still collapses — reducing the −100 is the
   named next lever rather than "adding reward signal", which is already dense.
 
+### E30 (2026-10-08) — T1's GATE IS UNATTAINABLE AS WRITTEN (verified) — the second reason no policy passed
+- VERIFIED by reading `data/solo/metrics/t1_gate_baselines.json` (stored measurements) against
+  `src/solo/eval.py` GATES["balance"]. `stand_hold`, the scripted reference hold, passes only 2 of 7
+  criteria: mean_upright 0.849118 vs required >= 0.95; fall_rate 0.291667 vs <= 0.05;
+  fall_rate_heldout 0.958333 vs <= 0.10; recovery_success_rate 0.25 vs >= 0.9. It passes only
+  max_recoverable_impulse_heldout (16.0 vs >= 16.0) and com_offset_max (0.1352 vs <= 0.20).
+  Its verdict is "not_certified".
+- DEFECT 1 — a threshold ABOVE its own reference: the uprightness bar (0.95) exceeds what a perfect
+  static hold measures (0.849118), and the criterion's provenance comment claims "StandHold measured
+  0.923", which contradicts the stored measurement. Unattainable by construction.
+- DEFECT 2 — two capabilities in one gate: the held-out battery runs magnitudes 16/20/25 N*s while
+  `train_max_impulse` is 12.0, and eval.py's own note states that 16 N*s is BEYOND the analytic
+  non-stepping ceiling (~13 N*s). So `fall_rate_heldout <= 0.10` requires STEPPING recovery — which is
+  T3 stance footwork / T2 locomotion territory — and it is demanded of a run trained only on <= 12 N*s
+  pushes. This violates the project's own "gates are per-capability" rule.
+  Also stale: that same note says "StandHold measured 0.0 held-out" while the JSON stores 16.0.
+- CONSEQUENCE: "PPO cannot stand" had TWO independent causes. The first (exploration; fixed by
+  residual mode, E27) is real. The second is this: even a perfect balancer fails T1, so no amount of
+  balance training could ever have certified, and the failure would have been misread as the policy's.
+- OPERATOR DECISION REQUIRED (it redefines what T1 means; recommendation, not unilateral change):
+  split the capability. T1 certifies NON-STEPPING dynamic balance with thresholds derived from the
+  measured non-stepping envelope (battery magnitudes <= 12 N*s, uprightness bar set below the measured
+  hold, citing the JSON); STEPPING recovery (16-25 N*s) becomes the bar for T3 stance footwork, where
+  stepping is the point. Then the gate must be shown to discriminate: stand_hold PASSES the T1 subset
+  (proving it is not vacuous) and zero_action FAILS. Dispatched as T1GateCal for measurement + proposal
+  + the discrimination test; the threshold edit itself waits on that decision and on T2Gate's edits to
+  the same file.
+
 ### E29 (2026-10-08) — CORRECTION to E28's wording (not an interrupted render — a deliberate refusal), and the interim evidence is a STATIC HOLD
 - E28 said the acceptance artifact was "an in-flight render that never completed". That is WRONG.
   Verified: `scripts/solo_drill_render.py:283-286` prints "[suite] rung clip named final_L1_90s.mp4;
