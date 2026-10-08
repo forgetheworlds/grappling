@@ -184,6 +184,34 @@ Entries appended as experiments run (Phase 2 onward).
   needed a reset or a fall. All motion-producing agents (teacher, drill, mocap reference) are bound
   to the rubric.
 
+### E19 (2026-10-08) — quasi-static controller hits its measured ceiling; pivoting the remaining time to the LEARNED path
+- NEGATIVE RESULT, MEASURED (DrillMotion): the settle bottleneck cannot be optimised away. The balance
+  law holds a per-configuration steady-state CoM offset (0.036-0.040 m on 0.24-0.28 m stances;
+  0.030 m at the delivered 0.28 m/lean-0.14 setting) and the recentre lead is 4 cm, so the lead
+  cancels exactly and the body stops — that IS the 9 s timeout. Physical exit criteria
+  (|v_com| <= v AND margin >= 0.02 after a dwell) raise cadence from 12.1 to 4.8-6.0 s/step but ALL 11
+  runs across 4 widths and 2 dwell settings then FALL after 2-5 steps; stronger leads (0.10 m) fall
+  at 2 steps; settle-off falls. VERDICT: the full recentre is load-bearing for the quasi-static
+  design — 12.1 s/step is its ceiling, and a continuous shuffle is not viable above ~0.02 m/s CoM
+  velocity. Target cadence 1.5-2.5 s/step (and 0.49 m reference width) requires a DYNAMIC
+  capture-point gait, i.e. a learned low-level policy.
+- DELIVERED L2 MOTION RUN (data/drill/M_D28c_feasible_L3_seed0.npz, clip rendering):
+  69.98 s, 0 falls, 0 resets, 5/5 steps, 0 refusals/aborts, cadence 12.1 s/step, CoM span 0.374 m
+  (0.306 m in the second half), com_travel 2.44 m, pelvis-z range 0.074 m, slip_max 0.019 m,
+  phase_advance_count 2, margin_min -0.0257 m. NEGATIVE MARGIN EXPLAINED: 24 of 3500 ticks (0.69%)
+  in 5 episodes of 0.06-0.14 s, depths -0.009 to -0.0257 m, each recovering to +0.037..+0.075 m
+  within ~0.5 s; positive margin 99.3% of the run; none during a hold. Rubric: A1=1 (0.28 vs 0.49 m),
+  A3/A4/A6/A7=2, A5/A8=3; B1/B2/B3/B6=2, B4=1 (cadence); F1/F3/F4=3, F2/F5=2; G=3/3/2/3;
+  H1=2, H2=3, H3=2.
+- PIVOT (plan for the remaining hours): (1) L2 motion clip finishes rendering and gets an independent
+  visual check + doc corrections; (2) SoloEnv adds a `--lock=off` trainer flag (so a multi-hour run
+  does not starve the box) and extends the T1 push battery beyond the ~13 N*s non-stepping ceiling
+  with time-to-stability, CoM-margin and step-count criteria (its own finding was that the current
+  battery cannot distinguish a stiff stand); (3) launch T1 balance training (learned balance policy,
+  checkpointed/resumable); (4) evaluate against the extended gate + the same baselines; (5) then T2
+  (velocity/stepping) for a dynamic shuffle, and only then re-attempt a drill with a learned
+  low-level layer. The quasi-static L2 motion clip remains the honest interim artifact.
+
 ### E18 (2026-10-08) — width-vs-steppability resolved by measurement; cadence bottleneck = the 9 s settle
 - WIDTH TABLE (DrillMotion, data/drill/motion_widths.json): required CoM travel per lift ≈ w/2 - 0.01 m
   plus the fore-aft distance to the support footprint centre; measured authority 0.14 m (shipped cap)

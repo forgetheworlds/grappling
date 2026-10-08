@@ -19,7 +19,7 @@ in its record (`data/drill/motion_*.json`, `data/solo_drill/final_L2_motion.json
 | **The width trade-off is quantified**: the CoM travel a lift needs grows as **half the stance width** (required ≈ `w/2 − 0.01 + fore-aft`); the *measured* lateral authority of this controller is **0.14 m (shipped cap) … 0.19 m (delivered travel)**, so a 0.495 m stance **cannot** be stepped in and a **0.28–0.30 m stance can** | `data/drill/motion_widths.json`; §1 table; the refusal events carry `required_com_travel_m` |
 | **Three mechanisms measured, two rejected**: the trunk **lean is kept** (+0.7 s/step faster and a better margin), the **support-foot edge roll is rejected** (falls with 0 completed steps at every width tested — it shrinks the loaded foot's effective support), the **support-foot yaw pivot is rejected** (a 0.5 rad loaded pivot is what tipped the body *after* a landing; `pivot_max=0` turns a fall into 90 s clean) | §2 |
 | **Cadence**: the step cycle is **~4 s when the recentre converges** (0.21 base, hold programme) and **13–14 s when the recentre has to be waited out** (0.28–0.30 base, the delivered programme — the settle times out at 9 s on every step because the balance law's steady-state CoM offset (~4 cm) is exactly the recentre lead). Reported honestly: the deliverable is **not** a 1.5–2.5 s-cadence clip | §3 |
-| **Clip status at hand-off**: the run is verified from its trace (5 steps, 0 falls, margin −0.0257); the 960×720 render is finishing in the background and the `deliver` stage writes the bundle + ffprobe verification when it does | `videos/solo_drill/final_L2_motion.mp4` (rendering), `data/solo_drill/final_L2_motion.json` (written at the end of that render) |
+| **Clip status at hand-off**: the run is verified from its trace (5 steps, 0 falls, margin −0.0257, `phase_advance_count` 2, CoM span 0.374 m with 0.306 m of it in the second half); the 960×720 render is at ~57 % of 2100 frames (log `/tmp/motion/deliver3.log`) and the `deliver` stage writes its own ffprobe verification + bundle when it completes. The hand-written bundle (same numbers + the negative-margin analysis + the rubric) is already at `data/solo_drill/final_L2_motion.json` | `videos/solo_drill/final_L2_motion.mp4` (rendering), `data/solo_drill/final_L2_motion.json` |
 | **The deliverable clip**: one continuous episode, **0 falls, 0 resets, 5 completed steps** in a **0.28 m** stance, HUD with an advancing phase, 0.25× slow-motion of a step cycle, contact sheets, evidence bundle | `videos/solo_drill/final_L2_motion.mp4`, `data/solo_drill/final_L2_motion.json`; ffprobe verification recorded in the bundle |
 | **Run-to-run variability is part of the finding**: the *same* 0.30 m configuration fell after 2 steps in one sample and ran clean for 95 s / 6 steps in another; the envelope is marginal, so the delivered clip is the *verified clean sample* and the failing sample is kept | `data/drill/L2_MOTION_feasible_L3_seed0.{json,npz}` (fall at t=22.9 s) vs `data/drill/M_D28c_feasible_L3_seed0.{json,npz}` (clean) |
 | **L1 correction (parent request)**: the shipped L1 clip is a *static* hold — 185 scheduler elements advanced but the pelvis moved **0.003 m after t=8 s**; the "18 cycles" claim describes scheduler bookkeeping, not motion. Corrected in `reports/2026-10-08/drill.md` and `docs/VISUALS.md`; a **phase-advance** assertion added to the tests | `data/drill/FINAL_L1_90_feasible_L1_seed0.json` (93 `element_timeout`, pelvis-z range after 8 s = 3 mm); `tests/test_drill.py` |
@@ -116,6 +116,41 @@ Improvements that *failed*: raising `shift_speed` (0.036/0.045/0.060 → falls),
 settle (`t_settle` 4 s, `settle_lead_max` 0.10 → falls: the 9 s wait is what damps the landing),
 skipping the settle (`settle=0` → falls), and chaining steps without a hold (falls).
 
+### 3.1 P1 — the settle bottleneck, attacked and characterised
+
+The settle is the cadence cost (9 s of every step). The parent asked to fix it; here is what was
+measured, in order:
+
+* **The steady-state offset is real and per-configuration**: the settle's CoM-to-mid-foot error
+  bottoms out at **0.036–0.040 m** on the 0.24–0.28 m stances (and reaches 0.030 m at the
+  delivered 0.28 m/lean-0.14 setting) — i.e. the balance law holds a ~3.5–4 cm CoM offset from
+  the *plan*, and the recentre lead is 4 cm, so the lead cancels exactly and the body stops.
+* **Attempted fix (physical exit criterion)**: a settle exit on `|v_com| ≤ 0.02 m/s AND margin
+  ≥ 0.02 m` (plus a minimum dwell) — cadence drops to **4.8–6.0 s/step**, and the runs then
+  **fall after 2–5 steps** (4 widths × 2 dwell settings tested: 11 runs, all falls).
+* **Attempted fix (request-gate bypass + short settle)**: same outcome (falls at 2–5 steps).
+* **Attempted fix (stronger recentre lead, 0.10 m)**: falls at 2 steps.
+* **What actually works**: keep the recentre force and let it finish — the request gate
+  `CoM within 0.03 m of the mid-foot` and the ~9 s wait are what makes the next descent safe.
+  The delivered configuration (full recentre) is the only one that runs 70–95 s clean.
+
+**Measured boundary (also the P2 answer).** Chaining steps *without* a full recentre, or with a
+nonzero CoM velocity between steps (0.03–0.05 m/s measured at the next lift), topples within
+2–5 steps. The threshold for this controller is a **near-stationary CoM between steps
+(≤ ~0.02 m/s) and the full recentre**; the resulting envelope is **~12 s/step**. The 1.5–2.5 s
+cadence the brief asks for is outside the *quasi-static* design: it needs the dynamic
+(capture-point) gait, not parameters. This is a measured boundary, not an assumption: 20+
+configurations were run in this study, and every one that shortened the settle fell.
+
+| width (m) | settle | cadence (s/step) | falls | steps | margin_min |
+|---|---|---|---|---|---|
+| 0.21 | full recentre (shipped) | 13.3 | 1 @ 58 s | 4 | −0.714 (the fall) |
+| 0.28 | full recentre | **12.1** | **0** | **5** | **−0.026** |
+| 0.30 | full recentre | 13.7 | 0 (95 s) | 6 | −0.022 |
+| 0.28 | exit on \|v\|≤0.012, dwell 1.0 s | 5.4 | 1 @ ~25 s | 2 | −0.609 |
+| 0.28 | exit on \|v\|≤0.02, dwell 2.5–4.0 s | 6.9–8.4 | 1 @ ~20 s | 2 | −0.621 |
+| 0.30 | exit on \|v\|≤0.02, dwell 1.0–2.5 s | 4.9–5.7 | 1 @ ~20 s | 2–3 | −0.627 |
+
 **Honest cadence answer:** at a 0.21 m base the primitive reaches **~4.0 s/step** (0 falls over
 70 s); at the deliverable's 0.28–0.30 m base it is **~13.5 s/step**, and the deliverable clip
 (95 s × 6 steps) therefore shows *six* clearly visible steps, not the 1.5–2.5 s cadence the
@@ -130,6 +165,19 @@ delivered run contains **no refusal**. This is why the report states step counts
 "0 falls".
 
 ---
+
+## 3.2 P4 — the negative CoM margin in the delivered run (explained, not hidden)
+
+`data/solo_drill/final_L2_motion.json` → `negative_margin`: **24 ticks of 3500 (0.69 %) in five
+episodes of 0.06–0.14 s**, depth −0.009 … **−0.026 m**, each recovering to **+0.037…+0.075 m
+within ~0.5 s** (measured: the margin is positive 99.3 % of the run, and the worst value occurs
+at t=45.76 s during a single-support transfer, 0.14 s after the swing foot leaves the mat).
+
+That is the expected transient of a weight transfer: while one foot is in the air the combined
+support is only the planted foot's 0.175 × 0.06 m hull, and the moving CoM rides its boundary for
+a fraction of a second before the landing re-establishes a wide base. It is **not** a
+steady-state violation (there is no episode longer than 0.14 s, and the margin is positive at
+every step boundary and in every hold).
 
 ## 4. D4 — the video-derived tracks (repair attempt): NOT delivered
 
