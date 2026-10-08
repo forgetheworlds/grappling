@@ -101,6 +101,12 @@ class TrainConfig:
     #: and makes the critic's targets O(1): the v6b read showed value_rmse 12.0
     #: against advantage std 11.5, i.e. the advantage was the value error.
     normalise_returns: bool = False
+    #: separate critic learning rate (``None`` = the shared ``lr``).  The critic
+    #: sees the next scheduled push in its privileged obs, so a value function
+    #: that cannot predict falls is an optimisation failure, not an information
+    #: limit: the v6c read had EV -3.58 with the value term's grad norm at 0.15
+    #: against the policy's 18.97.
+    lr_critic: float | None = None
     freeze_joints: bool = False        # freeze non-balance joints at the keyframe
     lit_weights: tuple[tuple[str, float], ...] = ()   # RewardWeights overrides
     lit_push: str = "off"              # "off" | "bernoulli" | "interval"
@@ -217,7 +223,19 @@ class SoloTrainer:
                                CRITIC_DIM + ACTOR_DIM * (self.frame_stack - 1),
                                act_dim=N_JOINTS,
                                cfg=cfg.ppo_config().net_config())
-        self.optimizer = torch.optim.Adam(self.net.parameters(), lr=cfg.lr)
+        if cfg.lr_critic is not None and float(cfg.lr_critic) > 0.0:
+            # separate actor/critic learning rates: an under-fitting critic (v6c@100k
+            # read EV -3.58 while the push that causes the fall IS in its obs) can be
+            # trained faster without touching the actor's stability budget.
+            ratio = float(cfg.lr_critic) / float(cfg.lr)
+            self.optimizer = torch.optim.Adam(
+                [{"params": list(self.net.actor.parameters()), "lr": float(cfg.lr),
+                  "lr_ratio": 1.0},
+                 {"params": list(self.net.critic.parameters()),
+                  "lr": float(cfg.lr_critic), "lr_ratio": ratio}],
+                lr=float(cfg.lr))
+        else:
+            self.optimizer = torch.optim.Adam(self.net.parameters(), lr=cfg.lr)
         self.generator = torch.Generator(device="cpu").manual_seed(cfg.seed)
         torch.manual_seed(cfg.seed)
         self.steps_done = 0
@@ -811,6 +829,9 @@ def main(argv=None) -> int:
                          "critic targets O(1).  For runs whose terminal penalty "
                          "dwarfs the per-step shaping (e.g. --lit-weight "
                          "termination=1500).")
+    ap.add_argument("--lr-critic", type=float, default=None,
+                    help="separate critic learning rate (default: share --lr).  "
+                         "The scheduled lr scales both groups from their own base.")
     ap.add_argument("--reward-set", choices=("default", "lit", "movement_lit"),
                     default="default",
                     help="reward term set: 'default' = the task family's own terms "
@@ -915,6 +936,8 @@ def main(argv=None) -> int:
                       grad_clip_critic=args.grad_clip_critic,
                       reward_set=args.reward_set,
                       normalise_returns=bool(args.normalise_returns),
+                      lr_critic=(None if args.lr_critic is None
+                                 else float(args.lr_critic)),
                       freeze_joints=(args.freeze_joints == "balance"),
                       lit_weights=_parse_lit_weights(args.lit_weight),
                       lit_push=args.lit_push,

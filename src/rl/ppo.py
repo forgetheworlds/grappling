@@ -179,7 +179,9 @@ def ppo_update(policy: ActorCritic, optimizer: torch.optim.Optimizer, batch: Rol
     old_logp = data["logp"]
     mb_size = max(1, n // cfg.minibatches)
     for group in optimizer.param_groups:
-        group["lr"] = float(lr)
+        # a group may carry its own ratio (the split actor/critic lr); the
+        # scheduled ``lr`` scales every group from its own base
+        group["lr"] = float(lr) * float(group.get("lr_ratio", 1.0))
     stats = {"policy_loss": 0.0, "value_loss": 0.0, "entropy": 0.0,
              "approx_kl": 0.0, "clip_frac": 0.0, "epochs_run": 0, "lr": float(lr),
              "n_samples": int(n)}

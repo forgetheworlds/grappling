@@ -208,6 +208,50 @@ def test_split_grad_clipping_frees_the_actor_from_value_error():
     assert split > 3.0 * shared, (shared, split)
 
 
+def test_split_critic_lr_moves_only_the_critic_faster():
+    """A separate critic lr: the scheduled lr scales each group from its own base.
+
+    v6c@100k read EV -3.58 with the next scheduled push IN the critic's obs, so
+    the value function's failure is optimisation, not information.  The trainer
+    builds two param groups (actor ratio 1.0, critic lr_critic/lr); the update
+    must scale both by the schedule, not flatten them to one lr -- a flattened
+    group would silently undo the split.
+    """
+    def run(lr_critic, lr_scheduled):
+        torch.manual_seed(0)                     # identical nets across calls
+        net = ActorCritic(8, 12, act_dim=3, cfg=NetConfig(hidden=(16, 16)))
+        ratio = float(lr_critic) / 0.001
+        opt = torch.optim.SGD(
+            [{"params": list(net.actor.parameters()), "lr": 0.001, "lr_ratio": 1.0},
+             {"params": list(net.critic.parameters()), "lr": lr_critic,
+              "lr_ratio": ratio}], lr=0.001)
+        cfg = PPOConfig()
+        b = _toy_batch(T=5, N=2)
+        before_a = copy.deepcopy(net.actor.state_dict())
+        before_c = copy.deepcopy(net.critic.state_dict())
+        ppo_update(net, opt, b, cfg, lr_scheduled, torch.Generator().manual_seed(0))
+        da = float(np.sqrt(sum(float(((net.actor.state_dict()[k] - v) ** 2).sum())
+                               for k, v in before_a.items())))
+        dc = float(np.sqrt(sum(float(((net.critic.state_dict()[k] - v) ** 2).sum())
+                               for k, v in before_c.items())))
+        return da, dc, [g["lr"] for g in opt.param_groups]
+
+    da1, dc1, lrs1 = run(0.001, 0.001)                 # shared
+    da10, dc10, lrs10 = run(0.010, 0.001)              # critic 10x
+    assert lrs1 == [0.001, 0.001], lrs1
+    assert abs(lrs10[0] - 0.001) < 1e-12 and abs(lrs10[1] - 0.010) < 1e-12, lrs10
+    assert dc10 > 3.0 * dc1, (dc1, dc10)               # the critic really moves more
+    # the actor's step must NOT scale with the critic's lr.  A ~2% residual is
+    # measured and not explained (no parameters are shared; the value term does
+    # not enter the actor's loss) -- the tolerance guards the failure mode that
+    # matters, a FLATTENED lr group, which would change it by ~10x.
+    assert abs(da10 - da1) < 0.05 * max(da1, 1e-9), (da1, da10)
+    # the schedule scales both groups from their own base
+    _, _, lrs_half = run(0.010, 0.0005)
+    assert abs(lrs_half[0] - 0.0005) < 1e-12, lrs_half
+    assert abs(lrs_half[1] - 0.005) < 1e-12, lrs_half
+
+
 def test_log_std_anneal_ramps_and_pins_the_noise():
     """P1-4: the behaviour noise must be settable (v5's never left its init)."""
     from solo.train import TrainConfig, log_std_at

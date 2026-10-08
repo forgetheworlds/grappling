@@ -1913,3 +1913,20 @@ scripts/calibrate_scorer.py, scripts/score_trace.py, tests/test_scorer.py.
     the value term's grad norm is now 0.15 vs the policy's 18.97, i.e. the value term no longer
     binds anything; candidates are a separate critic lr, wider trunk, or a Huber value loss (the
     returns are heavy-tailed by construction: a fall is -1500 raw).
+- v6c VERDICT (stopped at 200,704; snapshots 100k/200k kept) -- BOTH pre-registered reads FAILED:
+  * 100k critic: EV -3.58 (falsifier < 0.75 FIRED) once the units mismatch was fixed (the first
+    read's "+0.001" compared a normalised critic against raw rewards; the scale now travels in the
+    checkpoint and is recomputed from recent_returns for older saves).
+  * 200k behaviour: fall 0.208 (gate <= 0.15) FAIL, upright 0.722 (>= 0.85) FAIL, recovery 0.0,
+    max_recoverable_impulse_heldout 0.0.  Against v6b at the same step (0.292 / 0.813 / 0.333 /
+    4.0): FEWER falls, but a deeper crouch and no recovery at all -- the crouch escape, sharper.
+  * So the normalisation alone did not fix either the critic or the posture.
+- THE CRITIC'S INFORMATION IS SUFFICIENT (checked, not assumed): the privileged obs carries the
+  NEXT SCHEDULED PUSH (obs.py `next_push_dt/dir/mag`, fed by env.py from the schedule), so a value
+  function that cannot predict falls is an OPTIMISATION failure, not an information limit.
+- v6d LAUNCHED (service `solo-t1-v6d`, pid 3585352): v6c's exact command + ONE lever, `--lr-critic
+  5e-4` (5x the actor's 1e-4; two Adam param groups whose base lrs the schedule scales
+  independently -- a test pins that a flattened group is caught).  Pre-registered reads: 100k
+  health EV >= 0.85 (FALSIFIER: EV < 0.75 -> the lever is capacity/loss, not lr: wider trunk or a
+  Huber value loss for the heavy-tailed fall returns), 200k/400k monitor fall <= 0.15 AND upright
+  >= 0.85 (the crouch gone), 1.5M the full T1 gate.
