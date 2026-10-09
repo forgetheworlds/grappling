@@ -2439,3 +2439,14 @@ scripts/calibrate_scorer.py, scripts/score_trace.py, tests/test_scorer.py.
     BINDS.
   * Next reads: 200k and 400k monitor (fall <= 0.05 AND upright >= 0.84 AND
     survivor_valid_stance_rate > 0).
+- v6e 100k MONITOR READ (the gate battery, clip rendered: videos/solo_drill/baselines/
+  t1_balance_v6e_100352_100352.mp4): fall 0.083 / held 0.125, upright 0.797, recovery 0.333,
+  max_recoverable_impulse_heldout 8.0, t_stab 0.825 (bar <= 1.0 PASS), com_max 0.143 (PASS).
+  At HALF the steps of v6d's peak this matches v6d's best fall rate (0.083 at 400k) with recovery
+  0.333 and maxJ 8.0 -- the strongest 100k profile of any run (v6b@200k: 0.292/0.813/0.333/4.0;
+  v6c: 0.208/0.722/0.0/0.0; v6d: 0.167/0.708/0.208/12.0).
+  VISUAL COMPARISON (both grids extracted and watched): v6d@400k stands in a rigid straight-legged
+  brace and topples backward stiffly under a push (tilt_max 121.6 deg, no knee give); v6e@100k
+  stands relaxed and ABSORBS the push with deep knee flexion (sitting back into a squat), with
+  2/24 episodes still falling.  The knees-absorbing behaviour is exactly what the structural lever
+  was built to make rational: bracing no longer dominates because leaving the stance costs a fall.
