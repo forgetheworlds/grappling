@@ -2695,6 +2695,19 @@ scripts/calibrate_scorer.py, scripts/score_trace.py, tests/test_scorer.py.
   the held-out 16/20/25 bars need mature stepping — T3 is a multi-campaign rung, and v5 is
   its first non-degenerate state.
 
+## 2026-10-09 (T3 v6) — the hardening continuation LAUNCHED
+
+- RUN (tmux t3s6, /tmp/t3s6.log): `--resume checkpoints/solo/t3_stance_v5.pt --steps
+  1200000` at termination=1500 (600k more hardening updates for the now-stepping policy;
+  option (a) plain budget — the push-curriculum ramp is already keyed to the step counter,
+  so no new code). Resumed exactly at iteration 294; returns start at the phase-2
+  economics (-1300) and the question is whether they climb as push-coupled recovery is
+  learned (the v5 deaths came at steps 162-237, right after the t=1.0-1.14 pushes).
+- READS: 900k DIAGNOSTIC (the fall-rate trend across the hardening window: declining =
+  hardening works) and 1.2M REGISTERED (the T3 gate battery, same runner). FALLSIFER: falls
+  NOT declining 900k -> 1.2M -> the stepping is not improvable by PPO at this reward ->
+  audit the feet_air_time payment in situ (does the term pay during the policy's steps?).
+
 ## 2026-10-09 (branch prune) — opencode moved to an isolated git worktree
 
 - Shared-tree attempts: (1) skipped branch creation, killed in planning (zero damage); (2) staged
