@@ -2454,6 +2454,22 @@ scripts/calibrate_scorer.py, scripts/score_trace.py, tests/test_scorer.py.
 - v6f 100k INTERIM (PASSED, ahead of v6e's pace): fall .042/.062 held (v6e reached .042 only at
   200k), upright .832 (v6e@100k: .797), t_stab .671, com .149, recovery .25, maxJ_held 8.
   No early cost from the bonus lever.
+- v6f 400k PRE-REGISTERED READ: FAILED. fall .208/.188 held (bar .05/.10), upright .836 (bar
+  .84), survivor .385 (bar .50; v6e@400k .25 — the bonus moved survivors up), t_stab .892,
+  com .155. NEW FAILURE MODE: a DORSAL WAVE — 6/24 in-band + 3/16 held-out back-to-mat
+  terminations (v6e had ZERO dorsal at any read); the bonus pushes the policy into more
+  aggressive envelope approaches that lose balance backward. Decomposition (n=24): 13 survivors
+  (5 end-in-stance), 4 of 8 invalid survivors are LYING (tilt ~87 deg, upright ~.05, pelvis
+  ~.06 m — downed, undetected by the fall detector), 1 mid-fall (speed 3.1), marginal
+  speed/pose/contact for the rest. Falsifier line (.35) not strictly met — one episode at
+  n=13 survivors; statistically unresolved.
+- GATE GAP NOTED: the T1 gate has NO dorsal_rate criterion (T2 has one); dorsal terminations
+  escape fall_rate and do not reduce survivor rate. Recorded for the gate-calibration report.
+- v6f 800k CONTINUATION READ (pre-registered NOW, before the data exists): the run continues.
+  KILL if dorsal_rate > 0.15 AND survivor_valid_stance_rate < 0.5 at 800k -> verdict: the
+  terminal-bonus lever causes a failure-mode shift, not a fix; re-register from v6e's 400k
+  snapshot state. CONTINUE-TO-1.5M if survivor >= 0.5 AND fall <= 0.05 AND dorsal <= 0.05 AND
+  upright >= 0.84. Anything between: kill (no pre-registered path).
 
 ## 2026-10-09 (branch prune) — opencode moved to an isolated git worktree
 
