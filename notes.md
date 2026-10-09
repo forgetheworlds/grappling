@@ -2596,6 +2596,22 @@ scripts/calibrate_scorer.py, scripts/score_trace.py, tests/test_scorer.py.
   FALLSIFER v2: if it STILL reads prone/upright < 0.5 -> the collapse is not fall economics;
   next suspect is the command->obs wiring (the skill one-hot/height path), audit before any
   further training.
+- v2 READ: falsifier FIRED (upright .0106, fall .583, prone) — but the wiring AUDIT is
+  NEGATIVE: the actor obs carries the full command switch at the documented offsets
+  (obs dims 96-107: vx 0->.426, H .79->.786, one-hot STANCE->SHUFFLE_F verified by an
+  obs-diff across a command switch; zero-action stands at pelvis .792 with no terminations —
+  the env is healthy). THE MECHANISM (measured, v2 economics): mean_return_50 = -1101.9 with
+  KL .0015 and clip_frac .003 — with honest -1500 falls the resumed policy is trapped in the
+  fall-loop and has NO exploration capacity to escape: sigma annealed to the floor (-2.5),
+  lr at its 1e-5 tail. The task switch needs exploration the resume cannot supply.
+- T3 v3 REGISTERED + LAUNCHED (tmux t3s3, /tmp/t3s3.log): FRESH stance run (NO resume; sigma
+  anneal -1.0 -> -2.5 over 100k, fresh lr 1e-4), termination=1500, --stance-return
+  --stance-terminate, --push-curriculum on, --steps 600000 (a full fresh budget), out
+  checkpoints/solo/t3_stance_v3.pt. SAME registered read (solo_t3_read.py at run end).
+  FALLSIFIER v3: a from-scratch run with honest fall economics that STILL converges prone
+  (upright < 0.5) would mean the stance reward admits the prone optimum — next suspect is
+  fall-detector blindness to the knee-hand posture (a detector recalibration with
+  number-preservation proof on the balance battery), not more training.
 
 ## 2026-10-09 (branch prune) — opencode moved to an isolated git worktree
 
