@@ -324,8 +324,15 @@ def test_corpus_covers_the_video_references():
     v1 note (MotionRef 2026-10-08): shot_entry_full is the reachability-trimmed
     take (638 -> 301 frames; meta.reachability_trim), so the pair count is 300,
     not the v0 410.
+    Pinned to the V1 files by explicit path: the shipped BC corpus
+    (data/solo/bc) was built from v1 (the D2 rebuild), and since the v2
+    re-timing the loader resolves ``shot_entry_full`` to the repaired v2 take
+    (84 frames; a v2 corpus rebuild is a separate, documented decision, see
+    data/references/motion_refs/v2/RETIMING.md).
     """
-    ds = bc.build_dataset(("shot_entry_full", "STANCE"), train_frac=0.7)
+    v1 = REPO / "data/references/motion_refs/v1/refs"
+    ds = bc.build_dataset((str(v1 / "shot_entry_full.npz"), "STANCE"),
+                          train_frac=0.7)
     assert ds.names[0] == "shot_entry_full"
     meta = json.loads((BC_DIR / "bc_metrics.json").read_text())
     used = set(meta["corpus"]["used"])

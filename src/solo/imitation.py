@@ -74,9 +74,14 @@ from .scene import N_JOINTS, PREFIX, load_solo_model
 REPO = Path(__file__).resolve().parents[2]
 
 #: reference directories searched by :meth:`ImitationTargets.from_reference`
-#: (motion_refs/v1 = the grounded, contact-labelled v1 dataset; refs_video =
-#: the legacy v0 video takes; refs = the GrappleMap techniques)
+#: (motion_refs/v2 = the re-timed, dynamically-feasible dataset -- the
+#: resolution DEFAULT since Agent 3's re-timing, so the unchanged training
+#: interface consumes v2; motion_refs/v1 = the grounded v1 dataset, kept as
+#: the archive and still loadable by explicit path; refs_video = the legacy
+#: v0 video takes; refs = the GrappleMap techniques)
 REFERENCE_DIRS: tuple[Path, ...] = (
+    REPO / "data" / "references" / "motion_refs" / "v2",
+    REPO / "data" / "references" / "motion_refs" / "v2" / "refs",
     REPO / "data" / "references" / "motion_refs" / "v1",
     REPO / "data" / "references" / "motion_refs" / "v1" / "refs",
     REPO / "data" / "refs_video", REPO / "data" / "refs")

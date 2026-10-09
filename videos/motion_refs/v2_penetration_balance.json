@@ -1,0 +1,41 @@
+{
+ "bundle": "penetration_balance",
+ "question": "the fused GrappleMap penetration with the balance layer (expected honest failure: knee-load dynamics)",
+ "source": "drill:DOUBLE_LEG_PENETRATION",
+ "kind": "balance",
+ "completed": false,
+ "cause": "deviation:site",
+ "fell_at_s": null,
+ "steps": 30,
+ "duration_s": 4.64,
+ "errs_final": {
+  "site_err": 0.1541962972267311,
+  "joint_err": 0.04308838457282583,
+  "root_xy_err": 0.14535938886385247
+ },
+ "reset_count": 0,
+ "fall_count": 0,
+ "longest_continuous_s": 0.6,
+ "provenance": {
+  "git_commit": "e8e586e36f702488e64fb09314aa32d5c51c01b5",
+  "balance_layer": "t1_v6d_401408_surgery",
+  "ckpt": "checkpoints/solo/t1_balance_v6d_401408.pt",
+  "seed": 0,
+  "control_rate_hz": 50,
+  "physics_timestep_s": 0.002,
+  "reference": "/home/ubuntu/grappling/data/references/motion_refs/v2/drill_continuous.npz",
+  "reference_sha256_1MB": "32955da624a089ff",
+  "reproduce": "MUJOCO_GL=egl .venv/bin/python scripts/probe_v2_dynamic.py --render-only",
+  "media": {
+   "mp4": {
+    "codec_name": "h264",
+    "width": 960,
+    "height": 720,
+    "pix_fmt": "yuv420p",
+    "r_frame_rate": "30/1",
+    "duration": "0.500000",
+    "nb_frames": "15"
+   }
+  }
+ }
+}

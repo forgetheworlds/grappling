@@ -2190,3 +2190,62 @@ scripts/calibrate_scorer.py, scripts/score_trace.py, tests/test_scorer.py.
   `checkpoints/solo/track_s1*.pt` (+jsonl logs), videos+sheets+JSONs under
   `videos/solo_drill/track/` (passing clip, kept failure, side-by-side comparisons).
   Reproduce commands in the report §7.
+
+## 2026-10-08 (RefRetime, Agent 3) — reference re-timing v2: grounded solving, CoM-consistent paths, the 0.36 s wall measured GONE at the reference layer
+
+- ROOT CAUSE, MEASURED (sharpens the timing diagnosis): the v1 paths are quasi-statically
+  INCONSISTENT, not merely fast — the reference's own CoM sits OUTSIDE the planted-foot hull
+  on 62-100 % of frames (LOWER_TO_STANCE 97 %, min -0.122 m; CIRCLE 100 %, min -0.63 m) with
+  root xy accelerations to 16 m/s^2, so a frame-locked tracker must trade joint tracking
+  against upright — exactly the measured feet-planted/joints-0.04-rad/root-drifts-0.156 m
+  failure.  Additionally the v1 `solo.stance` TABLE solver is only grounded at stand height:
+  the drill's synthetic STANCE_HOLD (0.34x0.74) had soles 3.8 cm THROUGH the mat (8.7 cm at
+  0.40 m commanded), margin -0.082 m — the "fused repair" posture itself violated G2.
+- v2 DATASET (`data/references/motion_refs/v2/`, builder `scripts/build_v2_refs.py`,
+  generator `src/solo/refgen.py`): planar leg IK calibrated to the model's joint PIVOTS
+  (foot-site round-trip <= 1 mm over the reachable set), every solved stance grounded to the
+  mat exactly, CoM-inside-support quasi-static descents (LOWER 0.79->0.74, LEVEL_CHANGE to
+  the MEASURED deepest flat-sole crouch 0.58 m — the ankle limit -0.8727 rad binds), repaired
+  shot entry (operator two-axis repair: width 0.40 + rear foot back 0.35, pelvis to 0.62,
+  0.5 s load), and generated weight-transfer-before-lift stepping (shuffle/circle/reposition/
+  widen at 0.70 m — 0.74 leaves the far leg unable to reach during a transfer, measured).
+  Phase NAMES/labels preserved from v1; the fused GrappleMap penetration geometry kept
+  UN-flattened; `source` honest (g1_native/generated/fused/synthetic_connector); knee-sprawl
+  takes shipped timing-only (1.5x) with v1 labels verbatim.
+- MEASURED ENVELOPE (not assumed): every solved stance 0.50-0.79 m x 0.24-0.46 m is grounded
+  with CoM margin +0.030..+0.082 m; deepest flat-sole symmetric crouch 0.58 m pelvis; the v2
+  LOWER descent completes under RAW position servos at 1.0x/1.5x/2.0x time scales (v1 take:
+  toppled at 1.00 s under the same protocol) — the binding constraint was the PATH, not the
+  clock; v2 ships 1.0x.
+- PROBES (`scripts/probe_v2_dynamic.py` -> `v2/feasibility.json`, per track AND per drill
+  phase, probe command + balance layer + provenance recorded): balance layer = T1 v6d@401408
+  (best candidate) via first-layer surgery driving residual corrections over the reference
+  base action.  RESULTS: STAND, LOWER_TO_STANCE, STANCE_HOLD are balance_verified AND their
+  takes (stance_hold, stand_to_stance, stance_rise) + level_change_fast/full +
+  shot_entry_full + shot_recover are dynamically_verified (raw servos complete them — v1:
+  15/17 tracks toppled).  Stepping phases and deep crouches are balance_blocked (L1/L2 hold;
+  the T1 standing prior fails them) = the T2/T3 ladder's learning question, NOT a
+  reference-timing question; DOUBLE_LEG_PENETRATION stays honestly labelled with the three
+  independent infeasibility measurements.  Evidence bundles (960x720/30fps/h264 + 3-frame
+  sheets + metrics JSONs with provenance) under `videos/motion_refs/v2_*`: the LOWER probe
+  COMPLETES with the balance layer; the drill replay and the penetration are kept failures.
+- LOADER: `solo.imitation.REFERENCE_DIRS` now resolves `v2` FIRST (the unchanged training
+  interface consumes v2); v1 remains the archive, loadable by explicit path.  BC corpus note:
+  `data/solo/bc` was built from v1 and is pinned to v1 files by explicit path in
+  tests/solo/test_bc.py; a v2 corpus rebuild is a separate decision (the v2 shot_entry take
+  is 84 frames vs v1's 301).
+- DECISIVE READ: with v2, open-loop replay of the LOWER segments COMPLETES and the balance
+  layer traverses STAND->LOWER->HOLD — the 0.36 s wall is gone at the REFERENCE layer.  If
+  fixed-clock training still failed there on v2, the blocker would be the RL/balance layer;
+  the named next levers are T2 locomotion / T3 stance footwork (balance_blocked phases), not
+  another re-timing pass.  Fixed-clock S1 training on v2:
+  `checkpoints/solo/track_s1_v2lower.pt` + `reports/2026-10-08/track/train_s1_v2lower.log`.
+- TESTS: `tests/test_motion_refs_v2.py` pins format round-trip, v2-default resolution + v1
+  archive access, 50 Hz monotone timing, grounded soles/velocity envelopes, CoM-inside-
+  support on ALL quasi-static phase frames, the B2 weight-transfer-before-lift schedule
+  (FK-checked), un-flattened penetration geometry, and honest probe labels.  Full suite:
+  325 passed after the wiring (v1-pinned tests made version-explicit, none weakened).
+- ARTIFACTS: `data/references/motion_refs/v2/` (drill_continuous 57.92 s / 23 phases,
+  stance_rise, 14 refs, feasibility.json, RETIMING.md), `scripts/build_v2_refs.py`,
+  `scripts/probe_v2_dynamic.py`, `src/solo/refgen.py`, `tests/test_motion_refs_v2.py`,
+  `videos/motion_refs/v2_*.mp4|_sheet.png|.json`.

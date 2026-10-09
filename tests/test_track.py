@@ -195,11 +195,20 @@ def test_xy_anchor_tolerates_reset_jitter(model, q_stand, tt_stance):
     assert abs(float(obs["ref_block"][1])) < 1e-9
 
 
-def test_deviation_terminates_a_collapsing_replay(model, q_stand, tt_stance):
-    """Replaying the DEEP stance take open-loop (the measured toppler) must end
-    in a deviation/fall termination, not silently run to the horizon."""
+def test_deviation_terminates_a_collapsing_replay(model, q_stand):
+    """Replaying the DEEP v1 stance take open-loop (the measured toppler) must
+    end in a deviation/fall termination, not silently run to the horizon.
+
+    Pinned to the v1 archive file by explicit path: the v2 re-timed
+    ``stance_hold`` (the resolution default since the re-timing) is a solved
+    grounded hold that open-loop replay SURVIVES -- the v1 collapse is the
+    archived measurement this test guards.
+    """
+    from solo.bc import reference_path
+
+    tt = track_targets(str(REPO / "data/references/motion_refs/v1/refs/stance_hold.npz"), model)
     seg = Segment("stance_hold", 0, 221, "STANCE", 1)
-    ep = _env(model, q_stand, tt_stance, seg)
+    ep = _env(model, q_stand, tt, seg)
     ep.reset(seed=0)
     cause, steps = None, 0
     for _ in range(300):
@@ -210,6 +219,29 @@ def test_deviation_terminates_a_collapsing_replay(model, q_stand, tt_stance):
             break
     assert cause is not None
     assert steps < 200, f"expected an early end, ran {steps}"
+
+
+def test_v2_default_resolution_and_survivable_replay(model, q_stand):
+    """The re-timed v2 set is the loader's resolution DEFAULT, and its solved
+    stance hold does NOT collapse under open-loop replay (the v1 take's
+    measured 1.18-1.24 s topple is gone from the default reference)."""
+    from solo.bc import load_reference, reference_path
+
+    assert "motion_refs/v2" in str(reference_path("stance_hold"))
+    tr = load_reference("stance_hold")
+    assert len(tr) >= 100
+    tt = track_targets("stance_hold", model)
+    seg = Segment("stance_hold", 0, len(tr), "STANCE", 1)
+    ep = _env(model, q_stand, tt, seg)
+    ep.reset(seed=0)
+    cause, steps = None, 0
+    for _ in range(int(2.0 * len(tr))):
+        _o, _r, term, trunc, info = ep.step(np.zeros(N_JOINTS))
+        steps += 1
+        if term or trunc:
+            cause = info["track"]["cause"]
+            break
+    assert info["track"]["success"], f"v2 stance_hold replay ended {cause!r}"
 
 
 def test_warm_start_surgery_transfers_trunk_and_zeroes_new_inputs():
@@ -232,20 +264,30 @@ def test_warm_start_surgery_transfers_trunk_and_zeroes_new_inputs():
 
 def test_drill_phase_conditioning_is_per_frame(model):
     """Inside the composed drill the actor's skill one-hot must switch with the
-    labelled phases (STANCE_HOLD frames != SHUFFLE_F frames != RECOVER)."""
+    labelled phases (STANCE_HOLD frames != SHUFFLE_F frames != RECOVER).
+    Frames are resolved from the phase TABLE (name -> t_start), so this pins
+    the per-frame conditioning contract for the resolved-default set (v2)
+    without hardcoding its timeline."""
+    from solo.bc import load_reference
     from solo.track import REF_LAYOUT
 
     tt = track_targets("drill_continuous", model)
     assert tt.skill_ids is not None
+    meta = load_reference("drill_continuous").meta
+    phases = {p["name"]: p for p in meta["phases"]}
+    mid = lambda name: int((phases[name]["t_start"]
+                            + phases[name]["t_end"]) / 2 / 0.02)
     lay = dict(REF_LAYOUT)
-    # STANCE_HOLD vs SHUFFLE_F vs RECOVER frames (times from the phase table)
-    hold = int(4.0 / 0.02)
-    shuf = int(8.0 / 0.02)
-    rec = int(50.0 / 0.02)
+    hold, shuf, rec = mid("STANCE_HOLD"), mid("SHUFFLE_F"), mid("RECOVER_TO_STANCE")
     assert int(tt.skill_ids[hold]) == 0      # STANCE
     assert int(tt.skill_ids[shuf]) == 1      # SHUFFLE_F
     assert int(tt.skill_ids[rec]) == 11      # RECOVER
-    assert bool(tt.connect_flags[int(5.7 / 0.02)]) is True   # CONNECT_* frame
+    # a frame inside a CONNECT_* phase is flagged synthetic
+    conn = next(p["name"] for p in meta["phases"]
+                if p["name"].startswith("CONNECT_"))
+    t_conn = phases[conn]["t_start"] + 0.1 * (phases[conn]["t_end"]
+                                              - phases[conn]["t_start"])
+    assert bool(tt.connect_flags[int(t_conn / 0.02)]) is True
     assert bool(tt.connect_flags[hold]) is False
 
 
