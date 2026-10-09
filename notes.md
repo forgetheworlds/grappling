@@ -2549,6 +2549,29 @@ scripts/calibrate_scorer.py, scripts/score_trace.py, tests/test_scorer.py.
   trainer CLI: deviation pays per-step penalty instead of terminating for the first N
   updates — the mechanism the short-episode collapse suggests the S2 stage needs).
 
+## 2026-10-09 (T3) — the stance-task campaign LAUNCHED (the stepping-recovery rung)
+
+- RUN (tmux t3s1, /tmp/t3s1.log): `python -m src.solo.train --task stance --reward-set default
+  --resume checkpoints/solo/t1_balance_v6f_800768.pt --steps 1200000` (i.e. 400k stance steps
+  on top of the resume counter), residual 0.5, --stance-return --stance-terminate (the proven
+  structural lever), --push-curriculum on, save every 100k, out
+  checkpoints/solo/t3_stance_v1.pt. The stance task: horizon 8 s, command sampler cycles
+  STANCE -> LEVEL_CHANGE -> SHUFFLE_F (2 s holds, env.py:152); reward = the task family's own
+  terms (alive, stance_height 0.5, stance_width 0.25, feet_slide, flat_orientation,
+  action_rate, torque_sat, joint_limit). Warm start choice #1 of the drafted pair (v6f@800k;
+  v6g@1.2M is the alternative if this fails its read).
+- THE LEVER: the task switch itself (non-stepping balance -> the stance task's
+  level-change/shuffle commands) on the best T1 balance layer. ONE lever; no other knobs.
+- READ: the T3 gate battery via a NEW additive runner `scripts/solo_t3_read.py` (the monitor
+  is balance-hardwired): in-band pushes 4/8/12 + held-out 16/20/25, gate=GATES["stance"] as
+  committed (stance_err <=0.08, upright >=0.95, fall <=0.05, maxJ_held >=16 PLACEHOLDER per
+  its own criterion text, held fall <=0.10, recovery >=0.9, survivor >=1.0). Registered read
+  at the 1.2M counter (run end); intermediate snapshots diagnostic-only.
+- FALSIFIER: if upright/stance_err solve but recovery/maxJ stay ~0 (the T1 pattern
+  recurring), the balance layer does not transfer to stepping — the lever moves to step
+  shaping (feet_air_time is conspicuously ABSENT from the stance term set) or the gated
+  clock line. Budget: 400k steps ~25 min.
+
 ## 2026-10-09 (branch prune) — opencode moved to an isolated git worktree
 
 - Shared-tree attempts: (1) skipped branch creation, killed in planning (zero damage); (2) staged
