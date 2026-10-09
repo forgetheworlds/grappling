@@ -2582,6 +2582,20 @@ scripts/calibrate_scorer.py, scripts/score_trace.py, tests/test_scorer.py.
 - INSTRUMENT NOTE: the runner reports episode-wide mean_upright (fallen episodes pollute it)
   and the T3 battery has no stand_hold-style baseline row yet — before/after comparisons use
   the runner itself, which is now the committed standard read for the stance task.
+- T3 v1 READ: MIS-SPECIFIED RUN, DISCARDED (not a capability result). upright .0041 (WORSE
+  than the .051 before-read), fall .479/.583, stance_err -.45, while mean_return_50 ROSE to
+  +156.9 and value_loss collapsed to .023 — the policy optimized into LYING STILL because I
+  launched with the DEFAULT weights.termination=100 (the v6a lesson: falls must cost 1500;
+  the launch omitted --lit-weight termination=1500). Snapshots preserved (901k..1200k) and
+  labelled mis-specified. The falsifier branch "no transfer" did NOT fire — this was the
+  known nearly-free-fall pathology, a launch spec error.
+- T3 v2 REGISTERED + LAUNCHED (tmux t3s2, /tmp/t3s2.log): IDENTICAL to v1 plus the one
+  correction `--lit-weight termination=1500` (the calibrated constant; --lit-weight overrides
+  RewardWeights fields for any reward-set, including the stance default set). Out
+  checkpoints/solo/t3_stance_v2.pt, same resume, same 400k budget, same registered read.
+  FALLSIFER v2: if it STILL reads prone/upright < 0.5 -> the collapse is not fall economics;
+  next suspect is the command->obs wiring (the skill one-hot/height path), audit before any
+  further training.
 
 ## 2026-10-09 (branch prune) — opencode moved to an isolated git worktree
 
