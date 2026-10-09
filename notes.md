@@ -2404,6 +2404,22 @@ scripts/calibrate_scorer.py, scripts/score_trace.py, tests/test_scorer.py.
   `scripts/probe_v2_dynamic.py`, `src/solo/refgen.py`, `tests/test_motion_refs_v2.py`,
   videos/motion_refs/v2_*.mp4|_sheet.png|.json.
 
+## 2026-10-09 (branch prune) — `successful-reimplementation` branch delegated to opencode (tmux, detached)
+
+- RUNNING: tmux session `branchprune`; log `/tmp/branchprune.log`; command `opencode run --agent
+  build -m opencode/mimo-v2.6-flash-free` with the brief
+  `reports/2026-10-08/briefs/branch_prune_task.md`.
+- THE TASK: branch `successful-reimplementation` = ONLY the working pipeline (the v2 refs +
+  `src/solo/track.py` + the trainer/eval/render/loader scripts + the minimal tests `test_track.py` +
+  `test_motion_refs_v2.py` + the v6e/track checkpoints + the two acceptance clips + the three stage
+  reports + SOLO_DRILL/QUALITY_RUBRIC/EVIDENCE docs + a fresh short NOTES.md replacing the
+  2400-line history). Everything else (the teacher line, the v1 refs, the old
+  videos/checkpoints/reports) stays on `main`.
+- HARD RULES given: the kept tests must pass; the loader must work; never touch
+  `main`/`goal.md`/`third_party`; no push; when unsure, delete and list as "removed, unsure".
+- ON COMPLETION the orchestrator must: re-run the suite and the loader ON THE BRANCH, then report.
+  Gate checklist: the branch exists, the tests pass, the loader works, no old artifacts remain.
+
 ## 2026-10-08 (v6e) — the T1 structural lever: an invalid stance terminates the episode
 
 - v6e LAUNCHED (service `solo-t1-v6e`, pid 328538, commit `fbc834a`): v6d's exact command + the
