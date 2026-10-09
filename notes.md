@@ -2649,6 +2649,26 @@ scripts/calibrate_scorer.py, scripts/score_trace.py, tests/test_scorer.py.
   lacks stance_return (the T1-proven end-in-stance bonus); candidates for the NEXT lever
   after the scaffold, not bundled into it.
 
+## 2026-10-09 (T3 v5) — the input audit + the two-phase stepping scaffold REGISTERED
+
+- V4 FALSIFIER AUDIT (the registered branch, run before anything else): the floor's input is
+  NOT blind — during a 12 N*s push rollout, metrics.pelvis_z tracks data.qpos[2] within
+  .007 m and t_low_posture fires at -.386/step (unweighted) at pelvis ~.48. REFINED
+  ARITHMETIC: the policy does not lie full-prone; it SITS at ~.48 where the floor costs only
+  ~-.116/step (~-46/episode) — no floor weight flips the ranking (matching one -1500 attempt
+  needs weight ~10, absurd). The floor is real, correctly wired, and simply out-ranked.
+- V5 = THE TWO-PHASE STEPPING SCAFFOLD (one composite lever, pre-registered as one; zero new
+  code — uses the proven resume machinery): feet_air_time is now IN the stance set
+  (commit 716ba9b, weight .5 — steps start EARNING). PHASE 1 (explore): fresh stance run,
+  termination=100 (attempts are survivable), 300 updates, out
+  checkpoints/solo/t3_stance_v5_p1.pt. PHASE 2 (harden): `--resume p1 --lit-weight
+  termination=1500`, 300 updates, out checkpoints/solo/t3_stance_v5.pt. READ: the runner at
+  the end of phase 2, same battery. The PRE-REGISTERED expectation: phase 1 breaks the
+  lie-still optimum (steps pay; falls are cheap), phase 2 prices falls once stepping exists.
+  FALLSIFER: prone/sitting persists through BOTH phases -> audit the command magnitudes
+  (SHUFFLE_F vx ~.43 m/s; the .09 m LEVEL_CHANGE drop) — the task gets re-specified, not the
+  learner. NO further single-lever reward tweaks after v5.
+
 ## 2026-10-09 (branch prune) — opencode moved to an isolated git worktree
 
 - Shared-tree attempts: (1) skipped branch creation, killed in planning (zero damage); (2) staged
