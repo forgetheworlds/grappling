@@ -2439,6 +2439,22 @@ scripts/calibrate_scorer.py, scripts/score_trace.py, tests/test_scorer.py.
     BINDS.
   * Next reads: 200k and 400k monitor (fall <= 0.05 AND upright >= 0.84 AND
     survivor_valid_stance_rate > 0).
+- v6e 400k PRE-REGISTERED READ -- THE POSTURE BAR PASSES FOR THE FIRST TIME, AND THE BRACE IS GONE:
+  fall 0.167 (gate <= 0.05 FAIL, up from 0.083 at 100k), fall_heldout 0.188 (0.10 FAIL),
+  **mean_upright 0.881 (gate >= 0.84 PASS -- first time any v6 run passes it)**, t_stab 1.298
+  (1.0 FAIL, marginal), com_max 0.144 (PASS), **dorsal_rate 0.0** (NO back-to-mat contact in the
+  whole battery; v6d@400k's clip showed the rigid backward mat topple), ends_in_valid_stance
+  **0.208** (5/24; every previous run read 0.0), survivor_valid_stance_rate **0.25** (bar 1.0,
+  up from 0.0), recovery 0.5, max_recoverable_impulse_heldout **12.0** (the full training cap).
+  * THE TRADE, stated plainly: the frozen brace (never falls, never recovers, never ends valid) has
+    become ACTIVE RECOVERY (recovers to a valid stance in a quarter of episodes, never goes dorsal)
+    at the cost of a higher measured fall rate while the recovery skill matures.  The structural
+    lever did exactly what it was built to do: the crouch/brace is no longer an available optimum.
+  * NOT CERTIFIED: fails fall, held-out fall, t_stab (marginal), survivor.  The run continues to
+    1.5M; the fall rate must fall as the recovery skill matures, and the survivor rate must reach
+    the bar.  Falsifier check: the crouch did NOT persist -- it is gone; the remaining gap is
+    recovery-skill maturity, which is a training-scale question on this lever, not a refutation of
+    it.
 - v6e 100k MONITOR READ (the gate battery, clip rendered: videos/solo_drill/baselines/
   t1_balance_v6e_100352_100352.mp4): fall 0.083 / held 0.125, upright 0.797, recovery 0.333,
   max_recoverable_impulse_heldout 8.0, t_stab 0.825 (bar <= 1.0 PASS), com_max 0.143 (PASS).
