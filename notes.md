@@ -2012,6 +2012,37 @@ scripts/calibrate_scorer.py, scripts/score_trace.py, tests/test_scorer.py.
     re-shaping pass (bake the operator-sanctioned geometry repairs into the reference once, then
     fixed-clock training) is the identified next task, with two supporting levers (reward root PATH
     progress instead of path+time; use the repo's dynamics-in-the-loop CEM solutions as targets).
+- AGENT 3 (RefRetime, 1h33m) -- THE REFERENCE LAYER IS FIXED; THE WALL IS GONE.  Gate verdict:
+  ACCEPTED (the orchestrator re-ran the full suite: 349 passed, 0 failed; the v2 tree is additive
+  and the v1 directory is untouched -- its last commit is still Agent 1's).
+  * SHARPENED ROOT CAUSE: the v1 references were QUASI-STATICALLY INCONSISTENT, not merely mistimed.
+    The CoM sits outside the planted-foot hull on 62-100% of frames (min -0.122 m on LOWER, -0.63 m
+    on CIRCLE), root xy acceleration reaches 16 m/s^2, and the v1 stance-table solve left the fused
+    0.34x0.74 hold 3.8 cm THROUGH the mat (margin -0.082 m).  A fixed-clock tracker cannot follow
+    that path -- which is exactly the measured failure (feet planted, joints tracking at 0.04 rad,
+    root drifting 0.156 m in 0.36 s).  The diagnosis was structural, and it was in the DATA.
+  * v2 REPAIRS (per segment, measured before/after): LOWER 97% outside-support -> a solved 2.0 s
+    descent with margin >= +0.070 m every frame (replay PASS + balance COMPLETED, envelope sweep
+    1.0x/1.5x/2.0x all PASS); STANCE_HOLD soles -3.8 cm -> grounded 0.000 cm, margin +0.070
+    (dynamically_verified); stance_rise margin -0.088 -> +0.081 (COMPLETED); LEVEL_CHANGE drop to
+    0.40 m (below flat-sole reach) -> knee-driven 0.58 m = the measured deepest flat-sole crouch,
+    margin >= +0.047; SHUFFLE/CIRCLE/REPOSITION CoM outside up to 100% -> generated stepping at
+    0.70 m with transfer 0.9 s BEFORE lift, jv <= 3.8 rad/s, xy accel <= 1.1 m/s^2 and a real
+    12 mm-mean swing lift; the shot crouch (toppled 1.18-1.24 s, CEM 2.34 s) -> the operator's
+    two-axis repair (width 0.40, rear foot 0.35, pelvis 0.62, 0.5 s load), margin >= +0.055,
+    shot_entry_full now dynamically_verified; RECOVER margin -0.421 -> +0.055; the GrappleMap
+    penetration geometry KEPT (never flattened), time-scaled x1.5.
+  * THE BALANCE LAYER used was the best T1 candidate (v6d@400k) via first-layer surgery (caveat
+    recorded: it never saw the ref block).  STAND -> LOWER -> STANCE_HOLD is balance_verified
+    END-TO-END.  Seven takes are dynamically_verified (v1: 15/17 toppled under the same probes).
+  * VERIFIED BY THE ORCHESTRATOR: the feasibility label distribution matches the claims (7
+    dynamically_verified, 1 balance_verified, 1 statically_holdable, 2 kinematically_valid, and 5
+    context takes explicitly excluded from the traversable claim); and the balance-layer probe was
+    WATCHED -- pelvis 0.760 m, tilt 2.1 deg, site RMS 0.041 m, root_xy drift 0.003 m,
+    running -> running across 2.46 s: a stable descent, no fall.
+  * REMAINING BLOCKERS ARE NOW CORRECTLY ATTRIBUTED TO THE LEARNING LAYER: the stepping phases
+    (balance_blocked -- no gait layer exists; a T2 question) and the deep-crouch/penetration phases
+    (T3).  The reference layer is no longer the constraint.
 - v6d FINAL (1,501,184 steps, `steps_done` verified in the checkpoint): fall 0.083 / held 0.125,
   upright **0.551**, recovery **0.0**, maxJ_held 0.0, t_stab None, com_max 0.186 -> not_certified.
   Series: 200k 0.167/0.708/0.208/12 -> **400k 0.083/0.799/0.5/8 (the peak)** -> 600k (read in flight)
