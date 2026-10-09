@@ -2612,6 +2612,23 @@ scripts/calibrate_scorer.py, scripts/score_trace.py, tests/test_scorer.py.
   (upright < 0.5) would mean the stance reward admits the prone optimum — next suspect is
   fall-detector blindness to the knee-hand posture (a detector recalibration with
   number-preservation proof on the balance battery), not more training.
+- v3 READ: FRESH RUN ALSO CONVERGED PRONE (upright .151, fall .583/.667) — the exploration
+  fix did not prevent it; three runs (resume x2, fresh x1) all land prone. The per-episode
+  battery audit (evaluate() with the exact runner args, v2 ckpt): pushes land at t=1.0-1.14 s;
+  SOME directions terminate as `fall` at 33-41 steps, but MOST episodes (pelvis_end
+  .085-.35 m) RUN THE FULL 8 s terminated=None — LYING/KNEELING EVADES THE FALL DETECTOR.
+  THE ABSORBING STATE IS MEASURED: prone collects ~0/step forever while re-standing risks
+  another -1500, so it is reward-optimal at ANY termination dose (explains v1 + v2 + v3).
+- T3 v4 REGISTERED + LAUNCHED (tmux t3s4, /tmp/t3s4.log): the REWARD-SIDE posture floor —
+  `low_posture` added to TASK_TERMS["stance"] (commit f03ba68; t_low_posture =
+  -clamp01(1 - pelvis_z/stand_height) per step, weight .3 -> prone pays ~-.26/step ~-104/
+  episode; the RECOVERY task family already uses the same floor for the same reason; the
+  balance task's sets are untouched — no number-preservation exposure). Guard verified
+  (dominant > penalty mass holds). FRESH run, same recipe otherwise (termination=1500,
+  sigma anneal, 600k steps), out checkpoints/solo/t3_stance_v4.pt. SAME read.
+  FALLSIFIER v4: still prone -> the floor is too weak or the detector/reward inputs are
+  blind in the prone posture itself (audit inp.pelvis_z during a prone rollout); NO further
+  blind training either way.
 
 ## 2026-10-09 (branch prune) — opencode moved to an isolated git worktree
 
