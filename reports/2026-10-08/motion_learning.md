@@ -249,6 +249,15 @@ Best v2 checkpoint (`track_s1_v2refs.pt`, 653,863 steps; 6 segments × 4 unseen 
 | LEVEL_CHANGE | 0.00 | **0.75** (9/12) | 0.143 | 0.0087 | 0 → 0 |
 | overall | 0.167 | **0.833** (20/24) | 0.143 | 0.0093 | 0 → 0 |
 
+**Denominator note (orchestrator query)**: the v1 artifact evaluated 6 episodes per
+skill (seeds 2000–2001), the v2 artifact 12 (seeds 2000–2003) — the rates above are over
+different denominators, and the underlying segment timelines also differ (v2 re-timed:
+e.g. LOWER is 100 frames on v2 vs 61 on v1 — that difference IS the lever under test).
+**Restricted to the SHARED seeds (2000, 2001) — same n, same seeds**: STANCE **6/6**
+(v1 2/6), LEVEL_CHANGE **5/6** (v1 0/6), overall **11/12** (v1 2/12); the single
+shared-seed failure is `stand_to_stance` seed 2000 (deviation at step 95/125). The
+conclusion is unchanged under either denominator.
+
 Causes: 20× success, 4× deviation (kept: `videos/solo_drill/track/v2refs_stand2stance_fail_fail.mp4`,
 deviation at step 95/125 — a LATE, different failure from v1's frame-18 signature).
 Per-segment worst-cases: `drill[72:172]` LOWER 4/4 (worst site-p95 0.122);

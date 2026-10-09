@@ -2263,6 +2263,17 @@ scripts/calibrate_scorer.py, scripts/score_trace.py, tests/test_scorer.py.
   `videos/solo_drill/track/v2refs_lower_pass.mp4` (+`_compare.png`, kept failure
   `v2refs_stand2stance_fail_fail.mp4`). Full section appended to
   `reports/2026-10-08/motion_learning.md` §F.
+- FACT (shared-seed comparison, orchestrator query): the v1 artifact evaluated 6
+  episodes/skill (seeds 2000-2001) vs the v2 artifact's 12 (2000-2003); restricted to
+  the SHARED seeds the v2 result is STANCE **6/6** (v1 2/6), LEVEL_CHANGE **5/6**
+  (v1 0/6), overall **11/12** (v1 2/12); the single shared-seed failure is
+  `stand_to_stance` seed 2000 (deviation at step 95/125). Under either denominator the
+  conclusion holds. (The underlying segment timelines also differ by design -- v2
+  re-timed LOWER is 100 frames vs v1's 61; that difference IS the lever under test.)
+- FACT (gate calibration basis, documented in `scripts/solo_track_eval.py:GATE`): the
+  site-p95 <= 0.10 m bar is KEPT on v2 (not loosened): v2 replay baseline sits at site
+  mean 0.006-0.023 m so the bar is a genuine quality bar above it; the v2 worst cases
+  (0.12-0.14) correctly FAIL. Hard cap unchanged (0.15 m site deviation termination).
 
 ## 2026-10-08 (RefRetime, Agent 3) — reference re-timing v2: grounded solving, CoM-consistent paths, the 0.36 s wall measured GONE at the reference layer
 

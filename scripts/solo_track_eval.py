@@ -41,17 +41,23 @@ from solo.track import (HELD_OUT_TAKES, REF_ACTOR_DIM, REF_CRITIC_DIM,  # noqa: 
                         STAGE_ORDER, Segment, TrackingEnv, stage_segments,
                         track_targets)
 
-#: frozen gate thresholds + why (calibrated from track_baselines.json: the
-#: open-loop replay TERMINATES at site mean 0.07-0.11 m, so a surviving policy
-#: must sit well below that; joint 0.35 rad is the 1/e kernel of the soft prior)
+#: frozen gate thresholds + why. CALIBRATION HISTORY: the 0.10 m site-p95 bar was set
+#: on v1 (open-loop replay TERMINATED at site mean 0.068-0.106 m, so a survivor had to
+#: sit an order below failure). On v2 the replay baseline sits at site mean
+#: 0.006-0.023 m, so the SAME bar is a genuine quality bar, not a legacy artefact: the
+#: v2 worst cases (0.12-0.14 p95) correctly FAIL it while clean rows pass. The bar is
+#: deliberately NOT loosened; the HARD CAP is unchanged (the 0.15 m site deviation
+#: termination in TrackWeights.term_site_m -- a silent regression past it still ends
+#: the episode and fails completion).
 GATE = {
     "site_err_p95_max": 0.10,
     "joint_err_mean_max": 0.35,
     "root_xy_err_mean_max": 0.20,
     "loaded_slide_per_step_max": 0.004,   # m/step (rubric B1 bar: 2 cm per STEP)
-    "calibration": "open-loop replay site_err_mean at termination: 0.068-0.106 m "
-                   "(data/solo/metrics/track_baselines.json); success requires "
-                   "p95 <= 0.10 m with completion -- an order tighter than failure",
+    "calibration": "v1: open-loop replay site_err_mean at termination 0.068-0.106 m "
+                   "(track_baselines.json); v2: replay baseline site mean 0.006-0.023 m "
+                   "-- the 0.10 p95 bar is kept (not loosened) as a quality bar above "
+                   "the v2 replay baseline; hard cap = the 0.15 m deviation termination",
 }
 BASELINES_JSON = REPO / "data/solo/metrics/track_baselines.json"
 
