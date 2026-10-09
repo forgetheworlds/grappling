@@ -2425,3 +2425,17 @@ scripts/calibrate_scorer.py, scripts/score_trace.py, tests/test_scorer.py.
   fall/dorsal/no_recovery in TaskReward.terminal; 3 tests pin the behaviour (a lowered stance
   terminates at the threshold with cause=stance, the certified stance never terminates, option-off
   never emits the cause).  Full suite: 352 passed.
+- v6e 100k READ (the pre-registered early check): THE STRUCTURAL LEVER IS WORKING.
+  * no-push x8: fall_rate **0.000**, mean_upright **0.829**, mean_pelvis_z 0.664 -- standing tall at
+    100k, where v6b/v6c sat in the deep crouch (upright 0.542/0.590, pelvis 0.445/0.482) and v6d
+    (0.974/0.773) took ~200k+ to get there with a nonzero fall rate.
+  * pushed battery x8: fall_rate **0.000**, upright 0.707, com_max 0.134 -- ZERO falls under pushes
+    at 100k; no previous run achieved that at any step.
+  * The gap to T1 is now only the upright bar (0.829/0.707 vs 0.84) and the held-out/terminal
+    criteria -- the crouch escape is GONE by construction, exactly as the lever intended.
+  * CRITIC: EV +0.001 with return std 6.1 (the all-terminal phase: returns nearly constant, the
+    critic has almost no variance to explain) -- the EV-instrument caveat recorded for v6d applies;
+    the behavioural reads are the deciders.  Grad norms: value-term 53.8 vs policy 20.7, total clip
+    BINDS.
+  * Next reads: 200k and 400k monitor (fall <= 0.05 AND upright >= 0.84 AND
+    survivor_valid_stance_rate > 0).
