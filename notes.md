@@ -2500,6 +2500,26 @@ scripts/calibrate_scorer.py, scripts/score_trace.py, tests/test_scorer.py.
   (actor foot-load + next-reference-contact features — the measured contact-blindness at
   the transfer switches), then the T2/T3 line with stepping recovery.
 
+## 2026-10-09 (gait) — the contact-observation fix implemented; S2 retraining launched
+
+- INTERFACE CHANGE (src/solo/track.py): REF_LAYOUT += `own_contacts` (2, the robot's ACTUAL
+  per-foot contact from fall.contact_state — fresh at reset, not the env's per-step cache)
+  and `ref_contacts_next` (2, the reference contact at kf + NEXT_CONTACT_FRAMES = 5 = 0.1 s).
+  REF_DIM 55 -> 59, REF_ACTOR_DIM 170 -> 174. `ref_block()` gained the two kwargs; the
+  TrackingEnv._feat wires them; the module self-check asserts the new shapes. 39 track+refs
+  tests pass unchanged (they pin constants and named slices). NOTE: pre-fix track checkpoints
+  (track_s1_v2refs.pt, track_s2_v2refs.pt) no longer load in the eval scripts (dim mismatch);
+  their evals are archived in data/solo/metrics/track_eval_*.json.
+- S2 RETRAINING LAUNCHED (tmux track_s2co, /tmp/track_s2co.log): `scripts/solo_track_train.py
+  --stage S2_first_step --updates 300 --init-ckpt checkpoints/solo/track_s1_v2refs.pt --out
+  checkpoints/solo/track_s2_v2refs_contactobs.pt` (first-layer surgery absorbs the dim change;
+  MotionLearn's track_s2_v2refs.pt is PRESERVED as the no-contact-obs baseline).
+- PRE-REGISTERED GAIT READ (same protocol as the failing baseline: `solo_track_eval.py --ckpt
+  <new> --stages S2_first_step` held-out seeds 1000-1003, SHUFFLE_F): PASS = completion >= 0.6
+  AND gate_pass >= 0.5 (site_p95 <= 0.10; the baseline was completion .375, gate 0/8,
+  deviation 5/8, site_p95 .136). FALSIFIER: completion <= 0.4 -> the deviation is not
+  contact-timing; escalate to the T3 stepping-capability line.
+
 ## 2026-10-09 (branch prune) — opencode moved to an isolated git worktree
 
 - Shared-tree attempts: (1) skipped branch creation, killed in planning (zero damage); (2) staged

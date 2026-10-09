@@ -45,6 +45,7 @@ import numpy as np
 from .bc import load_reference
 from .commands import Command, CommandSchedule, N_SKILLS, Skill
 from .env import SoloEnv
+from .fall import contact_state
 from .imitation import (ImitationState, ImitationTargets, ImitationWeights,
                         joint_pose_error, site_error_m, state_from_env)
 from .obs import ACTOR_DIM, PRIV_DIM
@@ -474,9 +475,21 @@ REF_LAYOUT: tuple[tuple[str, tuple[int, int]], ...] = (
     ("ref_connect", (10 + N_JOINTS + N_SKILLS, 11 + N_JOINTS + N_SKILLS)),
     ("ref_root_ahead_local", (11 + N_JOINTS + N_SKILLS,
                               14 + N_JOINTS + N_SKILLS)),
+    # the contact-observation fix (measured contact-blindness at the gait
+    # transfer switches): the ACTUAL per-foot contact of the robot, and the
+    # reference's contact NEXT_CONTACT_FRAMES ahead (the switch is visible
+    # before it happens).  2 + 2 dims.
+    ("own_contacts", (14 + N_JOINTS + N_SKILLS, 16 + N_JOINTS + N_SKILLS)),
+    ("ref_contacts_next", (16 + N_JOINTS + N_SKILLS, 18 + N_JOINTS + N_SKILLS)),
 )
 REF_DIM = REF_LAYOUT[-1][1][1]
 REF_ACTOR_DIM = ACTOR_DIM + REF_DIM
+
+#: future-root horizon of ``ref_root_ahead_local`` (frames; 10 = 0.2 s)
+AHEAD_FRAMES = 10
+
+#: horizon of ``ref_contacts_next`` (frames; 5 = 0.1 s at the 50 Hz clock)
+NEXT_CONTACT_FRAMES = 5
 
 #: appended privileged block (tracking errors; critic-only)
 REF_PRIV_LAYOUT: tuple[tuple[str, tuple[int, int]], ...] = (
@@ -487,14 +500,12 @@ REF_PRIV_LAYOUT: tuple[tuple[str, tuple[int, int]], ...] = (
 REF_PRIV_DIM = REF_PRIV_LAYOUT[-1][1][1]
 REF_CRITIC_DIM = REF_ACTOR_DIM + PRIV_DIM + REF_PRIV_DIM
 
-#: future-root horizon of ``ref_root_ahead_local`` (frames; 10 = 0.2 s)
-AHEAD_FRAMES = 10
-
 
 def ref_block(*, root_local: np.ndarray, root_vel_local: np.ndarray,
               joints_rel: np.ndarray, contacts: np.ndarray, phase: float,
               skill_id: int, lead: int, connect: bool,
-              root_ahead_local: np.ndarray) -> np.ndarray:
+              root_ahead_local: np.ndarray, own_contacts: np.ndarray,
+              contacts_next: np.ndarray) -> np.ndarray:
     """(REF_DIM,) float32 reference block (pure; unit-testable)."""
     parts = [
         np.asarray(root_local, np.float64).reshape(3),
@@ -506,6 +517,8 @@ def ref_block(*, root_local: np.ndarray, root_vel_local: np.ndarray,
         np.array([float(np.sign(lead) or 1.0)]),
         np.array([1.0 if connect else 0.0]),
         np.asarray(root_ahead_local, np.float64).reshape(3),
+        np.clip(np.asarray(own_contacts, np.float64).reshape(2), 0.0, 1.0),
+        np.clip(np.asarray(contacts_next, np.float64).reshape(2), 0.0, 1.0),
     ]
     out = np.concatenate(parts).astype(np.float32)
     assert out.size == REF_DIM, out.size
@@ -702,7 +715,10 @@ class TrackingEnv:
                           joints_rel=joints_rel, contacts=self.tt.contact[kf],
                           phase=self.k / max(self.N - 1, 1),
                           skill_id=skill_id, lead=lead, connect=connect,
-                          root_ahead_local=root_ahead_local)
+                          root_ahead_local=root_ahead_local,
+                          own_contacts=self._own_contacts(),
+                          contacts_next=self.tt.contact[min(
+                              kf + NEXT_CONTACT_FRAMES, len(self.tt) - 1)])
         priv = ref_priv_block(joint_err=joint_err, site_err=site_err, root_xy_err=xy_err)
         # velocity tracking errors (timing signal): root velocity in the
         # heading frame vs the reference's, and joint-velocity RMS
@@ -719,6 +735,13 @@ class TrackingEnv:
                 "pelvis_drop": max(0.0, z_err_signed), "ref_pelvis_z":
                     float(self.tt.root_z[kf]), "frame": kf}
         return block, priv, errs
+
+    def _own_contacts(self) -> tuple[float, float]:
+        """The robot's ACTUAL per-foot contact, fresh from the shared
+        ContactState source (fall.contact_state) — not the env's per-step
+        cache, so episode-start observations are not stale."""
+        c = contact_state(self.env.model, self.env.data)
+        return (float(bool(c.left_foot)), float(bool(c.right_foot)))
 
     def observation(self) -> dict:
         base = self.env.observation()
@@ -991,7 +1014,8 @@ if __name__ == "__main__":  # self-check
     # reference block shapes
     b = ref_block(root_local=np.zeros(3), root_vel_local=np.zeros(3),
                   joints_rel=np.zeros(N_JOINTS), contacts=np.ones(2), phase=0.5,
-                  skill_id=0, lead=1, connect=False, root_ahead_local=np.zeros(3))
+                  skill_id=0, lead=1, connect=False, root_ahead_local=np.zeros(3),
+                  own_contacts=np.ones(2), contacts_next=np.ones(2))
     assert b.shape == (REF_DIM,) and REF_ACTOR_DIM == ACTOR_DIM + REF_DIM
     print("solo.track self-check OK:", {
         "ref_actor_dim": REF_ACTOR_DIM, "ref_critic_dim": REF_CRITIC_DIM,
