@@ -197,3 +197,109 @@ MUJOCO_GL=egl .venv/bin/python scripts/solo_track_render.py episode \
 `b6007ee` tracking env + tests + baselines → `d6b79a5` training/eval/render tooling →
 `3ac4cb1` per-frame conditioning + velocity terms + yaw-jitter fix → `3c8d3fb` tightened
 root kernels + mid-starts → (this commit) gated clock + loader fallback + report/notes.
+
+---
+
+# FOLLOW-UP (2026-10-08, after Agent 3's v2 references) — the decisive re-read
+
+## F.0 Pre-registered protocol (stated before the runs)
+
+- **One lever**: the references (v1 → v2, Agent 3's quasi-static consistency fix). The
+  tracking interface (`src/solo/track.py`), observation, reward, gates, protocol and
+  seeds are UNCHANGED from the v1 arms; fixed clock; same trainer config as the best v1
+  arm (batch 24, soft→hard gate at update 150, T1-surgery init, log-std −2.0→−3.0/80k).
+- **Decisive read**: does training progress PAST 0.36 s on LOWER?
+- **Falsifier**: if training still fails at the same place on v2, the blocker is the
+  learning layer, not the references.
+- Second (controlled) arm added at the same time, also pre-registered: the SAME protocol
+  **from scratch** (no T1 init) — because on v2 the z=0 base action alone (exact open-loop
+  replay) already completes 9/9 S1+S4 segments, so a fresh net (which outputs ≈0 = replay)
+  is the natural-convergence control and the T1-init's stand-trained residuals are a
+  candidate confounder.
+
+## F.1 Baselines on v2 (same protocol, `data/solo/metrics/track_baselines.json`)
+
+| probe | v1 | v2 |
+|---|---|---|
+| open-loop replay, LEVEL_CHANGE | 0/6 completed (LOWER died at 0.36 s) | **6/6 completed** (LOWER replays 1.98 s at site RMS 0.020 m) |
+| open-loop replay, STANCE | 1/3 | **3/3** |
+| open-loop replay, gait/shot/recover (CIRCLE, SHUFFLE_*, SHOT, RECOVER) | 0/13 | 0/13 — **balance_blocked stands** (gait layer = T2) |
+| phase separability (obs carries the signal) | 0.854 | 0.697 (chance 0.083; separation 2.6) |
+| anti-gaming closure | pelvis-drop terminal + 4.2× | unchanged (3.6× with the current kernels; structural closure primary) |
+
+## F.2 The decisive read: the 0.36 s wall is GONE
+
+- **Open-loop** (no learning at all): LOWER now replays 99/99 frames (1.98 s) at site
+  RMS 0.020 m — on v1 it toppled at frame 18 (0.36 s).
+- **Trained policy (T1-init arm, the v1 protocol verbatim)**: LOWER passed the hard gate
+  from eval@80 onward and the run finished **final eval success 1.00** (both eval
+  segments complete; 653,863 steps, `checkpoints/solo/track_s1_v2refs.pt`).
+- **Answer: training progresses far past 0.36 s on LOWER — the reference
+  consistency fix moved the wall.** The falsifier does NOT trigger.
+
+## F.3 Per-skill held-out, v2 vs v1 (same protocol, hard gate, unseen seeds)
+
+Best v2 checkpoint (`track_s1_v2refs.pt`, 653,863 steps; 6 segments × 4 unseen seeds
+2000–2003, IC noise 0.005/0.005/1°) vs the best v1 checkpoint at the same protocol
+(`track_eval_s1v2_it150.json`, seeds 2000–2001):
+
+| skill | v1 completion | **v2 completion** | v2 worst site-p95 | v2 worst slide/step | falls (v1 → v2) |
+|---|---|---|---|---|---|
+| STANCE | 0.33 | **0.92** (11/12) | 0.141 | 0.0093 | 0 → 0 |
+| LEVEL_CHANGE | 0.00 | **0.75** (9/12) | 0.143 | 0.0087 | 0 → 0 |
+| overall | 0.167 | **0.833** (20/24) | 0.143 | 0.0093 | 0 → 0 |
+
+Causes: 20× success, 4× deviation (kept: `videos/solo_drill/track/v2refs_stand2stance_fail_fail.mp4`,
+deviation at step 95/125 — a LATE, different failure from v1's frame-18 signature).
+Per-segment worst-cases: `drill[72:172]` LOWER 4/4 (worst site-p95 0.122);
+`stance_hold[0:125]` 4/4 (0.132); `drill[192:292]` hold 4/4 (0.138); `drill[0:50]` 3/4
+(0.141); `stance_rise` 3/4 (0.136); `stand_to_stance` 2/4 (0.143) — the failing rows are
+late-sequence deviations, not the old early-collapse. The 0.10 m site-p95 quality bar is
+not yet met by the worst cases (gate_pass 0 at 0.833 completion) — that is now a tuning
+question, not a structural one.
+
+**Scratch control** (pre-registered): from-scratch PPO on v2 hits hard-gate success
+**1.00 at eval@20** (site 0.008–0.013 m — at/below the replay baseline) with dev_frac
+0.024 at update 26. Two findings: (a) on feasible references the learning layer works
+out of the box; (b) the T1-surgery init was actively harmful on v2 (dev_frac 0.374 at
+update 30 vs 0.024 scratch — its stand-trained residuals fight the moving reference
+base). For all later stages: init from scratch or from a prior TRACKING checkpoint, not
+from the stand-balance policy.
+
+## F.4 Honest frontier after the v2 fix
+
+- **Passing (hard gate, physics, no resets inside an episode)**: stand, lower-to-stance,
+  stance hold (2 s take), stand↔stance takes — 0.833 held-out completion, 0 falls.
+- **Still failing**: gait phases (SHUFFLE_*, CIRCLE), shot entry/penetration, recovery —
+  open-loop replay fails them and they are labelled `balance_blocked`/`known_infeasible`
+  in v2; they need the T2 gait layer and are NOT papered over with reward shaping.
+- **Quality bar**: site-p95 ≤ 0.10 m gate not yet met at the worst cases (0.12–0.14 m);
+  next lever is plain training-time/scale on the SAME fixed protocol (no design change).
+
+## F.5 Commands
+
+```bash
+# baselines on v2 (regenerated artifact)
+MUJOCO_GL=egl .venv/bin/python scripts/track_baselines.py
+# the pre-registered v2 run (T1-init arm; final eval 1.00)
+MUJOCO_GL=egl .venv/bin/python scripts/solo_track_train.py \
+  --stage S1_stand_lower_hold_rise --updates 300 --episodes-per-update 24 \
+  --soft-updates 150 --soft-penalty 0.5 --completion-bonus 10 --terminal-penalty 30 \
+  --log-std-init -2.0 --log-std-final -3.0 --log-std-anneal-steps 80000 \
+  --clock fixed --init-ckpt checkpoints/solo/t1_balance_v6d.pt \
+  --out checkpoints/solo/track_s1_v2refs.pt
+# the scratch control (eval@20 = 1.00)
+MUJOCO_GL=egl .venv/bin/python scripts/solo_track_train.py \
+  --stage S1_stand_lower_hold_rise --updates 300 --episodes-per-update 24 \
+  --soft-updates 150 --soft-penalty 0.5 --completion-bonus 10 --terminal-penalty 30 \
+  --log-std-init -2.0 --log-std-final -3.0 --log-std-anneal-steps 80000 \
+  --clock fixed --out checkpoints/solo/track_s1_v2refs_scratch.pt
+# per-skill held-out (the §F.3 numbers)
+MUJOCO_GL=egl .venv/bin/python scripts/solo_track_eval.py \
+  --ckpt checkpoints/solo/track_s1_v2refs.pt --tag v2refs_s1 --seeds 2000,2001,2002,2003 \
+  --stages S1_stand_lower_hold_rise
+# evidence
+MUJOCO_GL=egl .venv/bin/python scripts/solo_track_render.py episode \
+  --ckpt checkpoints/solo/track_s1_v2refs.pt --source drill_continuous --k0 72 --k1 172 \
+  --label LEVEL_CHANGE --name v2refs_lower_pass
+```

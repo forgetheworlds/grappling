@@ -2192,22 +2192,7 @@ scripts/calibrate_scorer.py, scripts/score_trace.py, tests/test_scorer.py.
   frame 18. The gated clock alone does NOT crack the dynamically infeasible segments;
   the next levers above are required (`checkpoints/solo/track_s1_v6_gated.pt`,
   `reports/2026-10-08/track/train_s1_v6_gated.log`).
-- FACT (baselines first): open-loop replay completes **1/22** dynamic-segment rollouts;
-  T1-v6d via first-layer surgery also 1/22; replay terminates at site RMS 0.068-0.106 m;
-  applied ctrl == clip(base + 0.5*tanh(z)) asserted during rollouts; 79 steps/s measured
-  (dual-controller), ~200-270 single.
-- FACT (curriculum): 7 stages / 37 segments from the v1 references with per-stage
-  conditions (IC noise, xy/yaw jitter composed about Z, mid-segment starts, S7 random
-  pushes); `stalk_shuffle` + `knee_sprawl_entry2` never trained (zero-shot probes).
-- MEASURED (training, honest; 6 arms ~700k steps): soft-gated phase learns (completions
-  0.42->0.83, deviating fraction 0.58->0.44, falls 10->3 per 24) and STANCE windows pass
-  the hard gate in physics (site RMS 0.027-0.052 m, contacts 1/1, upright 0.997; video:
-  `videos/solo_drill/track/s1_it50_stance.mp4`), but the dynamic LOWER segment dies at
-  0.36 s at the hard gate in every arm (eval success plateaus 0.50).
-- DIAGNOSIS (frame-exact probe): feet planted, joint err 0.035-0.048 rad, while the ROOT
-  drifts 0.156 m fore-aft in 0.36 s and the torso diverges (~0.25 m) — the v1 references
-  are dynamically infeasible in TIMING even where poses are reachable (consistent with
-  E12: 6.9% statically holdable). A frame-locked tracker cannot both match and balance.
+
 - FIX IMPLEMENTED, INTERIM RESULT VERIFIED: the GATED reference clock — the reference
   advances only while tracking holds the band (joint <= 0.30 rad AND anchored root xy
   <= 0.12 m); anti-freeze bound 2x duration with no completion credit; unit-tested.
@@ -2221,6 +2206,38 @@ scripts/calibrate_scorer.py, scripts/score_trace.py, tests/test_scorer.py.
   `checkpoints/solo/track_s1*.pt` (+jsonl logs), videos+sheets+JSONs under
   `videos/solo_drill/track/` (passing clip, kept failure, side-by-side comparisons).
   Reproduce commands in the report §7.
+
+## 2026-10-08 (MotionLearn, Agent 2) — FOLLOW-UP: the v2 reference fix DECISIVELY moves the 0.36 s wall
+
+- PROTOCOL (pre-registered before the runs): one lever = references v1 -> v2; interface,
+  observation, reward, gates, seeds, protocol UNCHANGED; fixed clock; same trainer config
+  as the best v1 arm. Decisive read: does training progress past 0.36 s on LOWER?
+  Falsifier: same-place failure on v2 => learning-layer blocker.
+- FACT (v2 baselines, `data/solo/metrics/track_baselines.json`): open-loop replay now
+  completes **LEVEL_CHANGE 6/6** (LOWER replays 1.98 s at site RMS 0.020 m; v1: 0/6,
+  died 0.36 s) and **STANCE 3/3** (v1: 1/3). Gait/shot/recover still 0/13 open-loop —
+  `balance_blocked` stands (T2 gait question).
+- DECISIVE READ: **the wall moved.** (1) open-loop crosses 0.36 s with no learning at
+  all; (2) the trained policy (v1 protocol verbatim, T1-init) passed LOWER from eval@80
+  and finished **final eval success 1.00** (653,863 steps,
+  `checkpoints/solo/track_s1_v2refs.pt`). The falsifier does NOT trigger.
+- FACT (per-skill held-out, 6 segments x 4 unseen seeds, hard gate, IC noise; vs the best
+  v1 checkpoint on the same protocol): STANCE 0.33 -> **0.92**, LEVEL_CHANGE 0.00 ->
+  **0.75**, overall 0.167 -> **0.833** (20/24), falls 0 -> 0, worst site-p95 0.143,
+  worst slide 0.0093 m/step. Failures are LATE deviations (step 95/125) — a different
+  signature from v1's frame-18 collapse. `data/solo/metrics/track_eval_v2refs_s1.json`.
+- FACT (scratch control, pre-registered): from-scratch PPO on v2 = hard-gate success
+  **1.00 at eval@20**, site 0.008-0.013 m, dev_frac 0.024 — and the T1-surgery init is
+  actively harmful on v2 (dev_frac 0.374 at update 30: stand-trained residuals fight the
+  moving reference base). Later stages init from scratch or from a TRACKING checkpoint,
+  never from the stand-balance policy (`reports/2026-10-08/track/train_s1_v2refs_scratch.log`).
+- FRONTIER: pass = stand / lower / stance hold / stand<->stance takes (0.833 held-out, 0
+  falls); fail = gait + shot + recovery (`balance_blocked`/`known_infeasible` — T2 gait
+  layer, not papered over). Quality bar site-p95 <= 0.10 m not yet met at worst cases
+  (0.12-0.14 m) — tuning, not structural. Evidence:
+  `videos/solo_drill/track/v2refs_lower_pass.mp4` (+`_compare.png`, kept failure
+  `v2refs_stand2stance_fail_fail.mp4`). Full section appended to
+  `reports/2026-10-08/motion_learning.md` §F.
 
 ## 2026-10-08 (RefRetime, Agent 3) — reference re-timing v2: grounded solving, CoM-consistent paths, the 0.36 s wall measured GONE at the reference layer
 
