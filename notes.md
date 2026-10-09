@@ -2669,6 +2669,32 @@ scripts/calibrate_scorer.py, scripts/score_trace.py, tests/test_scorer.py.
   (SHUFFLE_F vx ~.43 m/s; the .09 m LEVEL_CHANGE drop) — the task gets re-specified, not the
   learner. NO further single-lever reward tweaks after v5.
 
+## 2026-10-09 (T3 v5) — THE SCAFFOLD WORKED: stepping acquired; the problem is now refinement
+
+- V5 READ: not_certified — fall .646/.667 (UP from v4's .417), upright .131, survivor 0.
+  BUT THE TRACES FLIP THE DIAGNOSIS: 86/80/62 foot-contact transitions per episode (vs ~0 in
+  every run since v1) — the policy ACTIVELY STEPS; ep1 STOOD the full 8 s THROUGH an 8 N*s
+  push (pelvis .79 steady); ep0/ep2 stepped, were pushed, fell, and the DETECTOR caught it
+  (cause=fall). The lie-still optimum is BROKEN — the two-phase scaffold did exactly what it
+  was registered to do. The fall rate rose because ACTIVITY rose: an unskilled stepper fails
+  visibly instead of lying invisibly. The failure mode changed from "degenerate optimum" to
+  "normal refinement" — falls are now active-stepping failures PPO can in principle reduce.
+- PHASE ECONOMICS: phase 1 (termination=100 + airtime): return -63 -> +43 (positive);
+  phase 2 (1500): return dived to -1300 immediately (the phase-1 behavior eats -1500s) —
+  whether PPO hardens it in 300 updates was the open question; the read says: partially
+  (ep1) but not enough (0.646 falls).
+- NEXT LEVER (registered, NOT launched): HARDENING — resume t3_stance_v5.pt at
+  termination=1500 for 300-600 more updates (the v6g-style registered continuation; the
+  policy now has stepping to harden, unlike v2 which had nothing). ALTERNATIVE if hardening
+  stalls: the moderate-termination bridge (400-600 for 300 updates, then 1500). FALLSIFER:
+  falls do not DECLINE across the hardening updates -> the stepping is not improvable by PPO
+  at this reward -> audit the feet_air_time payment profile in situ (does the term actually
+  pay during the policy's steps?).
+- CONTEXT: the battery contains physically-unrecoverable-without-stepping pushes (ceiling
+  6.7-20.7 N*s sagittal), so in-band fall bars are reachable only WITH skilled stepping;
+  the held-out 16/20/25 bars need mature stepping — T3 is a multi-campaign rung, and v5 is
+  its first non-degenerate state.
+
 ## 2026-10-09 (branch prune) — opencode moved to an isolated git worktree
 
 - Shared-tree attempts: (1) skipped branch creation, killed in planning (zero damage); (2) staged
