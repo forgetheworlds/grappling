@@ -2275,6 +2275,27 @@ scripts/calibrate_scorer.py, scripts/score_trace.py, tests/test_scorer.py.
   mean 0.006-0.023 m so the bar is a genuine quality bar above it; the v2 worst cases
   (0.12-0.14) correctly FAIL. Hard cap unchanged (0.15 m site deviation termination).
 
+## 2026-10-08 (MotionLearn, Agent 2) — STAGE 2-3 (GAIT) pre-registration (stated before the runs)
+
+- LEVER (one): the curriculum stage itself — S2_first_step then S3_footwork on the v2
+  references, same unchanged interface/observation/reward/gates. Init FROM SCRATCH
+  (the T1-init is measured harmful on a moving base; S3, if reached, warm-starts from
+  the S2 TRACKING checkpoint only).
+- BASELINE (calibrated, `data/solo/metrics/track_baselines.json`): open-loop replay
+  completes **0/13** gait/shot/recover segments on v2 (CIRCLE_R 0/2, SHUFFLE_B 0/2,
+  SHUFFLE_F 0/1, SHOT 0/4, RECOVER 0/4) — unlike S1, replay does NOT solve gait: the
+  policy must ADD single-support balance beyond its base action.
+- DECISIVE READ: does PPO with the unchanged REF-block observation take gait segments
+  past the replay baseline — hard-gated completion of SHUFFLE_F/B / CIRCLE_R with REAL
+  steps (step events > 0), 0 falls, site-p95 <= 0.10?
+- FALSIFIER: if gait training cannot exceed 0/13 and fails with the same early-deviation
+  signature, the blocker is the LEARNING/observation design for gait — to be answered
+  with a measurement (e.g. failure-time correlation with reference contact switches /
+  foot-placement phase), NOT with reward reshaping.
+- HONEST FRONTIER CLAUSE: if the REF block lacks what gait needs (contact-phase or
+  foot-placement features), report that with the measurement; the deep-crouch/shot
+  phases stay balance_blocked / known_infeasible.
+
 ## 2026-10-08 (RefRetime, Agent 3) — reference re-timing v2: grounded solving, CoM-consistent paths, the 0.36 s wall measured GONE at the reference layer
 
 - ROOT CAUSE, MEASURED (sharpens the timing diagnosis): the v1 paths are quasi-statically
