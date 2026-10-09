@@ -2707,6 +2707,20 @@ scripts/calibrate_scorer.py, scripts/score_trace.py, tests/test_scorer.py.
   hardening works) and 1.2M REGISTERED (the T3 gate battery, same runner). FALLSIFER: falls
   NOT declining 900k -> 1.2M -> the stepping is not improvable by PPO at this reward ->
   audit the feet_air_time payment in situ (does the term pay during the policy's steps?).
+- v6 900k DIAGNOSTIC: fall .542/.625, upright .188 — declining.
+- v6 1.2M REGISTERED READ: falls DECLINED MONOTONICALLY (.646 -> .542 -> .458; held
+  .667 -> .625 -> .458) — the falsifier did NOT fire; hardening works. Upright noisy
+  (.131/.188/.081 — faster falls END episodes earlier, polluting the mean less), survivor/
+  recovery still 0. AND THE RETURN CURVE CLIMBED: mean_return_50 -1315 (start) -> -842/-917
+  (the run's best, final 100 updates) -> -1034 (end), at lr 1e-5 — the policy was still
+  improving when the budget ended.
+- T3 v7 REGISTERED + LAUNCHED (tmux t3s7, /tmp/t3s7.log): `--resume
+  checkpoints/solo/t3_stance_v6_1200128.pt --steps 1800000` (600k more at the 1e-5 floor,
+  which demonstrably still learns), same everything, out checkpoints/solo/t3_stance_v7.pt.
+  READ at 1.8M: the T3 gate battery. NAMED RISK: the T1-line counter-precedent (late fall
+  RISE). FALLSIFER v7: falls not declining 1.2M -> 1.8M -> the feet_air_time payment audit
+  is mandatory before any further budget. The slope reality: -0.06 fall per 300k in v6 —
+  certification-grade stepping is a multi-million-step campaign even if the trend holds.
 
 ## 2026-10-09 (branch prune) — opencode moved to an isolated git worktree
 
