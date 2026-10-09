@@ -2534,6 +2534,20 @@ scripts/calibrate_scorer.py, scripts/score_trace.py, tests/test_scorer.py.
   (completion >= 0.6 AND gate_pass >= 0.5, held-out seeds 1000-1003). If completion <= 0.4
   at the baseline's data budget -> the contact-obs lever is DEAD at this budget class;
   escalate to T3. No further contact-obs attempts today.
+- x1400 FORMAL READ: LEVER DEAD. 1,032,683 steps (1.68x the baseline's 613,475) -> held-out
+  completion 0.0 (0/8, all deviation:site), gate 0/8, site_p95 .147 (baseline .136),
+  root_xy_err .090 (baseline .059), contact_agreement .73. No confound remains (1.68x the
+  data budget). Residual caveat named: the first-layer surgery zeroes the new-input columns
+  so the run STARTED at old-policy behaviour — that it never recovered tracking suggests the
+  features (or their interaction with the gated clock's deviation signal) actively hurt at
+  this stage, not merely "didn't help". Verdict per registration: contact-obs is closed for
+  gait today; ESCALATE TO T3 (stepping capability), no further contact-obs attempts.
+- T3 PRE-REGISTRATION DRAFT (NOT launched — next session's opening act): task=stance or
+  locomotion family, the T2/T3 gates, warm-start ambiguity resolved by measurement (try both
+  v6f@800k and v6g@1.2M balance layers, one read each), lever 1 = the contact-obs features
+  RETAINED in obs but with the deviation gate SOFTENED early (--soft-updates, already in the
+  trainer CLI: deviation pays per-step penalty instead of terminating for the first N
+  updates — the mechanism the short-episode collapse suggests the S2 stage needs).
 
 ## 2026-10-09 (branch prune) — opencode moved to an isolated git worktree
 
