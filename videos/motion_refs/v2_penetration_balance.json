@@ -17,7 +17,7 @@
  "fall_count": 0,
  "longest_continuous_s": 0.6,
  "provenance": {
-  "git_commit": "e8e586e36f702488e64fb09314aa32d5c51c01b5",
+  "git_commit": "d70a0000e101d486cb4804c9b0001915d7a4a572",
   "balance_layer": "t1_v6d_401408_surgery",
   "ckpt": "checkpoints/solo/t1_balance_v6d_401408.pt",
   "seed": 0,
