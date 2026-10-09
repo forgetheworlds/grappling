@@ -2043,6 +2043,31 @@ scripts/calibrate_scorer.py, scripts/score_trace.py, tests/test_scorer.py.
   * REMAINING BLOCKERS ARE NOW CORRECTLY ATTRIBUTED TO THE LEARNING LAYER: the stepping phases
     (balance_blocked -- no gait layer exists; a T2 question) and the deep-crouch/penetration phases
     (T3).  The reference layer is no longer the constraint.
+- THE DECISIVE READ (MotionLearn re-run on v2, committed 51d3595) -- THE FALSIFIER DID NOT TRIGGER;
+  the reference fix moved the wall:
+  * Open-loop replay (no learning): LOWER now completes 99/99 frames (1.98 s) at site RMS 0.020 m;
+    on v1 it toppled at frame 18.
+  * The pre-registered run (the v1 protocol VERBATIM: fixed clock, same obs/reward/gates/seeds,
+    batch 24, soft->hard at 150): LOWER passed the hard gate from eval@80; final eval success 1.00
+    (653,863 steps, checkpoints/solo/track_s1_v2refs.pt).  The scratch control passed at eval@20.
+  * Per-skill held-out (6 segments x unseen seeds, hard gate, IC noise): STANCE 0.33 -> 0.92;
+    LEVEL_CHANGE 0.00 -> 0.75; overall 0.167 -> 0.833; 0 falls; the failures are LATE deviations
+    (step ~95/125), a different signature from v1's frame-18 collapse.
+  * VERIFIED BY THE ORCHESTRATOR: my own `scripts/track_baselines.py` run reproduces the frontier
+    exactly (LEVEL_CHANGE completed 6/6, STANCE 3/3, and the honest remainder CIRCLE_R 0/2,
+    RECOVER 0/4, SHOT 0/4, SHUFFLE_B 0/2, SHUFFLE_F 0/1 = 0/13); arithmetic dominance 3.6x; phase
+    signal 0.697 vs 0.083 chance; the checkpoint and the passing clip exist.  One clarification was
+    requested: the v1 comparison artifact carries n=6/skill vs v2's 12/skill, so the rate deltas
+    need the shared-seed comparison or an explicit protocol note.
+  * FINDINGS RECORDED: the T1-v6d first-layer surgery init is actively HARMFUL on v2 (dev_frac 0.374
+    vs 0.024 from scratch) -- stand-trained residuals fight a moving reference base; later stages
+    should init from scratch or from a tracking checkpoint.  And the site-p95 <= 0.10 m bar is
+    v1-calibrated; the v2 worst cases (0.12-0.14) are a training-scale question.
+  * HONEST FRONTIER: stand / lower-to-stance / stance hold / stand<->stance now PASS the hard gate
+    in physics under a learned policy -- the first learned physics execution of reference motion in
+    this project.  Gait (SHUFFLE_*, CIRCLE), shot entry/penetration and recovery remain
+    balance_blocked / known_infeasible as labelled: that is the T2 gait layer and T3, not papered
+    over.
 - v6d FINAL (1,501,184 steps, `steps_done` verified in the checkpoint): fall 0.083 / held 0.125,
   upright **0.551**, recovery **0.0**, maxJ_held 0.0, t_stab None, com_max 0.186 -> not_certified.
   Series: 200k 0.167/0.708/0.208/12 -> **400k 0.083/0.799/0.5/8 (the peak)** -> 600k (read in flight)
