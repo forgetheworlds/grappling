@@ -2571,6 +2571,17 @@ scripts/calibrate_scorer.py, scripts/score_trace.py, tests/test_scorer.py.
   recurring), the balance layer does not transfer to stepping — the lever moves to step
   shaping (feet_air_time is conspicuously ABSENT from the stance term set) or the gated
   clock line. Budget: 400k steps ~25 min.
+- BEFORE-READ (v6f@800k on the T3 battery, scripts/solo_t3_read.py, n=48 = 24 in-band + 24
+  held-out): upright .051 (PRONE), stance_err -.427 m, fall .604/.542 held, recovery 0,
+  survivor 0 — ALL seven criteria fail. CONTROL (the same ckpt through the balance monitor,
+  run minutes later): fall .125/.188, upright .901 — the checkpoint is healthy. VERDICT: a
+  genuine out-of-distribution collapse — the balance layer cannot obey the stance sampler's
+  LEVEL_CHANGE (height 0.70) / SHUFFLE_F instructions; it falls and stays down. This is the
+  clean before picture; the T3 run's premise (400k stance steps on this layer closes the
+  command gap) is exactly what the after-read at 1.2M tests.
+- INSTRUMENT NOTE: the runner reports episode-wide mean_upright (fallen episodes pollute it)
+  and the T3 battery has no stand_hold-style baseline row yet — before/after comparisons use
+  the runner itself, which is now the committed standard read for the stance task.
 
 ## 2026-10-09 (branch prune) — opencode moved to an isolated git worktree
 
