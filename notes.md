@@ -2465,11 +2465,24 @@ scripts/calibrate_scorer.py, scripts/score_trace.py, tests/test_scorer.py.
   n=13 survivors; statistically unresolved.
 - GATE GAP NOTED: the T1 gate has NO dorsal_rate criterion (T2 has one); dorsal terminations
   escape fall_rate and do not reduce survivor rate. Recorded for the gate-calibration report.
-- v6f 800k CONTINUATION READ (pre-registered NOW, before the data exists): the run continues.
-  KILL if dorsal_rate > 0.15 AND survivor_valid_stance_rate < 0.5 at 800k -> verdict: the
-  terminal-bonus lever causes a failure-mode shift, not a fix; re-register from v6e's 400k
-  snapshot state. CONTINUE-TO-1.5M if survivor >= 0.5 AND fall <= 0.05 AND dorsal <= 0.05 AND
-  upright >= 0.84. Anything between: kill (no pre-registered path).
+- v6f 800k CONTINUATION READ (pre-registered): KILL branch executed — fall .125/0.188 held
+  (improved from .208 but 2.5x the .05 bar -> the CONTINUE branch is closed), upright .9007
+  (PASSES .84), survivor 13/19 = .684 (from .385 — the bonus lever WORKED on its target metric),
+  dorsal 2/24 = .083 (receded from .25), held-out stuck at 3/16 = .188 (bar .10), t_stab .86,
+  com .146. "Anything between: kill" binds -> v6f KILLED at ~810k; all snapshots preserved
+  (100k..800k). Honest verdict: the terminal-bonus lever improved every axis monotonically
+  across three reads (fall .208->.125, dorsal .25->.083, survivor .385->.684, upright
+  .836->.901) but had not reached the gate at 800k.
+- v6G REGISTERED CONTINUATION (launched BEFORE any 1.2M data): `--resume
+  checkpoints/solo/t1_balance_v6f_800768.pt --steps 1200000` (same config incl. the two
+  lit-weight overrides; resume-exact: iteration 392, optimizer + RNG state restored;
+  tmux v6g, /tmp/v6g.log). JUSTIFICATION (written down in advance): the monotone 3-read
+  improvement trend; the NAMED RISK: v6e showed the opposite late trend (falls rising with
+  upright) — if that kicks in, the line is dead. READ at 1.2M against the FULL T1 gate:
+  fall <= 0.05, held-out <= 0.10, upright >= 0.84, survivor_valid_stance_rate >= 1.0,
+  t_stab <= 1.0, com <= 0.20. PASS -> the formal gate evaluation + the T1 artifact video.
+  FAIL ON ANY -> the T1 line CLOSES for today (best artifact: v6f@800k), the core switches
+  to the gait contact-observation fix. NO FURTHER EXTENSION READS.
 
 ## 2026-10-09 (branch prune) — opencode moved to an isolated git worktree
 
