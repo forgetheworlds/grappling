@@ -2483,6 +2483,22 @@ scripts/calibrate_scorer.py, scripts/score_trace.py, tests/test_scorer.py.
   t_stab <= 1.0, com <= 0.20. PASS -> the formal gate evaluation + the T1 artifact video.
   FAIL ON ANY -> the T1 line CLOSES for today (best artifact: v6f@800k), the core switches
   to the gait contact-observation fix. NO FURTHER EXTENSION READS.
+- v6g 1.2M READ: FAILED the gate -> T1 LINE CLOSED (the run exited cleanly at 1.2M as
+  registered; no extension). fall .167/0.188 held (bar .05/.10 — the late fall-drift risk
+  materialised), upright .906, t_stab .36, com .144, survivor 14/15 = .933, dorsal 5/24 +
+  4/16 held (the wave returned). Full return_bonus-lever arc: survivor .25 (v6e@400k) ->
+  .385 (v6f@400k) -> .684 (v6f@800k) -> .933 (v6g@1.2M): the settle gap is SOLVED; the
+  push-robustness mass (fall+dorsal .375 in-band, .44 held) is not, and oscillates.
+- CLOSING STATEMENT (measured): on the monitor battery, the best learned artifact v6f@800k
+  (fall .125, upright .901, t_stab .86, com .146, survivor .684) BEATS the scripted
+  stand_hold baseline (fall .292, upright .849) on every printed axis. The non-stepping T1
+  formulation is saturated near its own scripted reference; the remaining gap is
+  push-robustness under 4-12 N*s, which the gate itself assigns to stepping recovery
+  (GATES["stance"], T3). SEVEN v6 runs (v6a..v6g), all one-lever, all reads in the ledger;
+  snapshots preserved. Best artifact: checkpoints/solo/t1_balance_v6f_800768.pt.
+- NEXT (per the registration): the core switches to the gait contact-observation fix
+  (actor foot-load + next-reference-contact features — the measured contact-blindness at
+  the transfer switches), then the T2/T3 line with stepping recovery.
 
 ## 2026-10-09 (branch prune) — opencode moved to an isolated git worktree
 
