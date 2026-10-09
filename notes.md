@@ -2402,4 +2402,26 @@ scripts/calibrate_scorer.py, scripts/score_trace.py, tests/test_scorer.py.
 - ARTIFACTS: `data/references/motion_refs/v2/` (drill_continuous 57.92 s / 23 phases,
   stance_rise, 14 refs, feasibility.json, RETIMING.md), `scripts/build_v2_refs.py`,
   `scripts/probe_v2_dynamic.py`, `src/solo/refgen.py`, `tests/test_motion_refs_v2.py`,
-  `videos/motion_refs/v2_*.mp4|_sheet.png|.json`.
+  videos/motion_refs/v2_*.mp4|_sheet.png|.json.
+
+## 2026-10-08 (v6e) — the T1 structural lever: an invalid stance terminates the episode
+
+- v6e LAUNCHED (service `solo-t1-v6e`, pid 328538, commit `fbc834a`): v6d's exact command + the
+  structural lever -- `--stance-return --stance-terminate`.  Mechanism: an invalid stance held
+  > 0.5 s (25 steps) ends the episode with the SAME penalty as a fall, so the crouch escape is
+  closed by construction: leaving the stance costs 1500, exactly like falling.  `--stance-return`
+  also activates the lit set's dense stance_return term and the no_recovery failure (both were dead
+  without the hull wiring) -- one conceptual package, pre-registered as such.
+- WIRING NOTE: the `--stance-return` CLI flag did not exist (the config field was unreachable from
+  the command line) -- added it; the vec path loudly refuses --stance-terminate (n_envs must be 1).
+- EARLY LOG (expected, recorded): mean_return_50 ~ -1470 CONSTANT -- every episode ends in the
+  -1500 terminal (the random-init policy never holds the stance), so the returns are nearly
+  constant, the normalisation floor keeps the raw scale, and value_loss is 4k-170k.  This is the
+  all-invalid phase, not a defect; the 100k/200k reads decide whether the policy escapes it.
+- PRE-REGISTERED READS: 200k/400k monitor: fall <= 0.05 AND upright >= 0.84 AND
+  survivor_valid_stance_rate > 0 (the binding criterion of every previous run).  Falsifier: the
+  crouch persists -> the drift is a value-error artefact and the lever is critic capacity.
+- IMPLEMENTATION: env.py `stance_terminate` + STANCE_TERMINATE_STEPS=25 + cause "stance" joining
+  fall/dorsal/no_recovery in TaskReward.terminal; 3 tests pin the behaviour (a lowered stance
+  terminates at the threshold with cause=stance, the certified stance never terminates, option-off
+  never emits the cause).  Full suite: 352 passed.
