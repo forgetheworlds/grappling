@@ -312,3 +312,82 @@ MUJOCO_GL=egl .venv/bin/python scripts/solo_track_render.py episode \
   --ckpt checkpoints/solo/track_s1_v2refs.pt --source drill_continuous --k0 72 --k1 172 \
   --label LEVEL_CHANGE --name v2refs_lower_pass
 ```
+
+---
+
+# STAGE 2-3 (GAIT) READ — authorised follow-up on v2 (pre-registered in the ledger)
+
+## G.0 Pre-registration (verbatim before the runs)
+
+- LEVER: the curriculum stage (S2_first_step on v2), unchanged interface/observation/
+  reward/gates, init FROM SCRATCH (T1-init measured harmful on a moving base).
+- Baseline: open-loop replay completes **0/13** gait/shot/recover segments on v2 —
+  unlike S1, replay does NOT solve gait; the policy must add single-support balance.
+- DECISIVE READ: gait segments past the 0/13 baseline — hard-gated SHUFFLE_F completion
+  with REAL steps, 0 falls, site-p95 <= 0.10.
+- FALSIFIER: failure at the same early-deviation signature ⇒ the blocker is the
+  learning/observation design, to be answered with a measurement, not reward reshaping.
+
+## G.1 Result: the falsifier TRIGGERS — the gait blocker is in the learning/observation layer
+
+300 updates / **613,475 steps** (`checkpoints/solo/track_s2_v2refs.pt`): soft-phase
+completions reached 0.94, but the **final hard-gated eval is 0.00** and per-skill held-out
+(8 episodes, 4 unseen seeds) is **SHUFFLE_F 0.25 completion** (2/8), 0 falls, worst
+site-p95 0.136, worst joint err 0.022 rad. Training DID progress — the deterministic
+deviation onset moved from step 44 (it50) to step 108 (final), i.e. the policy learned to
+clear the first two reference transfers — but every measurement points at the same
+mechanism:
+
+**Measurement (`scripts/track_gait_probe.py`, committed):**
+- Both failures concentrate AT reference contact switches: onset step 44 with the first
+  reference switch at 46 (+/-3 frames => True); final-checkpoint onset step 108 with the
+  switch at 112 — the policy rides each 0.4-0.9 s transfer window and breaks at the next.
+- At onset the JOINT tracking is essentially perfect (0.012-0.022 rad): the swing command
+  is observed and followed; what diverges is the whole-body transfer (site RMS rises
+  linearly 0.044 -> 0.102 over the last 0.2 s; root_xy 0.099-0.101 m).
+- Robot-vs-reference contact agreement until onset: 0.93; robot step events present (8).
+
+**The design fact that closes the argument**: in the shipped interface the ACTOR IS
+CONTACT-BLIND — `solo/obs.py` keeps every contact (including the robot's own foot
+contacts) in the critic-only privileged block (tested). During the 0.6 s transfer windows
+the policy must weight and unweight feet, but it cannot sense which foot is loaded NOW;
+the REF block tells it where the reference wants its feet and root, yet the policy has no
+direct read of its own support state to correct against. Gait is the first skill in the
+curriculum where that gap is load-bearing (S1's skills are double-support; their
+deviation gates passed without it).
+
+## G.2 Frontier statement (honest)
+
+- **Passing** (hard gate, physics): stand, lower-to-stance, stance hold, stand<->stance
+  (S1 on v2: 0.833 held-out completion, 0 falls).
+- **Not passing**: gait (SHUFFLE_F held-out 0.25, 0 falls — completions exist but 6/8
+  episodes still die at transfers), circle/shot/recover untouched at this stage
+  (balance_blocked / known_infeasible as labelled).
+- **Named fix, untried (requires authorisation — it is an interface change)**: add the
+  robot's own foot-contact/load state (the per-foot GRF is already computed every step in
+  `RewardInputs.foot_load`) and the reference's NEXT contact command (`tt.contact[k+AHEAD]`)
+  to the ACTOR block for gait stages; one lever, pre-registered, same protocol. The
+  SOLO_DRILL contract keeps contacts privileged, but the motor-curriculum rule "no frozen
+  observation interface before evidence" is now met: the evidence is in §G.1.
+- NOT done, deliberately: no reward reshaping, no reference reshaping, no gate loosening.
+
+## G.3 Evidence and commands
+
+- kept failure: `videos/solo_drill/track/v2refs_s2_shuffle_fail_fail.mp4` (+sheet+JSON;
+  deviation at step 118/200, no fall)
+- held-out artifact: `data/solo/metrics/track_eval_v2refs_s2.json`
+- probe: `scripts/track_gait_probe.py` (its own printed verification)
+- run log: `reports/2026-10-08/track/train_s2_v2refs.log` + `checkpoints/solo/track_s2_v2refs.jsonl`
+
+```bash
+MUJOCO_GL=egl .venv/bin/python scripts/solo_track_train.py \
+  --stage S2_first_step --updates 300 --episodes-per-update 16 \
+  --soft-updates 150 --soft-penalty 0.5 --completion-bonus 10 --terminal-penalty 30 \
+  --log-std-init -2.0 --log-std-final -3.0 --log-std-anneal-steps 80000 \
+  --clock fixed --out checkpoints/solo/track_s2_v2refs.pt
+MUJOCO_GL=egl .venv/bin/python scripts/track_gait_probe.py \
+  --ckpt checkpoints/solo/track_s2_v2refs.pt --k0 312 --k1 512 --seed 100
+MUJOCO_GL=egl .venv/bin/python scripts/solo_track_eval.py \
+  --ckpt checkpoints/solo/track_s2_v2refs.pt --tag v2refs_s2 \
+  --seeds 2000,2001,2002,2003 --stages S2_first_step
+```

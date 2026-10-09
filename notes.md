@@ -2296,6 +2296,40 @@ scripts/calibrate_scorer.py, scripts/score_trace.py, tests/test_scorer.py.
   foot-placement features), report that with the measurement; the deep-crouch/shot
   phases stay balance_blocked / known_infeasible.
 
+## 2026-10-08 (MotionLearn, Agent 2) — STAGE 2 (GAIT) VERDICT: falsifier TRIGGERS — the blocker is the learning/observation layer, measured
+
+- RUN (as pre-registered): S2_first_step on v2, unchanged interface, init from scratch,
+  300 updates / **613,475 steps** (`checkpoints/solo/track_s2_v2refs.pt`). Soft-phase
+  completions 0.94 (dev_frac 0.557 — never dropped to S1's 0.02-0.08), final hard-gated
+  eval **0.00**, per-skill held-out (8 episodes, seeds 2000-2003): SHUFFLE_F completion
+  **0.25** (2/8), 0 falls, worst site-p95 0.136, worst joint err 0.022 rad
+  (`data/solo/metrics/track_eval_v2refs_s2.json`). Replay baseline stands at 0/13.
+- MEASUREMENT (`scripts/track_gait_probe.py`, committed; its own printed verification):
+  deviation onsets concentrate AT reference contact switches — it50 onset step 44 vs
+  first reference switch at 46 (+/-3f True); final ckpt onset step 108 vs switch at 112 —
+  the policy learned to clear the first two transfers (44 -> 108) and breaks at the next.
+  At onset the JOINT tracking is near-perfect (0.012-0.022 rad): the swing command is
+  observed and followed; the whole-body transfer diverges (site RMS rises linearly
+  0.044 -> 0.102 over the last 0.2 s; root_xy ~0.10 m). Contact agreement until onset
+  0.93; robot step events present.
+- DESIGN FACT that closes the argument: the ACTOR IS CONTACT-BLIND — `solo/obs.py` keeps
+  ALL contacts (including the robot's own foot contacts) critic-only (tested). During the
+  0.6 s transfer windows the policy must weight/unweight feet but cannot sense which foot
+  is loaded NOW. Gait is the first curriculum skill where this gap is load-bearing (S1's
+  skills are double-support and passed without it).
+- NAMED FIX, UNTRIED, REQUIRES AUTHORISATION (interface change): add the robot's own
+  foot-contact/load state (per-foot GRF already computed every step in
+  `RewardInputs.foot_load`) + the reference's NEXT contact command (`tt.contact[k+AHEAD]`)
+  to the ACTOR block for gait stages; one lever, pre-registered, same protocol. The
+  "no frozen observation interface before evidence" rule is now met (evidence = this
+  section). Deliberately NOT done: reward reshaping, reference reshaping, gate loosening.
+- FRONTIER: pass = stand / lower / stance hold / stand<->stance (S1 v2: 0.833 held-out,
+  0 falls); gait = SHUFFLE_F 0.25 held-out (completions exist, 6/8 die at transfers);
+  circle/shot/recover untouched (balance_blocked / known_infeasible as labelled).
+- EVIDENCE: kept failure `videos/solo_drill/track/v2refs_s2_shuffle_fail_fail.mp4`
+  (deviation step 118/200, no fall) + held-out JSON + probe + logs. Commands in the
+  report §G.3.
+
 ## 2026-10-08 (RefRetime, Agent 3) — reference re-timing v2: grounded solving, CoM-consistent paths, the 0.36 s wall measured GONE at the reference layer
 
 - ROOT CAUSE, MEASURED (sharpens the timing diagnosis): the v1 paths are quasi-statically
