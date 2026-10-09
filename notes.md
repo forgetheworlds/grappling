@@ -2629,6 +2629,25 @@ scripts/calibrate_scorer.py, scripts/score_trace.py, tests/test_scorer.py.
   FALLSIFIER v4: still prone -> the floor is too weak or the detector/reward inputs are
   blind in the prone posture itself (audit inp.pelvis_z during a prone rollout); NO further
   blind training either way.
+- v4 READ: STILL PRONE (upright .096, fall .417/.458, survivor 0) — the floor paid ~-104/ep
+  and the policy STILL ranks prone above everything it can reach. FOUR-RUN ELIMINATION
+  COMPLETE (v1 cheap falls, v2 honest falls, v3 fresh+exploration, v4 prone priced): the
+  stance task AS SPECIFIED cannot be learned by PPO without a stepping scaffold, because
+  command-following attempts end in -1500 falls the policy cannot avoid, and going low is
+  always the least-bad reachable option. The floor changed prone's VALUE, not the RANKING.
+  THE PHYSICS CORROBORATES: the non-stepping ceiling is 6.7-20.7 N*s direction-dependent
+  (pushes.py docstring) — the battery's sagittal 12s and all 16/20/25 held-out pushes are
+  physically unrecoverable without stepping; the T3 fall bars REQUIRE the stepping skill.
+- NEXT SESSION (pre-registered design, NOT launched): THE STEPPING SCAFFOLD — one composite
+  lever: (a) feet_air_time into TASK_TERMS["stance"] (the term + weight .5 exist; pays the
+  missing skill), AND (b) a termination ANNEAL (start termination ~100 so early stepping
+  attempts are not catastrophic, anneal to 1500 as stepping appears — an explicit schedule,
+  registered as one lever). Budget 600k-1M. SAME read (solo_t3_read.py). FALLSIFER: prone
+  persists under the scaffold -> audit the command magnitudes themselves (SHUFFLE_F vx ~.43
+  m/s may exceed the robot's near-term capability; LEVEL_CHANGE .09 m drop timing) — the
+  task/commands get re-specified, not the learner. Also noted: the stance term set still
+  lacks stance_return (the T1-proven end-in-stance bonus); candidates for the NEXT lever
+  after the scaffold, not bundled into it.
 
 ## 2026-10-09 (branch prune) — opencode moved to an isolated git worktree
 
