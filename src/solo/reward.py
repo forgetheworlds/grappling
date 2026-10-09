@@ -726,7 +726,7 @@ class TaskReward:
         failure ("a non-stance ending must be a FAILURE, not a neutral
         truncation") and shares the fall penalty.
         """
-        if cause in ("fall", "dorsal", "no_recovery"):
+        if cause in ("fall", "dorsal", "no_recovery", "stance"):
             return -self.termination_penalty, {"termination": -self.termination_penalty}
         return 0.0, {"termination": 0.0}
 

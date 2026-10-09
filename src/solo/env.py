@@ -54,6 +54,10 @@ from .fall import (ContactState, DorsalDetector, FallDetConfig, FallDetector,
                    fall_features)
 from .lit import (STANCE_GRACE_S, JointMask, joint_names, sole_geom_ids,
                   sole_points_world, stance_valid, support_hull)
+
+#: an invalid stance held this many control steps (0.5 s at 50 Hz) ends the
+#: episode when ``stance_terminate`` is set -- same consequence as a fall.
+STANCE_TERMINATE_STEPS = 25
 from .markers import DEFAULT_PLAN, SHOT_PLAN, MarkerPlan
 from .metrics import (MetricsRecorder, action_smoothness, foot_slip,
                       joint_limit_proximity, local_xy, saturation_fraction)
@@ -184,6 +188,7 @@ class SoloEnv:
                  term_set: str | None = None,
                  joint_mask: "JointMask | None" = None,
                  stance_return: bool = False,
+                 stance_terminate: bool = False,
                  terminate_on_fall: bool | None = None,
                  terminate_on_dorsal: bool | None = None,
                  record_metrics: bool = True, jitter: bool = True):
@@ -215,6 +220,21 @@ class SoloEnv:
         self.stance_return = bool(stance_return)
         self._last_valid = False
         self._last_valid_t = 0.0
+        #: "maintain a good stance" as an MDP constraint: when set (and the
+        #: stance-return wiring provides the shared predicate + hull), an INVALID
+        #: stance held longer than STANCE_TERMINATE_S ends the episode with the
+        #: SAME terminal penalty as a fall, so crouching cannot be cheaper than
+        #: falling.  Measured prerequisite for the lit reward: with termination=1500
+        #: and ~1.16/step of shaping between the certified stance (1.965/step) and
+        #: a crouch (0.809/step), the crouch is a local optimum unless leaving the
+        #: stance is itself a failure.  Requires stance_return (predicate + hull
+        #: come from that wiring).  Off by default.
+        self.stance_terminate = bool(stance_terminate)
+        if self.stance_terminate and not self.stance_return:
+            raise ValueError("stance_terminate requires stance_return=True: the "
+                             "shared stance predicate and support hull come from "
+                             "that wiring")
+        self._invalid_streak = 0
         self.terminate_on_fall = (spec.terminate_on_fall if terminate_on_fall is None
                                   else bool(terminate_on_fall))
         self.terminate_on_dorsal = (spec.terminate_on_dorsal if terminate_on_dorsal is None
@@ -276,6 +296,7 @@ class SoloEnv:
             "joint_mask": (None if self.joint_mask is None
                            else self.joint_mask.as_dict()),
             "fall": self.fall_det.cfg.as_dict(),
+            "stance_terminate": self.stance_terminate,
             "dorsal": self.dorsal_det.cfg.as_dict(),
             "marker_plan": self.marker_plan.as_dict(),
             "spec": self.spec.as_dict(),
@@ -326,6 +347,7 @@ class SoloEnv:
 
         self.fall_det.reset()
         self.dorsal_det.reset()
+        self._invalid_streak = 0
         self.recorder = MetricsRecorder(episode=self.episode, task=self.task,
                                         seed=self.seed)
         self._prev_ctrl = None
@@ -546,6 +568,17 @@ class SoloEnv:
             else:
                 cause = "fall"
         truncated = False
+        if cause is None and self.stance_terminate and self.stance_return:
+            # the predicate is fresh for THIS step: `_last_valid` was updated by
+            # the reward-input computation above.  Invalid > STANCE_TERMINATE_S
+            # ends the episode exactly like a fall, so "never fall by never
+            # standing" is not an available optimum.
+            if self._last_valid:
+                self._invalid_streak = 0
+            else:
+                self._invalid_streak += 1
+                if self._invalid_streak >= STANCE_TERMINATE_STEPS:
+                    cause = "stance"
         if cause is not None:
             pen, tterms = self.reward.terminal(cause)
             reward += pen

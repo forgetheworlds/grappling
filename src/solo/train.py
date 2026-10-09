@@ -101,6 +101,10 @@ class TrainConfig:
     #: and makes the critic's targets O(1): the v6b read showed value_rmse 12.0
     #: against advantage std 11.5, i.e. the advantage was the value error.
     normalise_returns: bool = False
+    #: terminate an episode whose shared stance predicate has been false for
+    #: >0.5 s (requires stance_return wiring): the structural fix for the crouch
+    #: escape -- leaving the stance costs the same as falling.
+    stance_terminate: bool = False
     #: separate critic learning rate (``None`` = the shared ``lr``).  The critic
     #: sees the next scheduled push in its privileged obs, so a value function
     #: that cannot predict falls is an optimisation failure, not an information
@@ -214,11 +218,17 @@ class SoloTrainer:
                                   residual_scale=cfg.residual_scale,
                                   term_set=term_set, joint_mask=mask)
         else:                                       # unchanged single-env path
+            if cfg.stance_terminate and cfg.n_envs > 1:
+                raise SystemExit("[solo.train] --stance-terminate needs the "
+                                 "single-env path (n_envs=1): the vec workers do "
+                                 "not forward it yet, and a silently missing "
+                                 "termination would reintroduce the crouch escape")
             self.env = SoloEnv(self.model, task=cfg.task, seed=cfg.seed, weights=weights,
                                action_mode=cfg.action_mode,
                                residual_scale=cfg.residual_scale,
                                term_set=term_set, joint_mask=mask,
-                               stance_return=bool(cfg.stance_return))
+                               stance_return=bool(cfg.stance_return),
+                               stance_terminate=bool(cfg.stance_terminate))
         self.net = ActorCritic(ACTOR_DIM * self.frame_stack,
                                CRITIC_DIM + ACTOR_DIM * (self.frame_stack - 1),
                                act_dim=N_JOINTS,
@@ -832,6 +842,16 @@ def main(argv=None) -> int:
     ap.add_argument("--lr-critic", type=float, default=None,
                     help="separate critic learning rate (default: share --lr).  "
                          "The scheduled lr scales both groups from their own base.")
+    ap.add_argument("--stance-terminate", action="store_true",
+                    help="end an episode whose shared stance predicate has been "
+                         "false for >0.5 s, with the same terminal penalty as a "
+                         "fall (requires --stance-return).  Structural fix for the "
+                         "crouch escape: crouching cannot be cheaper than falling.")
+    ap.add_argument("--stance-return", action="store_true",
+                    help="wire the support hull + shared stance predicate: pays the "
+                         "one-off final-stance bonus and turns a time limit reached "
+                         "in an invalid stance into a no_recovery failure.  "
+                         "REQUIRED by --stance-terminate.")
     ap.add_argument("--reward-set", choices=("default", "lit", "movement_lit"),
                     default="default",
                     help="reward term set: 'default' = the task family's own terms "
@@ -938,6 +958,8 @@ def main(argv=None) -> int:
                       normalise_returns=bool(args.normalise_returns),
                       lr_critic=(None if args.lr_critic is None
                                  else float(args.lr_critic)),
+                      stance_terminate=bool(args.stance_terminate),
+                      stance_return=bool(args.stance_return),
                       freeze_joints=(args.freeze_joints == "balance"),
                       lit_weights=_parse_lit_weights(args.lit_weight),
                       lit_push=args.lit_push,
