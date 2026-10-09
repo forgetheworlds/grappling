@@ -82,14 +82,19 @@ clock) trains on v2 through the unchanged interface.  Measured:
 * Open-loop replay of the LOWER segments COMPLETES (v1: the same protocol
   toppled at 0.36–1.00 s; 15/17 v1 tracks failed).
 * The balance layer traverses STAND → LOWER → STANCE_HOLD end-to-end.
-* Fixed-clock training (running: `checkpoints/solo/track_s1_v2lower.pt`,
-  log `reports/2026-10-08/track/train_s1_v2lower.log`, soft→hard anneal
+* Fixed-clock training (completed: 400 updates, ~370k steps,
+  `checkpoints/solo/track_s1_v2lower.pt`, jsonl
+  `reports/2026-10-08/track/train_s1_v2lower.jsonl`, soft→hard anneal
   `--soft-updates 150 --log-std-init -2.0` — the documented hard-gate trap
-  avoided): at update 25 (29.6k steps), held-out eval
-  (`data/solo/metrics/track_eval_v2lower_it70.json`) = LEVEL_CHANGE
-  completion **1.00** (12/12, gate passed, site p95 0.051 m), STANCE 0.60,
-  SHOT_DOUBLE_LEG 0.50, **zero falls in 54 held-out episodes**.  v1 arms:
-  eval plateau 0.50 with LOWER dead at 0.36 s everywhere.
+  avoided).  Final held-out eval (`track_eval_v2lower_final.json`, 54
+  episodes, unseen seeds): **LEVEL_CHANGE completion 1.00** (12/12), STANCE
+  0.60, SHOT_DOUBLE_LEG 0.25, RECOVER 0.38, overall 0.426, **zero falls in
+  every eval of the run** (v1 arms: eval plateau 0.50 with LOWER dead at
+  0.36 s everywhere).  The calibrated gate's site-precision bar (p95 ≤
+  0.10 m) is not yet met (worst 0.112 m on LEVEL_CHANGE) — completions
+  happen, precision is the remaining learning gap on the SAME layer, not a
+  reference property: replay and the balance layer already track these
+  segments to 0.027–0.052 m site RMS when trained on them.
 * **Falsifier read**: the 0.36 s wall is GONE at the reference layer.  If a
   re-trained tracker still stalled on v2's LOWER, that failure would be the
   RL/balance layer's, and the probes already name where that layer ends:

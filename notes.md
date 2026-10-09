@@ -2268,9 +2268,17 @@ scripts/calibrate_scorer.py, scripts/score_trace.py, tests/test_scorer.py.
 - DECISIVE READ: with v2, open-loop replay of the LOWER segments COMPLETES and the balance
   layer traverses STAND->LOWER->HOLD — the 0.36 s wall is gone at the REFERENCE layer.  If
   fixed-clock training still failed there on v2, the blocker would be the RL/balance layer;
-  the named next levers are T2 locomotion / T3 stance footwork (balance_blocked phases), not
-  another re-timing pass.  Fixed-clock S1 training on v2:
+  the named next levers are T2 locomotion / T3 stance footwork (balance_blocked phases),
+  not another re-timing pass.  Fixed-clock S1 training on v2:
   `checkpoints/solo/track_s1_v2lower.pt` + `reports/2026-10-08/track/train_s1_v2lower.log`.
+- FINAL TRAINING READ (run completed, 400 updates ~370k steps): held-out
+  LEVEL_CHANGE completion 1.00 (12/12), STANCE 0.60, SHOT 0.25, RECOVER 0.38,
+  overall 0.426, ZERO falls in every eval of the run
+  (data/solo/metrics/track_eval_v2lower_final.json; v1 arms: plateau 0.50
+  with LOWER dead at 0.36 s).  The gate's site-precision bar (p95 <= 0.10 m)
+  is not yet met (worst 0.112 m) — completions happen; precision is the
+  remaining learning gap on the tracking layer, not a reference property
+  (replay + balance layer track the same segments to 0.027-0.052 m).
 - TESTS: `tests/test_motion_refs_v2.py` pins format round-trip, v2-default resolution + v1
   archive access, 50 Hz monotone timing, grounded soles/velocity envelopes, CoM-inside-
   support on ALL quasi-static phase frames, the B2 weight-transfer-before-lift schedule
