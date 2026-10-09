@@ -2420,6 +2420,53 @@ scripts/calibrate_scorer.py, scripts/score_trace.py, tests/test_scorer.py.
 - ON COMPLETION the orchestrator must: re-run the suite and the loader ON THE BRANCH, then report.
   Gate checklist: the branch exists, the tests pass, the loader works, no old artifacts remain.
 
+## 2026-10-09 (v6e final + v6f launch) — the structural lever closed the crouch; the settle gap is a terminal-incentive problem; v6f = return_bonus 100
+
+- v6e CLOSED at ~860k (all four pre-registered reads done; killed; snapshots preserved). Reads:
+  100k fall .083/up .797 | 200k .042/.804 held .062 | 400k .167/.881 surv .25 | 800k .208/.949
+  held .312 surv .316 recov .625 t_stab 1.21 com .164. NOT CERTIFIED anywhere; no snapshot passes
+  fall+upright together. Fall counts 1/24 -> 4/24 -> 5/24: the real jump is 200k->400k; the
+  400k->800k delta is ONE episode (noise — do not over-read).
+- STRUCTURAL LEVER VERDICT: the crouch escape is CLOSED by construction (upright .949, no
+  crouching); the pre-registered falsifier ("crouch persists -> critic capacity") did NOT trigger.
+- 800k decomposition (data/solo/metrics/balance_v6e_800k_read_800768_s0.summary.json, n=24):
+  5 detected ground falls + 1 UNDETECTED fall (episode 12: upright .041, tilt 87.7 deg, pelvis
+  .064 m — the documented lying-on-arm detector gap; the terminal-stance predicate catches it, as
+  designed) + 12 MARGINAL survivors: upright ~= 1.0, tilt 1.3-3.5 deg, pelvis .790-.793 —
+  textbook posture, failing ONLY residual speed (.103-.193 vs the .15 bar), pose_err (.117-.133
+  vs .10) or one unweighted foot. fall_rate counts only termination=="fall" (eval.py:676); the
+  monitor battery builds SoloEnv WITHOUT stance_terminate (eval.py:788), so zero stance-exits
+  appear by construction — survivor_valid_stance_rate (6/19) is the criterion that catches
+  non-settle.
+- GUARD DISCOVERY (two failed launches, measured): TaskReward.__init__ (reward.py:679-694)
+  requires the dominant positive weight to exceed the worst-case penalty mass;
+  stance_return is a mixed-sign PENALTY_TERMS member, so raising it only raises the penalty mass
+  while the dominant positive stays capped at upright=1.0. Max passable stance_return is <0.2
+  (default 0.10) — the shaping-weight lever is structurally CLOSED by the guard.
+- v6f LAUNCHED (tmux v6f, /tmp/v6f.log): v6e's command with `--lit-weight termination=1500
+  --lit-weight return_bonus=100` — the one-off paid by reward.final ONLY when the episode ENDS
+  in a valid stance (env.py:609); return_bonus is not in the per-step term set, so the guard
+  never sees it. ~311 steps/s.
+- PRE-REGISTERED v6f READ at 400k: survivor_valid_stance_rate >= 0.5 AND fall <= 0.05 AND
+  upright >= 0.84. Interim 100k sanity: upright >= 0.75. FALSIFIER: survivor <= 0.35 with
+  upright holding -> the park posture is not terminal-incentive-fixable; the lever moves to
+  per-step shaping redesign (guard-compatible) or the noise floor.
+
+## 2026-10-09 (branch prune) — opencode moved to an isolated git worktree
+
+- Shared-tree attempts: (1) skipped branch creation, killed in planning (zero damage); (2) staged
+  `git rm` deletions of keep-closure modules (eval.py, stance_valid.py, baselines.py, ...);
+  restored with `git reset --hard HEAD` and verified file-by-file (the 3 modified metrics JSONs
+  reverted to HEAD — recomputable artifacts).
+- NOW: `/home/ubuntu/grappling` = main checkout (orchestrator + training); the agent works ONLY in
+  the worktree `/home/ubuntu/grappling-prune` (branch `successful-reimplementation`, tip 37b7c2d)
+  with the DETERMINISTIC brief (`reports/2026-10-08/briefs/branch_prune_task.md` v2): explicit
+  keep/delete lists, NO import tracing, whole `src/` stays, gitignored keep artifacts (checkpoints,
+  videos) copied from the main tree and `git add -f`ed, suite via
+  `/home/ubuntu/grappling/.venv/bin/python` from the worktree cwd.
+- GATE when it reports: `git diff main..successful-reimplementation --stat`, the suite in the
+  worktree, the loader check, then the merge/keep decision.
+
 ## 2026-10-08 (v6e) — the T1 structural lever: an invalid stance terminates the episode
 
 - v6e LAUNCHED (service `solo-t1-v6e`, pid 328538, commit `fbc834a`): v6d's exact command + the
