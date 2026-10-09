@@ -2519,6 +2519,21 @@ scripts/calibrate_scorer.py, scripts/score_trace.py, tests/test_scorer.py.
   AND gate_pass >= 0.5 (site_p95 <= 0.10; the baseline was completion .375, gate 0/8,
   deviation 5/8, site_p95 .136). FALSIFIER: completion <= 0.4 -> the deviation is not
   contact-timing; escalate to the T3 stepping-capability line.
+- 300-UPDATE READ: FALSIFIER TRIGGERED (completion 0.0 — 0/8, all deviation:site at ~1 s,
+  site_err_mean .0595; baseline .375). CONFOUND STATED: at equal updates the run saw 4.6x
+  less data (133,736 steps vs 613,475) because episodes die early (mean_len ~27 vs 111.8)
+  — undertrained-vs-broken is unresolved. Final eval never tracked past ~1 s.
+- v6g CLOSURE NUANCES (for the record): the pre-named falsifier "dorsal re-rises > 0.15"
+  FORMALLY TRIGGERED at 1.2M (0.083 -> 0.208) — the 100-bonus dose destabilises late while
+  settle near-solves; a lower dose is next-session material, not an extension. Warm-start
+  ambiguity stated: v6g@1.2M (survivor .933, t_stab .36) may be the better T2/T3 warm start
+  even though v6f@800k is the better T1 artifact (lowest fallen mass) — different criteria.
+- STEPS-MATCHED CONTINUATION REGISTERED (launched before its data): `--updates 1400` same
+  config, out checkpoints/solo/track_s2_v2refs_contactobs_x1400.pt (~613k+ steps, the
+  baseline's data budget; updates are ~1 s while episodes stay short). SAME PASS bars
+  (completion >= 0.6 AND gate_pass >= 0.5, held-out seeds 1000-1003). If completion <= 0.4
+  at the baseline's data budget -> the contact-obs lever is DEAD at this budget class;
+  escalate to T3. No further contact-obs attempts today.
 
 ## 2026-10-09 (branch prune) — opencode moved to an isolated git worktree
 
