@@ -2095,6 +2095,13 @@ scripts/calibrate_scorer.py, scripts/score_trace.py, tests/test_scorer.py.
   SELECTED T1 CANDIDATE: checkpoints/solo/t1_balance_v6d_401408.pt (the exact stem the monitor read
   used; the save landed at steps_done 401408), failing 4 of 6 T1 criteria, preserved and
   reproducible via `scripts/solo_env_smoke.py monitor --checkpoint <that path> --magnitudes 4 8 12`.
+  IMPLEMENTATION PREREQUISITE for the pre-registered T1 lever (the stance-validity termination): the
+  shared stance predicate is only computed when the stance-return wiring is on (env.py computes
+  `valid` + the hull inside the stance-return branch), and the v6d command did NOT pass
+  `--stance-return` -- so v6e is v6d + `--stance-return --stance-terminate` (the dense stance_return
+  term is ALREADY in the lit set; wiring the hull enables both the term and the new termination).
+  The counter lives in env.py beside `_last_valid`/`_last_valid_t` and uses the SAME predicate
+  instance the reward consumes -- no second stance definition.
 
 ## 2026-10-08 (MotionRef) — motion-reference dataset v1: grounding FIXED, drill composed, feasibility honest
 
