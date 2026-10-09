@@ -2721,6 +2721,20 @@ scripts/calibrate_scorer.py, scripts/score_trace.py, tests/test_scorer.py.
   RISE). FALLSIFER v7: falls not declining 1.2M -> 1.8M -> the feet_air_time payment audit
   is mandatory before any further budget. The slope reality: -0.06 fall per 300k in v6 —
   certification-grade stepping is a multi-million-step campaign even if the trend holds.
+- v7 READ (1.8M): fall .354/.375 — THE TREND HOLDS and steepened slightly (-.104 this
+  window vs -.084 in v6); falsifier NOT fired. Upright .078, survivor/recovery 0. THE
+  REMAINING GAP HAS TWO COMPONENTS: (a) fewer falls — the budget grind is working; (b)
+  survivors that END IN STANCE + recover-to-stance after pushes — ZERO movement in six
+  runs, because the stance term set pays nothing for it (no stance_return; the T1-proven
+  return_bonus took survivors .25 -> .933 in the balance task).
+- T3 v8 REGISTERED + LAUNCHED (tmux t3s8, /tmp/t3s8.log): `--resume
+  checkpoints/solo/t3_stance_v7_1800192.pt --steps 2400000` (600k more) + stance_return
+  ADDED to TASK_TERMS["stance"] (one word; final() then pays the end-in-stance bonus —
+  weight default .3 unless the guard refuses, in which case the guard's printed masses
+  set the value). ONE LEVER: the end-in-stance bonus transplant; the budget is the
+  carrier. SAME read at 2.4M. FALLSIFER: falls do not CONTINUE declining AND survivors
+  stay 0 -> the transplant failed on this task; park T3 at the current best (v7) and
+  re-plan the rung against the drill's actual needs.
 
 ## 2026-10-09 (branch prune) — opencode moved to an isolated git worktree
 

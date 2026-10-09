@@ -195,7 +195,7 @@ TASK_TERMS: dict[str, tuple[str, ...]] = {
                    "torque_sat", "joint_limit"),
     "stance": ("alive", "stance_height", "stance_width", "low_posture",
                "feet_air_time", "feet_slide", "flat_orientation", "action_rate",
-               "torque_sat", "joint_limit"),
+               "torque_sat", "joint_limit", "stance_return"),
     "reach": ("alive", "reach", "track_lin", "flat_orientation", "feet_slide",
               "action_rate", "torque_sat", "joint_limit"),
     "shot": ("alive", "shot_progress", "shot_leg_seq", "shot_knee", "shot_exit",
