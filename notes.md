@@ -2451,6 +2451,9 @@ scripts/calibrate_scorer.py, scripts/score_trace.py, tests/test_scorer.py.
   upright >= 0.84. Interim 100k sanity: upright >= 0.75. FALSIFIER: survivor <= 0.35 with
   upright holding -> the park posture is not terminal-incentive-fixable; the lever moves to
   per-step shaping redesign (guard-compatible) or the noise floor.
+- v6f 100k INTERIM (PASSED, ahead of v6e's pace): fall .042/.062 held (v6e reached .042 only at
+  200k), upright .832 (v6e@100k: .797), t_stab .671, com .149, recovery .25, maxJ_held 8.
+  No early cost from the bonus lever.
 
 ## 2026-10-09 (branch prune) — opencode moved to an isolated git worktree
 
