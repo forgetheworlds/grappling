@@ -2735,6 +2735,18 @@ scripts/calibrate_scorer.py, scripts/score_trace.py, tests/test_scorer.py.
   carrier. SAME read at 2.4M. FALLSIFER: falls do not CONTINUE declining AND survivors
   stay 0 -> the transplant failed on this task; park T3 at the current best (v7) and
   re-plan the rung against the drill's actual needs.
+- v8 READ: FALSIFIER FIRED — fall .396 (not continuing to decline), upright .027, survivor 0.
+  T3 PARKED at v7 (checkpoints/solo/t3_stance_v7_1800192.pt, fall .354/.375 — the best) per
+  the registration. NO further T3 training today.
+- REGISTRATION GAP DISCLOSED: the transplant shipped the bonus PATHWAY only —
+  `stance_return` entered the set (final() pays) but the bonus AMOUNT stayed at the default
+  5.0; the T1 win used `--lit-weight return_bonus=100`. On the stance task's +/-1500 scale,
+  a 5.0 one-off is noise — v8 did not test the T1-proven dose. A bonus=100 retry is the
+  FIRST candidate of the re-planned rung (one flag: --lit-weight return_bonus=100), before
+  any deeper re-specification.
+- SESSION CLOSE: T3 campaign state = v7 best (fall .354, declining under budget, survivor
+  0); v8 parked with the disclosed gap; all snapshots preserved; the falsifier discipline
+  held throughout (every run registered before its data, every branch executed as written).
 
 ## 2026-10-09 (branch prune) — opencode moved to an isolated git worktree
 
