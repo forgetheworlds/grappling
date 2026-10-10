@@ -2748,6 +2748,18 @@ scripts/calibrate_scorer.py, scripts/score_trace.py, tests/test_scorer.py.
   0); v8 parked with the disclosed gap; all snapshots preserved; the falsifier discipline
   held throughout (every run registered before its data, every branch executed as written).
 
+## 2026-10-09 (T3 v9) — the COMPLETE transplant (the T1-proven dose) REGISTERED + LAUNCHED
+
+- RUN (tmux t3s9, /tmp/t3s9.log): `--resume checkpoints/solo/t3_stance_v7_1800192.pt --steps
+  3000000 --lit-weight termination=1500 --lit-weight return_bonus=100` (600k steps; the
+  v8 gap closed: the bonus now pays 100 on a valid FINAL stance — the exact dose that took
+  the T1 survivors .25 -> .933), out checkpoints/solo/t3_stance_v9.pt. Same read at 3.0M.
+- PRE-REGISTERED EXPECTATION: with the dose that flipped T1, ending in stance after a push
+  is finally worth ~+100 against the -1500 fall scale — survivors and the recovery bars are
+  the metrics that can move. FALLSIFER: survivors stay 0 AND falls do not improve on v7's
+  .354 -> the transplant genuinely fails on this task family; re-specify the rung (command
+  magnitudes, the drill's actual needs) rather than the reward.
+
 ## 2026-10-09 (branch prune) — opencode moved to an isolated git worktree
 
 - Shared-tree attempts: (1) skipped branch creation, killed in planning (zero damage); (2) staged
