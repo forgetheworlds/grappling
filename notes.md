@@ -2759,6 +2759,20 @@ scripts/calibrate_scorer.py, scripts/score_trace.py, tests/test_scorer.py.
   the metrics that can move. FALLSIFER: survivors stay 0 AND falls do not improve on v7's
   .354 -> the transplant genuinely fails on this task family; re-specify the rung (command
   magnitudes, the drill's actual needs) rather than the reward.
+- v9 READ: FALSIFIER FIRED — fall .438/.500 (WORSE than v7's .354/.375), upright .039,
+  survivor 0, recovery 0. THE COMPLETE T1 DOSE (return_bonus=100 on the stepping base)
+  does not produce survivors on the stance task family. THE CAMPAIGN IS CLOSED per its own
+  exit ramp: nine registered runs (v1-v9) exhausted cheap falls, honest falls, exploration,
+  the posture floor, the stepping scaffold, hardening, and the full end-in-stance bonus —
+  the stance task AS SPECIFIED (8 s cycles of STANCE/LEVEL_CHANGE/SHUFFLE_F + battery
+  pushes, fall <=.05 + survivor >=1.0 bars) does not yield a certifying policy through
+  reward-side iteration. RE-SPECIFY THE RUNG (next session, operator input needed): the
+  command magnitudes (SHUFFLE_F vx ~.43 m/s; the LEVEL_CHANGE drop depth/timing), the
+  battery's physically-unrecoverable pushes vs the fall bar, or the task decomposition
+  itself (T2 movement-in-stance may need to precede T3's pushed version).
+- BEST ARTIFACTS: checkpoints/solo/t3_stance_v7_1800192.pt (fall .354, the best T3) and
+  t1_balance_v6f_800768.pt (the balance layer). ALL snapshots v1-v9 preserved (untracked,
+  on disk). All reads: data/solo/metrics/t3_read_*.json + balance_*_s0.summary.json.
 
 ## 2026-10-09 (branch prune) — opencode moved to an isolated git worktree
 
